@@ -18,6 +18,10 @@
 
 # misc
 .DS_Store
+# .env holds only the PUBLIC Jellyfin base URL (no secret) and MUST be committed
+# so CI builds with the right VITE_JELLYFIN_URL. A global ~/.gitignore ignores
+# .env, so negate it explicitly here. Real secrets live in .env.local (ignored).
+!.env
 .env.local
 .env.development.local
 .env.test.local
