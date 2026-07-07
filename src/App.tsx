@@ -3,6 +3,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import { ThemeProvider } from './features/theme/ThemeProvider';
+import { AuthProvider } from './features/auth/AuthProvider';
 import { AppRoutes } from './AppRoutes';
 
 /* Core CSS required for Ionic components to work properly */
@@ -38,9 +39,11 @@ const App: React.FC = () => (
   <IonApp>
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
-        <IonReactRouter>
-          <AppRoutes />
-        </IonReactRouter>
+        <AuthProvider>
+          <IonReactRouter>
+            <AppRoutes />
+          </IonReactRouter>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   </IonApp>

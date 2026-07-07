@@ -1,0 +1,29 @@
+.app-loading {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cad-space-6);
+  background: var(--cad-bg);
+}
+
+.app-loading__wordmark {
+  margin: 0;
+}
+
+.app-loading__spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--cad-surface-2);
+  border-top-color: var(--cad-accent);
+  animation: app-loading-spin 0.8s linear infinite;
+}
+
+@keyframes app-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
