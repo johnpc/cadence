@@ -71,6 +71,8 @@ jobs:
         area:
           - name: smoke
             paths: .features-gen/e2e/features/smoke
+          - name: auth
+            paths: .features-gen/e2e/features/auth
     steps:
       - uses: actions/checkout@v4
 

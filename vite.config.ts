@@ -42,6 +42,8 @@ export default defineConfig({
         'src/main.tsx',
         'src/App.tsx',
         'src/AppRoutes.tsx',
+        'src/AppTabs.tsx',
+        'src/AppLoading.tsx',
       ],
       thresholds: {
         statements: 80,

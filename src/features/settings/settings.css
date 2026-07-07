@@ -1,0 +1,28 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-8);
+}
+
+.settings__account {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-3);
+}
+
+.settings__title {
+  margin: 0;
+}
+
+.settings__signout {
+  align-self: flex-start;
+  border: 1px solid var(--cad-hairline);
+  background: none;
+  color: var(--cad-text);
+  border-radius: var(--cad-radius-pill);
+  padding: var(--cad-space-2) var(--cad-space-6);
+  font-family: var(--cad-font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
