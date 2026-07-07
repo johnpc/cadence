@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# The acceptance suite reads/writes against the SHARED live Jellyfin server, so
+# serialize runs: one clear→read cycle must finish before the next starts, or a
+# concurrent run's writes would corrupt another's reads. Don't cancel in
+# progress for the same reason.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    name: Lint, Test, Coverage, CRAP & Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: File-length discipline (max 100 lines)
+        run: npm run check:lines
+
+      - name: Feature coverage (every .feature maps to an acceptance area)
+        run: npm run check:features
+
+      - name: Unit tests with coverage (80% floor)
+        run: npm run test:coverage
+
+      - name: CRAP score analysis (threshold 15)
+        run: npm run crap
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 7
+
+  acceptance:
+    # One job per feature area, each its own independent check. Splitting isolates
+    # a flaky area from the rest. Tests hit the real Jellyfin server (base URL is
+    # baked into the build via VITE_JELLYFIN_URL).
+    name: Acceptance Tests (${{ matrix.area.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        area:
+          - name: smoke
+            paths: .features-gen/e2e/features/smoke
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run acceptance tests (${{ matrix.area.name }})
+        env:
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+        run: npx bddgen && npx playwright test ${{ matrix.area.paths }}
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.area.name }}
+          path: playwright-report/
+          retention-days: 7

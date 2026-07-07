@@ -1,0 +1,11 @@
+# Cadence PWA — deployed as a Dockge stack on umbrel (192.168.7.211), fronted by
+# cloudflared at cadence.jpc.io. The image is self-contained (nginx + built
+# dist/), built from the repo Dockerfile and published to the registry; Dockge
+# pulls + recreates it. See the umbrel-dockge-dind skill for the deploy flow.
+services:
+  cadence:
+    image: mrorbitman/cadence:latest
+    container_name: cadence
+    ports:
+      - '8095:80'
+    restart: unless-stopped

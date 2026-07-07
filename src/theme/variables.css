@@ -1,0 +1,198 @@
+/**
+ * Cadence design tokens — the single source of truth for the UI theme.
+ * Components must consume these tokens (or the role classes below), never
+ * hardcoded hex/px values.
+ *
+ * The look is Spotify-like: a dark-first, near-black canvas with elevated
+ * surfaces, a single green accent, and a clean sans-serif type ramp. Dark is
+ * the default palette (on :root); a light palette overrides ONLY the color
+ * tokens under :root[data-theme="light"] — structural tokens (spacing, radius,
+ * fonts, safe-area) stay shared. The theme manager (src/features/theme) sets
+ * data-theme on <html> and toggles Ionic's .ion-palette-dark class. Both
+ * palettes feed Ionic's --ion-* variables so its components inherit the theme.
+ */
+
+:root {
+  /* ---- Color: neutral canvas ---- */
+  --cad-bg: #121212;
+  --cad-surface: #181818;
+  --cad-surface-2: #282828;
+  --cad-hairline: rgba(255, 255, 255, 0.08);
+
+  /* ---- Color: text ramp ---- */
+  --cad-text: #ffffff;
+  --cad-text-secondary: #b3b3b3;
+  --cad-text-tertiary: #7a7a7a;
+
+  /* ---- Color: accent (the one brand hue — Spotify-style green) ---- */
+  --cad-accent: #1db954;
+  --cad-accent-pressed: #1aa34a;
+  --cad-on-accent: #000000;
+
+  /* ---- Color: destructive / errors ---- */
+  --cad-live: #f15e6c;
+
+  /* ---- Color: art-placeholder (no cover art fallback) ---- */
+  --cad-hatch: #282828;
+  --cad-hatch-line: #3a3a3a;
+
+  /* ---- Color: status ---- */
+  --cad-success: #1db954;
+  --cad-warning: #f59e0b;
+  --cad-danger: #f15e6c;
+  --cad-on-status: #000000;
+
+  /* ---- Type families (Spotify uses a clean geometric sans throughout) ---- */
+  --cad-font-sans: 'Libre Franklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --cad-font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+
+  /* ---- Spacing (4px grid) ---- */
+  --cad-space-1: 4px;
+  --cad-space-2: 8px;
+  --cad-space-3: 12px;
+  --cad-space-4: 16px;
+  --cad-space-6: 24px;
+  --cad-space-8: 32px;
+
+  /* iOS safe-area insets (status bar / Dynamic Island / home bar). Custom bars
+     that render inside IonContent must add these to their padding so content
+     clears the notch / home indicator. Falls back to 0 on platforms without an
+     inset. Requires viewport-fit=cover (set in index.html). */
+  --cad-safe-top: env(safe-area-inset-top, 0px);
+  --cad-safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* ---- Radius ---- */
+  --cad-radius-card: 8px;
+  --cad-radius-thumb: 4px;
+  --cad-radius-pill: 9999px;
+
+  /* ---- Elevation: drop shadow (soft, theme-aware) ---- */
+  --cad-shadow: rgba(0, 0, 0, 0.5);
+
+  /* ---- Map onto Ionic so its components inherit the theme ---- */
+  --ion-background-color: var(--cad-bg);
+  --ion-background-color-rgb: 18, 18, 18;
+  --ion-text-color: var(--cad-text);
+  --ion-text-color-rgb: 255, 255, 255;
+  --ion-font-family: var(--cad-font-sans);
+
+  --ion-color-primary: var(--cad-accent);
+  --ion-color-primary-rgb: 29, 185, 84;
+  --ion-color-primary-contrast: var(--cad-on-accent);
+  --ion-color-primary-contrast-rgb: 0, 0, 0;
+  --ion-color-primary-shade: var(--cad-accent-pressed);
+  --ion-color-primary-tint: #3be477;
+
+  --ion-toolbar-background: var(--cad-bg);
+  --ion-tab-bar-background: #000000;
+  --ion-item-background: var(--cad-surface);
+}
+
+/* Dark is the default color-scheme. */
+:root {
+  color-scheme: dark;
+}
+
+/* Light palette — overrides ONLY color tokens; structural tokens are shared.
+ * A clean off-white canvas with the same green accent, for users who force
+ * light mode or run a light OS with the 'system' default. */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --cad-bg: #ffffff;
+  --cad-surface: #f7f7f7;
+  --cad-surface-2: #ededed;
+  --cad-hairline: #e5e5e5;
+
+  --cad-text: #121212;
+  --cad-text-secondary: #565656;
+  --cad-text-tertiary: #7a7a7a;
+
+  --cad-accent-pressed: #178a3f;
+
+  --cad-hatch: #ededed;
+  --cad-hatch-line: #dcdcdc;
+  --cad-shadow: rgba(0, 0, 0, 0.15);
+
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color-rgb: 18, 18, 18;
+  --ion-tab-bar-background: #f7f7f7;
+}
+
+/* ============================================================
+ * Typography roles — use these classes instead of ad-hoc font
+ * rules in components. Spotify's ramp is a bold sans hierarchy.
+ * ============================================================ */
+
+.cad-h1 {
+  font-family: var(--cad-font-sans);
+  font-size: 28px;
+  line-height: 1.14;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--cad-text);
+}
+
+.cad-hero {
+  font-family: var(--cad-font-sans);
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 700;
+  color: var(--cad-text);
+}
+
+.cad-headline {
+  font-family: var(--cad-font-sans);
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--cad-text);
+}
+
+.cad-headline-sm {
+  font-family: var(--cad-font-sans);
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--cad-text);
+}
+
+.cad-body {
+  font-family: var(--cad-font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--cad-text);
+}
+
+.cad-kicker {
+  font-family: var(--cad-font-sans);
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cad-text-secondary);
+}
+
+.cad-byline {
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--cad-text);
+}
+
+.cad-meta {
+  font-family: var(--cad-font-sans);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 400;
+  color: var(--cad-text-secondary);
+}
+
+/* Safe-area hardening: the first toolbar in a header must clear the notch /
+   Dynamic Island. max() so it can't double-pad where Ionic already insets. */
+ion-header ion-toolbar:first-of-type {
+  padding-top: max(var(--cad-safe-top, 0px), env(safe-area-inset-top, 0px));
+}

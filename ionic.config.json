@@ -1,0 +1,7 @@
+{
+  "name": "cadence",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

@@ -1,0 +1,37 @@
+.appearance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-2);
+}
+
+.appearance__title {
+  margin: 0;
+}
+
+/* Segmented pill track — three equal options, the active one filled with accent. */
+.appearance__options {
+  display: flex;
+  gap: var(--cad-space-1);
+  padding: var(--cad-space-1);
+  background: var(--cad-surface);
+  border: 1px solid var(--cad-hairline);
+  border-radius: var(--cad-radius-pill);
+}
+
+.appearance__option {
+  flex: 1;
+  border: none;
+  background: none;
+  border-radius: var(--cad-radius-pill);
+  padding: var(--cad-space-2) var(--cad-space-3);
+  color: var(--cad-text-secondary);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.appearance__option--active {
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+}

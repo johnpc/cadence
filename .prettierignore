@@ -1,0 +1,9 @@
+dist
+coverage
+node_modules
+.features-gen
+playwright-report
+test-results
+package-lock.json
+ios
+android
