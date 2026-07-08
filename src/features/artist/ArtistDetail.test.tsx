@@ -1,16 +1,22 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinItems', () => ({
   getItem: vi.fn(),
   getItemTracks: vi.fn(),
   getInstantMix: vi.fn(),
+  addFavorite: vi.fn(),
+  removeFavorite: vi.fn(),
 }));
-vi.mock('../../lib/jellyfinArtists', () => ({ getArtistAlbums: vi.fn() }));
+vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylists: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../lib/jellyfinArtists', () => ({
+  getArtistAlbums: vi.fn(),
+  getArtistTopTracks: vi.fn(),
+}));
 import { getItem } from '../../lib/jellyfinItems';
-import { getArtistAlbums } from '../../lib/jellyfinArtists';
+import { getArtistAlbums, getArtistTopTracks } from '../../lib/jellyfinArtists';
 import { ArtistDetail } from './ArtistDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
@@ -38,6 +44,9 @@ function renderArtist() {
 }
 
 describe('ArtistDetail', () => {
+  beforeEach(() => {
+    vi.mocked(getArtistTopTracks).mockResolvedValue([]);
+  });
   afterEach(() => {
     vi.resetAllMocks();
   });
@@ -49,6 +58,17 @@ describe('ArtistDetail', () => {
     expect(await screen.findByText('First Album')).toBeInTheDocument();
     expect(screen.getByText('Second Album')).toBeInTheDocument();
     expect(getArtistAlbums).toHaveBeenCalledWith('ar');
+  });
+
+  it('shows a Popular section with the artist top tracks', async () => {
+    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtistAlbums).mockResolvedValue(albums);
+    vi.mocked(getArtistTopTracks).mockResolvedValue([
+      { Id: 't1', Name: 'Hit Song', Type: 'Audio', Artists: ['The Artist'] },
+    ]);
+    renderArtist();
+    expect(await screen.findByText('Hit Song')).toBeInTheDocument();
+    expect(screen.getByTestId('artist-top')).toBeInTheDocument();
   });
 
   it('offers a radio button once the artist loads', async () => {

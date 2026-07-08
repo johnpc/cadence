@@ -12,15 +12,17 @@ import { radio } from 'ionicons/icons';
 import { useHistory, useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackArt } from '../player/TrackArt';
+import { TrackRow } from '../player/TrackRow';
 import { usePlayItem } from '../player/usePlayItem';
-import { useArtist, useArtistAlbums } from './artistApi';
+import { useArtist, useArtistAlbums, useArtistTopTracks } from './artistApi';
 import './artist.css';
 
-/** One artist: header (art + name + start-radio) and a grid of their albums. */
+/** One artist: header (art + name + radio), popular tracks, and their albums. */
 export function ArtistDetail() {
   const { id } = useParams<{ id: string }>();
   const { artist } = useArtist(id);
   const { albums, isLoading, isError, refetch } = useArtistAlbums(id);
+  const { tracks: topTracks } = useArtistTopTracks(id);
   const playItem = usePlayItem();
   const history = useHistory();
 
@@ -49,6 +51,14 @@ export function ArtistDetail() {
             </button>
           )}
         </div>
+        {topTracks.length > 0 && (
+          <section data-testid="artist-top">
+            <h2 className="cad-kicker artist__section">Popular</h2>
+            {topTracks.map((track, index) => (
+              <TrackRow key={track.Id} track={track} queue={topTracks} index={index} />
+            ))}
+          </section>
+        )}
         <h2 className="cad-kicker artist__section">Albums</h2>
         <LoadState
           isLoading={isLoading}
