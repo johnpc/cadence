@@ -1,7 +1,7 @@
 import { IonIcon } from '@ionic/react';
 import { removeCircleOutline } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
-import { artistLine } from './playerFormat';
+import { artistLine, trackDuration } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { LikeButton } from '../library/LikeButton';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
@@ -63,6 +63,11 @@ export function TrackRow({
           <span className="track-row__artist">{artistLine(track)}</span>
         </span>
       </button>
+      {trackDuration(track.RunTimeTicks) && (
+        <span className="track-row__duration cad-meta" data-testid="track-duration">
+          {trackDuration(track.RunTimeTicks)}
+        </span>
+      )}
       <LikeButton track={track} />
       {onRemove ? (
         <button

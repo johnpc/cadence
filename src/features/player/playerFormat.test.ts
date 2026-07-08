@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { artistLine, formatTime } from './playerFormat';
+import { artistLine, formatTime, trackDuration } from './playerFormat';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+describe('trackDuration', () => {
+  it('converts .NET ticks to m:ss', () => {
+    expect(trackDuration(75 * 10_000_000)).toBe('1:15'); // 75s
+    expect(trackDuration(2_000_000_000)).toBe('3:20'); // 200s
+  });
+  it('returns empty for missing/zero ticks', () => {
+    expect(trackDuration(undefined)).toBe('');
+    expect(trackDuration(0)).toBe('');
+  });
+});
 
 describe('formatTime', () => {
   it('formats m:ss', () => {
