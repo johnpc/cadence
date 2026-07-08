@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   addToPlaylist,
   createPlaylist,
+  deletePlaylist,
   getPlaylistItems,
   getPlaylists,
   removeFromPlaylist,
@@ -56,5 +57,14 @@ export function useRemoveFromPlaylist(playlistId: string) {
   return useMutation({
     mutationFn: (entryId: string) => removeFromPlaylist(playlistId, entryId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['playlist-items', playlistId] }),
+  });
+}
+
+/** Delete a playlist; refreshes the playlists list. */
+export function useDeletePlaylist() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (playlistId: string) => deletePlaylist(playlistId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: PLAYLISTS_KEY }),
   });
 }

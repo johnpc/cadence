@@ -38,6 +38,11 @@ export async function removeFromPlaylist(playlistId: string, entryId: string): P
   await request(`/Playlists/${playlistId}/Items?${params.toString()}`, { method: 'DELETE' });
 }
 
+/** Delete a playlist entirely. */
+export async function deletePlaylist(playlistId: string): Promise<void> {
+  await request(`/Items/${playlistId}`, { method: 'DELETE' });
+}
+
 /** Create a new (audio) playlist and return its id. */
 export async function createPlaylist(name: string): Promise<string> {
   const userId = getSession()?.userId ?? '';
