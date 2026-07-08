@@ -24,7 +24,7 @@ export function NowPlayingExtras() {
   };
   return (
     <div className="npbar__extras" data-testid="now-playing-extras">
-      <PlayerControls />
+      <PlayerControls testPrefix="npbar" />
       <button
         className="npbar__extra"
         onClick={() => setLyricsOpen(true)}

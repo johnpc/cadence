@@ -9,15 +9,17 @@ import {
 } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 
-/** The transport row: shuffle · prev · play/pause · next · repeat. */
-export function PlayerControls() {
+/** The transport row: shuffle · prev · play/pause · next · repeat. `testPrefix`
+ * namespaces the testids (default "full-player") so the same controls can be
+ * reused in the desktop mini-player without duplicating full-player testids. */
+export function PlayerControls({ testPrefix = 'full-player' }: { testPrefix?: string }) {
   const p = usePlayer();
   return (
     <div className="fullplayer__controls">
       <button
         className={p.shuffle ? 'fullplayer__ctl fullplayer__ctl--on' : 'fullplayer__ctl'}
         onClick={p.toggleShuffle}
-        data-testid="full-player-shuffle"
+        data-testid={`${testPrefix}-shuffle`}
         aria-label="Shuffle"
       >
         <IonIcon icon={shuffleIcon} />
@@ -26,7 +28,7 @@ export function PlayerControls() {
         className="fullplayer__ctl"
         onClick={p.prev}
         disabled={!p.canPrev}
-        data-testid="full-player-prev"
+        data-testid={`${testPrefix}-prev`}
         aria-label="Previous"
       >
         <IonIcon icon={playSkipBack} />
@@ -34,7 +36,7 @@ export function PlayerControls() {
       <button
         className="fullplayer__ctl fullplayer__ctl--play"
         onClick={p.toggle}
-        data-testid="full-player-toggle"
+        data-testid={`${testPrefix}-toggle`}
         aria-label={p.isPlaying ? 'Pause' : 'Play'}
       >
         <IonIcon icon={p.isPlaying ? pause : play} />
@@ -43,7 +45,7 @@ export function PlayerControls() {
         className="fullplayer__ctl"
         onClick={p.next}
         disabled={!p.canNext}
-        data-testid="full-player-next"
+        data-testid={`${testPrefix}-next`}
         aria-label="Next"
       >
         <IonIcon icon={playSkipForward} />
@@ -51,7 +53,7 @@ export function PlayerControls() {
       <button
         className={p.repeat !== 'off' ? 'fullplayer__ctl fullplayer__ctl--on' : 'fullplayer__ctl'}
         onClick={p.cycleRepeat}
-        data-testid="full-player-repeat"
+        data-testid={`${testPrefix}-repeat`}
         aria-label={`Repeat ${p.repeat}`}
       >
         <IonIcon icon={repeatIcon} />
