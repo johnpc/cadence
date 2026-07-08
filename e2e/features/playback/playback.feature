@@ -15,6 +15,12 @@ Feature: Playback
     And I tap next
     Then the Now-Playing bar shows a track
 
+  Scenario: The now-playing track survives a reload
+    Given I am signed in
+    When I tap a track from search
+    And I reload the app
+    Then the Now-Playing bar shows a track
+
   Scenario: The spacebar toggles playback
     Given I am signed in
     When I tap a track from search
