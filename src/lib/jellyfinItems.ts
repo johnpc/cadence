@@ -6,7 +6,7 @@ import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
-const audioFields = 'Artists,AlbumArtist,Album,AlbumId,RunTimeTicks';
+const audioFields = 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks';
 
 /** A single item (album, artist, track) with its display fields. */
 export async function getItem(itemId: string): Promise<JellyfinItem> {

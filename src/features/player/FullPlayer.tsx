@@ -9,6 +9,7 @@ import {
 import { useState } from 'react';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
+import { NowPlayingMenu } from './NowPlayingMenu';
 import { PlayerControls } from './PlayerControls';
 import { usePlayer } from './usePlayer';
 import { artistLine, formatTime } from './playerFormat';
@@ -79,6 +80,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           >
             <IonIcon icon={listOutline} /> Up next
           </button>
+          {p.current && <NowPlayingMenu track={p.current} onNavigate={onClose} />}
         </div>
         <QueueView open={queueOpen} onClose={() => setQueueOpen(false)} />
         <LyricsSheet open={lyricsOpen} onClose={() => setLyricsOpen(false)} />

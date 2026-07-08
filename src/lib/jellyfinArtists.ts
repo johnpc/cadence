@@ -32,7 +32,7 @@ export async function getArtistTopTracks(artistId: string, limit = 5): Promise<J
     SortBy: 'PlayCount,SortName',
     SortOrder: 'Descending',
     Limit: String(limit),
-    Fields: 'Artists,AlbumArtist,Album,AlbumId,RunTimeTicks',
+    Fields: 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks',
     userId,
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);

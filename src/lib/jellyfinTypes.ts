@@ -31,6 +31,8 @@ export interface JellyfinItem {
   /** Primary artist names (Audio / MusicAlbum items). */
   Artists?: string[];
   AlbumArtist?: string;
+  /** The track's artists as linkable items ({Id, Name}) — for "go to artist". */
+  ArtistItems?: { Id: string; Name: string }[];
   /** Id whose Primary image represents this item (falls back to Id). */
   AlbumId?: string;
   /** Run time in .NET ticks (10,000 per ms). */
