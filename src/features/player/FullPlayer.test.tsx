@@ -1,0 +1,77 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { PlayerContext } from './PlayerContext';
+import { FullPlayer } from './FullPlayer';
+import type { PlayerContextValue } from './types';
+import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+// IonModal's real present/dismiss uses a "framework delegate" that jsdom can't
+// satisfy; render its children inline when open so we test our content only.
+vi.mock('@ionic/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@ionic/react')>();
+  return {
+    ...actual,
+    IonModal: ({ isOpen, children }: { isOpen: boolean; children: ReactNode }) =>
+      isOpen ? <div>{children}</div> : null,
+  };
+});
+
+const song: JellyfinItem = { Id: 's1', Name: 'Full Song', Type: 'Audio', Artists: ['Band'] };
+
+function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
+  return {
+    current: song,
+    isPlaying: true,
+    position: 30,
+    duration: 200,
+    shuffle: false,
+    canNext: true,
+    canPrev: true,
+    playQueue: vi.fn(),
+    toggle: vi.fn(),
+    next: vi.fn(),
+    prev: vi.fn(),
+    seek: vi.fn(),
+    toggleShuffle: vi.fn(),
+    ...overrides,
+  };
+}
+
+const renderPlayer = (value: PlayerContextValue) =>
+  render(
+    <PlayerContext.Provider value={value}>
+      <FullPlayer open onClose={vi.fn()} />
+    </PlayerContext.Provider>,
+  );
+
+describe('FullPlayer', () => {
+  it('shows the current track and transport controls', async () => {
+    renderPlayer(ctx());
+    expect(screen.getByText('Full Song')).toBeInTheDocument();
+    expect(screen.getByText('Band')).toBeInTheDocument();
+  });
+
+  it('drives play, next, prev, and shuffle', async () => {
+    const toggle = vi.fn();
+    const next = vi.fn();
+    const prev = vi.fn();
+    const toggleShuffle = vi.fn();
+    renderPlayer(ctx({ toggle, next, prev, toggleShuffle }));
+    await userEvent.click(screen.getByTestId('full-player-toggle'));
+    await userEvent.click(screen.getByTestId('full-player-next'));
+    await userEvent.click(screen.getByTestId('full-player-prev'));
+    await userEvent.click(screen.getByTestId('full-player-shuffle'));
+    expect(toggle).toHaveBeenCalledOnce();
+    expect(next).toHaveBeenCalledOnce();
+    expect(prev).toHaveBeenCalledOnce();
+    expect(toggleShuffle).toHaveBeenCalledOnce();
+  });
+
+  it('renders the position and duration times', async () => {
+    renderPlayer(ctx({ position: 30, duration: 200 }));
+    expect(screen.getByText('0:30')).toBeInTheDocument();
+    expect(screen.getByText('3:20')).toBeInTheDocument();
+  });
+});

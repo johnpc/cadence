@@ -73,6 +73,8 @@ jobs:
             paths: .features-gen/e2e/features/smoke
           - name: auth
             paths: .features-gen/e2e/features/auth
+          - name: playback
+            paths: .features-gen/e2e/features/playback
     steps:
       - uses: actions/checkout@v4
 

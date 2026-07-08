@@ -1,0 +1,87 @@
+.fullplayer {
+  height: 100%;
+  background: var(--cad-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cad-space-6);
+  padding: var(--cad-space-6) var(--cad-space-6) var(--cad-space-8);
+  padding-top: max(var(--cad-safe-top), var(--cad-space-6));
+}
+
+.fullplayer__close {
+  align-self: flex-start;
+  border: none;
+  background: none;
+  color: var(--cad-text);
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.fullplayer__meta {
+  width: 100%;
+  text-align: center;
+}
+
+.fullplayer__title {
+  margin: 0 0 var(--cad-space-1);
+}
+
+.fullplayer__artist {
+  margin: 0;
+}
+
+.fullplayer__scrubber {
+  width: 100%;
+}
+
+.fullplayer__scrubber input {
+  width: 100%;
+  accent-color: var(--cad-accent);
+}
+
+.fullplayer__times {
+  display: flex;
+  justify-content: space-between;
+}
+
+.fullplayer__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 340px;
+  margin-top: auto;
+}
+
+.fullplayer__ctl {
+  border: none;
+  background: none;
+  color: var(--cad-text);
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.fullplayer__ctl:disabled {
+  opacity: 0.3;
+}
+
+.fullplayer__ctl--on {
+  color: var(--cad-accent);
+}
+
+.fullplayer__ctl--play {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  font-size: 34px;
+}
+
+.fullplayer__ctl-spacer {
+  width: 30px;
+}

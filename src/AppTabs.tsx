@@ -5,6 +5,8 @@ import { Home } from './features/home/Home';
 import { Search } from './features/search/Search';
 import { Library } from './features/library/Library';
 import { Settings } from './features/settings/Settings';
+import { NowPlayingBar } from './features/player/NowPlayingBar';
+import './appTabs.css';
 
 /**
  * The signed-in shell: a Spotify-style bottom tab bar over Home / Search / Your
@@ -15,6 +17,10 @@ import { Settings } from './features/settings/Settings';
 export function AppTabs() {
   return (
     <IonTabs>
+      {/* Persistent mini-player, fixed just above the tab bar (CSS). */}
+      <div className="apptabs__npbar" slot="bottom">
+        <NowPlayingBar />
+      </div>
       <IonRouterOutlet>
         <Route exact path="/home">
           <Home />

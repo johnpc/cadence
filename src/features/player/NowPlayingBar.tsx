@@ -1,0 +1,44 @@
+import { useState } from 'react';
+import { IonIcon } from '@ionic/react';
+import { play, pause } from 'ionicons/icons';
+import { usePlayer } from './usePlayer';
+import { artistLine } from './playerFormat';
+import { TrackArt } from './TrackArt';
+import { FullPlayer } from './FullPlayer';
+import './nowPlayingBar.css';
+
+/** Persistent mini-player above the tab bar. Tap to open the full player. */
+export function NowPlayingBar() {
+  const { current, isPlaying, toggle } = usePlayer();
+  const [open, setOpen] = useState(false);
+  if (!current) return null;
+
+  return (
+    <>
+      <div className="npbar" data-testid="now-playing-bar">
+        <button
+          className="npbar__open"
+          onClick={() => setOpen(true)}
+          data-testid="now-playing-open"
+        >
+          <TrackArt item={current} size={40} />
+          <span className="npbar__meta">
+            <span className="npbar__title" data-testid="now-playing-title">
+              {current.Name}
+            </span>
+            <span className="npbar__artist">{artistLine(current)}</span>
+          </span>
+        </button>
+        <button
+          className="npbar__play"
+          onClick={toggle}
+          data-testid="now-playing-toggle"
+          aria-label={isPlaying ? 'Pause' : 'Play'}
+        >
+          <IonIcon icon={isPlaying ? pause : play} />
+        </button>
+      </div>
+      <FullPlayer open={open} onClose={() => setOpen(false)} />
+    </>
+  );
+}

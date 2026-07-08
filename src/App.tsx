@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import { ThemeProvider } from './features/theme/ThemeProvider';
 import { AuthProvider } from './features/auth/AuthProvider';
+import { PlayerProvider } from './features/player/PlayerProvider';
 import { AppRoutes } from './AppRoutes';
 
 /* Core CSS required for Ionic components to work properly */
@@ -40,9 +41,11 @@ const App: React.FC = () => (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <IonReactRouter>
-            <AppRoutes />
-          </IonReactRouter>
+          <PlayerProvider>
+            <IonReactRouter>
+              <AppRoutes />
+            </IonReactRouter>
+          </PlayerProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
