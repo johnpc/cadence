@@ -3,6 +3,7 @@ import {
   addFavorite,
   getFavoriteSongs,
   getInstantMix,
+  getItem,
   getItemTracks,
   removeFavorite,
 } from './jellyfinItems';
@@ -22,6 +23,19 @@ describe('jellyfinItems', () => {
   afterEach(() => {
     setSession(null);
     vi.restoreAllMocks();
+  });
+
+  it('getItem fetches a single item by id for the user', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ Id: 'al', Name: 'Album', Type: 'MusicAlbum' }),
+    } as Response);
+    vi.stubGlobal('fetch', f);
+    const item = await getItem('al');
+    expect(item.Name).toBe('Album');
+    expect(f.mock.calls[0][0]).toContain('/Users/uid/Items/al');
   });
 
   it('getItemTracks requests a parent’s tracks in order', async () => {

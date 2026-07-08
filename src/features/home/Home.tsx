@@ -1,19 +1,20 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 import { Shelf } from './Shelf';
 import { AlbumCard } from './AlbumCard';
 import { useLatestAlbums, useSuggestedSongs } from './homeApi';
-import { usePlayItem } from '../player/usePlayItem';
 import { usePlayer } from '../player/usePlayer';
 
 /**
  * Home — the Spotify anti-scroll surface: horizontal shelves of recommendations
- * (recently added albums, suggested songs). No full-library list.
+ * (recently added albums, suggested songs). No full-library list. Albums open
+ * their detail page; suggested songs play immediately.
  */
 export function Home() {
   const albums = useLatestAlbums();
   const suggested = useSuggestedSongs();
-  const playItem = usePlayItem();
   const { playQueue } = usePlayer();
+  const history = useHistory();
 
   return (
     <IonPage>
@@ -32,7 +33,11 @@ export function Home() {
             isEmpty={albums.albums.length === 0}
           >
             {albums.albums.map((album) => (
-              <AlbumCard key={album.Id} item={album} onPlay={playItem} />
+              <AlbumCard
+                key={album.Id}
+                item={album}
+                onPlay={() => history.push(`/album/${album.Id}`)}
+              />
             ))}
           </Shelf>
           <Shelf

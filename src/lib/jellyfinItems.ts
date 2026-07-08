@@ -8,6 +8,12 @@ import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
 const audioFields = 'Artists,AlbumArtist,Album,AlbumId,RunTimeTicks';
 
+/** A single item (album, artist, track) with its display fields. */
+export async function getItem(itemId: string): Promise<JellyfinItem> {
+  const userId = getSession()?.userId ?? '';
+  return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}`);
+}
+
 /** All audio tracks belonging to a parent (an album or artist), in order. */
 export async function getItemTracks(parentId: string, limit = 200): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
