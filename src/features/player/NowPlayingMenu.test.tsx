@@ -2,6 +2,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('../playlists/playlistsApi', () => ({
+  usePlaylists: () => ({ playlists: [{ Id: 'pl1', Name: 'Chill' }] }),
+  useAddToPlaylist: () => ({ mutate: vi.fn() }),
+}));
 import { NowPlayingMenu } from './NowPlayingMenu';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -65,5 +70,11 @@ describe('NowPlayingMenu', () => {
     await userEvent.click(screen.getByTestId('full-player-more'));
     await userEvent.click(screen.getByText('Go to artist'));
     expect(screen.getByTestId('loc')).toHaveTextContent('/artist/ar1');
+  });
+
+  it('offers each playlist as an add target', async () => {
+    renderMenu();
+    await userEvent.click(screen.getByTestId('full-player-more'));
+    expect(screen.getByText('Add to Chill')).toBeInTheDocument();
   });
 });

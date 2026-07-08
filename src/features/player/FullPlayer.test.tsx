@@ -10,6 +10,10 @@ import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders'
 // The lyrics sheet fetches lazily when opened; stub the source so no real
 // network fires from this render.
 vi.mock('../../lib/jellyfinLyrics', () => ({ getLyrics: vi.fn().mockResolvedValue([]) }));
+vi.mock('../playlists/playlistsApi', () => ({
+  usePlaylists: () => ({ playlists: [] }),
+  useAddToPlaylist: () => ({ mutate: vi.fn() }),
+}));
 
 // IonModal's real present/dismiss uses a "framework delegate" that jsdom can't
 // satisfy; render its children inline when open so we test our content only.

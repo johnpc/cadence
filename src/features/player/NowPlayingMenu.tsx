@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { IonActionSheet, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
+import { usePlaylists, useAddToPlaylist } from '../playlists/playlistsApi';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** The now-playing "…" menu: jump to the current track's album or artist,
- * then close the full player so the destination is visible. */
+/** The now-playing "…" menu: jump to the current track's album or artist, or
+ * add it to a playlist, then close the full player so the destination shows. */
 export function NowPlayingMenu({
   track,
   onNavigate,
@@ -15,6 +16,8 @@ export function NowPlayingMenu({
 }) {
   const [open, setOpen] = useState(false);
   const history = useHistory();
+  const { playlists } = usePlaylists();
+  const add = useAddToPlaylist();
   const go = (path: string) => {
     history.push(path);
     onNavigate();
@@ -25,6 +28,10 @@ export function NowPlayingMenu({
       ? [{ text: 'Go to album', handler: () => go(`/album/${track.AlbumId}`) }]
       : []),
     ...(artist ? [{ text: 'Go to artist', handler: () => go(`/artist/${artist.Id}`) }] : []),
+    ...playlists.map((pl) => ({
+      text: `Add to ${pl.Name}`,
+      handler: () => add.mutate({ playlistId: pl.Id, itemId: track.Id }),
+    })),
     { text: 'Cancel', role: 'cancel' as const },
   ];
   return (
@@ -40,7 +47,7 @@ export function NowPlayingMenu({
       </button>
       <IonActionSheet
         isOpen={open}
-        header="Go to"
+        header="Track options"
         buttons={buttons}
         onDidDismiss={() => setOpen(false)}
       />
