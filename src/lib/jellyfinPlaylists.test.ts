@@ -5,6 +5,7 @@ import {
   deletePlaylist,
   getPlaylistItems,
   getPlaylists,
+  movePlaylistItem,
   removeFromPlaylist,
 } from './jellyfinPlaylists';
 import { setSession } from './sessionStore';
@@ -69,6 +70,15 @@ describe('jellyfinPlaylists', () => {
     expect(url).toContain('/Playlists/pl1/Items');
     expect(url).toContain('EntryIds=entry1');
     expect(init.method).toBe('DELETE');
+  });
+
+  it('movePlaylistItem POSTs to the Move endpoint with the new index', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stub(undefined, 204);
+    await movePlaylistItem('pl1', 'entry1', 2);
+    const [url, init] = f.mock.calls[0];
+    expect(url).toContain('/Playlists/pl1/Items/entry1/Move/2');
+    expect(init.method).toBe('POST');
   });
 
   it('deletePlaylist DELETEs the playlist item', async () => {

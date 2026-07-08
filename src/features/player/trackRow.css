@@ -99,7 +99,8 @@
   padding: 0 var(--cad-space-1);
 }
 
-.track-row__remove {
+.track-row__remove,
+.track-row__move {
   flex-shrink: 0;
   border: none;
   background: none;
@@ -110,4 +111,9 @@
   justify-content: center;
   padding: var(--cad-space-2);
   cursor: pointer;
+}
+
+.track-row__move:disabled {
+  opacity: 0.3;
+  cursor: default;
 }

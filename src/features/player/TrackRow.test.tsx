@@ -47,3 +47,19 @@ it('shows the track duration when the run time is known', () => {
   renderWithProviders(<TrackRow track={withTime} queue={[withTime]} index={0} />);
   expect(screen.getByTestId('track-duration')).toHaveTextContent('1:15');
 });
+
+it('shows reorder controls when the reorder prop is set', async () => {
+  const onMoveUp = vi.fn();
+  const onMoveDown = vi.fn();
+  renderWithProviders(
+    <TrackRow
+      track={tracks[1]}
+      queue={tracks}
+      index={1}
+      reorder={{ isFirst: false, isLast: true, onMoveUp, onMoveDown }}
+    />,
+  );
+  expect(screen.getByTestId('track-row-down')).toBeDisabled();
+  await userEvent.click(screen.getByTestId('track-row-up'));
+  expect(onMoveUp).toHaveBeenCalledOnce();
+});

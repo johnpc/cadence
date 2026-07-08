@@ -5,6 +5,7 @@ import {
   deletePlaylist,
   getPlaylistItems,
   getPlaylists,
+  movePlaylistItem,
   removeFromPlaylist,
 } from '../../lib/jellyfinPlaylists';
 import { getItem } from '../../lib/jellyfinItems';
@@ -67,6 +68,16 @@ export function useRemoveFromPlaylist(playlistId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (entryId: string) => removeFromPlaylist(playlistId, entryId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['playlist-items', playlistId] }),
+  });
+}
+
+/** Move an entry within a playlist; refreshes that playlist's items. */
+export function useMovePlaylistItem(playlistId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ entryId, index }: { entryId: string; index: number }) =>
+      movePlaylistItem(playlistId, entryId, index),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['playlist-items', playlistId] }),
   });
 }

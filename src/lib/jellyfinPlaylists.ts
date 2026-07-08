@@ -59,3 +59,12 @@ export async function addToPlaylist(playlistId: string, itemId: string): Promise
   const params = new URLSearchParams({ Ids: itemId, userId });
   await request(`/Playlists/${playlistId}/Items?${params.toString()}`, { method: 'POST' });
 }
+
+/** Move a playlist entry (by its PlaylistItemId) to a new zero-based index. */
+export async function movePlaylistItem(
+  playlistId: string,
+  entryId: string,
+  newIndex: number,
+): Promise<void> {
+  await request(`/Playlists/${playlistId}/Items/${entryId}/Move/${newIndex}`, { method: 'POST' });
+}

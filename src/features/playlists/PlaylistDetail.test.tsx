@@ -10,6 +10,7 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   createPlaylist: vi.fn(),
   addToPlaylist: vi.fn(),
   removeFromPlaylist: vi.fn(),
+  movePlaylistItem: vi.fn(),
   deletePlaylist: vi.fn(),
 }));
 vi.mock('../../lib/jellyfinItems', () => ({
