@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
-import { SAVED_ALBUMS_KEY } from './libraryApi';
+import { SAVED_ALBUMS_KEY, FOLLOWED_ARTISTS_KEY } from './libraryApi';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /**
@@ -19,7 +19,10 @@ export function useSaveToggle(item: JellyfinItem | null) {
       next ? addFavorite(item?.Id ?? '') : removeFavorite(item?.Id ?? ''),
     onMutate: (next: boolean) => setSaved(next),
     onError: (_e, next) => setSaved(!next), // roll back
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: SAVED_ALBUMS_KEY }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: SAVED_ALBUMS_KEY });
+      void queryClient.invalidateQueries({ queryKey: FOLLOWED_ARTISTS_KEY });
+    },
   });
 
   return { saved, toggle: () => mutation.mutate(!saved), busy: mutation.isPending };

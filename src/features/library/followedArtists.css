@@ -1,0 +1,21 @@
+.followed-artists {
+  margin-top: var(--cad-space-6);
+}
+
+.followed-artists__row {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-2) 0;
+  text-decoration: none;
+}
+
+.followed-artists__name {
+  font-family: var(--cad-font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--cad-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

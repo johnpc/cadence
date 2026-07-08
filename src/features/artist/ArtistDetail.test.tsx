@@ -14,6 +14,7 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylists: vi.fn().mockResolv
 vi.mock('../../lib/jellyfinArtists', () => ({
   getArtistAlbums: vi.fn(),
   getArtistTopTracks: vi.fn(),
+  getFavoriteArtists: vi.fn().mockResolvedValue([]),
 }));
 import { getItem } from '../../lib/jellyfinItems';
 import { getArtistAlbums, getArtistTopTracks } from '../../lib/jellyfinArtists';
