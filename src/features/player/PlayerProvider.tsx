@@ -8,6 +8,8 @@ import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { useVolume } from './useVolume';
 import { usePlaybackControls } from './usePlaybackControls';
 import { usePlaybackReporting } from './usePlaybackReporting';
+import { useEndlessPlay } from './useEndlessPlay';
+import { buildPlayerValue } from './playerValue';
 import { audioStreamUrl } from '../../lib/jellyfinStream';
 import * as q from './queue';
 
@@ -48,6 +50,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // live from the audio element so it doesn't re-fire on every tick.
   usePlaybackReporting(currentId, () => ref.current?.currentTime ?? 0);
 
+  // Endless play: append instant-mix radio when the queue reaches its end.
+  useEndlessPlay(qh.queue.tracks, qh.queue.index, qh.repeat === 'off', qh.addToQueue);
+
   // Sleep timer: pause when it elapses.
   const { sleepMinutes, armSleep } = useSleepTimer(pause);
 
@@ -61,39 +66,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     !!current,
   );
 
-  return (
-    <PlayerContext.Provider
-      value={{
-        current,
-        isPlaying,
-        position,
-        duration,
-        shuffle: qh.shuffle,
-        repeat: qh.repeat,
-        canNext: q.hasNext(qh.queue),
-        canPrev: q.hasPrev(qh.queue),
-        queue: qh.queue.tracks,
-        queueIndex: qh.queue.index,
-        playQueue: qh.playQueue,
-        playShuffled: qh.playShuffled,
-        playNext: qh.playNext,
-        addToQueue: qh.addToQueue,
-        toggle,
-        next: qh.next,
-        prev: qh.prev,
-        jumpTo: qh.jumpTo,
-        removeFromQueue: qh.removeFromQueue,
-        moveInQueue: qh.moveInQueue,
-        seek,
-        toggleShuffle: qh.toggleShuffle,
-        cycleRepeat: qh.cycleRepeat,
-        sleepMinutes,
-        armSleep,
-        volume,
-        setVolume,
-      }}
-    >
-      {children}
-    </PlayerContext.Provider>
-  );
+  const value = buildPlayerValue(qh, current, {
+    isPlaying,
+    position,
+    duration,
+    toggle,
+    seek,
+    sleepMinutes,
+    armSleep,
+    volume,
+    setVolume,
+  });
+
+  return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;
 }

@@ -6,6 +6,7 @@ vi.mock('../../lib/jellyfinPlayback', () => ({
   reportPlaybackProgress: vi.fn(),
   reportPlaybackStopped: vi.fn(),
 }));
+vi.mock('../../lib/jellyfinItems', () => ({ getInstantMix: vi.fn().mockResolvedValue([]) }));
 import { PlayerProvider } from './PlayerProvider';
 import { usePlayer } from './usePlayer';
 import { setSession } from '../../lib/sessionStore';
