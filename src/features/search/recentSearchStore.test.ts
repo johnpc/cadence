@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { addRecentSearch, clearRecentSearches, getRecentSearches } from './recentSearchStore';
+import {
+  addRecentSearch,
+  clearRecentSearches,
+  getRecentSearches,
+  removeRecentSearch,
+} from './recentSearchStore';
 
 const item = (id: string) => ({ Id: id, Name: `Item ${id}`, Type: 'Audio' as const });
 
@@ -21,6 +26,13 @@ describe('recentSearchStore', () => {
     for (let i = 0; i < 20; i++) addRecentSearch(item(`t${i}`));
     expect(getRecentSearches()).toHaveLength(12);
     expect(getRecentSearches()[0].Id).toBe('t19');
+  });
+
+  it('removes a single entry by id', () => {
+    addRecentSearch(item('a'));
+    addRecentSearch(item('b'));
+    expect(removeRecentSearch('a').map((i) => i.Id)).toEqual(['b']);
+    expect(getRecentSearches().map((i) => i.Id)).toEqual(['b']);
   });
 
   it('clears the list', () => {

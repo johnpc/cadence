@@ -13,7 +13,7 @@ import './search.css';
  * detail pages. The idle state shows recent searches (like Spotify). */
 export function Search() {
   const s = useSearch();
-  const { recents, record, clear } = useRecentSearches();
+  const { recents, record, remove, clear } = useRecentSearches();
   const [filter, setFilter] = useState<SearchFilter>('all');
 
   return (
@@ -34,7 +34,7 @@ export function Search() {
       </IonHeader>
       <IonContent className="ion-padding">
         {s.isIdle ? (
-          <RecentSearches recents={recents} onClear={clear} />
+          <RecentSearches recents={recents} onClear={clear} onRemove={remove} />
         ) : (
           <>
             <SearchFilters filter={filter} onChange={setFilter} />
