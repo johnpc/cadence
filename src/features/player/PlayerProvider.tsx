@@ -5,6 +5,8 @@ import { useMediaSessionSync } from './useMediaSessionSync';
 import { usePlayerQueue } from './usePlayerQueue';
 import { useSleepTimer } from './useSleepTimer';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
+import { useVolume } from './useVolume';
+import { usePlaybackControls } from './usePlaybackControls';
 import { audioStreamUrl } from '../../lib/jellyfinStream';
 import * as q from './queue';
 
@@ -29,6 +31,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const current = q.currentTrack(qh.queue);
   const currentId = current?.Id;
+  const { volume, setVolume } = useVolume(ref, currentId);
 
   // Load + play whenever the current track changes.
   useEffect(() => {
@@ -38,21 +41,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     void audio.play().catch(() => undefined);
   }, [currentId, ref]);
 
-  const toggle = useCallback(() => {
-    const audio = ref.current;
-    if (!audio || !qh.queue.tracks.length) return;
-    if (audio.paused) void audio.play().catch(() => undefined);
-    else audio.pause();
-  }, [ref, qh.queue.tracks.length]);
-  const seek = useCallback(
-    (seconds: number) => {
-      if (ref.current) ref.current.currentTime = seconds;
-    },
-    [ref],
-  );
+  const { toggle, seek, pause } = usePlaybackControls(ref, qh.queue.tracks.length > 0);
 
   // Sleep timer: pause when it elapses.
-  const pause = useCallback(() => ref.current?.pause(), [ref]);
   const { sleepMinutes, armSleep } = useSleepTimer(pause);
 
   const mediaHandlers = useMemo(
@@ -90,6 +81,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         cycleRepeat: qh.cycleRepeat,
         sleepMinutes,
         armSleep,
+        volume,
+        setVolume,
       }}
     >
       {children}

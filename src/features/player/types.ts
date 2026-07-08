@@ -39,4 +39,7 @@ export interface PlayerContextValue {
   sleepMinutes: number | null;
   /** Arm the sleep timer for N minutes (null/0 cancels). */
   armSleep: (minutes: number | null) => void;
+  /** Playback volume, 0–1. */
+  volume: number;
+  setVolume: (volume: number) => void;
 }
