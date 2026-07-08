@@ -15,6 +15,7 @@ import { TrackArt } from '../player/TrackArt';
 import { GenreChips } from '../../components/GenreChips';
 import { ArtistPopular } from './ArtistPopular';
 import { SaveButton } from '../library/SaveButton';
+import { ShareButton } from '../share/ShareButton';
 import { usePlayItem } from '../player/usePlayItem';
 import { useArtist, useArtistAlbums, useArtistTopTracks } from './artistApi';
 import './artist.css';
@@ -46,6 +47,7 @@ export function ArtistDetail() {
           {artist && (
             <div className="artist__actions" data-testid="artist-actions">
               <SaveButton item={artist} />
+              <ShareButton item={artist} />
               <button
                 className="artist__radio"
                 data-testid="artist-radio"

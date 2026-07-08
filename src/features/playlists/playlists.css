@@ -15,6 +15,13 @@
   margin: var(--cad-space-3) 0 0;
 }
 
+.playlist__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  margin-bottom: var(--cad-space-3);
+}
+
 .playlist__desc {
   margin: var(--cad-space-1) 0 0;
   text-align: center;

@@ -10,10 +10,8 @@ import {
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
-import { TrackArt } from '../player/TrackArt';
 import { TrackRow } from '../player/TrackRow';
-import { CollectionActions } from '../player/CollectionActions';
-import { collectionSummary } from '../player/playerFormat';
+import { PlaylistHeader } from './PlaylistHeader';
 import { DeletePlaylistButton } from './DeletePlaylistButton';
 import {
   usePlaylist,
@@ -58,19 +56,7 @@ export function PlaylistDetail() {
           skeleton={<TrackListSkeleton />}
         >
           <div data-testid="playlist-detail">
-            <div className="playlist__header">
-              <TrackArt item={playlist} size={160} />
-              <h1 className="playlist__title cad-headline">{playlist?.Name ?? 'Playlist'}</h1>
-              {playlist?.Overview && (
-                <p className="playlist__desc cad-meta" data-testid="playlist-desc">
-                  {playlist.Overview}
-                </p>
-              )}
-              <p className="cad-meta" data-testid="playlist-summary">
-                {collectionSummary(tracks)}
-              </p>
-            </div>
-            <CollectionActions tracks={tracks} />
+            <PlaylistHeader playlist={playlist} tracks={tracks} />
             {tracks.map((track, index) => (
               <TrackRow
                 key={track.PlaylistItemId ?? track.Id}
