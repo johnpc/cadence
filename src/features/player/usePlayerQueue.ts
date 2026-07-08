@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import * as q from './queue';
 import { moveAt, clearUpcoming } from './queueMove';
 import { loadQueue, saveQueue } from './queuePersistence';
+import { loadModes, saveModes } from './playerModes';
 import { random } from '../../lib/random';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import type { RepeatMode } from './types';
@@ -16,14 +17,14 @@ const NEXT_REPEAT: Record<RepeatMode, RepeatMode> = { off: 'all', all: 'one', on
  */
 export function usePlayerQueue() {
   const [queue, setQueue] = useState<q.QueueState>(loadQueue);
-  const [shuffle, setShuffle] = useState(false);
-  const [repeat, setRepeat] = useState<RepeatMode>('off');
+  const [shuffle, setShuffle] = useState(() => loadModes().shuffle);
+  const [repeat, setRepeat] = useState<RepeatMode>(() => loadModes().repeat);
   const repeatRef = useRef(repeat);
   repeatRef.current = repeat;
 
-  useEffect(() => {
-    saveQueue(queue);
-  }, [queue]);
+  // Persist so playback (queue) + shuffle/repeat survive a reload.
+  useEffect(() => saveQueue(queue), [queue]);
+  useEffect(() => saveModes({ shuffle, repeat }), [shuffle, repeat]);
 
   const playQueue = useCallback(
     (tracks: JellyfinItem[], startIndex = 0) => setQueue(q.startQueue(tracks, startIndex)),

@@ -19,6 +19,16 @@ describe('usePlayerQueue', () => {
     expect(result.current.repeat).toBe('off');
   });
 
+  it('restores persisted shuffle + repeat on a fresh mount', () => {
+    const first = renderHook(() => usePlayerQueue());
+    act(() => first.result.current.cycleRepeat()); // -> 'all'
+    act(() => first.result.current.toggleShuffle()); // -> true
+    first.unmount();
+    const { result } = renderHook(() => usePlayerQueue());
+    expect(result.current.repeat).toBe('all');
+    expect(result.current.shuffle).toBe(true);
+  });
+
   it('advance goes to the next track by default', () => {
     const { result } = renderHook(() => usePlayerQueue());
     act(() => result.current.playQueue(tracks, 0));
