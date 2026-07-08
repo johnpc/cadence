@@ -37,6 +37,10 @@ export interface JellyfinItem {
   AlbumId?: string;
   /** Run time in .NET ticks (10,000 per ms). */
   RunTimeTicks?: number;
+  /** Release year (albums). */
+  ProductionYear?: number;
+  /** Genre names (albums/artists). */
+  Genres?: string[];
   /** True when the current user has favorited it. */
   UserData?: { IsFavorite?: boolean };
   /** Present on items carrying their own primary image. */

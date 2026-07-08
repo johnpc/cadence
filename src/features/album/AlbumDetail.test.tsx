@@ -23,6 +23,8 @@ const album: JellyfinItem = {
   Name: 'Great Album',
   Type: 'MusicAlbum',
   AlbumArtist: 'Band',
+  ProductionYear: 2015,
+  Genres: ['Rock'],
 };
 const tracks: JellyfinItem[] = [
   { Id: 'a', Name: 'Track A', Type: 'Audio', Artists: ['Band'] },
@@ -56,6 +58,13 @@ describe('AlbumDetail', () => {
     expect(await screen.findByText('Track A')).toBeInTheDocument();
     expect(screen.getAllByText('Great Album').length).toBeGreaterThan(0);
     expect(getItemTracks).toHaveBeenCalledWith('al');
+  });
+
+  it('shows the year and genre meta line', async () => {
+    vi.mocked(getItem).mockResolvedValue(album);
+    vi.mocked(getItemTracks).mockResolvedValue(tracks);
+    renderAlbum();
+    expect(await screen.findByTestId('album-info')).toHaveTextContent('2015 • Rock');
   });
 
   it('plays the whole album from the top', async () => {
