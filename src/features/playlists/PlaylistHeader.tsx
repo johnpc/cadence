@@ -1,0 +1,36 @@
+import { TrackArt } from '../player/TrackArt';
+import { CollectionActions } from '../player/CollectionActions';
+import { ShareButton } from '../share/ShareButton';
+import { collectionSummary } from '../player/playerFormat';
+import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+/** The playlist detail header: cover, title, description, song-count summary,
+ * and the play/shuffle/queue + share actions. */
+export function PlaylistHeader({
+  playlist,
+  tracks,
+}: {
+  playlist: JellyfinItem | null;
+  tracks: JellyfinItem[];
+}) {
+  return (
+    <>
+      <div className="playlist__header">
+        <TrackArt item={playlist} size={160} />
+        <h1 className="playlist__title cad-headline">{playlist?.Name ?? 'Playlist'}</h1>
+        {playlist?.Overview && (
+          <p className="playlist__desc cad-meta" data-testid="playlist-desc">
+            {playlist.Overview}
+          </p>
+        )}
+        <p className="cad-meta" data-testid="playlist-summary">
+          {collectionSummary(tracks)}
+        </p>
+      </div>
+      <div className="playlist__actions">
+        <CollectionActions tracks={tracks} />
+        <ShareButton item={playlist} />
+      </div>
+    </>
+  );
+}

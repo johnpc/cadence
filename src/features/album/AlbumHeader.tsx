@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { TrackArt } from '../player/TrackArt';
 import { CollectionActions } from '../player/CollectionActions';
 import { SaveButton } from '../library/SaveButton';
+import { ShareButton } from '../share/ShareButton';
 import { GenreChips } from '../../components/GenreChips';
 import { artistLine, collectionSummary } from '../player/playerFormat';
 import { albumMeta } from './albumMeta';
@@ -43,6 +44,7 @@ export function AlbumHeader({
       <GenreChips genres={album?.Genres} />
       <div className="album__actions">
         <SaveButton item={album ?? null} />
+        <ShareButton item={album ?? null} />
         {tracks.length > 0 && <CollectionActions tracks={tracks} />}
       </div>
     </div>
