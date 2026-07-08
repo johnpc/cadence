@@ -1,4 +1,5 @@
 import { LoadState } from '../../components/LoadState';
+import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
 import { useLikedSongs } from './libraryApi';
@@ -16,6 +17,7 @@ export function LikedSongs() {
       isEmpty={songs.length === 0}
       emptyTitle="No liked songs yet"
       emptyMessage="Tap the heart on any song to add it here."
+      skeleton={<TrackListSkeleton />}
     >
       <div data-testid="liked-songs">
         <div className="liked__header">

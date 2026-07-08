@@ -1,0 +1,53 @@
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    var(--cad-surface) 25%,
+    var(--cad-surface-2) 37%,
+    var(--cad-surface) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.skeleton-shelf {
+  display: flex;
+  gap: var(--cad-space-4);
+  overflow: hidden;
+}
+
+.skeleton-shelf__card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-2);
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-2);
+}
+
+.skeleton-list__row {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+}
+
+.skeleton-list__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-2);
+  flex: 1;
+}

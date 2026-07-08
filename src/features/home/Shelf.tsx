@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { LoadState } from '../../components/LoadState';
+import { ShelfSkeleton } from '../../components/Skeleton';
 import './home.css';
 
 /** A titled horizontal-scrolling shelf of cards, with its own load handling. */
@@ -27,6 +28,7 @@ export function Shelf({
         onRetry={onRetry}
         isEmpty={isEmpty}
         emptyTitle="Nothing here yet"
+        skeleton={<ShelfSkeleton />}
       >
         <div className="shelf__row">{children}</div>
       </LoadState>

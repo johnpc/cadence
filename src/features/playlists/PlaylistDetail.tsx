@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
+import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
 import { usePlaylistItems } from './playlistsApi';
@@ -37,6 +38,7 @@ export function PlaylistDetail() {
           isEmpty={tracks.length === 0}
           emptyTitle="This playlist is empty"
           emptyMessage="Add songs from search or the player."
+          skeleton={<TrackListSkeleton />}
         >
           <div data-testid="playlist-detail">
             <CollectionActions tracks={tracks} />
