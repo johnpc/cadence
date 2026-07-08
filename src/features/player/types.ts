@@ -24,6 +24,8 @@ export interface PlayerContextValue {
   playShuffled: (tracks: JellyfinItem[]) => void;
   /** Queue a track to play right after the current one. */
   playNext: (track: JellyfinItem) => void;
+  /** Append a track to the end of the queue. */
+  addToQueue: (track: JellyfinItem) => void;
   /** Play/pause the current track. */
   toggle: () => void;
   next: () => void;

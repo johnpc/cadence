@@ -79,6 +79,16 @@ describe('usePlayerQueue', () => {
     expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a', 'c']);
   });
 
+  it('addToQueue appends to the end and seeds an empty queue', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.addToQueue(tracks[0]));
+    expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a']);
+    act(() => result.current.playQueue(tracks, 0));
+    act(() => result.current.addToQueue({ Id: 'z', Name: 'z', Type: 'Audio' }));
+    expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a', 'b', 'c', 'z']);
+    expect(result.current.queue.index).toBe(0);
+  });
+
   it('moveInQueue reorders a track', () => {
     const { result } = renderHook(() => usePlayerQueue());
     act(() => result.current.playQueue(tracks, 0));
