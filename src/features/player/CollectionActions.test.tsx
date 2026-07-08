@@ -28,4 +28,13 @@ describe('CollectionActions', () => {
     await userEvent.click(screen.getByTestId('shuffle-all'));
     expect(playShuffled).toHaveBeenCalledWith(tracks);
   });
+
+  it('adds the whole collection to the queue', async () => {
+    const addToQueue = vi.fn();
+    renderWithProviders(<CollectionActions tracks={tracks} />, {
+      player: stubPlayer({ addToQueue }),
+    });
+    await userEvent.click(screen.getByTestId('queue-all'));
+    expect(addToQueue).toHaveBeenCalledWith(tracks);
+  });
 });

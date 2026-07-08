@@ -89,6 +89,14 @@ describe('usePlayerQueue', () => {
     expect(result.current.queue.index).toBe(0);
   });
 
+  it('addToQueue appends a whole array and ignores an empty one', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.addToQueue([tracks[0], tracks[1]]));
+    expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a', 'b']);
+    act(() => result.current.addToQueue([]));
+    expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a', 'b']);
+  });
+
   it('moveInQueue reorders a track', () => {
     const { result } = renderHook(() => usePlayerQueue());
     act(() => result.current.playQueue(tracks, 0));

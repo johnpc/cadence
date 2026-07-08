@@ -4,7 +4,8 @@
   gap: var(--cad-space-4);
 }
 
-.collection-actions__shuffle {
+.collection-actions__shuffle,
+.collection-actions__queue {
   width: 44px;
   height: 44px;
   border: none;
