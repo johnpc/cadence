@@ -3,6 +3,8 @@ import { IonActionSheet, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { usePlaylists, useAddToPlaylist } from '../playlists/playlistsApi';
+import { useToast } from '../toast/useToast';
+import { copyShareLink } from '../share/shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** The now-playing "…" menu: jump to the current track's album or artist, or
@@ -18,6 +20,7 @@ export function NowPlayingMenu({
   const history = useHistory();
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
+  const toast = useToast();
   const go = (path: string) => {
     history.push(path);
     onNavigate();
@@ -28,6 +31,14 @@ export function NowPlayingMenu({
       ? [{ text: 'Go to album', handler: () => go(`/album/${track.AlbumId}`) }]
       : []),
     ...(artist ? [{ text: 'Go to artist', handler: () => go(`/artist/${artist.Id}`) }] : []),
+    {
+      text: 'Copy link',
+      handler: () => {
+        void copyShareLink(track, window.location.origin).then((ok) =>
+          toast(ok ? 'Link copied' : 'Could not copy link'),
+        );
+      },
+    },
     ...playlists.map((pl) => ({
       text: `Add to ${pl.Name}`,
       handler: () => add.mutate({ playlistId: pl.Id, itemId: track.Id }),

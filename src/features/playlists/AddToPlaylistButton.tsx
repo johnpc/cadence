@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { usePlaylists, useAddToPlaylist } from './playlistsApi';
 import { usePlayer } from '../player/usePlayer';
 import { useToast } from '../toast/useToast';
+import { copyShareLink } from '../share/shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './addToPlaylist.css';
 
@@ -39,6 +40,14 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
     ...(artist
       ? [{ text: 'Go to artist', handler: () => history.push(`/artist/${artist.Id}`) }]
       : []),
+    {
+      text: 'Copy link',
+      handler: () => {
+        void copyShareLink(track, window.location.origin).then((ok) =>
+          toast(ok ? 'Link copied' : 'Could not copy link'),
+        );
+      },
+    },
     ...playlists.map((pl) => ({
       text: `Add to ${pl.Name}`,
       handler: () => {
