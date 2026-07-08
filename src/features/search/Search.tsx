@@ -2,17 +2,15 @@ import { IonContent, IonHeader, IonPage, IonSearchbar, IonTitle, IonToolbar } fr
 import { useHistory } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackRow } from '../player/TrackRow';
-import { usePlayItem } from '../player/usePlayItem';
 import { artistLine } from '../player/playerFormat';
 import { ResultRow } from './ResultRow';
 import { useSearch } from './useSearch';
 import './search.css';
 
 /** Search — the primary discovery surface. Songs play; albums open their detail
- * page; artists start an instant-mix radio. */
+ * page; artists open their page (with a radio button). */
 export function Search() {
   const s = useSearch();
-  const playItem = usePlayItem();
   const history = useHistory();
 
   return (
@@ -68,10 +66,15 @@ export function Search() {
                 </section>
               )}
               {s.groups.artists.length > 0 && (
-                <section>
+                <section data-testid="search-artists">
                   <h2 className="cad-kicker search__section">Artists</h2>
                   {s.groups.artists.map((a) => (
-                    <ResultRow key={a.Id} item={a} subtitle="Artist" onSelect={playItem} />
+                    <ResultRow
+                      key={a.Id}
+                      item={a}
+                      subtitle="Artist"
+                      onSelect={() => history.push(`/artist/${a.Id}`)}
+                    />
                   ))}
                 </section>
               )}

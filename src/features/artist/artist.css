@@ -1,0 +1,64 @@
+.artist__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--cad-space-2);
+  margin-bottom: var(--cad-space-6);
+}
+
+.artist__name {
+  margin: var(--cad-space-3) 0 0;
+}
+
+.artist__radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  border: none;
+  border-radius: var(--cad-radius-pill);
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  font-family: var(--cad-font-sans);
+  font-weight: 700;
+  font-size: 15px;
+  padding: var(--cad-space-2) var(--cad-space-6);
+  cursor: pointer;
+}
+
+.artist__section {
+  margin: 0 0 var(--cad-space-3);
+}
+
+.artist__albums {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--cad-space-4);
+}
+
+.artist__album {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-1);
+}
+
+.artist__album .track-art {
+  width: 100% !important;
+  aspect-ratio: 1;
+  height: auto !important;
+}
+
+.artist__album-name {
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cad-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
