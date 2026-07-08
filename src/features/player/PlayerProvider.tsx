@@ -29,7 +29,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     });
   }, [qh]);
 
-  const { ref, isPlaying, position, duration } = useAudioElement(onEnded);
+  // A track that fails to load (bad transcode / 404) shouldn't stall playback —
+  // skip to the next one, like Spotify. `next()` is a no-op at the queue end.
+  const onError = useCallback(() => qh.next(), [qh]);
+
+  const { ref, isPlaying, position, duration } = useAudioElement(onEnded, onError);
   audioRef.current = ref.current;
 
   const current = q.currentTrack(qh.queue);

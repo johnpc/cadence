@@ -49,4 +49,11 @@ describe('useAudioElement', () => {
     act(() => audio.fire('ended'));
     expect(onEnded).toHaveBeenCalledOnce();
   });
+
+  it('fires onError when the audio element errors', () => {
+    const onError = vi.fn();
+    renderHook(() => useAudioElement(vi.fn(), onError));
+    act(() => audio.fire('error'));
+    expect(onError).toHaveBeenCalledOnce();
+  });
 });
