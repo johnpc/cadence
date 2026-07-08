@@ -1,0 +1,30 @@
+.album__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--cad-space-1);
+  margin-bottom: var(--cad-space-6);
+}
+
+.album__title {
+  margin: var(--cad-space-3) 0 0;
+}
+
+.album__artist {
+  margin: 0 0 var(--cad-space-3);
+}
+
+.album__play {
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}

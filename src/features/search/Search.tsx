@@ -1,4 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonSearchbar, IonTitle, IonToolbar } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackRow } from '../player/TrackRow';
 import { usePlayItem } from '../player/usePlayItem';
@@ -7,10 +8,12 @@ import { ResultRow } from './ResultRow';
 import { useSearch } from './useSearch';
 import './search.css';
 
-/** Search — the primary discovery surface. Songs play; albums/artists start. */
+/** Search — the primary discovery surface. Songs play; albums open their detail
+ * page; artists start an instant-mix radio. */
 export function Search() {
   const s = useSearch();
   const playItem = usePlayItem();
+  const history = useHistory();
 
   return (
     <IonPage>
@@ -55,7 +58,12 @@ export function Search() {
                 <section>
                   <h2 className="cad-kicker search__section">Albums</h2>
                   {s.groups.albums.map((a) => (
-                    <ResultRow key={a.Id} item={a} subtitle={artistLine(a)} onSelect={playItem} />
+                    <ResultRow
+                      key={a.Id}
+                      item={a}
+                      subtitle={artistLine(a)}
+                      onSelect={() => history.push(`/album/${a.Id}`)}
+                    />
                   ))}
                 </section>
               )}
