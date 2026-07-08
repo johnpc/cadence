@@ -16,6 +16,7 @@ import { CollectionActions } from '../player/CollectionActions';
 import { SaveButton } from '../library/SaveButton';
 import { artistLine, collectionSummary } from '../player/playerFormat';
 import { albumMeta } from './albumMeta';
+import { GenreChips } from '../../components/GenreChips';
 import { useAlbum, useAlbumTracks } from './albumApi';
 import './album.css';
 
@@ -57,6 +58,7 @@ export function AlbumDetail() {
               <p className="album__summary cad-meta" data-testid="album-summary">
                 {collectionSummary(tracks)}
               </p>
+              <GenreChips genres={album?.Genres} />
               <div className="album__actions">
                 <SaveButton item={album ?? null} />
                 <CollectionActions tracks={tracks} />
