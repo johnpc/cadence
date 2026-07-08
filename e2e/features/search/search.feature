@@ -16,3 +16,11 @@ Feature: Search
     When I open the Search tab
     And I search for "zzzxqqwvnotarealthing"
     Then I see the no-results state
+
+  Scenario: A played result shows up in recent searches
+    Given I am signed in
+    When I open the Search tab
+    And I search for "love"
+    And I tap the first song result
+    And I clear the search box
+    Then I see it in recent searches

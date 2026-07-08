@@ -26,3 +26,13 @@ When('I tap the first song result', async ({ page }) => {
 Then('I see the no-results state', async ({ page }) => {
   await expect(page.getByTestId('load-empty')).toBeVisible();
 });
+
+When('I clear the search box', async ({ page }) => {
+  await page.getByTestId('search-input').locator('input').fill('');
+});
+
+Then('I see it in recent searches', async ({ page }) => {
+  const recents = page.getByTestId('recent-searches');
+  await expect(recents).toBeVisible({ timeout: 15_000 });
+  await expect(recents.getByTestId('result-row').first()).toBeAttached();
+});
