@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import * as q from './queue';
+import { moveAt } from './queueMove';
 import { random } from '../../lib/random';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import type { RepeatMode } from './types';
@@ -33,6 +34,10 @@ export function usePlayerQueue() {
   const next = useCallback(() => setQueue((c) => q.next(c)), []);
   const prev = useCallback(() => setQueue((c) => q.prev(c)), []);
   const removeFromQueue = useCallback((at: number) => setQueue((c) => q.removeAt(c, at)), []);
+  const moveInQueue = useCallback(
+    (from: number, to: number) => setQueue((c) => moveAt(c, from, to)),
+    [],
+  );
   const jumpTo = useCallback((index: number) => setQueue((c) => ({ ...c, index })), []);
   const cycleRepeat = useCallback(() => setRepeat((r) => NEXT_REPEAT[r]), []);
   const toggleShuffle = useCallback(() => {
@@ -68,6 +73,7 @@ export function usePlayerQueue() {
     prev,
     jumpTo,
     removeFromQueue,
+    moveInQueue,
     cycleRepeat,
     toggleShuffle,
     advance,

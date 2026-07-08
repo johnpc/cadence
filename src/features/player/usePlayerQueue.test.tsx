@@ -78,4 +78,11 @@ describe('usePlayerQueue', () => {
     act(() => result.current.removeFromQueue(1));
     expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a', 'c']);
   });
+
+  it('moveInQueue reorders a track', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.playQueue(tracks, 0));
+    act(() => result.current.moveInQueue(2, 0));
+    expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['c', 'a', 'b']);
+  });
 });
