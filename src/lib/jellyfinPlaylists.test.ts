@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   addToPlaylist,
   createPlaylist,
+  deletePlaylist,
   getPlaylistItems,
   getPlaylists,
   removeFromPlaylist,
@@ -67,6 +68,15 @@ describe('jellyfinPlaylists', () => {
     const [url, init] = f.mock.calls[0];
     expect(url).toContain('/Playlists/pl1/Items');
     expect(url).toContain('EntryIds=entry1');
+    expect(init.method).toBe('DELETE');
+  });
+
+  it('deletePlaylist DELETEs the playlist item', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stub(undefined, 204);
+    await deletePlaylist('pl1');
+    const [url, init] = f.mock.calls[0];
+    expect(url).toContain('/Items/pl1');
     expect(init.method).toBe('DELETE');
   });
 });

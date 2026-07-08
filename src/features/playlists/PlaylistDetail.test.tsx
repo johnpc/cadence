@@ -9,6 +9,8 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([]),
   createPlaylist: vi.fn(),
   addToPlaylist: vi.fn(),
+  removeFromPlaylist: vi.fn(),
+  deletePlaylist: vi.fn(),
 }));
 vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
 import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
@@ -62,5 +64,21 @@ describe('PlaylistDetail', () => {
     vi.mocked(getPlaylistItems).mockResolvedValue([]);
     renderDetail();
     await waitFor(() => expect(screen.getByTestId('load-empty')).toBeInTheDocument());
+  });
+
+  it('offers a delete-playlist action', async () => {
+    vi.mocked(getPlaylistItems).mockResolvedValue(tracks);
+    renderDetail();
+    expect(await screen.findByTestId('delete-playlist')).toBeInTheDocument();
+  });
+
+  it('removes a track via its remove button', async () => {
+    const withEntry: JellyfinItem[] = [{ ...tracks[0], PlaylistItemId: 'e1' }];
+    vi.mocked(getPlaylistItems).mockResolvedValue(withEntry);
+    const { removeFromPlaylist } = await import('../../lib/jellyfinPlaylists');
+    vi.mocked(removeFromPlaylist).mockResolvedValue();
+    renderDetail();
+    await userEvent.click(await screen.findByTestId('track-row-remove'));
+    expect(removeFromPlaylist).toHaveBeenCalledWith('p1', 'e1');
   });
 });

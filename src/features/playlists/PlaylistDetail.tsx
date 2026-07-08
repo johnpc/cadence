@@ -1,25 +1,38 @@
 import {
+  IonAlert,
+  IonButton,
   IonButtons,
   IonBackButton,
   IonContent,
   IonHeader,
+  IonIcon,
   IonPage,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { useParams } from 'react-router-dom';
+import { trashOutline } from 'ionicons/icons';
+import { useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
-import { usePlaylistItems, useRemoveFromPlaylist } from './playlistsApi';
+import { usePlaylistItems, useRemoveFromPlaylist, useDeletePlaylist } from './playlistsApi';
 import './playlists.css';
 
-/** One playlist: its tracks, playable as a queue, each removable. */
+/** One playlist: its tracks (playable/removable), plus delete-playlist. */
 export function PlaylistDetail() {
   const { id } = useParams<{ id: string }>();
+  const history = useHistory();
   const { tracks, isLoading, isError, refetch } = usePlaylistItems(id);
   const remove = useRemoveFromPlaylist(id);
+  const del = useDeletePlaylist();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const onDelete = () =>
+    del.mutate(id, {
+      onSuccess: () => history.replace('/library'),
+    });
 
   return (
     <IonPage>
@@ -29,6 +42,15 @@ export function PlaylistDetail() {
             <IonBackButton defaultHref="/library" />
           </IonButtons>
           <IonTitle>Playlist</IonTitle>
+          <IonButtons slot="end">
+            <IonButton
+              onClick={() => setConfirmOpen(true)}
+              data-testid="delete-playlist"
+              aria-label="Delete playlist"
+            >
+              <IonIcon slot="icon-only" icon={trashOutline} />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -58,6 +80,16 @@ export function PlaylistDetail() {
             ))}
           </div>
         </LoadState>
+        <IonAlert
+          isOpen={confirmOpen}
+          header="Delete playlist?"
+          message="This removes the playlist from your library."
+          buttons={[
+            { text: 'Cancel', role: 'cancel' },
+            { text: 'Delete', role: 'destructive', handler: onDelete },
+          ]}
+          onDidDismiss={() => setConfirmOpen(false)}
+        />
       </IonContent>
     </IonPage>
   );
