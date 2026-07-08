@@ -90,6 +90,36 @@
   font-size: 34px;
 }
 
-.fullplayer__ctl-spacer {
-  width: 30px;
+.fullplayer__ctl {
+  position: relative;
+}
+
+.fullplayer__repeat-one {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fullplayer__queue-btn {
+  margin-top: var(--cad-space-6);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  border: none;
+  background: none;
+  color: var(--cad-text-secondary);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
 }

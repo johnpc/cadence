@@ -48,6 +48,14 @@ export function append(q: QueueState, tracks: JellyfinItem[]): QueueState {
   return { ...q, tracks: [...q.tracks, ...tracks] };
 }
 
+/** Insert a track right after the current one ("play next"). */
+export function enqueueNext(q: QueueState, track: JellyfinItem): QueueState {
+  if (!q.tracks.length) return { tracks: [track], index: 0 };
+  const tracks = [...q.tracks];
+  tracks.splice(q.index + 1, 0, track);
+  return { ...q, tracks };
+}
+
 /**
  * Fisher–Yates shuffle of everything AFTER the current track, keeping the
  * playing track in place at index 0 of a new queue. `rand` is injected (returns

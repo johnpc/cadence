@@ -1,0 +1,45 @@
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { QueueView } from './QueueView';
+import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
+import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+// Render IonModal children inline (jsdom can't run its framework delegate).
+vi.mock('@ionic/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@ionic/react')>();
+  return {
+    ...actual,
+    IonModal: ({ isOpen, children }: { isOpen: boolean; children: ReactNode }) =>
+      isOpen ? <div>{children}</div> : null,
+  };
+});
+
+const queue: JellyfinItem[] = [
+  { Id: 'a', Name: 'Queue A', Type: 'Audio' },
+  { Id: 'b', Name: 'Queue B', Type: 'Audio' },
+];
+
+describe('QueueView', () => {
+  it('lists the queue and marks the current track', () => {
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 1 }),
+    });
+    expect(screen.getByText('Queue A')).toBeInTheDocument();
+    expect(screen.getByText('Queue B')).toBeInTheDocument();
+    const rows = screen.getAllByTestId('queue-row');
+    expect(rows[1].className).toContain('queueview__row--current');
+  });
+
+  it('jumps to a track when tapped and closes', async () => {
+    const jumpTo = vi.fn();
+    const onClose = vi.fn();
+    renderWithProviders(<QueueView open onClose={onClose} />, {
+      player: stubPlayer({ queue, queueIndex: 0, jumpTo }),
+    });
+    await userEvent.click(screen.getAllByTestId('queue-row')[1]);
+    expect(jumpTo).toHaveBeenCalledWith(1);
+    expect(onClose).toHaveBeenCalled();
+  });
+});

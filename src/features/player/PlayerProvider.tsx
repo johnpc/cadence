@@ -1,23 +1,31 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { PlayerContext } from './PlayerContext';
 import { useAudioElement } from './useAudioElement';
 import { useMediaSessionSync } from './useMediaSessionSync';
+import { usePlayerQueue } from './usePlayerQueue';
 import { audioStreamUrl } from '../../lib/jellyfinStream';
-import { random } from '../../lib/random';
 import * as q from './queue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** Holds the play queue + the one audio element, exposing player controls. */
 export function PlayerProvider({ children }: { children: ReactNode }) {
-  const [queue, setQueue] = useState<q.QueueState>(q.EMPTY_QUEUE);
-  const [shuffle, setShuffle] = useState(false);
-  const queueRef = useRef(queue);
-  queueRef.current = queue;
+  const qh = usePlayerQueue();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const advance = useCallback(() => setQueue((cur) => q.next(cur)), []);
-  const { ref, isPlaying, position, duration } = useAudioElement(advance);
+  // On track end, apply the repeat rule; 'one' restarts the same element.
+  const onEnded = useCallback(() => {
+    qh.advance(() => {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.currentTime = 0;
+        void audio.play().catch(() => undefined);
+      }
+    });
+  }, [qh]);
 
-  const current = q.currentTrack(queue);
+  const { ref, isPlaying, position, duration } = useAudioElement(onEnded);
+  audioRef.current = ref.current;
+
+  const current = q.currentTrack(qh.queue);
   const currentId = current?.Id;
 
   // Load + play whenever the current track changes.
@@ -28,35 +36,22 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     void audio.play().catch(() => undefined);
   }, [currentId, ref]);
 
-  const playQueue = useCallback(
-    (tracks: JellyfinItem[], startIndex = 0) => setQueue(q.startQueue(tracks, startIndex)),
-    [],
-  );
   const toggle = useCallback(() => {
     const audio = ref.current;
-    if (!audio || !queueRef.current.tracks.length) return;
+    if (!audio || !qh.queue.tracks.length) return;
     if (audio.paused) void audio.play().catch(() => undefined);
     else audio.pause();
-  }, [ref]);
-  const next = useCallback(() => setQueue((cur) => q.next(cur)), []);
-  const prev = useCallback(() => setQueue((cur) => q.prev(cur)), []);
+  }, [ref, qh.queue.tracks.length]);
   const seek = useCallback(
     (seconds: number) => {
       if (ref.current) ref.current.currentTime = seconds;
     },
     [ref],
   );
-  const toggleShuffle = useCallback(() => {
-    setShuffle((on) => {
-      if (!on) setQueue((cur) => q.shuffleRest(cur, random));
-      return !on;
-    });
-  }, []);
 
-  // Drive the OS lock-screen / Control Center controls.
   const mediaHandlers = useMemo(
-    () => ({ play: toggle, pause: toggle, next, prev }),
-    [toggle, next, prev],
+    () => ({ play: toggle, pause: toggle, next: qh.next, prev: qh.prev }),
+    [toggle, qh.next, qh.prev],
   );
   useMediaSessionSync(current, isPlaying, mediaHandlers);
 
@@ -67,15 +62,21 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         isPlaying,
         position,
         duration,
-        shuffle,
-        canNext: q.hasNext(queue),
-        canPrev: q.hasPrev(queue),
-        playQueue,
+        shuffle: qh.shuffle,
+        repeat: qh.repeat,
+        canNext: q.hasNext(qh.queue),
+        canPrev: q.hasPrev(qh.queue),
+        queue: qh.queue.tracks,
+        queueIndex: qh.queue.index,
+        playQueue: qh.playQueue,
+        playNext: qh.playNext,
         toggle,
-        next,
-        prev,
+        next: qh.next,
+        prev: qh.prev,
+        jumpTo: qh.jumpTo,
         seek,
-        toggleShuffle,
+        toggleShuffle: qh.toggleShuffle,
+        cycleRepeat: qh.cycleRepeat,
       }}
     >
       {children}
