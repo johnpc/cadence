@@ -41,3 +41,9 @@ it('shows a remove button (not the track menu) when onRemove is set', async () =
   await userEvent.click(screen.getByTestId('track-row-remove'));
   expect(onRemove).toHaveBeenCalledOnce();
 });
+
+it('shows the track duration when the run time is known', () => {
+  const withTime: JellyfinItem = { ...tracks[0], RunTimeTicks: 75 * 10_000_000 };
+  renderWithProviders(<TrackRow track={withTime} queue={[withTime]} index={0} />);
+  expect(screen.getByTestId('track-duration')).toHaveTextContent('1:15');
+});

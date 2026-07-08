@@ -15,3 +15,9 @@ export function artistLine(item: JellyfinItem | null): string {
   if (item.Artists?.length) return item.Artists.join(', ');
   return item.AlbumArtist ?? '';
 }
+
+/** A track's run time (m:ss) from Jellyfin's .NET ticks, or '' when unknown. */
+export function trackDuration(ticks: number | undefined): string {
+  if (!ticks || ticks <= 0) return '';
+  return formatTime(ticks / 10_000_000);
+}

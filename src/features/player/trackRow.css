@@ -93,6 +93,12 @@
   text-overflow: ellipsis;
 }
 
+.track-row__duration {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  padding: 0 var(--cad-space-1);
+}
+
 .track-row__remove {
   flex-shrink: 0;
   border: none;
