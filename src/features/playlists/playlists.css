@@ -18,11 +18,6 @@
   color: var(--cad-text);
 }
 
-.playlists__icon {
-  font-size: 22px;
-  color: var(--cad-text-secondary);
-}
-
 .playlists__name {
   font-family: var(--cad-font-sans);
   font-size: 15px;
