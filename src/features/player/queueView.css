@@ -42,6 +42,14 @@
   overflow-y: auto;
 }
 
+.queueview__section {
+  margin: var(--cad-space-4) 0 var(--cad-space-2);
+}
+
+.queueview__list > div:first-child .queueview__section {
+  margin-top: 0;
+}
+
 .queueview__row {
   display: flex;
   align-items: center;
