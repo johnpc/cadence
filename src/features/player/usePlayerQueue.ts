@@ -27,11 +27,11 @@ export function usePlayerQueue() {
     (track: JellyfinItem) => setQueue((c) => q.enqueueNext(c, track)),
     [],
   );
-  const addToQueue = useCallback(
-    (track: JellyfinItem) =>
-      setQueue((c) => (c.tracks.length ? q.append(c, [track]) : q.startQueue([track], 0))),
-    [],
-  );
+  const addToQueue = useCallback((track: JellyfinItem | JellyfinItem[]) => {
+    const items = Array.isArray(track) ? track : [track];
+    if (!items.length) return;
+    setQueue((c) => (c.tracks.length ? q.append(c, items) : q.startQueue(items, 0)));
+  }, []);
   const playShuffled = useCallback((tracks: JellyfinItem[]) => {
     setQueue(q.startShuffled(tracks, random));
     setShuffle(true);
