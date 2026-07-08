@@ -68,3 +68,23 @@ Then('the lyrics sheet is shown', async ({ page }) => {
     timeout: 15_000,
   });
 });
+
+When('I open the queue', async ({ page }) => {
+  const btn = page.getByTestId('full-player-queue');
+  await btn.scrollIntoViewIfNeeded();
+  await btn.click({ force: true });
+  await expect(page.getByTestId('queue-view')).toBeVisible({ timeout: 15_000 });
+});
+
+Then('I can save the queue as a playlist', async ({ page }) => {
+  // The "Save as playlist" action prompts for a name (a real playlist create
+  // would mutate the shared server, so we assert the prompt opens, not submit).
+  const save = page.getByTestId('queue-save');
+  await expect(save).toBeVisible({ timeout: 15_000 });
+  await save.click({ force: true });
+  // The name prompt (an IonAlert) opens. Other alerts may be mounted-but-hidden,
+  // so match the one showing our header rather than the bare element.
+  await expect(page.locator('ion-alert:has-text("Save queue as playlist")')).toBeVisible({
+    timeout: 15_000,
+  });
+});

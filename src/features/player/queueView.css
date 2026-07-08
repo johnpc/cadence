@@ -22,8 +22,8 @@
   cursor: pointer;
 }
 
-.queueview__clear {
-  margin-left: auto;
+.queueview__clear,
+.queueview__save {
   border: none;
   background: none;
   color: var(--cad-accent);
@@ -31,6 +31,15 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.queueview__save {
+  margin-left: auto;
+}
+
+/* When Save is absent (empty queue) Clear still floats right. */
+.queueview__clear:first-of-type {
+  margin-left: auto;
 }
 
 .queueview__head h2 {

@@ -55,6 +55,17 @@ export async function createPlaylist(name: string): Promise<string> {
   return res.Id;
 }
 
+/** Create a playlist pre-populated with `itemIds` (one call — Jellyfin's create
+ * endpoint accepts initial Ids). Used to save the queue as a playlist. */
+export async function createPlaylistWithItems(name: string, itemIds: string[]): Promise<string> {
+  const userId = getSession()?.userId ?? '';
+  const res = await request<{ Id: string }>('/Playlists', {
+    method: 'POST',
+    body: { Name: name, UserId: userId, MediaType: 'Audio', Ids: itemIds },
+  });
+  return res.Id;
+}
+
 /** Append a track to a playlist. */
 export async function addToPlaylist(playlistId: string, itemId: string): Promise<void> {
   const userId = getSession()?.userId ?? '';

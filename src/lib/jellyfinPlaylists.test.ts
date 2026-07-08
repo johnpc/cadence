@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   addToPlaylist,
   createPlaylist,
+  createPlaylistWithItems,
   deletePlaylist,
   getPlaylistItems,
   getPlaylists,
@@ -50,6 +51,19 @@ describe('jellyfinPlaylists', () => {
     expect(url).toContain('/Playlists');
     expect(init.method).toBe('POST');
     expect(init.body).toContain('My Mix');
+  });
+
+  it('createPlaylistWithItems POSTs the name and initial ids', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stub({ Id: 'q1' });
+    const id = await createPlaylistWithItems('My Queue', ['a', 'b']);
+    expect(id).toBe('q1');
+    const [url, init] = f.mock.calls[0];
+    expect(url).toContain('/Playlists');
+    expect(init.method).toBe('POST');
+    expect(init.body).toContain('My Queue');
+    expect(init.body).toContain('a');
+    expect(init.body).toContain('b');
   });
 
   it('addToPlaylist POSTs the item id', async () => {

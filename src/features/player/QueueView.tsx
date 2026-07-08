@@ -2,6 +2,7 @@ import { IonModal, IonIcon } from '@ionic/react';
 import { chevronDown } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { QueueRow } from './QueueRow';
+import { SaveQueueButton } from './SaveQueueButton';
 import './queueView.css';
 
 /** The "Up Next" queue — the full play order, current track marked, tap to jump,
@@ -21,6 +22,7 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
             <IonIcon icon={chevronDown} />
           </button>
           <h2 className="cad-headline">Up next</h2>
+          <SaveQueueButton queue={queue} />
           {hasUpcoming && (
             <button
               type="button"
