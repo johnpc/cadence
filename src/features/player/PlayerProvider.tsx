@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { useCallback, useMemo, useRef, type ReactNode } from 'react';
 import { PlayerContext } from './PlayerContext';
 import { useAudioElement } from './useAudioElement';
 import { useMediaSessionSync } from './useMediaSessionSync';
@@ -11,7 +11,7 @@ import { usePlaybackReporting } from './usePlaybackReporting';
 import { useEndlessPlay } from './useEndlessPlay';
 import { useDocumentTitle } from './useDocumentTitle';
 import { buildPlayerValue } from './playerValue';
-import { audioStreamUrl } from '../../lib/jellyfinStream';
+import { useTrackLoader } from './useTrackLoader';
 import * as q from './queue';
 
 /** Holds the play queue + the one audio element, exposing player controls. */
@@ -41,13 +41,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const currentId = current?.Id;
   const { volume, setVolume, nudgeVolume, toggleMute } = useVolume(ref, currentId);
 
-  // Load + play whenever the current track changes.
-  useEffect(() => {
-    const audio = ref.current;
-    if (!audio || !currentId) return;
-    audio.src = audioStreamUrl(currentId);
-    void audio.play().catch(() => undefined);
-  }, [currentId, ref]);
+  // Load the current track and play on change (restored tracks stay paused).
+  useTrackLoader(ref, currentId);
 
   const { toggle, seek, pause } = usePlaybackControls(ref, qh.queue.tracks.length > 0);
 

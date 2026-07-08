@@ -1,11 +1,13 @@
 import { act, renderHook } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { usePlayerQueue } from './usePlayerQueue';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const tracks: JellyfinItem[] = ['a', 'b', 'c'].map((id) => ({ Id: id, Name: id, Type: 'Audio' }));
 
 describe('usePlayerQueue', () => {
+  afterEach(() => localStorage.clear());
+
   it('cycles repeat off → all → one → off', () => {
     const { result } = renderHook(() => usePlayerQueue());
     expect(result.current.repeat).toBe('off');

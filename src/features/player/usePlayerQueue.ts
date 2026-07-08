@@ -1,6 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as q from './queue';
 import { moveAt, clearUpcoming } from './queueMove';
+import { loadQueue, saveQueue } from './queuePersistence';
 import { random } from '../../lib/random';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import type { RepeatMode } from './types';
@@ -11,13 +12,18 @@ const NEXT_REPEAT: Record<RepeatMode, RepeatMode> = { off: 'all', all: 'one', on
  * Owns the play queue, shuffle, and repeat — all the pure-state orchestration —
  * so PlayerProvider only wires it to the audio element. `advance` applies the
  * repeat rule when a track ends (loop the queue on 'all', replay on 'one').
+ * The queue is persisted so playback survives a reload (restored paused).
  */
 export function usePlayerQueue() {
-  const [queue, setQueue] = useState<q.QueueState>(q.EMPTY_QUEUE);
+  const [queue, setQueue] = useState<q.QueueState>(loadQueue);
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>('off');
   const repeatRef = useRef(repeat);
   repeatRef.current = repeat;
+
+  useEffect(() => {
+    saveQueue(queue);
+  }, [queue]);
 
   const playQueue = useCallback(
     (tracks: JellyfinItem[], startIndex = 0) => setQueue(q.startQueue(tracks, startIndex)),
