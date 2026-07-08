@@ -8,15 +8,20 @@ describe('jellyfinSearchSource', () => {
     vi.restoreAllMocks();
   });
 
-  it('queries both /Items (songs+albums) and /Artists, merging + tagging artists', async () => {
+  it('queries /Items (songs+albums), /Artists, and playlists, merging + tagging artists', async () => {
     setSession({ token: 't', userId: 'uid' });
     const f = vi.fn().mockImplementation((url: string) => {
-      const items = url.includes('/Artists')
-        ? [{ Id: 'ar', Name: 'An Artist' }] // note: no Type from the Artists endpoint
-        : [
-            { Id: 's', Name: 'Song', Type: 'Audio' },
-            { Id: 'al', Name: 'Album', Type: 'MusicAlbum' },
-          ];
+      let items: unknown[];
+      if (url.includes('/Artists')) {
+        items = [{ Id: 'ar', Name: 'An Artist' }]; // no Type from the Artists endpoint
+      } else if (url.includes('IncludeItemTypes=Playlist')) {
+        items = [{ Id: 'pl', Name: 'A Playlist', Type: 'Playlist' }];
+      } else {
+        items = [
+          { Id: 's', Name: 'Song', Type: 'Audio' },
+          { Id: 'al', Name: 'Album', Type: 'MusicAlbum' },
+        ];
+      }
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -32,8 +37,14 @@ describe('jellyfinSearchSource', () => {
       true,
     );
     expect(urls.some((u) => u.includes('/Artists?'))).toBe(true);
+    expect(urls.some((u) => u.includes('IncludeItemTypes=Playlist'))).toBe(true);
     // Artists get tagged so the grouping can find them.
     expect(results.find((r) => r.Id === 'ar')?.Type).toBe('MusicArtist');
-    expect(results.map((r) => r.Type).sort()).toEqual(['Audio', 'MusicAlbum', 'MusicArtist']);
+    expect(results.map((r) => r.Type).sort()).toEqual([
+      'Audio',
+      'MusicAlbum',
+      'MusicArtist',
+      'Playlist',
+    ]);
   });
 });

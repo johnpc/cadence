@@ -40,10 +40,28 @@ async function searchArtists(query: string, limit: number): Promise<JellyfinItem
   return res.Items.map((a) => ({ ...a, Type: 'MusicArtist' }));
 }
 
-/** Jellyfin native search across songs, albums (Items) + artists (Artists). */
+async function searchPlaylists(query: string, limit: number): Promise<JellyfinItem[]> {
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({
+    searchTerm: query,
+    IncludeItemTypes: 'Playlist',
+    Recursive: 'true',
+    Limit: String(limit),
+    userId,
+  });
+  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
+  return res.Items;
+}
+
+/** Jellyfin native search across songs + albums (Items), artists (Artists),
+ * and playlists (queried separately so a flood of songs can't crowd them out). */
 export const jellyfinSearchSource: SearchSource = async (query, limit = 40) => {
-  const [items, artists] = await Promise.all([searchItems(query, limit), searchArtists(query, 10)]);
-  return [...items, ...artists];
+  const [items, artists, playlists] = await Promise.all([
+    searchItems(query, limit),
+    searchArtists(query, 10),
+    searchPlaylists(query, 10),
+  ]);
+  return [...items, ...artists, ...playlists];
 };
 
 /** The active source. Swap this line to change backends. */

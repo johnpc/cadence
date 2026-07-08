@@ -1,12 +1,13 @@
 import './searchFilters.css';
 
-export type SearchFilter = 'all' | 'songs' | 'albums' | 'artists';
+export type SearchFilter = 'all' | 'songs' | 'albums' | 'artists' | 'playlists';
 
 const FILTERS: { value: SearchFilter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'songs', label: 'Songs' },
   { value: 'albums', label: 'Albums' },
   { value: 'artists', label: 'Artists' },
+  { value: 'playlists', label: 'Playlists' },
 ];
 
 /** The All / Songs / Albums / Artists filter chips above search results. */

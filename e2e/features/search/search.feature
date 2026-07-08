@@ -19,6 +19,15 @@ Feature: Search
     When I filter results to "Songs"
     Then I do not see the Albums section
 
+  Scenario: Searching finds playlists and opens one
+    Given I am signed in
+    When I open the Search tab
+    And I search for "radio"
+    When I filter results to "Playlists"
+    Then I see playlist results
+    When I open the first playlist result
+    Then I see the playlist tracks
+
   Scenario: A nonsense query shows the empty state
     Given I am signed in
     When I open the Search tab

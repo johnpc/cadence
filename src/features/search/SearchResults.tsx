@@ -7,8 +7,8 @@ import type { RecentItem } from './recentSearchStore';
 import type { SearchFilter } from './SearchFilters';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** The grouped Songs / Albums / Artists sections, narrowed by the active filter.
- * Records each tap as a recent search. */
+/** The grouped Songs / Albums / Artists / Playlists sections, narrowed by the
+ * active filter. Records each tap as a recent search. */
 export function SearchResults({
   groups,
   filter,
@@ -27,6 +27,10 @@ export function SearchResults({
   const goArtist = (a: JellyfinItem) => {
     onPick(a);
     history.push(`/artist/${a.Id}`);
+  };
+  const goPlaylist = (p: JellyfinItem) => {
+    onPick(p);
+    history.push(`/playlist/${p.Id}`);
   };
   return (
     <div data-testid="search-results">
@@ -57,6 +61,14 @@ export function SearchResults({
           <h2 className="cad-kicker search__section">Artists</h2>
           {groups.artists.map((a) => (
             <ResultRow key={a.Id} item={a} subtitle="Artist" onSelect={goArtist} />
+          ))}
+        </section>
+      )}
+      {show('playlists') && groups.playlists.length > 0 && (
+        <section data-testid="search-playlists">
+          <h2 className="cad-kicker search__section">Playlists</h2>
+          {groups.playlists.map((p) => (
+            <ResultRow key={p.Id} item={p} subtitle="Playlist" onSelect={goPlaylist} />
           ))}
         </section>
       )}
