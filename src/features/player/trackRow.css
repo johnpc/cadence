@@ -30,6 +30,9 @@
 }
 
 .track-row__title {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
   font-family: var(--cad-font-sans);
   font-size: 15px;
   font-weight: 500;
@@ -37,6 +40,48 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* The currently-playing track: accent title + a little equalizer glyph. */
+.track-row--current .track-row__title {
+  color: var(--cad-accent);
+}
+
+.track-row__eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 14px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.track-row__eq i {
+  flex: 1;
+  background: var(--cad-accent);
+  height: 40%;
+}
+
+.track-row__eq--on i {
+  animation: track-eq 0.9s ease-in-out infinite;
+}
+
+.track-row__eq--on i:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.track-row__eq--on i:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes track-eq {
+  0%,
+  100% {
+    height: 30%;
+  }
+  50% {
+    height: 100%;
+  }
 }
 
 .track-row__artist {

@@ -201,5 +201,5 @@ ion-header ion-toolbar:first-of-type {
    every scroll view extra bottom room so its last row clears the mini-player
    (~64px) instead of being hidden behind it. */
 body.has-now-playing ion-content {
-  --padding-bottom: 72px;
+  --padding-bottom: 96px;
 }
