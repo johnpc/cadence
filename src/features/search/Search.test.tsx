@@ -45,11 +45,13 @@ describe('Search', () => {
     vi.mocked(searchSource).mockResolvedValue([song, album]);
     renderSearch();
     await type('found');
-    await waitFor(() => expect(screen.getByText('Found Song')).toBeInTheDocument());
-    expect(screen.getByText('Found Album')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByText('Found Song').length).toBeGreaterThan(0));
+    expect(screen.getAllByText('Found Album').length).toBeGreaterThan(0);
     const results = screen.getByTestId('search-results');
     expect(within(results).getByText('Songs')).toBeInTheDocument();
     expect(within(results).getByText('Albums')).toBeInTheDocument();
+    // The featured Top result appears under "All".
+    expect(within(results).getByTestId('top-result')).toBeInTheDocument();
   });
 
   it('shows an empty state when nothing matches', async () => {

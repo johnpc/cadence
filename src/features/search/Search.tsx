@@ -47,7 +47,7 @@ export function Search() {
               emptyMessage="Try a different search."
               skeleton={<TrackListSkeleton />}
             >
-              <SearchResults groups={s.groups} filter={filter} onPick={record} />
+              <SearchResults groups={s.groups} filter={filter} query={s.query} onPick={record} />
             </LoadState>
           </>
         )}

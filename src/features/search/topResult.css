@@ -1,0 +1,28 @@
+.top-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--cad-space-2);
+  width: 100%;
+  padding: var(--cad-space-4);
+  border: none;
+  border-radius: var(--cad-radius-card, 10px);
+  background: var(--cad-surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.top-result:hover {
+  background: var(--cad-surface-2);
+}
+
+.top-result__name {
+  margin-top: var(--cad-space-1);
+}
+
+.top-result__kind {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+  opacity: 0.8;
+}
