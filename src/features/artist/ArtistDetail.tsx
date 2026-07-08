@@ -13,6 +13,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackArt } from '../player/TrackArt';
 import { TrackRow } from '../player/TrackRow';
+import { SaveButton } from '../library/SaveButton';
 import { usePlayItem } from '../player/usePlayItem';
 import { useArtist, useArtistAlbums, useArtistTopTracks } from './artistApi';
 import './artist.css';
@@ -41,14 +42,17 @@ export function ArtistDetail() {
           <TrackArt item={artist} size={160} />
           <h1 className="artist__name cad-headline">{artist?.Name}</h1>
           {artist && (
-            <button
-              className="artist__radio"
-              data-testid="artist-radio"
-              onClick={() => void playItem(artist)}
-              aria-label="Start artist radio"
-            >
-              <IonIcon icon={radio} /> Radio
-            </button>
+            <div className="artist__actions" data-testid="artist-actions">
+              <SaveButton item={artist} />
+              <button
+                className="artist__radio"
+                data-testid="artist-radio"
+                onClick={() => void playItem(artist)}
+                aria-label="Start artist radio"
+              >
+                <IonIcon icon={radio} /> Radio
+              </button>
+            </div>
           )}
         </div>
         {topTracks.length > 0 && (

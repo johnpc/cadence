@@ -22,6 +22,21 @@ export async function getArtistAlbums(artistId: string, limit = 100): Promise<Je
   return res.Items;
 }
 
+/** The user's followed artists (Jellyfin favorites), alphabetically. Uses the
+ * dedicated /Artists endpoint — the generic /Items?IncludeItemTypes=MusicArtist
+ * favorites filter silently returns nothing for artists on this server. */
+export async function getFavoriteArtists(limit = 200): Promise<JellyfinItem[]> {
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({
+    Filters: 'IsFavorite',
+    SortBy: 'SortName',
+    Limit: String(limit),
+    userId,
+  });
+  const res = await request<ItemsResponse>(`/Artists?${params.toString()}`);
+  return res.Items;
+}
+
 /** An artist's most-played tracks ("Popular"). */
 export async function getArtistTopTracks(artistId: string, limit = 5): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';

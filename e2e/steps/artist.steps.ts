@@ -18,3 +18,18 @@ Then("I see the artist's albums", async ({ page }) => {
     timeout: 30_000,
   });
 });
+
+When('I follow the artist', async ({ page }) => {
+  const btn = page.getByTestId('artist-actions').getByTestId('save-button');
+  await expect(btn).toBeAttached({ timeout: 30_000 });
+  // Idempotent: only follow if not already followed (re-runs shouldn't unfollow).
+  if ((await btn.getAttribute('aria-pressed')) !== 'true') {
+    await btn.click({ force: true });
+    await expect(btn).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 });
+  }
+});
+
+Then('the followed artists list is not empty', async ({ page }) => {
+  const rows = page.getByTestId('followed-artists').getByTestId('followed-artist-row');
+  await expect(rows.first()).toBeAttached({ timeout: 30_000 });
+});

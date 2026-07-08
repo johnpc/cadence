@@ -11,6 +11,7 @@ import {
 import { settingsOutline } from 'ionicons/icons';
 import { LikedSongs } from './LikedSongs';
 import { SavedAlbums } from './SavedAlbums';
+import { FollowedArtists } from './FollowedArtists';
 import { Playlists } from '../playlists/Playlists';
 
 /** Your Library — liked songs, saved albums, and playlists. */
@@ -30,6 +31,7 @@ export function Library() {
       <IonContent className="ion-padding">
         <LikedSongs />
         <SavedAlbums />
+        <FollowedArtists />
         <Playlists />
       </IonContent>
     </IonPage>

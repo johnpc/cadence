@@ -11,6 +11,12 @@
   margin: var(--cad-space-3) 0 0;
 }
 
+.artist__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+}
+
 .artist__radio {
   display: inline-flex;
   align-items: center;
