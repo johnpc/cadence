@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
+import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackArt } from '../player/TrackArt';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
@@ -39,6 +40,7 @@ export function AlbumDetail() {
           onRetry={() => void refetch()}
           isEmpty={tracks.length === 0}
           emptyTitle="This album has no tracks"
+          skeleton={<TrackListSkeleton />}
         >
           <div data-testid="album-detail">
             <div className="album__header">

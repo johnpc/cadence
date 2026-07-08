@@ -23,6 +23,15 @@ describe('LoadState', () => {
     expect(screen.queryByText('ready content')).not.toBeInTheDocument();
   });
 
+  it('shows the skeleton instead of a spinner when provided', () => {
+    render(
+      <LoadState isLoading skeleton={<div data-testid="my-skeleton" />}>
+        <p>ready content</p>
+      </LoadState>,
+    );
+    expect(screen.getByTestId('my-skeleton')).toBeInTheDocument();
+  });
+
   it('shows a retryable error, and error beats empty', async () => {
     const onRetry = vi.fn();
     render(

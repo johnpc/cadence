@@ -15,6 +15,8 @@ export interface LoadStateProps {
   emptyTitle?: string;
   /** Optional secondary line under the empty title. */
   emptyMessage?: string;
+  /** Optional skeleton placeholder shown while loading instead of a spinner. */
+  skeleton?: ReactNode;
   /** The ready content — rendered only when not loading/error/empty. */
   children: ReactNode;
 }
@@ -25,7 +27,8 @@ export interface LoadStateProps {
  * NOT treated as "still loading" (the classic infinite-spinner bug).
  */
 export function LoadState(props: LoadStateProps) {
-  const { isLoading, isError, onRetry, isEmpty, emptyTitle, emptyMessage, children } = props;
+  const { isLoading, isError, onRetry, isEmpty, emptyTitle, emptyMessage, skeleton, children } =
+    props;
 
   if (isError) {
     return (
@@ -41,6 +44,7 @@ export function LoadState(props: LoadStateProps) {
   }
 
   if (isLoading) {
+    if (skeleton) return <div data-testid="load-loading">{skeleton}</div>;
     return (
       <div className="load-state" data-testid="load-loading">
         <IonSpinner name="crescent" />
