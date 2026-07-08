@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { PlayerContext } from './PlayerContext';
 import { useAudioElement } from './useAudioElement';
+import { useMediaSessionSync } from './useMediaSessionSync';
 import { audioStreamUrl } from '../../lib/jellyfinStream';
 import { random } from '../../lib/random';
 import * as q from './queue';
@@ -51,6 +52,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       return !on;
     });
   }, []);
+
+  // Drive the OS lock-screen / Control Center controls.
+  const mediaHandlers = useMemo(
+    () => ({ play: toggle, pause: toggle, next, prev }),
+    [toggle, next, prev],
+  );
+  useMediaSessionSync(current, isPlaying, mediaHandlers);
 
   return (
     <PlayerContext.Provider

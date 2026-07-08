@@ -1,0 +1,129 @@
+name: iOS Deploy
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Only one deploy at a time, so a manual dispatch landing alongside the auto
+# workflow_run queues instead of racing it into a duplicate upload.
+concurrency:
+  group: ios-deploy
+  cancel-in-progress: false
+
+env:
+  SCHEME: App
+  # Capacitor 8 iOS uses CocoaPods — archive the .xcworkspace, not the project.
+  WORKSPACE: ios/App/App.xcworkspace
+  XCODEPROJ: ios/App/App.xcodeproj
+  BUNDLE_ID: com.johncorser.cadence
+
+jobs:
+  deploy:
+    name: Deploy to App Store Connect
+    runs-on: macos-26
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - run: npm ci
+
+      # The Jellyfin base URL is a build-time constant committed in .env, so
+      # there's no backend config to pull — just build and sync.
+      - name: Build web and sync to Capacitor iOS
+        run: |
+          npm run build
+          npx cap sync ios
+          (cd ios/App && pod install)
+
+      - name: Write App Store Connect API key
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.ASC_KEY_CONTENT }}" > ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+
+      - name: Increment build number
+        working-directory: ios/App
+        run: |
+          BUILD_NUM=$(date +%Y%m%d%H%M%S)
+          agvtool new-version -all $BUILD_NUM
+          echo "Set build number to $BUILD_NUM"
+          echo "BUILD_NUM=$BUILD_NUM" >> "$GITHUB_ENV"
+
+      - name: Archive and upload (auto-bump version on conflict)
+        run: |
+          cat > /tmp/ExportOptions.plist << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store-connect</string>
+              <key>destination</key>
+              <string>upload</string>
+              <key>signingStyle</key>
+              <string>automatic</string>
+              <key>teamID</key>
+              <string>${{ secrets.TEAM_ID }}</string>
+          </dict>
+          </plist>
+          PLIST
+
+          archive_and_upload() {
+            xcodebuild archive \
+              -workspace "$WORKSPACE" \
+              -scheme "$SCHEME" \
+              -destination "generic/platform=iOS" \
+              -archivePath ~/Desktop/Cadence.xcarchive \
+              -allowProvisioningUpdates \
+              -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
+              -authenticationKeyID ${{ secrets.ASC_KEY_ID }} \
+              -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }} \
+              -quiet
+
+            xcodebuild -exportArchive \
+              -archivePath ~/Desktop/Cadence.xcarchive \
+              -exportOptionsPlist /tmp/ExportOptions.plist \
+              -exportPath ~/Desktop/export \
+              -allowProvisioningUpdates \
+              -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
+              -authenticationKeyID ${{ secrets.ASC_KEY_ID }} \
+              -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }} 2>&1
+          }
+
+          OUTPUT=$(archive_and_upload) && echo "$OUTPUT" && exit 0
+
+          if echo "$OUTPUT" | grep -qi "version.*already exists\|already been uploaded\|redundant binary\|train.*closed\|higher version"; then
+            echo "⚠️ Version conflict, bumping patch version..."
+            CURRENT=$(grep -m 1 'MARKETING_VERSION' "$XCODEPROJ/project.pbxproj" | sed 's/.*= *\(.*\);/\1/')
+            MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+            MINOR=$(echo "$CURRENT" | cut -d. -f2)
+            PATCH=$(echo "$CURRENT" | cut -d. -f3)
+            NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+            sed -i '' "s/MARKETING_VERSION = ${CURRENT}/MARKETING_VERSION = ${NEW_VERSION}/g" "$XCODEPROJ/project.pbxproj"
+            echo "Bumped $CURRENT → $NEW_VERSION"
+
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add "$XCODEPROJ/project.pbxproj"
+            git commit -m "chore(ios): bump version to $NEW_VERSION [skip ci]"
+            git push origin main
+
+            rm -rf ~/Desktop/Cadence.xcarchive ~/Desktop/export
+            archive_and_upload
+          else
+            echo "$OUTPUT"
+            exit 1
+          fi
