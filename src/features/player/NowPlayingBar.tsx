@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import { play, pause } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
@@ -11,6 +11,14 @@ import './nowPlayingBar.css';
 export function NowPlayingBar() {
   const { current, isPlaying, toggle } = usePlayer();
   const [open, setOpen] = useState(false);
+
+  // Flag the document while a track is loaded so scroll views can reserve
+  // bottom space and their last row isn't hidden behind the fixed mini-player.
+  useEffect(() => {
+    document.body.classList.toggle('has-now-playing', !!current);
+    return () => document.body.classList.remove('has-now-playing');
+  }, [current]);
+
   if (!current) return null;
 
   return (

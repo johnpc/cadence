@@ -196,3 +196,10 @@
 ion-header ion-toolbar:first-of-type {
   padding-top: max(var(--cad-safe-top, 0px), env(safe-area-inset-top, 0px));
 }
+
+/* When a track is loaded, the fixed mini-player floats above the tab bar. Give
+   every scroll view extra bottom room so its last row clears the mini-player
+   (~64px) instead of being hidden behind it. */
+body.has-now-playing ion-content {
+  --padding-bottom: 72px;
+}
