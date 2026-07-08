@@ -10,6 +10,7 @@ import {
 } from '@ionic/react';
 import { settingsOutline } from 'ionicons/icons';
 import { LikedSongs } from './LikedSongs';
+import { Playlists } from '../playlists/Playlists';
 
 /** Your Library — Liked Songs now; playlists arrive in the next slice. */
 export function Library() {
@@ -27,6 +28,7 @@ export function Library() {
       </IonHeader>
       <IonContent className="ion-padding">
         <LikedSongs />
+        <Playlists />
       </IonContent>
     </IonPage>
   );
