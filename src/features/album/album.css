@@ -21,8 +21,16 @@
   margin: 0 0 var(--cad-space-1);
 }
 
+.album__info {
+  margin: 0;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+}
+
 .album__summary {
-  margin: 0 0 var(--cad-space-3);
+  margin: var(--cad-space-1) 0 var(--cad-space-3);
   opacity: 0.8;
 }
 

@@ -15,6 +15,7 @@ import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
 import { SaveButton } from '../library/SaveButton';
 import { artistLine, collectionSummary } from '../player/playerFormat';
+import { albumMeta } from './albumMeta';
 import { useAlbum, useAlbumTracks } from './albumApi';
 import './album.css';
 
@@ -48,6 +49,11 @@ export function AlbumDetail() {
               <TrackArt item={album} size={160} />
               <h1 className="album__title cad-headline">{album?.Name}</h1>
               <p className="album__artist cad-meta">{artistLine(album) || album?.AlbumArtist}</p>
+              {albumMeta(album) && (
+                <p className="album__info cad-meta" data-testid="album-info">
+                  {albumMeta(album)}
+                </p>
+              )}
               <p className="album__summary cad-meta" data-testid="album-summary">
                 {collectionSummary(tracks)}
               </p>
