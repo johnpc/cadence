@@ -5,6 +5,7 @@ import { TrackListSkeleton } from '../../components/Skeleton';
 import { SearchResults } from './SearchResults';
 import { SearchFilters, type SearchFilter } from './SearchFilters';
 import { RecentSearches } from './RecentSearches';
+import { GenreTiles } from '../genre/GenreTiles';
 import { useSearch } from './useSearch';
 import { useRecentSearches } from './useRecentSearches';
 import './search.css';
@@ -34,7 +35,10 @@ export function Search() {
       </IonHeader>
       <IonContent className="ion-padding">
         {s.isIdle ? (
-          <RecentSearches recents={recents} onClear={clear} onRemove={remove} />
+          <>
+            <RecentSearches recents={recents} onClear={clear} onRemove={remove} />
+            <GenreTiles />
+          </>
         ) : (
           <>
             <SearchFilters filter={filter} onChange={setFilter} />
