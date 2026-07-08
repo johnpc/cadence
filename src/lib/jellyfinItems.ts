@@ -55,6 +55,23 @@ export async function getFavoriteSongs(limit = 200): Promise<JellyfinItem[]> {
   return res.Items;
 }
 
+/** The user's saved albums (Jellyfin favorites), most-recent first. */
+export async function getFavoriteAlbums(limit = 200): Promise<JellyfinItem[]> {
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({
+    IncludeItemTypes: 'MusicAlbum',
+    Recursive: 'true',
+    Filters: 'IsFavorite',
+    SortBy: 'DateCreated',
+    SortOrder: 'Descending',
+    Limit: String(limit),
+    Fields: 'AlbumArtist,Artists',
+    userId,
+  });
+  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
+  return res.Items;
+}
+
 /** Add a track to the user's liked songs. */
 export async function addFavorite(itemId: string): Promise<void> {
   const userId = getSession()?.userId ?? '';

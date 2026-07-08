@@ -18,3 +18,18 @@ Then('I see the album tracks', async ({ page }) => {
 When('I play the album', async ({ page }) => {
   await page.getByTestId('album-detail').getByTestId('play-all').click({ force: true });
 });
+
+When('I save the album', async ({ page }) => {
+  const save = page.getByTestId('album-detail').getByTestId('save-button');
+  await expect(save).toBeAttached({ timeout: 30_000 });
+  // Idempotent: only toggle on if not already saved (re-runs shouldn't unsave).
+  if ((await save.getAttribute('aria-pressed')) !== 'true') {
+    await save.click({ force: true });
+    await expect(save).toHaveAttribute('aria-pressed', 'true', { timeout: 15_000 });
+  }
+});
+
+Then('the saved albums list is not empty', async ({ page }) => {
+  const rows = page.getByTestId('saved-albums').getByTestId('saved-album-row');
+  await expect(rows.first()).toBeAttached({ timeout: 30_000 });
+});

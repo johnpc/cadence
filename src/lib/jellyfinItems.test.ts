@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   addFavorite,
+  getFavoriteAlbums,
   getFavoriteSongs,
   getInstantMix,
   getItem,
@@ -65,6 +66,15 @@ describe('jellyfinItems', () => {
     const [url] = f.mock.calls[0];
     expect(url).toContain('Filters=IsFavorite');
     expect(url).toContain('IncludeItemTypes=Audio');
+  });
+
+  it('getFavoriteAlbums requests saved albums, newest first', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stubItems([{ Id: 'al', Name: 'x', Type: 'MusicAlbum' }]);
+    await getFavoriteAlbums();
+    const [url] = f.mock.calls[0];
+    expect(url).toContain('Filters=IsFavorite');
+    expect(url).toContain('IncludeItemTypes=MusicAlbum');
   });
 
   it('addFavorite POSTs to the user favorite endpoint', async () => {

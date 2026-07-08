@@ -7,6 +7,12 @@
   margin-bottom: var(--cad-space-6);
 }
 
+.album__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+}
+
 .album__title {
   margin: var(--cad-space-3) 0 0;
 }
