@@ -87,6 +87,8 @@ jobs:
             paths: .features-gen/e2e/features/album
           - name: artist
             paths: .features-gen/e2e/features/artist
+          - name: song
+            paths: .features-gen/e2e/features/song
     steps:
       - uses: actions/checkout@v4
 

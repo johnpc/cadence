@@ -27,6 +27,7 @@ export function NowPlayingMenu({
   };
   const artist = track.ArtistItems?.[0];
   const buttons = [
+    { text: 'Go to song', handler: () => go(`/song/${track.Id}`) },
     ...(track.AlbumId
       ? [{ text: 'Go to album', handler: () => go(`/album/${track.AlbumId}`) }]
       : []),
