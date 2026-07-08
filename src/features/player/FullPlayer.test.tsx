@@ -7,6 +7,10 @@ import type { PlayerContextValue } from './types';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 
+// The lyrics sheet fetches lazily when opened; stub the source so no real
+// network fires from this render.
+vi.mock('../../lib/jellyfinLyrics', () => ({ getLyrics: vi.fn().mockResolvedValue([]) }));
+
 // IonModal's real present/dismiss uses a "framework delegate" that jsdom can't
 // satisfy; render its children inline when open so we test our content only.
 vi.mock('@ionic/react', async (importOriginal) => {
@@ -80,5 +84,11 @@ describe('FullPlayer', () => {
     const { fireEvent } = await import('@testing-library/react');
     fireEvent.change(slider, { target: { value: '0.4' } });
     expect(setVolume).toHaveBeenCalledWith(0.4);
+  });
+
+  it('opens the lyrics sheet', async () => {
+    renderPlayer(ctx());
+    await userEvent.click(screen.getByTestId('full-player-lyrics'));
+    expect(await screen.findByTestId('lyrics-sheet')).toBeInTheDocument();
   });
 });

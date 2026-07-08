@@ -20,3 +20,10 @@ Feature: Playback
     When I tap a track from search
     And I press the spacebar
     Then playback is paused
+
+  Scenario: Viewing lyrics for the playing track
+    Given I am signed in
+    When I tap a track from search
+    And I open the full player
+    And I open lyrics
+    Then the lyrics sheet is shown

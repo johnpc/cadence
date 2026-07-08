@@ -7,6 +7,9 @@
   gap: var(--cad-space-6);
   padding: var(--cad-space-6) var(--cad-space-6) var(--cad-space-8);
   padding-top: max(var(--cad-safe-top), var(--cad-space-6));
+  /* Taller than a small phone once art + scrubber + controls + volume + footer
+     stack up — allow the sheet to scroll so the footer stays reachable. */
+  overflow-y: auto;
 }
 
 .fullplayer__close {
@@ -126,8 +129,13 @@
   accent-color: var(--cad-accent);
 }
 
-.fullplayer__queue-btn {
+.fullplayer__footer {
+  display: flex;
+  gap: var(--cad-space-8);
   margin-top: var(--cad-space-6);
+}
+
+.fullplayer__foot-btn {
   display: inline-flex;
   align-items: center;
   gap: var(--cad-space-2);

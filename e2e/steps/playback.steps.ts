@@ -51,3 +51,17 @@ Then('playback is paused', async ({ page }) => {
     timeout: 15_000,
   });
 });
+
+When('I open lyrics', async ({ page }) => {
+  const btn = page.getByTestId('full-player-lyrics');
+  await btn.scrollIntoViewIfNeeded();
+  await btn.click({ force: true });
+});
+
+Then('the lyrics sheet is shown', async ({ page }) => {
+  await expect(page.getByTestId('lyrics-sheet')).toBeVisible({ timeout: 15_000 });
+  // Either lyric lines or a titled empty state resolves — never a hung spinner.
+  await expect(page.getByTestId('lyrics-lines').or(page.getByTestId('load-empty'))).toBeAttached({
+    timeout: 15_000,
+  });
+});
