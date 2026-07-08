@@ -37,5 +37,6 @@ When('I tap the {string} tab', async ({ page }, label: string) => {
 });
 
 Then('I see the search placeholder', async ({ page }) => {
-  await expect(page.getByTestId('search-placeholder')).toBeVisible();
+  await expect(page.getByTestId('search-input')).toBeVisible();
+  await expect(page.getByTestId('search-idle')).toBeVisible();
 });

@@ -24,7 +24,7 @@ recommendations — all backed by the Jellyfin server you already run.
 | Light / Dark / System theme                   | ✅     |
 | Log in with your Jellyfin account             | ✅     |
 | Playback + persistent Now-Playing bar         | ✅     |
-| Search (the primary discovery surface)        | ⬜     |
+| Search (the primary discovery surface)        | ✅     |
 | Liked songs                                   | ⬜     |
 | Playlists (browse, create, add)               | ⬜     |
 | Home recommendations (recently added, radio)  | ⬜     |
