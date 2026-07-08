@@ -10,17 +10,13 @@ import {
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
-import { TrackArt } from '../player/TrackArt';
 import { TrackRow } from '../player/TrackRow';
-import { CollectionActions } from '../player/CollectionActions';
-import { SaveButton } from '../library/SaveButton';
-import { artistLine, collectionSummary } from '../player/playerFormat';
-import { albumMeta } from './albumMeta';
-import { GenreChips } from '../../components/GenreChips';
+import { AlbumHeader } from './AlbumHeader';
 import { useAlbum, useAlbumTracks } from './albumApi';
 import './album.css';
 
-/** One album: header (art + title + artist + play/shuffle) and its tracklist. */
+/** One album: header (always shown once metadata loads) + its tracklist. Even
+ * when Jellyfin reports no tracks, the header (art, title, artist link) shows. */
 export function AlbumDetail() {
   const { id } = useParams<{ id: string }>();
   const { album } = useAlbum(id);
@@ -37,44 +33,30 @@ export function AlbumDetail() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <LoadState
-          isLoading={isLoading}
-          isError={isError}
-          onRetry={() => void refetch()}
-          isEmpty={tracks.length === 0}
-          emptyTitle="This album has no tracks"
-          skeleton={<TrackListSkeleton />}
-        >
-          <div data-testid="album-detail">
-            <div className="album__header">
-              <TrackArt item={album} size={160} />
-              <h1 className="album__title cad-headline">{album?.Name}</h1>
-              <p className="album__artist cad-meta">{artistLine(album) || album?.AlbumArtist}</p>
-              {albumMeta(album) && (
-                <p className="album__info cad-meta" data-testid="album-info">
-                  {albumMeta(album)}
-                </p>
-              )}
-              <p className="album__summary cad-meta" data-testid="album-summary">
-                {collectionSummary(tracks)}
-              </p>
-              <GenreChips genres={album?.Genres} />
-              <div className="album__actions">
-                <SaveButton item={album ?? null} />
-                <CollectionActions tracks={tracks} />
-              </div>
-            </div>
-            {tracks.map((track, index) => (
-              <TrackRow key={track.Id} track={track} queue={tracks} index={index} showNumber />
-            ))}
-            {album?.Overview && (
-              <section data-testid="album-about">
-                <h2 className="cad-kicker album__section">About</h2>
-                <p className="album__about cad-meta">{album.Overview}</p>
-              </section>
-            )}
-          </div>
-        </LoadState>
+        <div data-testid="album-detail">
+          <AlbumHeader album={album} tracks={tracks} />
+          <LoadState
+            isLoading={isLoading}
+            isError={isError}
+            onRetry={() => void refetch()}
+            isEmpty={tracks.length === 0}
+            emptyTitle="No playable tracks"
+            emptyMessage="This album's songs aren't available on your server."
+            skeleton={<TrackListSkeleton />}
+          >
+            <>
+              {tracks.map((track, index) => (
+                <TrackRow key={track.Id} track={track} queue={tracks} index={index} showNumber />
+              ))}
+            </>
+          </LoadState>
+          {album?.Overview && (
+            <section data-testid="album-about">
+              <h2 className="cad-kicker album__section">About</h2>
+              <p className="album__about cad-meta">{album.Overview}</p>
+            </section>
+          )}
+        </div>
       </IonContent>
     </IonPage>
   );

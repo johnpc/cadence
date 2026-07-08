@@ -39,13 +39,13 @@ describe('jellyfinItems', () => {
     expect(f.mock.calls[0][0]).toContain('/Users/uid/Items/al');
   });
 
-  it('getItemTracks requests a parent’s tracks in order', async () => {
+  it('getItemTracks requests an album’s tracks by AlbumIds, in order', async () => {
     setSession({ token: 't', userId: 'uid' });
     const f = stubItems([{ Id: 'a', Name: 'x', Type: 'Audio' }]);
     const items = await getItemTracks('album1');
     expect(items).toHaveLength(1);
     const [url] = f.mock.calls[0];
-    expect(url).toContain('ParentId=album1');
+    expect(url).toContain('AlbumIds=album1');
     expect(url).toContain('IncludeItemTypes=Audio');
   });
 

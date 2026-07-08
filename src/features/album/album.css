@@ -21,6 +21,16 @@
   margin: 0 0 var(--cad-space-1);
 }
 
+.album__artist-link {
+  color: var(--cad-text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.album__artist-link:hover {
+  text-decoration: underline;
+}
+
 .album__section {
   margin: var(--cad-space-5) 0 var(--cad-space-2);
 }

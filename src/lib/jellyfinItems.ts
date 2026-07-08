@@ -15,11 +15,13 @@ export async function getItem(itemId: string): Promise<JellyfinItem> {
   return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}?Fields=Genres,Overview`);
 }
 
-/** All audio tracks belonging to a parent (an album or artist), in order. */
-export async function getItemTracks(parentId: string, limit = 200): Promise<JellyfinItem[]> {
+/** All audio tracks on an album, in track order. Uses AlbumIds, not ParentId:
+ * some albums (e.g. where the songs live under a different container) return
+ * nothing for ParentId+Recursive but resolve correctly by AlbumIds. */
+export async function getItemTracks(albumId: string, limit = 200): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
-    ParentId: parentId,
+    AlbumIds: albumId,
     IncludeItemTypes: 'Audio',
     Recursive: 'true',
     SortBy: 'ParentIndexNumber,IndexNumber,SortName',

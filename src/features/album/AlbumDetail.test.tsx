@@ -23,6 +23,7 @@ const album: JellyfinItem = {
   Name: 'Great Album',
   Type: 'MusicAlbum',
   AlbumArtist: 'Band',
+  ArtistItems: [{ Id: 'ar1', Name: 'Band' }],
   ProductionYear: 2015,
   Genres: ['Rock'],
 };
@@ -92,10 +93,22 @@ describe('AlbumDetail', () => {
     expect(playQueue).toHaveBeenCalledWith(tracks, 0);
   });
 
-  it('shows an empty state for an album with no tracks', async () => {
+  it('still shows the header (art, title, artist link) when the album has no tracks', async () => {
     vi.mocked(getItem).mockResolvedValue(album);
     vi.mocked(getItemTracks).mockResolvedValue([]);
     renderAlbum();
     await waitFor(() => expect(screen.getByTestId('load-empty')).toBeInTheDocument());
+    // The header persists even with no tracks.
+    expect(screen.getAllByText('Great Album').length).toBeGreaterThan(0);
+    const link = screen.getByRole('link', { name: 'Band' });
+    expect(link).toHaveAttribute('href', '/artist/ar1');
+  });
+
+  it('links the artist name to the artist page', async () => {
+    vi.mocked(getItem).mockResolvedValue(album);
+    vi.mocked(getItemTracks).mockResolvedValue(tracks);
+    renderAlbum();
+    await screen.findByText('Track A');
+    expect(screen.getByRole('link', { name: 'Band' })).toHaveAttribute('href', '/artist/ar1');
   });
 });
