@@ -3,6 +3,7 @@ import { PlayerContext } from './PlayerContext';
 import { useAudioElement } from './useAudioElement';
 import { useMediaSessionSync } from './useMediaSessionSync';
 import { usePlayerQueue } from './usePlayerQueue';
+import { useSleepTimer } from './useSleepTimer';
 import { audioStreamUrl } from '../../lib/jellyfinStream';
 import * as q from './queue';
 
@@ -49,6 +50,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     [ref],
   );
 
+  // Sleep timer: pause when it elapses.
+  const pause = useCallback(() => ref.current?.pause(), [ref]);
+  const { sleepMinutes, armSleep } = useSleepTimer(pause);
+
   const mediaHandlers = useMemo(
     () => ({ play: toggle, pause: toggle, next: qh.next, prev: qh.prev }),
     [toggle, qh.next, qh.prev],
@@ -78,6 +83,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         seek,
         toggleShuffle: qh.toggleShuffle,
         cycleRepeat: qh.cycleRepeat,
+        sleepMinutes,
+        armSleep,
       }}
     >
       {children}

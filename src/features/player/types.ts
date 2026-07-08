@@ -35,4 +35,8 @@ export interface PlayerContextValue {
   toggleShuffle: () => void;
   /** Cycle repeat: off → all → one → off. */
   cycleRepeat: () => void;
+  /** Minutes remaining on the sleep timer, or null when unset. */
+  sleepMinutes: number | null;
+  /** Arm the sleep timer for N minutes (null/0 cancels). */
+  armSleep: (minutes: number | null) => void;
 }
