@@ -50,3 +50,17 @@ Then('a different recommendation takes its place', async ({ page }) => {
   });
   await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: 15_000 });
 });
+
+Then('I can find within the playlist', async ({ page }) => {
+  // The "Find in playlist" box shows only for playlists with >8 tracks. If it's
+  // present, typing narrows the list; if absent (a short playlist), that's the
+  // documented behaviour — either way, never a hung/incorrect state.
+  const detail = page.getByTestId('playlist-detail');
+  const search = detail.getByTestId('playlist-search');
+  if ((await search.count()) === 0) return;
+  const before = await detail.getByTestId('track-row').count();
+  await search.locator('input').fill('zzzznotarealsong');
+  await expect(page.getByTestId('playlist-no-matches')).toBeVisible({ timeout: 10_000 });
+  await search.locator('input').fill('');
+  await expect(detail.getByTestId('track-row')).toHaveCount(before, { timeout: 10_000 });
+});

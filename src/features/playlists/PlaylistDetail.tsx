@@ -10,28 +10,18 @@ import {
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
-import { TrackRow } from '../player/TrackRow';
 import { PlaylistHeader } from './PlaylistHeader';
+import { PlaylistTracks } from './PlaylistTracks';
 import { RecommendedSongs } from './RecommendedSongs';
 import { DeletePlaylistButton } from './DeletePlaylistButton';
-import {
-  usePlaylist,
-  usePlaylistItems,
-  useRemoveFromPlaylist,
-  useMovePlaylistItem,
-} from './playlistsApi';
+import { usePlaylist, usePlaylistItems } from './playlistsApi';
 import './playlists.css';
 
-/** One playlist: its tracks (playable/removable), plus delete-playlist. */
+/** One playlist: its tracks (playable/removable/filterable), plus delete. */
 export function PlaylistDetail() {
   const { id } = useParams<{ id: string }>();
   const { tracks, isLoading, isError, refetch } = usePlaylistItems(id);
   const { playlist } = usePlaylist(id);
-  const remove = useRemoveFromPlaylist(id);
-  const move = useMovePlaylistItem(id);
-  const moveEntry = (entryId: string | undefined, index: number) => {
-    if (entryId) move.mutate({ entryId, index });
-  };
 
   return (
     <IonPage>
@@ -58,25 +48,7 @@ export function PlaylistDetail() {
         >
           <div data-testid="playlist-detail">
             <PlaylistHeader playlist={playlist} tracks={tracks} />
-            {tracks.map((track, index) => (
-              <TrackRow
-                key={track.PlaylistItemId ?? track.Id}
-                track={track}
-                queue={tracks}
-                index={index}
-                onRemove={
-                  track.PlaylistItemId
-                    ? () => remove.mutate(track.PlaylistItemId as string)
-                    : undefined
-                }
-                reorder={{
-                  isFirst: index === 0,
-                  isLast: index === tracks.length - 1,
-                  onMoveUp: () => moveEntry(track.PlaylistItemId, index - 1),
-                  onMoveDown: () => moveEntry(track.PlaylistItemId, index + 1),
-                }}
-              />
-            ))}
+            <PlaylistTracks playlistId={id} tracks={tracks} />
             <RecommendedSongs playlistId={id} tracks={tracks} />
           </div>
         </LoadState>

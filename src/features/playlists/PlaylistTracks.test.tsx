@@ -1,0 +1,72 @@
+import { act, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+/** IonSearchbar wraps a native input jsdom can't drive via userEvent; fire its
+ * `ionInput` CustomEvent directly (the documented pattern for this codebase). */
+function typeSearch(value: string) {
+  const bar = screen.getByTestId('playlist-search');
+  act(() => {
+    bar.dispatchEvent(new CustomEvent('ionInput', { detail: { value } }));
+  });
+}
+
+vi.mock('../../lib/jellyfinPlaylists', () => ({
+  removeFromPlaylist: vi.fn(),
+  movePlaylistItem: vi.fn(),
+}));
+vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
+import { PlaylistTracks } from './PlaylistTracks';
+import { PlayerContext } from '../player/PlayerContext';
+import { stubPlayer } from '../../test/renderWithProviders';
+import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+/** Build N tracks so the filter box (which shows only for >8) appears. */
+function makeTracks(n: number): JellyfinItem[] {
+  return Array.from({ length: n }, (_, i) => ({
+    Id: String(i),
+    PlaylistItemId: `e${i}`,
+    Name: i === 0 ? 'Karma Police' : `Song ${i}`,
+    Type: 'Audio',
+    Artists: [i === 0 ? 'Radiohead' : 'Filler'],
+  }));
+}
+
+function renderTracks(tracks: JellyfinItem[]) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(
+    <QueryClientProvider client={client}>
+      <PlayerContext.Provider value={stubPlayer()}>
+        <MemoryRouter>
+          <PlaylistTracks playlistId="p1" tracks={tracks} />
+        </MemoryRouter>
+      </PlayerContext.Provider>
+    </QueryClientProvider>,
+  );
+}
+
+afterEach(() => {
+  vi.resetAllMocks();
+});
+
+describe('PlaylistTracks', () => {
+  it('hides the filter box for short playlists', () => {
+    renderTracks(makeTracks(3));
+    expect(screen.queryByTestId('playlist-search')).not.toBeInTheDocument();
+  });
+
+  it('filters the visible tracks by the query', () => {
+    renderTracks(makeTracks(12));
+    expect(screen.getByTestId('playlist-search')).toBeInTheDocument();
+    typeSearch('karma');
+    expect(screen.getByText('Karma Police')).toBeInTheDocument();
+    expect(screen.queryByText('Song 5')).not.toBeInTheDocument();
+  });
+
+  it('shows a no-matches message when nothing matches', () => {
+    renderTracks(makeTracks(12));
+    typeSearch('zzzznope');
+    expect(screen.getByTestId('playlist-no-matches')).toBeInTheDocument();
+  });
+});
