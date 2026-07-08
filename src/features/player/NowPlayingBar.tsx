@@ -5,6 +5,7 @@ import { usePlayer } from './usePlayer';
 import { artistLine } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { FullPlayer } from './FullPlayer';
+import { NowPlayingExtras } from './NowPlayingExtras';
 import { LikeButton } from '../library/LikeButton';
 import './nowPlayingBar.css';
 
@@ -41,6 +42,7 @@ export function NowPlayingBar() {
           </span>
         </button>
         <LikeButton track={current} size={22} />
+        <NowPlayingExtras />
         <button
           className="npbar__play"
           onClick={toggle}
