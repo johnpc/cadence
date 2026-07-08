@@ -58,3 +58,22 @@ Then('I see it in recent searches', async ({ page }) => {
   await expect(recents).toBeVisible({ timeout: 15_000 });
   await expect(recents.getByTestId('result-row').first()).toBeAttached();
 });
+
+When('I open the {string} genre tile', async ({ page }, name: string) => {
+  // The genre grid lives on the Search idle screen (no query typed). Click the
+  // tile BUTTON itself (filtering by its label), not the inner text node — a
+  // force-click on the span doesn't reliably fire the button's navigation.
+  const tile = page.getByTestId('genre-tile').filter({ hasText: name }).first();
+  await tile.scrollIntoViewIfNeeded();
+  await expect(tile).toBeVisible({ timeout: 15_000 });
+  await tile.click({ force: true });
+});
+
+Then("I see the genre's tracks", async ({ page }) => {
+  const rows = page.getByTestId('genre-detail').getByTestId('track-row');
+  await expect(rows.first()).toBeAttached({ timeout: 30_000 });
+});
+
+When('I play the genre', async ({ page }) => {
+  await page.getByTestId('genre-detail').getByTestId('play-all').click({ force: true });
+});

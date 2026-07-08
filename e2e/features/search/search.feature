@@ -41,3 +41,11 @@ Feature: Search
     And I tap the first song result
     And I clear the search box
     Then I see it in recent searches
+
+  Scenario: Browsing a genre from the search screen plays its tracks
+    Given I am signed in
+    When I open the Search tab
+    And I open the "Pop" genre tile
+    Then I see the genre's tracks
+    When I play the genre
+    Then the Now-Playing bar shows a track
