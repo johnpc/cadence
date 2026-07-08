@@ -10,8 +10,10 @@ When('I open the first playlist', async ({ page }) => {
 });
 
 Then('I see the playlist tracks', async ({ page }) => {
+  // A large playlist's items read from the shared Jellyfin server can take
+  // several seconds (more under CI contention) — give it real headroom.
   const rows = page.getByTestId('playlist-detail').getByTestId('track-row');
-  await expect(rows.first()).toBeAttached({ timeout: 15_000 });
+  await expect(rows.first()).toBeAttached({ timeout: 30_000 });
   expect(await rows.count()).toBeGreaterThan(0);
 });
 
