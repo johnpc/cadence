@@ -1,0 +1,61 @@
+.npbar {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-2) var(--cad-space-3);
+  background: var(--cad-surface-2);
+  border-radius: var(--cad-radius-thumb);
+  margin: var(--cad-space-2);
+}
+
+.npbar__open {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.npbar__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.npbar__title {
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cad-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.npbar__artist {
+  font-family: var(--cad-font-sans);
+  font-size: 12px;
+  color: var(--cad-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.npbar__play {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  color: var(--cad-text);
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}

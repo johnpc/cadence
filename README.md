@@ -22,8 +22,8 @@ recommendations — all backed by the Jellyfin server you already run.
 | --------------------------------------------- | ------ |
 | Spotify-style shell (Home / Search / Library) | ✅     |
 | Light / Dark / System theme                   | ✅     |
-| Log in with your Jellyfin account             | ⬜     |
-| Playback + persistent Now-Playing bar         | ⬜     |
+| Log in with your Jellyfin account             | ✅     |
+| Playback + persistent Now-Playing bar         | ✅     |
 | Search (the primary discovery surface)        | ⬜     |
 | Liked songs                                   | ⬜     |
 | Playlists (browse, create, add)               | ⬜     |

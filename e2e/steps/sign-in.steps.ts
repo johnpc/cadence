@@ -37,7 +37,8 @@ When('I reload the app', async ({ page }) => {
 
 Then('I land on the Home tab', async ({ page }) => {
   await expect(page.locator('ion-tab-button', { hasText: 'Home' })).toBeVisible();
-  await expect(page.getByTestId('home-placeholder')).toBeVisible();
+  // Home loads real library tracks once signed in.
+  await expect(page.getByTestId('home-tracks')).toBeVisible();
 });
 
 Then('I see a sign-in error', async ({ page }) => {

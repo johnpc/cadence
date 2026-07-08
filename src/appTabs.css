@@ -1,0 +1,10 @@
+/* The mini-player floats just above the bottom tab bar. The tab bar is ~56px
+   tall plus the home-bar safe-area inset, so offset the mini-player by that. */
+.apptabs__npbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  pointer-events: auto;
+}
