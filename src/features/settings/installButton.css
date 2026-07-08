@@ -1,0 +1,25 @@
+.install {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-2);
+}
+
+.install__title {
+  margin: 0;
+}
+
+.install__btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  border: none;
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  border-radius: var(--cad-radius-pill);
+  padding: var(--cad-space-2) var(--cad-space-6);
+  font-family: var(--cad-font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
