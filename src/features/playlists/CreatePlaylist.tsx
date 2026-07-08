@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { IonAlert, IonButton, IonIcon } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import { useCreatePlaylist } from './playlistsApi';
+import { useToast } from '../toast/useToast';
 
 /** A "+" that prompts for a name and creates a playlist. */
 export function CreatePlaylist() {
   const [open, setOpen] = useState(false);
   const create = useCreatePlaylist();
+  const toast = useToast();
   return (
     <>
       <IonButton
@@ -27,7 +29,10 @@ export function CreatePlaylist() {
             text: 'Create',
             handler: (data: { name?: string }) => {
               const name = (data.name ?? '').trim();
-              if (name) create.mutate(name);
+              if (name) {
+                create.mutate(name);
+                toast(`Created "${name}"`);
+              }
             },
           },
         ]}
