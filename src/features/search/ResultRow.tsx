@@ -20,7 +20,7 @@ export function ResultRow({
       data-testid="result-row"
       onClick={() => onSelect(item)}
     >
-      <TrackArt item={item} size={44} />
+      <TrackArt item={item} size={44} round={item.Type === 'MusicArtist'} />
       <span className="result-row__meta">
         <span className="result-row__title">{item.Name}</span>
         <span className="result-row__subtitle">{subtitle}</span>

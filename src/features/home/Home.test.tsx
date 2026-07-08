@@ -7,9 +7,11 @@ vi.mock('../../lib/jellyfinDiscover', () => ({
   getRecentlyPlayed: vi.fn().mockResolvedValue([]),
 }));
 vi.mock('../../lib/jellyfinItems', () => ({ getFavoriteAlbums: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../lib/jellyfinArtists', () => ({ getFavoriteArtists: vi.fn().mockResolvedValue([]) }));
 vi.mock('../player/usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
 import { getLatestAlbums, getSuggestedSongs } from '../../lib/jellyfinDiscover';
 import { getFavoriteAlbums } from '../../lib/jellyfinItems';
+import { getFavoriteArtists } from '../../lib/jellyfinArtists';
 import { Home } from './Home';
 import { renderWithProviders } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -42,6 +44,17 @@ describe('Home', () => {
     renderWithProviders(<Home />);
     await waitFor(() => expect(screen.getByText('From your library')).toBeInTheDocument());
     expect(screen.getByText('Saved Album')).toBeInTheDocument();
+  });
+
+  it('shows a Your artists shelf when the user follows artists', async () => {
+    vi.mocked(getLatestAlbums).mockResolvedValue([]);
+    vi.mocked(getSuggestedSongs).mockResolvedValue([]);
+    vi.mocked(getFavoriteArtists).mockResolvedValue([
+      { Id: 'ar1', Name: 'Radiohead', Type: 'MusicArtist' },
+    ]);
+    renderWithProviders(<Home />);
+    await waitFor(() => expect(screen.getByText('Your artists')).toBeInTheDocument());
+    expect(screen.getByText('Radiohead')).toBeInTheDocument();
   });
 
   it('shows an empty state per shelf when there is no data', async () => {

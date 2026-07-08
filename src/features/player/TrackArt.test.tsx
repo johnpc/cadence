@@ -20,6 +20,11 @@ describe('TrackArt', () => {
     expect(container.querySelector('ion-icon')).toBeInTheDocument();
   });
 
+  it('applies the round modifier when asked', () => {
+    const { container } = render(<TrackArt item={null} round />);
+    expect(container.querySelector('.track-art--round')).toBeInTheDocument();
+  });
+
   it('falls back to the placeholder when the image fails to load', () => {
     setSession({ token: 't', userId: 'u' });
     const item: JellyfinItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
