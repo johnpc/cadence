@@ -10,6 +10,7 @@ import {
   prev,
   shuffleRest,
   startQueue,
+  startShuffled,
 } from './queue';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -73,5 +74,11 @@ describe('queue', () => {
 
   it('shuffle on an empty queue is a no-op', () => {
     expect(shuffleRest(EMPTY_QUEUE, () => 0)).toBe(EMPTY_QUEUE);
+  });
+
+  it('startShuffled reorders the whole list and starts at 0', () => {
+    const q = startShuffled(tracks, () => 0);
+    expect(q.index).toBe(0);
+    expect(q.tracks.map((t) => t.Id).sort()).toEqual(['a', 'b', 'c']);
   });
 });

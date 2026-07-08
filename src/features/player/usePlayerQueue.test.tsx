@@ -63,4 +63,12 @@ describe('usePlayerQueue', () => {
     act(() => result.current.playNext({ Id: 'x', Name: 'x', Type: 'Audio' }));
     expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a', 'x', 'b', 'c']);
   });
+
+  it('playShuffled loads a shuffled queue and turns shuffle on', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.playShuffled(tracks));
+    expect(result.current.shuffle).toBe(true);
+    expect(result.current.queue.index).toBe(0);
+    expect(result.current.queue.tracks.map((t) => t.Id).sort()).toEqual(['a', 'b', 'c']);
+  });
 });

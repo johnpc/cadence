@@ -20,6 +20,7 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
     queue: [],
     queueIndex: 0,
     playQueue: vi.fn(),
+    playShuffled: vi.fn(),
     playNext: vi.fn(),
     toggle: vi.fn(),
     next: vi.fn(),

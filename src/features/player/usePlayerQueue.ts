@@ -26,6 +26,10 @@ export function usePlayerQueue() {
     (track: JellyfinItem) => setQueue((c) => q.enqueueNext(c, track)),
     [],
   );
+  const playShuffled = useCallback((tracks: JellyfinItem[]) => {
+    setQueue(q.startShuffled(tracks, random));
+    setShuffle(true);
+  }, []);
   const next = useCallback(() => setQueue((c) => q.next(c)), []);
   const prev = useCallback(() => setQueue((c) => q.prev(c)), []);
   const jumpTo = useCallback((index: number) => setQueue((c) => ({ ...c, index })), []);
@@ -57,6 +61,7 @@ export function usePlayerQueue() {
     shuffle,
     repeat,
     playQueue,
+    playShuffled,
     playNext,
     next,
     prev,

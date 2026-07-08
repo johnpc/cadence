@@ -1,0 +1,32 @@
+.collection-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-4);
+}
+
+.collection-actions__shuffle {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  color: var(--cad-text-secondary);
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.collection-actions__play {
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}

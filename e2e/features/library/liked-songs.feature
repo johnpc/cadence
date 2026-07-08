@@ -12,3 +12,9 @@ Feature: Liked songs
     When I like a track from search
     And I open the Library tab
     Then the liked songs list is not empty
+
+  Scenario: Shuffle-playing liked songs
+    Given I am signed in
+    When I open the Library tab
+    And I shuffle-play the liked songs
+    Then the Now-Playing bar shows a track

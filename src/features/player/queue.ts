@@ -48,6 +48,17 @@ export function append(q: QueueState, tracks: JellyfinItem[]): QueueState {
   return { ...q, tracks: [...q.tracks, ...tracks] };
 }
 
+/** A fresh queue from a fully-shuffled copy of `tracks` (Fisher–Yates), starting
+ * at index 0. `rand` is injected for deterministic tests. */
+export function startShuffled(tracks: JellyfinItem[], rand: () => number): QueueState {
+  const shuffled = [...tracks];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return { tracks: shuffled, index: 0 };
+}
+
 /** Insert a track right after the current one ("play next"). */
 export function enqueueNext(q: QueueState, track: JellyfinItem): QueueState {
   if (!q.tracks.length) return { tracks: [track], index: 0 };

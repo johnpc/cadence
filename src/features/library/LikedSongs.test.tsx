@@ -33,8 +33,8 @@ describe('LikedSongs', () => {
     vi.mocked(getFavoriteSongs).mockResolvedValue(songs);
     const playQueue = vi.fn();
     renderWithProviders(<LikedSongs />, { player: stubPlayer({ playQueue }) });
-    await waitFor(() => expect(screen.getByTestId('liked-play-all')).toBeInTheDocument());
-    await userEvent.click(screen.getByTestId('liked-play-all'));
+    await waitFor(() => expect(screen.getByTestId('play-all')).toBeInTheDocument());
+    await userEvent.click(screen.getByTestId('play-all'));
     expect(playQueue).toHaveBeenCalledWith(songs, 0);
   });
 

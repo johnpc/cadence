@@ -18,5 +18,5 @@ Then('I see the playlist tracks', async ({ page }) => {
 });
 
 When('I play the playlist', async ({ page }) => {
-  await page.getByTestId('playlist-play-all').click({ force: true });
+  await page.getByTestId('playlist-detail').getByTestId('play-all').click({ force: true });
 });

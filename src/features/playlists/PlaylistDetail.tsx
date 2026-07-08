@@ -3,16 +3,14 @@ import {
   IonBackButton,
   IonContent,
   IonHeader,
-  IonIcon,
   IonPage,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { play } from 'ionicons/icons';
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackRow } from '../player/TrackRow';
-import { usePlayer } from '../player/usePlayer';
+import { CollectionActions } from '../player/CollectionActions';
 import { usePlaylistItems } from './playlistsApi';
 import './playlists.css';
 
@@ -20,7 +18,6 @@ import './playlists.css';
 export function PlaylistDetail() {
   const { id } = useParams<{ id: string }>();
   const { tracks, isLoading, isError, refetch } = usePlaylistItems(id);
-  const { playQueue } = usePlayer();
 
   return (
     <IonPage>
@@ -42,14 +39,7 @@ export function PlaylistDetail() {
           emptyMessage="Add songs from search or the player."
         >
           <div data-testid="playlist-detail">
-            <button
-              className="playlists__play-all"
-              data-testid="playlist-play-all"
-              onClick={() => playQueue(tracks, 0)}
-              aria-label="Play playlist"
-            >
-              <IonIcon icon={play} />
-            </button>
+            <CollectionActions tracks={tracks} />
             {tracks.map((track, index) => (
               <TrackRow key={track.Id} track={track} queue={tracks} index={index} />
             ))}
