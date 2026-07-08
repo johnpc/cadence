@@ -1,0 +1,5 @@
+.gradient-header {
+  margin: calc(-1 * var(--cad-space-4)) calc(-1 * var(--cad-space-4)) 0;
+  padding: var(--cad-space-5) var(--cad-space-4) var(--cad-space-3);
+  transition: background 0.4s ease;
+}

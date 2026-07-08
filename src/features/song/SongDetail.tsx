@@ -12,6 +12,7 @@ import { radio } from 'ionicons/icons';
 import { Link, useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackArt } from '../player/TrackArt';
+import { GradientHeader } from '../color/GradientHeader';
 import { LikeButton } from '../library/LikeButton';
 import { ShareButton } from '../share/ShareButton';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
@@ -44,37 +45,39 @@ export function SongDetail() {
       <IonContent className="ion-padding">
         <LoadState isLoading={isLoading} isError={isError} onRetry={() => void refetch()}>
           <div data-testid="song-detail">
-            <div className="song__header">
-              <TrackArt item={song} size={200} />
-              <h1 className="song__title cad-headline">{song?.Name}</h1>
-              {song && <SongLinks song={song} />}
-              {song && trackDuration(song.RunTimeTicks) && (
-                <p className="song__meta cad-meta">{trackDuration(song.RunTimeTicks)}</p>
-              )}
-              <div className="song__actions">
-                {song && <LikeButton track={song} size={26} />}
-                <button
-                  className="song__play"
-                  data-testid="song-play"
-                  aria-label="Play"
-                  onClick={() => song && playQueue([song], 0)}
-                >
-                  ▶
-                </button>
-                {song && (
-                  <button
-                    className="song__radio"
-                    data-testid="song-radio"
-                    aria-label="Start song radio"
-                    onClick={() => void playItem(song)}
-                  >
-                    <IonIcon icon={radio} /> Radio
-                  </button>
+            <GradientHeader item={song}>
+              <div className="song__header">
+                <TrackArt item={song} size={200} />
+                <h1 className="song__title cad-headline">{song?.Name}</h1>
+                {song && <SongLinks song={song} />}
+                {song && trackDuration(song.RunTimeTicks) && (
+                  <p className="song__meta cad-meta">{trackDuration(song.RunTimeTicks)}</p>
                 )}
-                <ShareButton item={song} />
-                {song && <AddToPlaylistButton track={song} />}
+                <div className="song__actions">
+                  {song && <LikeButton track={song} size={26} />}
+                  <button
+                    className="song__play"
+                    data-testid="song-play"
+                    aria-label="Play"
+                    onClick={() => song && playQueue([song], 0)}
+                  >
+                    ▶
+                  </button>
+                  {song && (
+                    <button
+                      className="song__radio"
+                      data-testid="song-radio"
+                      aria-label="Start song radio"
+                      onClick={() => void playItem(song)}
+                    >
+                      <IonIcon icon={radio} /> Radio
+                    </button>
+                  )}
+                  <ShareButton item={song} />
+                  {song && <AddToPlaylistButton track={song} />}
+                </div>
               </div>
-            </div>
+            </GradientHeader>
             {playlists.length > 0 && (
               <section data-testid="song-playlists">
                 <h2 className="cad-kicker song__section">Appears in</h2>
