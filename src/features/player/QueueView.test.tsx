@@ -32,6 +32,22 @@ describe('QueueView', () => {
     expect(rows[1].className).toContain('queueview__row--current');
   });
 
+  it('splits into Now playing and Next up sections', () => {
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 0 }),
+    });
+    expect(screen.getByText('Now playing')).toBeInTheDocument();
+    expect(screen.getByText('Next up')).toBeInTheDocument();
+  });
+
+  it('omits Next up when the current track is last', () => {
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 1 }),
+    });
+    expect(screen.getByText('Now playing')).toBeInTheDocument();
+    expect(screen.queryByText('Next up')).not.toBeInTheDocument();
+  });
+
   it('jumps to a track when tapped and closes', async () => {
     const jumpTo = vi.fn();
     const onClose = vi.fn();

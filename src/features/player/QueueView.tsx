@@ -34,17 +34,24 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
         </div>
         <div className="queueview__list">
           {queue.map((track, index) => (
-            <QueueRow
-              key={`${track.Id}-${index}`}
-              track={track}
-              index={index}
-              isCurrent={index === queueIndex}
-              isFirst={index === 0}
-              isLast={index === queue.length - 1}
-              onJump={jump}
-              onMove={moveInQueue}
-              onRemove={removeFromQueue}
-            />
+            <div key={`${track.Id}-${index}`}>
+              {index === queueIndex && (
+                <h3 className="cad-kicker queueview__section">Now playing</h3>
+              )}
+              {index === queueIndex + 1 && (
+                <h3 className="cad-kicker queueview__section">Next up</h3>
+              )}
+              <QueueRow
+                track={track}
+                index={index}
+                isCurrent={index === queueIndex}
+                isFirst={index === 0}
+                isLast={index === queue.length - 1}
+                onJump={jump}
+                onMove={moveInQueue}
+                onRemove={removeFromQueue}
+              />
+            </div>
           ))}
         </div>
       </div>
