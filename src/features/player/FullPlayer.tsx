@@ -1,7 +1,14 @@
 import { IonModal, IonIcon } from '@ionic/react';
-import { chevronDown, listOutline, volumeLow, volumeHigh } from 'ionicons/icons';
+import {
+  chevronDown,
+  listOutline,
+  volumeLow,
+  volumeHigh,
+  documentTextOutline,
+} from 'ionicons/icons';
 import { useState } from 'react';
 import { QueueView } from './QueueView';
+import { LyricsSheet } from './LyricsSheet';
 import { PlayerControls } from './PlayerControls';
 import { usePlayer } from './usePlayer';
 import { artistLine, formatTime } from './playerFormat';
@@ -13,6 +20,7 @@ import './fullPlayer.css';
 export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const p = usePlayer();
   const [queueOpen, setQueueOpen] = useState(false);
+  const [lyricsOpen, setLyricsOpen] = useState(false);
   return (
     <IonModal isOpen={open} onDidDismiss={onClose}>
       <div className="fullplayer" data-testid="full-player">
@@ -56,14 +64,24 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           />
           <IonIcon icon={volumeHigh} aria-hidden="true" />
         </div>
-        <button
-          className="fullplayer__queue-btn"
-          onClick={() => setQueueOpen(true)}
-          data-testid="full-player-queue"
-        >
-          <IonIcon icon={listOutline} /> Up next
-        </button>
+        <div className="fullplayer__footer">
+          <button
+            className="fullplayer__foot-btn"
+            onClick={() => setLyricsOpen(true)}
+            data-testid="full-player-lyrics"
+          >
+            <IonIcon icon={documentTextOutline} /> Lyrics
+          </button>
+          <button
+            className="fullplayer__foot-btn"
+            onClick={() => setQueueOpen(true)}
+            data-testid="full-player-queue"
+          >
+            <IonIcon icon={listOutline} /> Up next
+          </button>
+        </div>
         <QueueView open={queueOpen} onClose={() => setQueueOpen(false)} />
+        <LyricsSheet open={lyricsOpen} onClose={() => setLyricsOpen(false)} />
       </div>
     </IonModal>
   );
