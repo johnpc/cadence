@@ -12,7 +12,7 @@ const audioFields = 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks'
  * genres + production year for the detail-page meta line. */
 export async function getItem(itemId: string): Promise<JellyfinItem> {
   const userId = getSession()?.userId ?? '';
-  return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}?Fields=Genres`);
+  return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}?Fields=Genres,Overview`);
 }
 
 /** All audio tracks belonging to a parent (an album or artist), in order. */

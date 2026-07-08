@@ -79,6 +79,12 @@ export function ArtistDetail() {
             ))}
           </div>
         </LoadState>
+        {artist?.Overview && (
+          <section data-testid="artist-about">
+            <h2 className="cad-kicker artist__section">About</h2>
+            <p className="artist__about cad-meta">{artist.Overview}</p>
+          </section>
+        )}
       </IonContent>
     </IonPage>
   );

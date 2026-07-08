@@ -41,6 +41,8 @@ export interface JellyfinItem {
   ProductionYear?: number;
   /** Genre names (albums/artists). */
   Genres?: string[];
+  /** A prose description / bio (artists/albums), when the server has one. */
+  Overview?: string;
   /** True when the current user has favorited it. */
   UserData?: { IsFavorite?: boolean };
   /** Present on items carrying their own primary image. */
