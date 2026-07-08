@@ -4,6 +4,7 @@ import { ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { usePlaylists, useAddToPlaylist } from './playlistsApi';
 import { usePlayer } from '../player/usePlayer';
+import { useToast } from '../toast/useToast';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './addToPlaylist.css';
 
@@ -13,12 +14,25 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
   const { playNext, addToQueue } = usePlayer();
+  const toast = useToast();
   const history = useHistory();
   const artist = track.ArtistItems?.[0];
 
   const buttons = [
-    { text: 'Play next', handler: () => playNext(track) },
-    { text: 'Add to queue', handler: () => addToQueue(track) },
+    {
+      text: 'Play next',
+      handler: () => {
+        playNext(track);
+        toast('Playing next');
+      },
+    },
+    {
+      text: 'Add to queue',
+      handler: () => {
+        addToQueue(track);
+        toast('Added to queue');
+      },
+    },
     ...(track.AlbumId
       ? [{ text: 'Go to album', handler: () => history.push(`/album/${track.AlbumId}`) }]
       : []),
@@ -27,7 +41,10 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
       : []),
     ...playlists.map((pl) => ({
       text: `Add to ${pl.Name}`,
-      handler: () => add.mutate({ playlistId: pl.Id, itemId: track.Id }),
+      handler: () => {
+        add.mutate({ playlistId: pl.Id, itemId: track.Id });
+        toast(`Added to ${pl.Name}`);
+      },
     })),
     { text: 'Cancel', role: 'cancel' as const },
   ];
