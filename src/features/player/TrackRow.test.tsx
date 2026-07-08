@@ -1,10 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { expect, it, vi } from 'vitest';
-import { PlayerContext } from './PlayerContext';
 import { TrackRow } from './TrackRow';
-import type { PlayerContextValue } from './types';
+import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const tracks: JellyfinItem[] = [
@@ -14,16 +12,24 @@ const tracks: JellyfinItem[] = [
 
 it('plays the queue starting at the tapped track', async () => {
   const playQueue = vi.fn();
-  const player = { playQueue } as unknown as PlayerContextValue;
-  const client = new QueryClient();
-  render(
-    <QueryClientProvider client={client}>
-      <PlayerContext.Provider value={player}>
-        <TrackRow track={tracks[1]} queue={tracks} index={1} />
-      </PlayerContext.Provider>
-    </QueryClientProvider>,
-  );
+  renderWithProviders(<TrackRow track={tracks[1]} queue={tracks} index={1} />, {
+    player: stubPlayer({ playQueue }),
+  });
   expect(screen.getByText('Second')).toBeInTheDocument();
   await userEvent.click(screen.getByTestId('track-row-play'));
   expect(playQueue).toHaveBeenCalledWith(tracks, 1);
+});
+
+it('marks the currently-playing track', () => {
+  renderWithProviders(<TrackRow track={tracks[0]} queue={tracks} index={0} />, {
+    player: stubPlayer({ current: tracks[0], isPlaying: true }),
+  });
+  expect(screen.getByTestId('track-row').className).toContain('track-row--current');
+});
+
+it('does not mark a non-playing track', () => {
+  renderWithProviders(<TrackRow track={tracks[1]} queue={tracks} index={1} />, {
+    player: stubPlayer({ current: tracks[0], isPlaying: true }),
+  });
+  expect(screen.getByTestId('track-row').className).not.toContain('track-row--current');
 });
