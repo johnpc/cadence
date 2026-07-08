@@ -39,6 +39,8 @@ export interface JellyfinItem {
   RunTimeTicks?: number;
   /** Track number within its album (Audio items). */
   IndexNumber?: number;
+  /** Disc number within a multi-disc album (Audio items). */
+  ParentIndexNumber?: number;
   /** Release year (albums). */
   ProductionYear?: number;
   /** Genre names (albums/artists). */
