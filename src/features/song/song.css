@@ -48,6 +48,20 @@
   cursor: pointer;
 }
 
+.song__radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-1);
+  padding: var(--cad-space-2) var(--cad-space-3);
+  border: 1px solid var(--cad-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-weight: 500;
+  cursor: pointer;
+}
+
 .song__section {
   margin: var(--cad-space-5) 0 var(--cad-space-2);
 }
