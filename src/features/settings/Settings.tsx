@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import { Appearance } from '../theme/Appearance';
 import { SleepTimer } from './SleepTimer';
+import { InstallButton } from './InstallButton';
 import { useAuth } from '../auth/useAuth';
 import './settings.css';
 
@@ -30,6 +31,7 @@ export function Settings() {
         <div className="settings">
           <Appearance />
           <SleepTimer />
+          <InstallButton />
           <section className="settings__account">
             <h2 className="settings__title cad-kicker">Account</h2>
             <p className="cad-body" data-testid="settings-username">
