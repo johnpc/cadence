@@ -14,3 +14,9 @@ Feature: Playback
     And I open the full player
     And I tap next
     Then the Now-Playing bar shows a track
+
+  Scenario: The spacebar toggles playback
+    Given I am signed in
+    When I tap a track from search
+    And I press the spacebar
+    Then playback is paused
