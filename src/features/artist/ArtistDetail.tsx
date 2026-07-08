@@ -40,7 +40,7 @@ export function ArtistDetail() {
       </IonHeader>
       <IonContent className="ion-padding">
         <div className="artist__header">
-          <TrackArt item={artist} size={160} />
+          <TrackArt item={artist} size={160} round />
           <h1 className="artist__name cad-headline">{artist?.Name}</h1>
           <GenreChips genres={artist?.Genres} />
           {artist && (

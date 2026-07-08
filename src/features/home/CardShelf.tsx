@@ -15,11 +15,13 @@ export function CardShelf({
   items,
   state,
   onPlay,
+  round = false,
 }: {
   title: string;
   items: JellyfinItem[];
   state: ShelfData;
   onPlay: (item: JellyfinItem, index: number) => void;
+  round?: boolean;
 }) {
   return (
     <Shelf
@@ -30,7 +32,7 @@ export function CardShelf({
       isEmpty={items.length === 0}
     >
       {items.map((item, index) => (
-        <AlbumCard key={item.Id} item={item} onPlay={() => onPlay(item, index)} />
+        <AlbumCard key={item.Id} item={item} onPlay={() => onPlay(item, index)} round={round} />
       ))}
     </Shelf>
   );

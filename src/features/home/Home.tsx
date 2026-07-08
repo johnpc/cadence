@@ -25,6 +25,7 @@ export function Home() {
       shelves.suggested.refetch(),
       shelves.saved.refetch(),
       shelves.recent.refetch(),
+      shelves.artists.refetch(),
     ]);
     await e.detail.complete();
   };

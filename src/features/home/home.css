@@ -35,6 +35,15 @@
   gap: var(--cad-space-1);
 }
 
+.album-card--round {
+  text-align: center;
+  align-items: center;
+}
+
+.album-card--round .album-card__title {
+  white-space: normal;
+}
+
 .album-card__title {
   margin-top: var(--cad-space-1);
   font-family: var(--cad-font-sans);
