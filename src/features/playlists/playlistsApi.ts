@@ -7,8 +7,19 @@ import {
   getPlaylists,
   removeFromPlaylist,
 } from '../../lib/jellyfinPlaylists';
+import { getItem } from '../../lib/jellyfinItems';
 
 export const PLAYLISTS_KEY = ['playlists'];
+
+/** One playlist's header metadata (name, cover art). */
+export function usePlaylist(playlistId: string) {
+  const q = useQuery({
+    queryKey: ['playlist', playlistId],
+    queryFn: () => getItem(playlistId),
+    staleTime: 60_000,
+  });
+  return { playlist: q.data ?? null };
+}
 
 /** The user's playlists. */
 export function usePlaylists() {

@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylistItems: vi.fn(),
@@ -12,8 +12,13 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   removeFromPlaylist: vi.fn(),
   deletePlaylist: vi.fn(),
 }));
-vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
+vi.mock('../../lib/jellyfinItems', () => ({
+  addFavorite: vi.fn(),
+  removeFavorite: vi.fn(),
+  getItem: vi.fn().mockResolvedValue({ Id: 'p1', Name: 'My Playlist', Type: 'Playlist' }),
+}));
 import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
+import { getItem } from '../../lib/jellyfinItems';
 import { PlaylistDetail } from './PlaylistDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
@@ -41,6 +46,9 @@ function renderDetail(player: PlayerContextValue = stubPlayer()) {
 }
 
 describe('PlaylistDetail', () => {
+  beforeEach(() => {
+    vi.mocked(getItem).mockResolvedValue({ Id: 'p1', Name: 'My Playlist', Type: 'Playlist' });
+  });
   afterEach(() => {
     vi.resetAllMocks();
   });
@@ -50,6 +58,12 @@ describe('PlaylistDetail', () => {
     renderDetail();
     expect(await screen.findByText('PL Track A')).toBeInTheDocument();
     expect(getPlaylistItems).toHaveBeenCalledWith('p1');
+  });
+
+  it('shows the playlist name in the header', async () => {
+    vi.mocked(getPlaylistItems).mockResolvedValue(tracks);
+    renderDetail();
+    expect(await screen.findByText('My Playlist')).toBeInTheDocument();
   });
 
   it('plays the whole playlist from the top', async () => {

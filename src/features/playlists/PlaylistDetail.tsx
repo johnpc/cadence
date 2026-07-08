@@ -10,17 +10,19 @@ import {
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
+import { TrackArt } from '../player/TrackArt';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
 import { collectionSummary } from '../player/playerFormat';
 import { DeletePlaylistButton } from './DeletePlaylistButton';
-import { usePlaylistItems, useRemoveFromPlaylist } from './playlistsApi';
+import { usePlaylist, usePlaylistItems, useRemoveFromPlaylist } from './playlistsApi';
 import './playlists.css';
 
 /** One playlist: its tracks (playable/removable), plus delete-playlist. */
 export function PlaylistDetail() {
   const { id } = useParams<{ id: string }>();
   const { tracks, isLoading, isError, refetch } = usePlaylistItems(id);
+  const { playlist } = usePlaylist(id);
   const remove = useRemoveFromPlaylist(id);
 
   return (
@@ -47,9 +49,13 @@ export function PlaylistDetail() {
           skeleton={<TrackListSkeleton />}
         >
           <div data-testid="playlist-detail">
-            <p className="cad-meta" data-testid="playlist-summary">
-              {collectionSummary(tracks)}
-            </p>
+            <div className="playlist__header">
+              <TrackArt item={playlist} size={160} />
+              <h1 className="playlist__title cad-headline">{playlist?.Name ?? 'Playlist'}</h1>
+              <p className="cad-meta" data-testid="playlist-summary">
+                {collectionSummary(tracks)}
+              </p>
+            </div>
             <CollectionActions tracks={tracks} />
             {tracks.map((track, index) => (
               <TrackRow
