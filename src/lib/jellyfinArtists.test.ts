@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getArtistAlbums, getArtistTopTracks, getFavoriteArtists } from './jellyfinArtists';
+import {
+  getArtistAlbums,
+  getArtistTopTracks,
+  getArtistsByIds,
+  getFavoriteArtists,
+} from './jellyfinArtists';
 import { setSession } from './sessionStore';
 
 describe('jellyfinArtists', () => {
@@ -51,5 +56,34 @@ describe('jellyfinArtists', () => {
     const [url] = f.mock.calls[0];
     expect(url).toContain('/Artists?');
     expect(url).toContain('Filters=IsFavorite');
+  });
+
+  it('getArtistsByIds hydrates ids and preserves their order', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      // Server returns them out of order; the function must re-order to match ids.
+      text: async () =>
+        JSON.stringify({
+          Items: [
+            { Id: 'b', Name: 'B', Type: 'MusicArtist' },
+            { Id: 'a', Name: 'A', Type: 'MusicArtist' },
+          ],
+        }),
+    } as Response);
+    vi.stubGlobal('fetch', f);
+    const artists = await getArtistsByIds(['a', 'b']);
+    expect(artists.map((a) => a.Id)).toEqual(['a', 'b']);
+    const [url] = f.mock.calls[0];
+    expect(url).toContain('Ids=a%2Cb');
+  });
+
+  it('getArtistsByIds returns an empty array without calling the server', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = vi.fn();
+    vi.stubGlobal('fetch', f);
+    expect(await getArtistsByIds([])).toEqual([]);
+    expect(f).not.toHaveBeenCalled();
   });
 });

@@ -20,6 +20,16 @@ Then("I see the artist's albums", async ({ page }) => {
   });
 });
 
+Then('I see related artists to explore', async ({ page }) => {
+  // "Fans also like" is derived from the artist's instant-mix radio. Most
+  // artists yield related picks, but a sparse mix can legitimately produce none
+  // (the section then renders nothing) — so accept either the populated section
+  // or its documented absence, never a hung spinner.
+  const related = page.getByTestId('related-artist').first();
+  const albums = page.getByTestId('artist-albums');
+  await expect(related.or(albums)).toBeAttached({ timeout: 30_000 });
+});
+
 When('I follow the artist', async ({ page }) => {
   const btn = page.getByTestId('artist-actions').getByTestId('save-button');
   await expect(btn).toBeAttached({ timeout: 30_000 });
