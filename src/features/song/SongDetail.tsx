@@ -7,12 +7,16 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
+import { radio } from 'ionicons/icons';
 import { Link, useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackArt } from '../player/TrackArt';
 import { LikeButton } from '../library/LikeButton';
 import { ShareButton } from '../share/ShareButton';
+import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
 import { usePlayer } from '../player/usePlayer';
+import { usePlayItem } from '../player/usePlayItem';
 import { trackDuration } from '../player/playerFormat';
 import { SongLinks } from './SongLinks';
 import { useSong, useSongPlaylists } from './songApi';
@@ -25,6 +29,7 @@ export function SongDetail() {
   const { song, isLoading, isError, refetch } = useSong(id);
   const { playlists } = useSongPlaylists(id);
   const { playQueue } = usePlayer();
+  const playItem = usePlayItem();
 
   return (
     <IonPage>
@@ -56,7 +61,18 @@ export function SongDetail() {
                 >
                   ▶
                 </button>
+                {song && (
+                  <button
+                    className="song__radio"
+                    data-testid="song-radio"
+                    aria-label="Start song radio"
+                    onClick={() => void playItem(song)}
+                  >
+                    <IonIcon icon={radio} /> Radio
+                  </button>
+                )}
                 <ShareButton item={song} />
+                {song && <AddToPlaylistButton track={song} />}
               </div>
             </div>
             {playlists.length > 0 && (

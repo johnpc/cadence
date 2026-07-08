@@ -8,12 +8,15 @@ vi.mock('../../lib/jellyfinItems', () => ({
   getItem: vi.fn(),
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
+  getItemTracks: vi.fn(),
+  getInstantMix: vi.fn().mockResolvedValue([]),
 }));
 vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([]),
   getPlaylistItems: vi.fn().mockResolvedValue([]),
+  addToPlaylist: vi.fn(),
 }));
-import { getItem } from '../../lib/jellyfinItems';
+import { getItem, getInstantMix } from '../../lib/jellyfinItems';
 import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import { SongDetail } from './SongDetail';
 import { PlayerContext } from '../player/PlayerContext';
@@ -65,6 +68,15 @@ describe('SongDetail', () => {
     await screen.findByRole('heading', { name: 'A Song' });
     await userEvent.click(screen.getByTestId('song-play'));
     expect(playQueue).toHaveBeenCalledWith([song], 0);
+  });
+
+  it('starts song radio from the current track', async () => {
+    vi.mocked(getItem).mockResolvedValue(song);
+    vi.mocked(getInstantMix).mockResolvedValue([song]);
+    renderSong();
+    await screen.findByRole('heading', { name: 'A Song' });
+    await userEvent.click(screen.getByTestId('song-radio'));
+    await waitFor(() => expect(getInstantMix).toHaveBeenCalledWith('s1'));
   });
 
   it('lists the playlists the song appears in', async () => {
