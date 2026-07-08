@@ -1,7 +1,6 @@
-import { IonIcon } from '@ionic/react';
-import { list as listIcon } from 'ionicons/icons';
 import { Link } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
+import { TrackArt } from '../player/TrackArt';
 import { usePlaylists } from './playlistsApi';
 import { CreatePlaylist } from './CreatePlaylist';
 import './playlists.css';
@@ -31,7 +30,7 @@ export function Playlists() {
               to={`/playlist/${pl.Id}`}
               data-testid="playlist-row"
             >
-              <IonIcon className="playlists__icon" icon={listIcon} aria-hidden="true" />
+              <TrackArt item={pl} size={48} />
               <span className="playlists__name">{pl.Name}</span>
             </Link>
           ))}
