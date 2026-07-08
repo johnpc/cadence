@@ -1,0 +1,30 @@
+.search-filters {
+  display: flex;
+  gap: var(--cad-space-2);
+  margin-bottom: var(--cad-space-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.search-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.search-filters__chip {
+  flex: 0 0 auto;
+  border: 1px solid var(--cad-hairline);
+  background: var(--cad-surface);
+  color: var(--cad-text-secondary);
+  border-radius: var(--cad-radius-pill);
+  padding: var(--cad-space-1) var(--cad-space-4);
+  font-family: var(--cad-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.search-filters__chip--on {
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  border-color: var(--cad-accent);
+}

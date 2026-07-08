@@ -11,6 +11,14 @@ Feature: Search
     When I tap the first song result
     Then the Now-Playing bar shows a track
 
+  Scenario: Filtering to Songs hides the Albums section
+    Given I am signed in
+    When I open the Search tab
+    And I search for "love"
+    Then I see song results
+    When I filter results to "Songs"
+    Then I do not see the Albums section
+
   Scenario: A nonsense query shows the empty state
     Given I am signed in
     When I open the Search tab

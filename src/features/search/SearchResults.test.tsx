@@ -12,17 +12,28 @@ const items: JellyfinItem[] = [
 ];
 
 describe('SearchResults', () => {
-  it('renders grouped songs and albums', () => {
-    renderWithProviders(<SearchResults groups={groupResults(items)} onPick={vi.fn()} />);
+  it('renders grouped songs and albums with the "all" filter', () => {
+    renderWithProviders(
+      <SearchResults groups={groupResults(items)} filter="all" onPick={vi.fn()} />,
+    );
     expect(screen.getByText('Found Song')).toBeInTheDocument();
     expect(screen.getByText('Found Album')).toBeInTheDocument();
   });
 
+  it('narrows to only songs when filtered', () => {
+    renderWithProviders(
+      <SearchResults groups={groupResults(items)} filter="songs" onPick={vi.fn()} />,
+    );
+    expect(screen.getByText('Found Song')).toBeInTheDocument();
+    expect(screen.queryByText('Found Album')).not.toBeInTheDocument();
+  });
+
   it('records a tap as recent when a song is played', async () => {
     const onPick = vi.fn();
-    renderWithProviders(<SearchResults groups={groupResults(items)} onPick={onPick} />, {
-      player: stubPlayer({ playQueue: vi.fn() }),
-    });
+    renderWithProviders(
+      <SearchResults groups={groupResults(items)} filter="all" onPick={onPick} />,
+      { player: stubPlayer({ playQueue: vi.fn() }) },
+    );
     await userEvent.click(screen.getByTestId('track-row-play'));
     expect(onPick).toHaveBeenCalledWith(items[0]);
   });
