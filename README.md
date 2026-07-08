@@ -57,9 +57,9 @@ too.
 
 ## Deployment
 
-Cadence is served from a small nginx container (`deploy/`) running on the homelab via Dockge, fronted
-by cloudflared at **cadence.jpc.io**. Install it as a PWA from the browser, or grab the iOS build
-from TestFlight (once live).
+Cadence is **live at [cadence.jpc.io](https://cadence.jpc.io)** — a small nginx container (`deploy/`)
+running on the homelab via Dockge, fronted by cloudflared. Install it as a PWA from the browser, or
+grab the iOS build from TestFlight (once live).
 
 ## Develop
 
