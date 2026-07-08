@@ -72,4 +72,13 @@ describe('FullPlayer', () => {
     await userEvent.click(screen.getByTestId('full-player-queue'));
     expect(await screen.findByTestId('queue-view')).toBeInTheDocument();
   });
+
+  it('adjusts volume via the slider', async () => {
+    const setVolume = vi.fn();
+    renderPlayer(ctx({ volume: 1, setVolume }));
+    const slider = screen.getByTestId('full-player-volume');
+    const { fireEvent } = await import('@testing-library/react');
+    fireEvent.change(slider, { target: { value: '0.4' } });
+    expect(setVolume).toHaveBeenCalledWith(0.4);
+  });
 });

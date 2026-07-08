@@ -31,6 +31,8 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
     cycleRepeat: vi.fn(),
     sleepMinutes: null,
     armSleep: vi.fn(),
+    volume: 1,
+    setVolume: vi.fn(),
     ...overrides,
   };
 }

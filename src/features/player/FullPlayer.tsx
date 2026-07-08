@@ -1,5 +1,5 @@
 import { IonModal, IonIcon } from '@ionic/react';
-import { chevronDown, listOutline } from 'ionicons/icons';
+import { chevronDown, listOutline, volumeLow, volumeHigh } from 'ionicons/icons';
 import { useState } from 'react';
 import { QueueView } from './QueueView';
 import { PlayerControls } from './PlayerControls';
@@ -42,6 +42,20 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           </div>
         </div>
         <PlayerControls />
+        <div className="fullplayer__volume">
+          <IonIcon icon={volumeLow} aria-hidden="true" />
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={p.volume}
+            onChange={(e) => p.setVolume(Number(e.target.value))}
+            aria-label="Volume"
+            data-testid="full-player-volume"
+          />
+          <IonIcon icon={volumeHigh} aria-hidden="true" />
+        </div>
         <button
           className="fullplayer__queue-btn"
           onClick={() => setQueueOpen(true)}

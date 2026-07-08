@@ -110,6 +110,22 @@
   justify-content: center;
 }
 
+.fullplayer__volume {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  width: 100%;
+  max-width: 340px;
+  margin-top: var(--cad-space-4);
+  color: var(--cad-text-secondary);
+  font-size: 18px;
+}
+
+.fullplayer__volume input {
+  flex: 1;
+  accent-color: var(--cad-accent);
+}
+
 .fullplayer__queue-btn {
   margin-top: var(--cad-space-6);
   display: inline-flex;
