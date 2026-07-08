@@ -5,8 +5,10 @@ vi.mock('../../lib/jellyfinDiscover', () => ({
   getLatestAlbums: vi.fn(),
   getSuggestedSongs: vi.fn(),
 }));
+vi.mock('../../lib/jellyfinItems', () => ({ getFavoriteAlbums: vi.fn().mockResolvedValue([]) }));
 vi.mock('../player/usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
 import { getLatestAlbums, getSuggestedSongs } from '../../lib/jellyfinDiscover';
+import { getFavoriteAlbums } from '../../lib/jellyfinItems';
 import { Home } from './Home';
 import { renderWithProviders } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -28,6 +30,17 @@ describe('Home', () => {
     expect(screen.getByText('Suggested for you')).toBeInTheDocument();
     await waitFor(() => expect(screen.getByText('Fresh Album')).toBeInTheDocument());
     expect(screen.getByText('Suggested Song')).toBeInTheDocument();
+  });
+
+  it('shows a From your library shelf when albums are saved', async () => {
+    vi.mocked(getLatestAlbums).mockResolvedValue([]);
+    vi.mocked(getSuggestedSongs).mockResolvedValue([]);
+    vi.mocked(getFavoriteAlbums).mockResolvedValue([
+      { ...album, Id: 'saved1', Name: 'Saved Album' },
+    ]);
+    renderWithProviders(<Home />);
+    await waitFor(() => expect(screen.getByText('From your library')).toBeInTheDocument());
+    expect(screen.getByText('Saved Album')).toBeInTheDocument();
   });
 
   it('shows an empty state per shelf when there is no data', async () => {
