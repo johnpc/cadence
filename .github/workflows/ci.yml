@@ -75,6 +75,8 @@ jobs:
             paths: .features-gen/e2e/features/auth
           - name: playback
             paths: .features-gen/e2e/features/playback
+          - name: search
+            paths: .features-gen/e2e/features/search
     steps:
       - uses: actions/checkout@v4
 

@@ -1,0 +1,11 @@
+.search__section {
+  margin: var(--cad-space-4) 0 var(--cad-space-2);
+}
+
+ion-searchbar {
+  --background: var(--cad-surface-2);
+  --color: var(--cad-text);
+  --placeholder-color: var(--cad-text-secondary);
+  --icon-color: var(--cad-text-secondary);
+  --border-radius: var(--cad-radius-thumb);
+}
