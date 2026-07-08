@@ -1,11 +1,8 @@
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** A "2015 • Rock, Indie" meta line for an album header — year and up to two
- * genres, joined by a dot. Returns '' when neither is known. */
+/** The album's release year as a string for the header, or '' when unknown.
+ * Genres are shown separately as chips (see GenreChips). */
 export function albumMeta(album: JellyfinItem | null): string {
-  if (!album) return '';
-  const parts: string[] = [];
-  if (album.ProductionYear) parts.push(String(album.ProductionYear));
-  if (album.Genres?.length) parts.push(album.Genres.slice(0, 2).join(', '));
-  return parts.join(' • ');
+  if (!album?.ProductionYear) return '';
+  return String(album.ProductionYear);
 }

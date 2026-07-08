@@ -60,11 +60,12 @@ describe('AlbumDetail', () => {
     expect(getItemTracks).toHaveBeenCalledWith('al');
   });
 
-  it('shows the year and genre meta line', async () => {
+  it('shows the release year and genre chips', async () => {
     vi.mocked(getItem).mockResolvedValue(album);
     vi.mocked(getItemTracks).mockResolvedValue(tracks);
     renderAlbum();
-    expect(await screen.findByTestId('album-info')).toHaveTextContent('2015 • Rock');
+    expect(await screen.findByTestId('album-info')).toHaveTextContent('2015');
+    expect(screen.getByTestId('genre-chips')).toHaveTextContent('Rock');
   });
 
   it('shows an About section when the album has an overview', async () => {

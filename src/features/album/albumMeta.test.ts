@@ -10,21 +10,13 @@ const album = (over: Partial<JellyfinItem>): JellyfinItem => ({
 });
 
 describe('albumMeta', () => {
-  it('joins year and genres', () => {
-    expect(albumMeta(album({ ProductionYear: 2015, Genres: ['Rock', 'Indie'] }))).toBe(
-      '2015 • Rock, Indie',
-    );
+  it('returns the release year', () => {
+    expect(albumMeta(album({ ProductionYear: 2015, Genres: ['Rock'] }))).toBe('2015');
+    expect(albumMeta(album({ ProductionYear: 1999 }))).toBe('1999');
   });
 
-  it('caps genres at two', () => {
-    expect(albumMeta(album({ Genres: ['A', 'B', 'C'] }))).toBe('A, B');
-  });
-
-  it('shows just the year when there are no genres', () => {
-    expect(albumMeta(album({ ProductionYear: 1999, Genres: [] }))).toBe('1999');
-  });
-
-  it('is empty when nothing is known', () => {
+  it('is empty when the year is unknown', () => {
+    expect(albumMeta(album({ Genres: ['Rock'] }))).toBe('');
     expect(albumMeta(album({}))).toBe('');
     expect(albumMeta(null)).toBe('');
   });
