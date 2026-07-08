@@ -25,7 +25,7 @@ export async function getPlaylistItems(playlistId: string, limit = 200): Promise
   const params = new URLSearchParams({
     userId,
     Limit: String(limit),
-    Fields: 'Artists,AlbumArtist,Album,AlbumId',
+    Fields: 'Artists,AlbumArtist,Album,AlbumId,ArtistItems',
   });
   const res = await request<ItemsResponse>(`/Playlists/${playlistId}/Items?${params.toString()}`);
   return res.Items;

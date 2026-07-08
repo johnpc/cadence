@@ -27,7 +27,7 @@ export async function getSuggestedSongs(limit = 20): Promise<JellyfinItem[]> {
     userId,
     type: 'Audio',
     limit: String(limit),
-    Fields: 'Artists,AlbumArtist,Album,AlbumId,RunTimeTicks',
+    Fields: 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks',
   });
   const res = await request<ItemsResponse>(`/Items/Suggestions?${params.toString()}`);
   return res.Items;
