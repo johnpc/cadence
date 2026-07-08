@@ -5,6 +5,7 @@ import { artistLine, trackDuration } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { LikeButton } from '../library/LikeButton';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
+import { TrackReorder } from './TrackReorder';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './trackRow.css';
 
@@ -20,6 +21,7 @@ export function TrackRow({
   index,
   onPlay,
   onRemove,
+  reorder,
 }: {
   track: JellyfinItem;
   queue: JellyfinItem[];
@@ -28,6 +30,8 @@ export function TrackRow({
   onPlay?: () => void;
   /** When set, shows a remove button (e.g. remove from this playlist). */
   onRemove?: () => void;
+  /** When set, shows up/down reorder controls (editable playlist). */
+  reorder?: { isFirst: boolean; isLast: boolean; onMoveUp: () => void; onMoveDown: () => void };
 }) {
   const { playQueue, current, isPlaying } = usePlayer();
   const isCurrent = current?.Id === track.Id;
@@ -68,6 +72,7 @@ export function TrackRow({
           {trackDuration(track.RunTimeTicks)}
         </span>
       )}
+      {reorder && <TrackReorder {...reorder} />}
       <LikeButton track={track} />
       {onRemove ? (
         <button

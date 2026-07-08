@@ -15,7 +15,12 @@ import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
 import { collectionSummary } from '../player/playerFormat';
 import { DeletePlaylistButton } from './DeletePlaylistButton';
-import { usePlaylist, usePlaylistItems, useRemoveFromPlaylist } from './playlistsApi';
+import {
+  usePlaylist,
+  usePlaylistItems,
+  useRemoveFromPlaylist,
+  useMovePlaylistItem,
+} from './playlistsApi';
 import './playlists.css';
 
 /** One playlist: its tracks (playable/removable), plus delete-playlist. */
@@ -24,6 +29,10 @@ export function PlaylistDetail() {
   const { tracks, isLoading, isError, refetch } = usePlaylistItems(id);
   const { playlist } = usePlaylist(id);
   const remove = useRemoveFromPlaylist(id);
+  const move = useMovePlaylistItem(id);
+  const moveEntry = (entryId: string | undefined, index: number) => {
+    if (entryId) move.mutate({ entryId, index });
+  };
 
   return (
     <IonPage>
@@ -68,6 +77,12 @@ export function PlaylistDetail() {
                     ? () => remove.mutate(track.PlaylistItemId as string)
                     : undefined
                 }
+                reorder={{
+                  isFirst: index === 0,
+                  isLast: index === tracks.length - 1,
+                  onMoveUp: () => moveEntry(track.PlaylistItemId, index - 1),
+                  onMoveDown: () => moveEntry(track.PlaylistItemId, index + 1),
+                }}
               />
             ))}
           </div>
