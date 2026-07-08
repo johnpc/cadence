@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getArtistAlbums } from './jellyfinArtists';
+import { getArtistAlbums, getArtistTopTracks } from './jellyfinArtists';
 import { setSession } from './sessionStore';
 
 describe('jellyfinArtists', () => {
@@ -21,5 +21,20 @@ describe('jellyfinArtists', () => {
     const [url] = f.mock.calls[0];
     expect(url).toContain('AlbumArtistIds=artist1');
     expect(url).toContain('IncludeItemTypes=MusicAlbum');
+  });
+
+  it('getArtistTopTracks requests audio by the artist sorted by play count', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ Items: [{ Id: 's', Name: 'x', Type: 'Audio' }] }),
+    } as Response);
+    vi.stubGlobal('fetch', f);
+    const tracks = await getArtistTopTracks('artist1');
+    expect(tracks).toHaveLength(1);
+    const [url] = f.mock.calls[0];
+    expect(url).toContain('ArtistIds=artist1');
+    expect(url).toContain('SortBy=PlayCount');
   });
 });
