@@ -6,6 +6,33 @@
   margin-bottom: var(--cad-space-3);
 }
 
+.library-list__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+}
+
+.library-list__tools .library-list__search {
+  flex: 1;
+  min-width: 0;
+}
+
+.library-list__sort {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--cad-text-secondary);
+  font-size: 20px;
+  padding: var(--cad-space-2);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.library-list__sort--on {
+  color: var(--cad-accent);
+}
+
 .library-row {
   display: flex;
   align-items: center;

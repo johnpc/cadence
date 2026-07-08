@@ -75,4 +75,20 @@ describe('Library', () => {
     await waitFor(() => expect(queryByText('Liked Songs')).not.toBeInTheDocument());
     expect(queryByText('Road Trip')).toBeInTheDocument();
   });
+
+  it('toggles alphabetical sort', async () => {
+    vi.mocked(getFavoriteAlbums).mockResolvedValue([
+      { Id: 'z', Name: 'Zebra', Type: 'MusicAlbum' },
+      { Id: 'a', Name: 'Apple', Type: 'MusicAlbum' },
+    ]);
+    const { getByTestId, findByText } = renderWithProviders(<Library />);
+    await userEvent.click(getByTestId('library-filter-albums'));
+    await findByText('Zebra');
+    const sort = getByTestId('library-sort');
+    expect(sort).toHaveAttribute('aria-pressed', 'false');
+    await userEvent.click(sort);
+    await waitFor(() => expect(sort).toHaveAttribute('aria-pressed', 'true'));
+    const names = getByTestId('library-list').querySelectorAll('.library-row__name');
+    expect([...names].map((n) => n.textContent)).toEqual(['Apple', 'Zebra']);
+  });
 });
