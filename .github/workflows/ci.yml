@@ -79,6 +79,8 @@ jobs:
             paths: .features-gen/e2e/features/search
           - name: library
             paths: .features-gen/e2e/features/library
+          - name: playlists
+            paths: .features-gen/e2e/features/playlists
     steps:
       - uses: actions/checkout@v4
 

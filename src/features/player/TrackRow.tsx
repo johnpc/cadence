@@ -2,6 +2,7 @@ import { usePlayer } from './usePlayer';
 import { artistLine } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { LikeButton } from '../library/LikeButton';
+import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './trackRow.css';
 
@@ -35,6 +36,7 @@ export function TrackRow({
         </span>
       </button>
       <LikeButton track={track} />
+      <AddToPlaylistButton track={track} />
     </div>
   );
 }
