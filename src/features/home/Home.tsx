@@ -24,6 +24,7 @@ export function Home() {
       shelves.albums.refetch(),
       shelves.suggested.refetch(),
       shelves.saved.refetch(),
+      shelves.recent.refetch(),
     ]);
     await e.detail.complete();
   };

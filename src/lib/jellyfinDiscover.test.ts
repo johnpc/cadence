@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getLatestAlbums, getSuggestedSongs } from './jellyfinDiscover';
+import { getLatestAlbums, getSuggestedSongs, getRecentlyPlayed } from './jellyfinDiscover';
 import { setSession } from './sessionStore';
 
 function stub(body: unknown) {
@@ -36,5 +36,15 @@ describe('jellyfinDiscover', () => {
     const [url] = f.mock.calls[0];
     expect(url).toContain('/Items/Suggestions');
     expect(url).toContain('type=Audio');
+  });
+
+  it('getRecentlyPlayed requests played audio, most-recent first', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stub({ Items: [{ Id: 's', Name: 'x', Type: 'Audio' }], TotalRecordCount: 1 });
+    const songs = await getRecentlyPlayed(5);
+    expect(songs).toHaveLength(1);
+    const [url] = f.mock.calls[0];
+    expect(url).toContain('Filters=IsPlayed');
+    expect(url).toContain('SortBy=DatePlayed');
   });
 });
