@@ -5,9 +5,11 @@ import { libraryList } from './app-shell.steps';
 const { When, Then } = createBdd();
 
 When('I open the first album on Home', async ({ page }) => {
+  // The card body (its __hit button) navigates; the hover FAB plays. Click the
+  // body to open the album detail page.
   const card = page.getByTestId('home-shelves').getByTestId('album-card').first();
   await expect(card).toBeAttached({ timeout: 15_000 });
-  await card.click({ force: true });
+  await card.locator('.album-card__hit').click({ force: true });
 });
 
 Then('I see the album tracks', async ({ page }) => {
