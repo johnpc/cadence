@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
 import { addFavorite } from '../../lib/jellyfinItems';
 import { SaveButton } from './SaveButton';
+import { ToastContext } from '../toast/ToastContext';
 import { renderWithProviders } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -33,5 +34,27 @@ describe('SaveButton', () => {
   it('is disabled when there is no item', () => {
     renderWithProviders(<SaveButton item={null} />);
     expect(screen.getByTestId('save-button')).toBeDisabled();
+  });
+
+  it('toasts "Saved to library" for an album and "Following" for an artist', async () => {
+    vi.mocked(addFavorite).mockResolvedValue();
+    const toast = vi.fn();
+    renderWithProviders(
+      <ToastContext.Provider value={toast}>
+        <SaveButton item={album} />
+      </ToastContext.Provider>,
+    );
+    await userEvent.click(screen.getByTestId('save-button'));
+    expect(toast).toHaveBeenCalledWith('Saved to library');
+
+    toast.mockClear();
+    const artist: JellyfinItem = { Id: 'ar1', Name: 'x', Type: 'MusicArtist' };
+    renderWithProviders(
+      <ToastContext.Provider value={toast}>
+        <SaveButton item={artist} />
+      </ToastContext.Provider>,
+    );
+    await userEvent.click(screen.getAllByTestId('save-button')[1]);
+    expect(toast).toHaveBeenCalledWith('Following');
   });
 });

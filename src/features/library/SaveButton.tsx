@@ -1,6 +1,7 @@
 import { IonIcon } from '@ionic/react';
 import { checkmarkCircle, addCircleOutline } from 'ionicons/icons';
 import { useSaveToggle } from './useSaveToggle';
+import { useToast } from '../toast/useToast';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './saveButton.css';
 
@@ -8,6 +9,13 @@ import './saveButton.css';
  * filled check when saved, an outline plus when not. */
 export function SaveButton({ item, size = 30 }: { item: JellyfinItem | null; size?: number }) {
   const { saved, toggle, busy } = useSaveToggle(item);
+  const toast = useToast();
+  const isArtist = item?.Type === 'MusicArtist';
+  const onToggle = () => {
+    toggle();
+    if (saved) toast(isArtist ? 'Unfollowed' : 'Removed from library');
+    else toast(isArtist ? 'Following' : 'Saved to library');
+  };
   return (
     <button
       type="button"
@@ -15,7 +23,7 @@ export function SaveButton({ item, size = 30 }: { item: JellyfinItem | null; siz
       style={{ fontSize: size }}
       onClick={(e) => {
         e.stopPropagation();
-        toggle();
+        onToggle();
       }}
       disabled={busy || !item}
       data-testid="save-button"
