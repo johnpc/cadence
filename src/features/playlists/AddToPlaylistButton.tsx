@@ -12,11 +12,12 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
   const [open, setOpen] = useState(false);
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
-  const { playNext } = usePlayer();
+  const { playNext, addToQueue } = usePlayer();
   const history = useHistory();
 
   const buttons = [
     { text: 'Play next', handler: () => playNext(track) },
+    { text: 'Add to queue', handler: () => addToQueue(track) },
     ...(track.AlbumId
       ? [{ text: 'Go to album', handler: () => history.push(`/album/${track.AlbumId}`) }]
       : []),

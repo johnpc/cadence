@@ -27,6 +27,11 @@ export function usePlayerQueue() {
     (track: JellyfinItem) => setQueue((c) => q.enqueueNext(c, track)),
     [],
   );
+  const addToQueue = useCallback(
+    (track: JellyfinItem) =>
+      setQueue((c) => (c.tracks.length ? q.append(c, [track]) : q.startQueue([track], 0))),
+    [],
+  );
   const playShuffled = useCallback((tracks: JellyfinItem[]) => {
     setQueue(q.startShuffled(tracks, random));
     setShuffle(true);
@@ -69,6 +74,7 @@ export function usePlayerQueue() {
     playQueue,
     playShuffled,
     playNext,
+    addToQueue,
     next,
     prev,
     jumpTo,
