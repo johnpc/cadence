@@ -12,6 +12,7 @@ import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { PlaylistHeader } from './PlaylistHeader';
+import { RecommendedSongs } from './RecommendedSongs';
 import { DeletePlaylistButton } from './DeletePlaylistButton';
 import {
   usePlaylist,
@@ -76,6 +77,7 @@ export function PlaylistDetail() {
                 }}
               />
             ))}
+            <RecommendedSongs playlistId={id} tracks={tracks} />
           </div>
         </LoadState>
       </IonContent>

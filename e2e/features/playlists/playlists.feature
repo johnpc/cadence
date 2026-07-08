@@ -9,3 +9,12 @@ Feature: Playlists
     Then I see the playlist tracks
     When I play the playlist
     Then the Now-Playing bar shows a track
+
+  Scenario: A playlist recommends songs to add and lets me dismiss them
+    Given I am signed in
+    When I open the Library tab
+    And I open the first playlist
+    Then I see the playlist tracks
+    And I see recommended songs to add
+    When I dismiss the first recommendation
+    Then a different recommendation takes its place
