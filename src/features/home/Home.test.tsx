@@ -23,6 +23,7 @@ describe('Home', () => {
     vi.mocked(getLatestAlbums).mockResolvedValue([album]);
     vi.mocked(getSuggestedSongs).mockResolvedValue([song]);
     renderWithProviders(<Home />);
+    expect(screen.getByTestId('home-greeting')).toBeInTheDocument();
     expect(screen.getByText('Recently added')).toBeInTheDocument();
     expect(screen.getByText('Suggested for you')).toBeInTheDocument();
     await waitFor(() => expect(screen.getByText('Fresh Album')).toBeInTheDocument());

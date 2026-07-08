@@ -1,9 +1,20 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonRefresher,
+  IonRefresherContent,
+  IonTitle,
+  IonToolbar,
+  type RefresherCustomEvent,
+} from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { Shelf } from './Shelf';
 import { AlbumCard } from './AlbumCard';
+import { greeting } from './greeting';
 import { useLatestAlbums, useSuggestedSongs } from './homeApi';
 import { usePlayer } from '../player/usePlayer';
+import './home.css';
 
 /**
  * Home — the Spotify anti-scroll surface: horizontal shelves of recommendations
@@ -16,6 +27,11 @@ export function Home() {
   const { playQueue } = usePlayer();
   const history = useHistory();
 
+  const onRefresh = async (e: RefresherCustomEvent) => {
+    await Promise.all([albums.refetch(), suggested.refetch()]);
+    await e.detail.complete();
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -24,6 +40,12 @@ export function Home() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
+          <IonRefresherContent />
+        </IonRefresher>
+        <h1 className="home__greeting cad-h1" data-testid="home-greeting">
+          {greeting(new Date().getHours())}
+        </h1>
         <div data-testid="home-shelves">
           <Shelf
             title="Recently added"

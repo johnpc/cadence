@@ -1,3 +1,7 @@
+.home__greeting {
+  margin: var(--cad-space-2) 0 var(--cad-space-6);
+}
+
 .shelf {
   margin-bottom: var(--cad-space-8);
 }
