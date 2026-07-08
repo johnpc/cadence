@@ -5,6 +5,7 @@
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
 import { dedupeTracks } from './dedupeTracks';
+import { dedupeByName } from './dedupeByName';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
 const audioFields =
@@ -74,7 +75,7 @@ export async function getFavoriteAlbums(limit = 200): Promise<JellyfinItem[]> {
     userId,
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
-  return res.Items;
+  return dedupeByName(res.Items);
 }
 
 /** Add a track to the user's liked songs. */

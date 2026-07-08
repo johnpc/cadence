@@ -4,9 +4,11 @@
  */
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
+import { dedupeByName } from './dedupeByName';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
-/** The user's playlists. */
+/** The user's playlists, deduped by name (the library can hold several distinct
+ * playlists with identical names, which read as duplicates). */
 export async function getPlaylists(): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
@@ -16,7 +18,7 @@ export async function getPlaylists(): Promise<JellyfinItem[]> {
     userId,
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
-  return res.Items;
+  return dedupeByName(res.Items);
 }
 
 /** The tracks in a playlist, in playlist order (capped for a fast first paint). */

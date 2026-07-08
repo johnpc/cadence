@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { IonSearchbar } from '@ionic/react';
 import { LoadState } from '../../components/LoadState';
 import { LibraryFilters } from './LibraryFilters';
 import { LibraryRowItem } from './LibraryRowItem';
 import { CreatePlaylist } from '../playlists/CreatePlaylist';
 import { usePlaylists } from '../playlists/playlistsApi';
 import { useLikedSongs, useSavedAlbums, useFollowedArtists } from './libraryApi';
-import { buildLibraryRows, type LibraryFilter } from './libraryRows';
+import { buildLibraryRows, filterRowsByText, type LibraryFilter } from './libraryRows';
 import './libraryList.css';
 
 const EMPTY: Record<LibraryFilter, string> = {
@@ -18,18 +19,22 @@ const EMPTY: Record<LibraryFilter, string> = {
  * Albums, or Artists — matching Spotify's unified library. */
 export function LibraryList() {
   const [filter, setFilter] = useState<LibraryFilter>('playlists');
+  const [query, setQuery] = useState('');
   const playlists = usePlaylists();
   const albums = useSavedAlbums();
   const artists = useFollowedArtists();
   const liked = useLikedSongs();
 
   const active = filter === 'albums' ? albums : filter === 'artists' ? artists : playlists;
-  const rows = buildLibraryRows(filter, {
-    playlists: playlists.playlists,
-    albums: albums.albums,
-    artists: artists.artists,
-    likedCount: liked.songs.length,
-  });
+  const rows = filterRowsByText(
+    buildLibraryRows(filter, {
+      playlists: playlists.playlists,
+      albums: albums.albums,
+      artists: artists.artists,
+      likedCount: liked.songs.length,
+    }),
+    query,
+  );
 
   return (
     <>
@@ -37,13 +42,21 @@ export function LibraryList() {
         <LibraryFilters filter={filter} onChange={setFilter} />
         {filter === 'playlists' && <CreatePlaylist />}
       </div>
+      <IonSearchbar
+        className="library-list__search"
+        value={query}
+        debounce={0}
+        placeholder="Filter in Your Library"
+        onIonInput={(e) => setQuery(e.detail.value ?? '')}
+        data-testid="library-search"
+      />
       <LoadState
         isLoading={active.isLoading}
         isError={active.isError}
         onRetry={() => void active.refetch()}
         isEmpty={rows.length === 0}
-        emptyTitle="Nothing here yet"
-        emptyMessage={EMPTY[filter]}
+        emptyTitle={query ? 'No matches' : 'Nothing here yet'}
+        emptyMessage={query ? `Nothing in Your Library matches "${query}".` : EMPTY[filter]}
       >
         <div data-testid="library-list">
           {rows.map((row) => (

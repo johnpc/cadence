@@ -3,6 +3,7 @@
  */
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
+import { dedupeByName } from './dedupeByName';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
 /** All albums credited to an artist, newest first. */
@@ -34,7 +35,7 @@ export async function getFavoriteArtists(limit = 200): Promise<JellyfinItem[]> {
     userId,
   });
   const res = await request<ItemsResponse>(`/Artists?${params.toString()}`);
-  return res.Items;
+  return dedupeByName(res.Items);
 }
 
 /** An artist's most-played tracks ("Popular"). */
