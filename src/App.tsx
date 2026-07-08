@@ -5,6 +5,7 @@ import { queryClient } from './lib/queryClient';
 import { ThemeProvider } from './features/theme/ThemeProvider';
 import { AuthProvider } from './features/auth/AuthProvider';
 import { PlayerProvider } from './features/player/PlayerProvider';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { AppRoutes } from './AppRoutes';
 
 /* Core CSS required for Ionic components to work properly */
@@ -38,17 +39,19 @@ setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <PlayerProvider>
-            <IonReactRouter>
-              <AppRoutes />
-            </IonReactRouter>
-          </PlayerProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <PlayerProvider>
+              <IonReactRouter>
+                <AppRoutes />
+              </IonReactRouter>
+            </PlayerProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   </IonApp>
 );
 
