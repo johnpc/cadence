@@ -77,17 +77,3 @@ export function filterRowsByText(rows: LibraryRow[], query: string): LibraryRow[
   if (!q) return rows;
   return rows.filter((r) => r.name.toLowerCase().includes(q));
 }
-
-/** How the library list is ordered. */
-export type LibrarySort = 'default' | 'alpha';
-
-/** Sort rows by the chosen order. 'default' preserves the server order (and the
- * pinned Liked Songs row); 'alpha' sorts by name but keeps a pinned row first. */
-export function sortRows(rows: LibraryRow[], sort: LibrarySort): LibraryRow[] {
-  if (sort !== 'alpha') return rows;
-  const pinned = rows.filter((r) => r.liked);
-  const rest = rows
-    .filter((r) => !r.liked)
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-  return [...pinned, ...rest];
-}

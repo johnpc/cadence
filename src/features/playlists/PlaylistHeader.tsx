@@ -28,7 +28,7 @@ export function PlaylistHeader({
         </p>
       </div>
       <div className="playlist__actions">
-        <CollectionActions tracks={tracks} />
+        <CollectionActions tracks={tracks} collectionId={playlist?.Id} />
         <ShareButton item={playlist} />
       </div>
     </>
