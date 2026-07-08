@@ -38,6 +38,17 @@ export async function getFavoriteArtists(limit = 200): Promise<JellyfinItem[]> {
   return dedupeByName(res.Items);
 }
 
+/** Hydrate a set of artist ids into full items (name + image), preserving the
+ * caller's order. Turns ranked related-artist ids into display cards. */
+export async function getArtistsByIds(ids: string[]): Promise<JellyfinItem[]> {
+  if (ids.length === 0) return [];
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({ Ids: ids.join(','), Fields: 'Genres', userId });
+  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
+  const byId = new Map(res.Items.map((a) => [a.Id, a]));
+  return ids.map((id) => byId.get(id)).filter((a): a is JellyfinItem => a !== undefined);
+}
+
 /** An artist's most-played tracks ("Popular"). */
 export async function getArtistTopTracks(artistId: string, limit = 5): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';

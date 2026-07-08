@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../lib/jellyfinItems', () => ({
   getItem: vi.fn(),
   getItemTracks: vi.fn(),
-  getInstantMix: vi.fn(),
+  getInstantMix: vi.fn().mockResolvedValue([]),
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
 }));
@@ -14,10 +14,11 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylists: vi.fn().mockResolv
 vi.mock('../../lib/jellyfinArtists', () => ({
   getArtistAlbums: vi.fn(),
   getArtistTopTracks: vi.fn(),
+  getArtistsByIds: vi.fn().mockResolvedValue([]),
   getFavoriteArtists: vi.fn().mockResolvedValue([]),
 }));
-import { getItem } from '../../lib/jellyfinItems';
-import { getArtistAlbums, getArtistTopTracks } from '../../lib/jellyfinArtists';
+import { getItem, getInstantMix } from '../../lib/jellyfinItems';
+import { getArtistAlbums, getArtistTopTracks, getArtistsByIds } from '../../lib/jellyfinArtists';
 import { ArtistDetail } from './ArtistDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
@@ -47,6 +48,8 @@ function renderArtist() {
 describe('ArtistDetail', () => {
   beforeEach(() => {
     vi.mocked(getArtistTopTracks).mockResolvedValue([]);
+    vi.mocked(getInstantMix).mockResolvedValue([]);
+    vi.mocked(getArtistsByIds).mockResolvedValue([]);
   });
   afterEach(() => {
     vi.resetAllMocks();
@@ -77,6 +80,17 @@ describe('ArtistDetail', () => {
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);
     renderArtist();
     expect(await screen.findByTestId('artist-radio')).toBeInTheDocument();
+  });
+
+  it('shows a "Fans also like" section with related artists', async () => {
+    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtistAlbums).mockResolvedValue(albums);
+    vi.mocked(getArtistsByIds).mockResolvedValue([
+      { Id: 'rel1', Name: 'Related One', Type: 'MusicArtist' },
+    ]);
+    renderArtist();
+    expect(await screen.findByText('Fans also like')).toBeInTheDocument();
+    expect(screen.getByText('Related One')).toBeInTheDocument();
   });
 
   it('shows an empty state when the artist has no albums', async () => {

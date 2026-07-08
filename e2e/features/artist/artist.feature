@@ -9,6 +9,14 @@ Feature: Artist detail
     And I open the first artist result
     Then I see the artist's albums
 
+  Scenario: An artist page suggests related artists
+    Given I am signed in
+    When I open the Search tab
+    And I search for "love"
+    And I open the first artist result
+    Then I see the artist's albums
+    And I see related artists to explore
+
   Scenario: Following an artist adds them to Your Library
     Given I am signed in
     When I open the Search tab
