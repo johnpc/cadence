@@ -7,19 +7,23 @@ import { usePlayer } from '../player/usePlayer';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './addToPlaylist.css';
 
-/** A "…" track menu: play next, go to album, and add to any playlist. */
+/** A "…" track menu: play next, add to queue, go to album/artist, add to playlist. */
 export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
   const [open, setOpen] = useState(false);
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
   const { playNext, addToQueue } = usePlayer();
   const history = useHistory();
+  const artist = track.ArtistItems?.[0];
 
   const buttons = [
     { text: 'Play next', handler: () => playNext(track) },
     { text: 'Add to queue', handler: () => addToQueue(track) },
     ...(track.AlbumId
       ? [{ text: 'Go to album', handler: () => history.push(`/album/${track.AlbumId}`) }]
+      : []),
+    ...(artist
+      ? [{ text: 'Go to artist', handler: () => history.push(`/artist/${artist.Id}`) }]
       : []),
     ...playlists.map((pl) => ({
       text: `Add to ${pl.Name}`,
