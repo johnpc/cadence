@@ -1,15 +1,16 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
+import { libraryList } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
 When('I open the first playlist', async ({ page }) => {
   // Your Library lists Liked Songs first (pinned), then real playlists — open
   // the first row that isn't Liked Songs.
-  const rows = page.getByTestId('library-list').getByTestId('library-row');
-  await expect(rows.first()).toBeAttached({ timeout: 15_000 });
+  const rows = libraryList(page).getByTestId('library-row');
+  await expect(rows.first()).toBeVisible({ timeout: 15_000 });
   const row = rows.filter({ hasNotText: 'Liked Songs' }).first();
-  await expect(row).toBeAttached({ timeout: 15_000 });
+  await expect(row).toBeVisible({ timeout: 15_000 });
   await row.click({ force: true });
 });
 

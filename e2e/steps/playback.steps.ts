@@ -1,12 +1,13 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
+import { navigate } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
 When('I tap a track from search', async ({ page }) => {
   // Home is now recommendation shelves (no flat track list), so drive playback
   // from Search, which lists individual tracks.
-  await page.locator('ion-tab-button', { hasText: 'Search' }).click();
+  await navigate(page, 'Search');
   await page.getByTestId('search-input').locator('input').fill('love');
   const rows = page.getByTestId('search-results').getByTestId('track-row-play');
   await expect(rows.first()).toBeVisible({ timeout: 15_000 });
