@@ -13,6 +13,7 @@ import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackArt } from '../player/TrackArt';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
+import { SaveButton } from '../library/SaveButton';
 import { artistLine } from '../player/playerFormat';
 import { useAlbum, useAlbumTracks } from './albumApi';
 import './album.css';
@@ -47,7 +48,10 @@ export function AlbumDetail() {
               <TrackArt item={album} size={160} />
               <h1 className="album__title cad-headline">{album?.Name}</h1>
               <p className="album__artist cad-meta">{artistLine(album) || album?.AlbumArtist}</p>
-              <CollectionActions tracks={tracks} />
+              <div className="album__actions">
+                <SaveButton item={album ?? null} />
+                <CollectionActions tracks={tracks} />
+              </div>
             </div>
             {tracks.map((track, index) => (
               <TrackRow key={track.Id} track={track} queue={tracks} index={index} />

@@ -1,0 +1,36 @@
+.saved-albums {
+  margin-top: var(--cad-space-6);
+}
+
+.saved-albums__row {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-2) 0;
+  text-decoration: none;
+}
+
+.saved-albums__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.saved-albums__name {
+  font-family: var(--cad-font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--cad-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saved-albums__artist {
+  font-family: var(--cad-font-sans);
+  font-size: 13px;
+  color: var(--cad-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
