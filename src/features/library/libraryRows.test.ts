@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildLibraryRows, filterRowsByText, sortRows } from './libraryRows';
+import { buildLibraryRows, filterRowsByText } from './libraryRows';
+import { sortRows } from './librarySort';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const pl: JellyfinItem[] = [{ Id: 'p1', Name: 'Road Trip', Type: 'Playlist' }];
@@ -65,15 +66,23 @@ describe('sortRows', () => {
     likedCount: 0,
   });
 
-  it('leaves order unchanged for the default sort', () => {
-    expect(sortRows(albumRows, 'default').map((r) => r.name)).toEqual(['Zebra', 'Apple']);
+  it('keeps server order under recents when nothing has been played', () => {
+    expect(sortRows(albumRows, 'recents').map((r) => r.name)).toEqual(['Zebra', 'Apple']);
+  });
+
+  it('bubbles a recently-played item to the top under recents', () => {
+    // Apple (id 'a') played more recently than Zebra (id 'b').
+    expect(sortRows(albumRows, 'recents', { a: 200, b: 100 }).map((r) => r.name)).toEqual([
+      'Apple',
+      'Zebra',
+    ]);
   });
 
   it('sorts alphabetically by name', () => {
     expect(sortRows(albumRows, 'alpha').map((r) => r.name)).toEqual(['Apple', 'Zebra']);
   });
 
-  it('keeps the pinned Liked Songs row first when sorting A–Z', () => {
+  it('keeps the pinned Liked Songs row first in both orders', () => {
     const playlistRows = buildLibraryRows('playlists', {
       playlists: [{ Id: 'p', Name: 'Aaa First Alpha', Type: 'Playlist' }],
       albums: [],
@@ -81,5 +90,6 @@ describe('sortRows', () => {
       likedCount: 2,
     });
     expect(sortRows(playlistRows, 'alpha')[0].liked).toBe(true);
+    expect(sortRows(playlistRows, 'recents', { p: 999 })[0].liked).toBe(true);
   });
 });

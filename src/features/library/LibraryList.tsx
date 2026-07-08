@@ -7,13 +7,9 @@ import { LibraryRowItem } from './LibraryRowItem';
 import { CreatePlaylist } from '../playlists/CreatePlaylist';
 import { usePlaylists } from '../playlists/playlistsApi';
 import { useLikedSongs, useSavedAlbums, useFollowedArtists } from './libraryApi';
-import {
-  buildLibraryRows,
-  filterRowsByText,
-  sortRows,
-  type LibraryFilter,
-  type LibrarySort,
-} from './libraryRows';
+import { getRecentPlays } from './recentPlays';
+import { buildLibraryRows, filterRowsByText, type LibraryFilter } from './libraryRows';
+import { sortRows, type LibrarySort } from './librarySort';
 import './libraryList.css';
 
 const EMPTY: Record<LibraryFilter, string> = {
@@ -27,7 +23,7 @@ const EMPTY: Record<LibraryFilter, string> = {
 export function LibraryList() {
   const [filter, setFilter] = useState<LibraryFilter>('playlists');
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState<LibrarySort>('default');
+  const [sort, setSort] = useState<LibrarySort>('recents');
   const playlists = usePlaylists();
   const albums = useSavedAlbums();
   const artists = useFollowedArtists();
@@ -45,6 +41,7 @@ export function LibraryList() {
       query,
     ),
     sort,
+    getRecentPlays(),
   );
 
   return (
@@ -70,7 +67,7 @@ export function LibraryList() {
           data-testid="library-sort"
           aria-label={sort === 'alpha' ? 'Sorted A–Z; tap for recents' : 'Sort A–Z'}
           aria-pressed={sort === 'alpha'}
-          onClick={() => setSort((s) => (s === 'alpha' ? 'default' : 'alpha'))}
+          onClick={() => setSort((s) => (s === 'alpha' ? 'recents' : 'alpha'))}
         >
           <IonIcon icon={swapVertical} />
         </button>

@@ -45,7 +45,7 @@ export function AlbumHeader({
       <div className="album__actions">
         <SaveButton item={album ?? null} />
         <ShareButton item={album ?? null} />
-        {tracks.length > 0 && <CollectionActions tracks={tracks} />}
+        {tracks.length > 0 && <CollectionActions tracks={tracks} collectionId={album?.Id} />}
       </div>
     </div>
   );
