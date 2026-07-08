@@ -18,3 +18,10 @@ Feature: Playlists
     And I see recommended songs to add
     When I dismiss the first recommendation
     Then a different recommendation takes its place
+
+  Scenario: Finding a song within a playlist narrows the list
+    Given I am signed in
+    When I open the Library tab
+    And I open the first playlist
+    Then I see the playlist tracks
+    And I can find within the playlist

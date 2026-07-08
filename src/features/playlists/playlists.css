@@ -130,3 +130,10 @@
 .playlist-rec__dismiss {
   opacity: 0.7;
 }
+
+.playlist__search {
+  --background: var(--cad-elevated);
+  --border-radius: var(--cad-radius);
+  margin-bottom: var(--cad-space-2);
+  padding: 0;
+}
