@@ -19,12 +19,13 @@ export async function getPlaylists(): Promise<JellyfinItem[]> {
   return res.Items;
 }
 
-/** The tracks in a playlist, in playlist order. */
-export async function getPlaylistItems(playlistId: string): Promise<JellyfinItem[]> {
+/** The tracks in a playlist, in playlist order (capped for a fast first paint). */
+export async function getPlaylistItems(playlistId: string, limit = 200): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     userId,
-    Fields: 'Artists,AlbumArtist,Album,AlbumId,RunTimeTicks',
+    Limit: String(limit),
+    Fields: 'Artists,AlbumArtist,Album,AlbumId',
   });
   const res = await request<ItemsResponse>(`/Playlists/${playlistId}/Items?${params.toString()}`);
   return res.Items;

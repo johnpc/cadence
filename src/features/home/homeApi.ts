@@ -1,18 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAudioItems } from '../../lib/jellyfinItems';
+import { getLatestAlbums, getSuggestedSongs } from '../../lib/jellyfinDiscover';
 
-/** Tracks shown on Home. For now a slice of the library; slice 7 replaces this
- * with recommendation shelves (recently added, suggestions, radio). */
-export function useHomeTracks() {
-  const query = useQuery({
-    queryKey: ['home-tracks'],
-    queryFn: () => getAudioItems(30),
+/** Recently-added albums shelf. */
+export function useLatestAlbums() {
+  const q = useQuery({
+    queryKey: ['home', 'latest-albums'],
+    queryFn: () => getLatestAlbums(20),
     staleTime: 60_000,
   });
-  return {
-    tracks: query.data ?? [],
-    isLoading: query.isLoading,
-    isError: query.isError,
-    refetch: query.refetch,
-  };
+  return { albums: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
+}
+
+/** Suggested-for-you songs shelf. */
+export function useSuggestedSongs() {
+  const q = useQuery({
+    queryKey: ['home', 'suggested'],
+    queryFn: () => getSuggestedSongs(20),
+    staleTime: 60_000,
+  });
+  return { songs: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }

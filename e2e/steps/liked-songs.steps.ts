@@ -7,11 +7,13 @@ When('I open the Library tab', async ({ page }) => {
   await page.locator('ion-tab-button', { hasText: 'Your Library' }).click();
 });
 
-When('I like the first track on Home', async ({ page }) => {
-  await expect(page.getByTestId('home-tracks')).toBeVisible();
-  // Ensure the first Home track ends up LIKED (idempotent — clicking an already
-  // liked track would unlike it, so only click when it isn't pressed yet).
-  const heart = page.getByTestId('home-tracks').getByTestId('like-button').first();
+When('I like a track from search', async ({ page }) => {
+  // Home is now shelves; like a track from Search (which lists tracks). Ensure
+  // it ends LIKED (idempotent — clicking an already-liked heart unlikes it).
+  await page.locator('ion-tab-button', { hasText: 'Search' }).click();
+  await page.getByTestId('search-input').locator('input').fill('love');
+  const heart = page.getByTestId('search-results').getByTestId('like-button').first();
+  await expect(heart).toBeVisible({ timeout: 15_000 });
   if ((await heart.getAttribute('aria-pressed')) !== 'true') {
     await heart.click();
     await expect(heart).toHaveAttribute('aria-pressed', 'true');

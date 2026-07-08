@@ -27,7 +27,7 @@ recommendations — all backed by the Jellyfin server you already run.
 | Search (the primary discovery surface)        | ✅     |
 | Liked songs                                   | ✅     |
 | Playlists (browse, create, add)               | ✅     |
-| Home recommendations (recently added, radio)  | ⬜     |
+| Home recommendations (recently added, radio)  | ✅     |
 | Native iOS (background audio, lock-screen)    | ⬜     |
 | Fuzzy search via Meilisearch                  | ⬜     |
 
