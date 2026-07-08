@@ -33,4 +33,22 @@ describe('useVolume', () => {
     const { result } = renderHook(() => useVolume(audioRef(), 't1'));
     expect(result.current.volume).toBe(0.3);
   });
+
+  it('nudges the volume up and down (clamped)', () => {
+    const { result } = renderHook(() => useVolume(audioRef(), 't1'));
+    act(() => result.current.setVolume(0.5));
+    act(() => result.current.nudgeVolume(0.2));
+    expect(result.current.volume).toBeCloseTo(0.7);
+    act(() => result.current.nudgeVolume(1)); // clamps at 1
+    expect(result.current.volume).toBe(1);
+  });
+
+  it('mutes and restores the prior volume', () => {
+    const { result } = renderHook(() => useVolume(audioRef(), 't1'));
+    act(() => result.current.setVolume(0.6));
+    act(() => result.current.toggleMute());
+    expect(result.current.volume).toBe(0);
+    act(() => result.current.toggleMute());
+    expect(result.current.volume).toBe(0.6);
+  });
 });
