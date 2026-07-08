@@ -67,6 +67,18 @@ describe('PlaylistDetail', () => {
     expect(await screen.findByText('My Playlist')).toBeInTheDocument();
   });
 
+  it('shows the playlist description when present', async () => {
+    vi.mocked(getItem).mockResolvedValue({
+      Id: 'p1',
+      Name: 'My Playlist',
+      Type: 'Playlist',
+      Overview: 'Songs for a long drive.',
+    });
+    vi.mocked(getPlaylistItems).mockResolvedValue(tracks);
+    renderDetail();
+    expect(await screen.findByTestId('playlist-desc')).toHaveTextContent('Songs for a long drive.');
+  });
+
   it('plays the whole playlist from the top', async () => {
     vi.mocked(getPlaylistItems).mockResolvedValue(tracks);
     const playQueue = vi.fn();
