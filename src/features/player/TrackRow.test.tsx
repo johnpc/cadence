@@ -63,3 +63,9 @@ it('shows reorder controls when the reorder prop is set', async () => {
   await userEvent.click(screen.getByTestId('track-row-up'));
   expect(onMoveUp).toHaveBeenCalledOnce();
 });
+
+it('shows the track number instead of art when showNumber is set', () => {
+  const numbered: JellyfinItem = { ...tracks[0], IndexNumber: 4 };
+  renderWithProviders(<TrackRow track={numbered} queue={[numbered]} index={0} showNumber />);
+  expect(screen.getByTestId('track-number')).toHaveTextContent('4');
+});

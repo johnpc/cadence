@@ -37,6 +37,8 @@ export interface JellyfinItem {
   AlbumId?: string;
   /** Run time in .NET ticks (10,000 per ms). */
   RunTimeTicks?: number;
+  /** Track number within its album (Audio items). */
+  IndexNumber?: number;
   /** Release year (albums). */
   ProductionYear?: number;
   /** Genre names (albums/artists). */

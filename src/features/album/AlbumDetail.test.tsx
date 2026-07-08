@@ -27,8 +27,8 @@ const album: JellyfinItem = {
   Genres: ['Rock'],
 };
 const tracks: JellyfinItem[] = [
-  { Id: 'a', Name: 'Track A', Type: 'Audio', Artists: ['Band'] },
-  { Id: 'b', Name: 'Track B', Type: 'Audio' },
+  { Id: 'a', Name: 'Track A', Type: 'Audio', Artists: ['Band'], IndexNumber: 1 },
+  { Id: 'b', Name: 'Track B', Type: 'Audio', IndexNumber: 2 },
 ];
 
 function renderAlbum(player: PlayerContextValue = stubPlayer()) {
@@ -66,6 +66,14 @@ describe('AlbumDetail', () => {
     renderAlbum();
     expect(await screen.findByTestId('album-info')).toHaveTextContent('2015');
     expect(screen.getByTestId('genre-chips')).toHaveTextContent('Rock');
+  });
+
+  it('numbers the album tracks', async () => {
+    vi.mocked(getItem).mockResolvedValue(album);
+    vi.mocked(getItemTracks).mockResolvedValue(tracks);
+    renderAlbum();
+    await screen.findByText('Track A');
+    expect(screen.getAllByTestId('track-number').map((n) => n.textContent)).toEqual(['1', '2']);
   });
 
   it('shows an About section when the album has an overview', async () => {
