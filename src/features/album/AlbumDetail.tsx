@@ -65,6 +65,12 @@ export function AlbumDetail() {
             {tracks.map((track, index) => (
               <TrackRow key={track.Id} track={track} queue={tracks} index={index} />
             ))}
+            {album?.Overview && (
+              <section data-testid="album-about">
+                <h2 className="cad-kicker album__section">About</h2>
+                <p className="album__about cad-meta">{album.Overview}</p>
+              </section>
+            )}
           </div>
         </LoadState>
       </IonContent>

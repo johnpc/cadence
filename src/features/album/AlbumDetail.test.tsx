@@ -67,6 +67,13 @@ describe('AlbumDetail', () => {
     expect(await screen.findByTestId('album-info')).toHaveTextContent('2015 • Rock');
   });
 
+  it('shows an About section when the album has an overview', async () => {
+    vi.mocked(getItem).mockResolvedValue({ ...album, Overview: 'A landmark record.' });
+    vi.mocked(getItemTracks).mockResolvedValue(tracks);
+    renderAlbum();
+    expect(await screen.findByTestId('album-about')).toHaveTextContent('A landmark record.');
+  });
+
   it('plays the whole album from the top', async () => {
     vi.mocked(getItem).mockResolvedValue(album);
     vi.mocked(getItemTracks).mockResolvedValue(tracks);
