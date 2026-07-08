@@ -3,20 +3,16 @@ import {
   IonBackButton,
   IonContent,
   IonHeader,
-  IonIcon,
   IonPage,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { radio } from 'ionicons/icons';
 import { useHistory, useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackArt } from '../player/TrackArt';
-import { GenreChips } from '../../components/GenreChips';
+import { ArtistHeader } from './ArtistHeader';
 import { ArtistPopular } from './ArtistPopular';
 import { RelatedArtists } from './RelatedArtists';
-import { SaveButton } from '../library/SaveButton';
-import { ShareButton } from '../share/ShareButton';
 import { usePlayItem } from '../player/usePlayItem';
 import { useArtist, useArtistAlbums, useArtistTopTracks, useRelatedArtists } from './artistApi';
 import './artist.css';
@@ -42,25 +38,7 @@ export function ArtistDetail() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <div className="artist__header">
-          <TrackArt item={artist} size={160} round />
-          <h1 className="artist__name cad-headline">{artist?.Name}</h1>
-          <GenreChips genres={artist?.Genres} />
-          {artist && (
-            <div className="artist__actions" data-testid="artist-actions">
-              <SaveButton item={artist} />
-              <ShareButton item={artist} />
-              <button
-                className="artist__radio"
-                data-testid="artist-radio"
-                onClick={() => void playItem(artist)}
-                aria-label="Start artist radio"
-              >
-                <IonIcon icon={radio} /> Radio
-              </button>
-            </div>
-          )}
-        </div>
+        <ArtistHeader artist={artist} onRadio={() => artist && void playItem(artist)} />
         <ArtistPopular tracks={topTracks} />
         <h2 className="cad-kicker artist__section">Albums</h2>
         <LoadState
