@@ -1,0 +1,32 @@
+.more-by {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--cad-space-4);
+}
+
+.more-by__album {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-1);
+}
+
+.more-by__album .track-art {
+  width: 100% !important;
+  aspect-ratio: 1;
+  height: auto !important;
+}
+
+.more-by__name {
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cad-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
