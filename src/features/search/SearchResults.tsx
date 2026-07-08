@@ -2,24 +2,28 @@ import { useHistory } from 'react-router-dom';
 import { TrackRow } from '../player/TrackRow';
 import { artistLine } from '../player/playerFormat';
 import { ResultRow } from './ResultRow';
-import type { SearchGroups } from './searchGroups';
+import { TopResult } from './TopResult';
+import { topResult, type SearchGroups } from './searchGroups';
 import type { RecentItem } from './recentSearchStore';
 import type { SearchFilter } from './SearchFilters';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** The grouped Songs / Albums / Artists / Playlists sections, narrowed by the
- * active filter. Records each tap as a recent search. */
+ * active filter, with a featured Top result under "All". Records taps. */
 export function SearchResults({
   groups,
   filter,
+  query,
   onPick,
 }: {
   groups: SearchGroups;
   filter: SearchFilter;
+  query: string;
   onPick: (item: RecentItem) => void;
 }) {
   const history = useHistory();
   const show = (kind: SearchFilter) => filter === 'all' || filter === kind;
+  const hero = filter === 'all' ? topResult(groups, query) : null;
   const goAlbum = (a: JellyfinItem) => {
     onPick(a);
     history.push(`/album/${a.Id}`);
@@ -34,6 +38,7 @@ export function SearchResults({
   };
   return (
     <div data-testid="search-results">
+      {hero && <TopResult item={hero} onPick={onPick} />}
       {show('songs') && groups.songs.length > 0 && (
         <section>
           <h2 className="cad-kicker search__section">Songs</h2>

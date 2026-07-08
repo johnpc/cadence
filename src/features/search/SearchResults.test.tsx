@@ -15,7 +15,7 @@ const items: JellyfinItem[] = [
 describe('SearchResults', () => {
   it('renders grouped songs and albums with the "all" filter', () => {
     renderWithProviders(
-      <SearchResults groups={groupResults(items)} filter="all" onPick={vi.fn()} />,
+      <SearchResults groups={groupResults(items)} filter="all" query="" onPick={vi.fn()} />,
     );
     expect(screen.getByText('Found Song')).toBeInTheDocument();
     expect(screen.getByText('Found Album')).toBeInTheDocument();
@@ -23,7 +23,7 @@ describe('SearchResults', () => {
 
   it('narrows to only songs when filtered', () => {
     renderWithProviders(
-      <SearchResults groups={groupResults(items)} filter="songs" onPick={vi.fn()} />,
+      <SearchResults groups={groupResults(items)} filter="songs" query="" onPick={vi.fn()} />,
     );
     expect(screen.getByText('Found Song')).toBeInTheDocument();
     expect(screen.queryByText('Found Album')).not.toBeInTheDocument();
@@ -32,7 +32,7 @@ describe('SearchResults', () => {
   it('navigates to a playlist result and records the tap', async () => {
     const onPick = vi.fn();
     renderWithProviders(
-      <SearchResults groups={groupResults(items)} filter="playlists" onPick={onPick} />,
+      <SearchResults groups={groupResults(items)} filter="playlists" query="" onPick={onPick} />,
     );
     expect(screen.queryByText('Found Song')).not.toBeInTheDocument();
     await userEvent.click(screen.getByText('Found Playlist'));
@@ -42,7 +42,7 @@ describe('SearchResults', () => {
   it('records a tap as recent when a song is played', async () => {
     const onPick = vi.fn();
     renderWithProviders(
-      <SearchResults groups={groupResults(items)} filter="all" onPick={onPick} />,
+      <SearchResults groups={groupResults(items)} filter="all" query="" onPick={onPick} />,
       { player: stubPlayer({ playQueue: vi.fn() }) },
     );
     await userEvent.click(screen.getByTestId('track-row-play'));
