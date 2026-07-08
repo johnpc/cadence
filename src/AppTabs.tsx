@@ -7,6 +7,7 @@ import { Library } from './features/library/Library';
 import { Settings } from './features/settings/Settings';
 import { PlaylistDetail } from './features/playlists/PlaylistDetail';
 import { AlbumDetail } from './features/album/AlbumDetail';
+import { ArtistDetail } from './features/artist/ArtistDetail';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import './appTabs.css';
 
@@ -41,6 +42,9 @@ export function AppTabs() {
         </Route>
         <Route exact path="/album/:id">
           <AlbumDetail />
+        </Route>
+        <Route exact path="/artist/:id">
+          <ArtistDetail />
         </Route>
         <Route exact path="/">
           <Redirect to="/home" />

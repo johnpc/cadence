@@ -8,19 +8,32 @@ describe('jellyfinSearchSource', () => {
     vi.restoreAllMocks();
   });
 
-  it('queries Jellyfin with the search term across song/album/artist types', async () => {
+  it('queries both /Items (songs+albums) and /Artists, merging + tagging artists', async () => {
     setSession({ token: 't', userId: 'uid' });
-    const f = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: async () => JSON.stringify({ Items: [{ Id: 'a', Name: 'x', Type: 'Audio' }] }),
-    } as Response);
+    const f = vi.fn().mockImplementation((url: string) => {
+      const items = url.includes('/Artists')
+        ? [{ Id: 'ar', Name: 'An Artist' }] // note: no Type from the Artists endpoint
+        : [
+            { Id: 's', Name: 'Song', Type: 'Audio' },
+            { Id: 'al', Name: 'Album', Type: 'MusicAlbum' },
+          ];
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ Items: items }),
+      } as Response);
+    });
     vi.stubGlobal('fetch', f);
-    const items = await jellyfinSearchSource('love', 10);
-    expect(items).toHaveLength(1);
-    const [url] = f.mock.calls[0];
-    expect(url).toContain('searchTerm=love');
-    expect(url).toContain('IncludeItemTypes=Audio%2CMusicAlbum%2CMusicArtist');
-    expect(url).toContain('Limit=10');
+
+    const results = await jellyfinSearchSource('love', 10);
+
+    const urls = f.mock.calls.map((c) => c[0] as string);
+    expect(urls.some((u) => u.includes('/Items?') && u.includes('IncludeItemTypes=Audio'))).toBe(
+      true,
+    );
+    expect(urls.some((u) => u.includes('/Artists?'))).toBe(true);
+    // Artists get tagged so the grouping can find them.
+    expect(results.find((r) => r.Id === 'ar')?.Type).toBe('MusicArtist');
+    expect(results.map((r) => r.Type).sort()).toEqual(['Audio', 'MusicAlbum', 'MusicArtist']);
   });
 });
