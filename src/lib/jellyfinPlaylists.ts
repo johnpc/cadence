@@ -31,6 +31,13 @@ export async function getPlaylistItems(playlistId: string, limit = 200): Promise
   return res.Items;
 }
 
+/** Remove an entry from a playlist by its per-entry PlaylistItemId. */
+export async function removeFromPlaylist(playlistId: string, entryId: string): Promise<void> {
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({ EntryIds: entryId, userId });
+  await request(`/Playlists/${playlistId}/Items?${params.toString()}`, { method: 'DELETE' });
+}
+
 /** Create a new (audio) playlist and return its id. */
 export async function createPlaylist(name: string): Promise<string> {
   const userId = getSession()?.userId ?? '';

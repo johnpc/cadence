@@ -39,6 +39,8 @@ export interface JellyfinItem {
   UserData?: { IsFavorite?: boolean };
   /** Present on items carrying their own primary image. */
   ImageTags?: { Primary?: string };
+  /** The per-entry id of this track WITHIN a playlist (for removal). */
+  PlaylistItemId?: string;
 }
 
 /** Envelope returned by list endpoints (/Items, /Playlists/{id}/Items, …). */

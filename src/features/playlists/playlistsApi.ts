@@ -4,6 +4,7 @@ import {
   createPlaylist,
   getPlaylistItems,
   getPlaylists,
+  removeFromPlaylist,
 } from '../../lib/jellyfinPlaylists';
 
 export const PLAYLISTS_KEY = ['playlists'];
@@ -46,5 +47,14 @@ export function useAddToPlaylist() {
       addToPlaylist(playlistId, itemId),
     onSuccess: (_r, { playlistId }) =>
       queryClient.invalidateQueries({ queryKey: ['playlist-items', playlistId] }),
+  });
+}
+
+/** Remove an entry from a playlist; refreshes that playlist's items. */
+export function useRemoveFromPlaylist(playlistId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (entryId: string) => removeFromPlaylist(playlistId, entryId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['playlist-items', playlistId] }),
   });
 }
