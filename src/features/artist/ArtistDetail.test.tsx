@@ -86,6 +86,13 @@ describe('ArtistDetail', () => {
     await waitFor(() => expect(screen.getByTestId('load-empty')).toBeInTheDocument());
   });
 
+  it('shows genre chips when the artist has genres', async () => {
+    vi.mocked(getItem).mockResolvedValue({ ...artist, Genres: ['Indie', 'Alternative'] });
+    vi.mocked(getArtistAlbums).mockResolvedValue(albums);
+    renderArtist();
+    expect(await screen.findByTestId('genre-chips')).toHaveTextContent('Indie');
+  });
+
   it('shows an About section when the artist has a bio', async () => {
     vi.mocked(getItem).mockResolvedValue({ ...artist, Overview: 'A prolific indie act.' });
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);

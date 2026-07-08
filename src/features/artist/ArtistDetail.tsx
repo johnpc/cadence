@@ -12,6 +12,7 @@ import { radio } from 'ionicons/icons';
 import { useHistory, useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackArt } from '../player/TrackArt';
+import { GenreChips } from '../../components/GenreChips';
 import { ArtistPopular } from './ArtistPopular';
 import { SaveButton } from '../library/SaveButton';
 import { usePlayItem } from '../player/usePlayItem';
@@ -41,6 +42,7 @@ export function ArtistDetail() {
         <div className="artist__header">
           <TrackArt item={artist} size={160} />
           <h1 className="artist__name cad-headline">{artist?.Name}</h1>
+          <GenreChips genres={artist?.Genres} />
           {artist && (
             <div className="artist__actions" data-testid="artist-actions">
               <SaveButton item={artist} />
