@@ -1,5 +1,6 @@
 import { useHistory } from 'react-router-dom';
 import { CardShelf } from './CardShelf';
+import { DailyMixShelf } from './DailyMixShelf';
 import { useLatestAlbums, useSuggestedSongs, useRecentlyPlayed } from './homeApi';
 import { useSavedAlbums, useFollowedArtists } from '../library/libraryApi';
 import { usePlayer } from '../player/usePlayer';
@@ -32,6 +33,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
         onPlay={openAlbum}
         onPlayNow={(item) => void playItem(item)}
       />
+      <DailyMixShelf artists={artists.artists} />
       {recent.songs.length > 0 && (
         <CardShelf
           title="Recently played"
