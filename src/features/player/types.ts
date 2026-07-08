@@ -36,6 +36,8 @@ export interface PlayerContextValue {
   removeFromQueue: (index: number) => void;
   /** Move a queued track from one index to another (keeps the playing track). */
   moveInQueue: (from: number, to: number) => void;
+  /** Drop everything after the current track. */
+  clearQueue: () => void;
   /** Seek to a position in seconds. */
   seek: (seconds: number) => void;
   toggleShuffle: () => void;

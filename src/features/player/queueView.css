@@ -22,6 +22,17 @@
   cursor: pointer;
 }
 
+.queueview__clear {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--cad-accent);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .queueview__head h2 {
   margin: 0;
 }

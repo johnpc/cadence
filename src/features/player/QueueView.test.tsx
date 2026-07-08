@@ -52,6 +52,22 @@ describe('QueueView', () => {
     expect(removeFromQueue).toHaveBeenCalledWith(1);
   });
 
+  it('clears the upcoming queue when there is more to come', async () => {
+    const clearQueue = vi.fn();
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 0, clearQueue }),
+    });
+    await userEvent.click(screen.getByTestId('queue-clear'));
+    expect(clearQueue).toHaveBeenCalledOnce();
+  });
+
+  it('hides Clear when the current track is last', () => {
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 1 }),
+    });
+    expect(screen.queryByTestId('queue-clear')).not.toBeInTheDocument();
+  });
+
   it('reorders a track down and disables the ends', async () => {
     const moveInQueue = vi.fn();
     renderWithProviders(<QueueView open onClose={vi.fn()} />, {
