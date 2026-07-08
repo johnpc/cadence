@@ -65,3 +65,68 @@
   cursor: pointer;
   margin-bottom: var(--cad-space-3);
 }
+
+.playlist-recs {
+  margin-top: var(--cad-space-6);
+}
+
+.playlist-recs__title {
+  margin-bottom: var(--cad-space-2);
+}
+
+.playlist-rec {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-1) 0;
+}
+
+.playlist-rec__info {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.playlist-rec__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.playlist-rec__name {
+  font-family: var(--cad-font-sans);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-rec__artist {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-rec__add,
+.playlist-rec__dismiss {
+  border: none;
+  background: none;
+  color: var(--cad-text);
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: var(--cad-space-1);
+}
+
+.playlist-rec__add {
+  color: var(--cad-accent);
+}
+
+.playlist-rec__dismiss {
+  opacity: 0.7;
+}

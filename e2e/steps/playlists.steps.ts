@@ -25,3 +25,28 @@ Then('I see the playlist tracks', async ({ page }) => {
 When('I play the playlist', async ({ page }) => {
   await page.getByTestId('playlist-detail').getByTestId('play-all').click({ force: true });
 });
+
+Then('I see recommended songs to add', async ({ page }) => {
+  // Recommendations come from Jellyfin's instant-mix radio seeded on the
+  // playlist — real tracks, fetched after the playlist's own items resolve.
+  await expect(page.getByTestId('playlist-recs')).toBeAttached({ timeout: 30_000 });
+  await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: 30_000 });
+});
+
+// The recommendation dismissed in the When step, asserted gone in the Then.
+let dismissedRec = '';
+
+When('I dismiss the first recommendation', async ({ page }) => {
+  const first = page.getByTestId('playlist-rec').first();
+  // Remember the track name so we can assert it's replaced, not just removed.
+  dismissedRec = (await first.getByTestId('rec-add').getAttribute('aria-label')) ?? '';
+  await first.getByTestId('rec-dismiss').click({ force: true });
+});
+
+Then('a different recommendation takes its place', async ({ page }) => {
+  // The dismissed track is gone, and the section still offers recommendations.
+  await expect(page.getByRole('button', { name: dismissedRec })).toHaveCount(0, {
+    timeout: 15_000,
+  });
+  await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: 15_000 });
+});
