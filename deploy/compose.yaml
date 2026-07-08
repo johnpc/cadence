@@ -1,10 +1,23 @@
 # Cadence PWA — deployed as a Dockge stack on umbrel (192.168.7.211), fronted by
-# cloudflared at cadence.jpc.io. The image is self-contained (nginx + built
-# dist/), built from the repo Dockerfile and published to the registry; Dockge
-# pulls + recreates it. See the umbrel-dockge-dind skill for the deploy flow.
+# cloudflared at cadence.jpc.io.
+#
+# The dind daemon has no `git`, so deploy by cloning the repo on the umbrel HOST
+# into this stack dir, then building from the local ./repo context:
+#
+#   ssh umbrel@192.168.7.211
+#   cd /home/umbrel/umbrel/app-data/dockge/data/dockge-stacks/cadence
+#   sudo rm -rf repo && sudo git clone --depth 1 https://github.com/johnpc/cadence.git repo
+#   sudo docker exec dockge_dockge_1 docker compose -p cadence \
+#     -f /opt/stacks/cadence/compose.yaml up -d --build
+#
+# To update: re-pull repo (git -C repo pull) and re-run the `up -d --build`.
 services:
   cadence:
-    image: mrorbitman/cadence:latest
+    build:
+      context: ./repo
+      args:
+        VITE_JELLYFIN_URL: https://jellyfin.jpc.io
+    image: cadence-local:latest
     container_name: cadence
     ports:
       - '8095:80'
