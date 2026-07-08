@@ -2,6 +2,7 @@ import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
+import { collectionSummary } from '../player/playerFormat';
 import { useLikedSongs } from './libraryApi';
 import './likedSongs.css';
 
@@ -21,7 +22,12 @@ export function LikedSongs() {
     >
       <div data-testid="liked-songs">
         <div className="liked__header">
-          <h2 className="cad-headline">Liked Songs</h2>
+          <div className="liked__titles">
+            <h2 className="cad-headline">Liked Songs</h2>
+            <p className="cad-meta" data-testid="liked-summary">
+              {collectionSummary(songs)}
+            </p>
+          </div>
           <CollectionActions tracks={songs} />
         </div>
         {songs.map((track, index) => (

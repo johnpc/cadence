@@ -29,6 +29,12 @@ describe('LikedSongs', () => {
     expect(screen.getByText('Liked B')).toBeInTheDocument();
   });
 
+  it('shows a song-count summary', async () => {
+    vi.mocked(getFavoriteSongs).mockResolvedValue(songs);
+    renderWithProviders(<LikedSongs />);
+    await waitFor(() => expect(screen.getByTestId('liked-summary')).toHaveTextContent('2 songs'));
+  });
+
   it('plays all liked songs from the top', async () => {
     vi.mocked(getFavoriteSongs).mockResolvedValue(songs);
     const playQueue = vi.fn();

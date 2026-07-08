@@ -2,7 +2,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--cad-space-3);
   margin-bottom: var(--cad-space-3);
+}
+
+.liked__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.liked__titles h2 {
+  margin: 0;
+}
+
+.liked__titles p {
+  margin: 0;
 }
 
 .liked__play {
