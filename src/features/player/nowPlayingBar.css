@@ -1,4 +1,5 @@
 .npbar {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--cad-space-3);
@@ -6,6 +7,25 @@
   background: var(--cad-surface-2);
   border-radius: var(--cad-radius-thumb);
   margin: var(--cad-space-2);
+  overflow: hidden;
+}
+
+/* Thin playback-progress line pinned to the bottom edge of the bar. */
+.npbar__progress {
+  position: absolute;
+  left: var(--cad-space-3);
+  right: var(--cad-space-3);
+  bottom: 2px;
+  height: 2px;
+  background: var(--cad-hairline);
+  border-radius: 2px;
+}
+
+.npbar__progress-fill {
+  height: 100%;
+  background: var(--cad-accent);
+  border-radius: 2px;
+  transition: width 0.25s linear;
 }
 
 .npbar__open {
