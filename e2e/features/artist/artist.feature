@@ -17,4 +17,5 @@ Feature: Artist detail
     Then I see the artist's albums
     When I follow the artist
     And I open the Library tab
+    And I filter the library to "artists"
     Then the followed artists list is not empty

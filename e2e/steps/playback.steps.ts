@@ -14,7 +14,9 @@ When('I tap a track from search', async ({ page }) => {
 });
 
 Then('the Now-Playing bar shows a track', async ({ page }) => {
-  await expect(page.getByTestId('now-playing-bar')).toBeVisible();
+  // Assert attachment, not viewport visibility: on nested routes (e.g. /liked)
+  // Ionic keeps the tab-slot mini-player attached but flags it "not visible".
+  await expect(page.getByTestId('now-playing-bar')).toBeAttached({ timeout: 15_000 });
   await expect(page.getByTestId('now-playing-title')).not.toBeEmpty();
 });
 
