@@ -1,7 +1,28 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
+import { navigate } from './app-shell.steps';
 
-const { Then } = createBdd();
+const { When, Then } = createBdd();
+
+When('I open the Home tab', async ({ page }) => {
+  await navigate(page, 'Home');
+  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: 15_000 });
+});
+
+Then('I see a {string} mix', async ({ page }, label: string) => {
+  // The "Made for you" shelf appears once the user follows ≥1 artist. Its
+  // heading and at least one mix card resolve — never a hung spinner.
+  await expect(page.getByText(label)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('daily-mix').first()).toBeAttached({ timeout: 15_000 });
+});
+
+When('I play the first mix', async ({ page }) => {
+  // A real (non-force) click on the always-visible card body: force-clicking
+  // lands on the hover FAB overlaying the card without firing its handler.
+  const mix = page.getByTestId('daily-mix-hit').first();
+  await mix.scrollIntoViewIfNeeded();
+  await mix.click();
+});
 
 Then('I see the Recently added shelf with albums', async ({ page }) => {
   await expect(page.getByTestId('home-greeting')).toBeVisible();
