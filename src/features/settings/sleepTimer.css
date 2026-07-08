@@ -1,0 +1,33 @@
+.sleep {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-2);
+}
+
+.sleep__title {
+  margin: 0;
+}
+
+.sleep__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cad-space-2);
+}
+
+.sleep__option {
+  border: 1px solid var(--cad-hairline);
+  background: var(--cad-surface);
+  color: var(--cad-text-secondary);
+  border-radius: var(--cad-radius-pill);
+  padding: var(--cad-space-2) var(--cad-space-4);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sleep__option--active {
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  border-color: var(--cad-accent);
+}

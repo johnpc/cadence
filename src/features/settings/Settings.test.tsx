@@ -1,10 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { AuthContext } from '../auth/AuthContext';
 import { ThemeProvider } from '../theme/ThemeProvider';
 import { Settings } from './Settings';
+import { renderWithProviders } from '../../test/renderWithProviders';
 import type { AuthContextValue } from '../auth/types';
 
 function renderSettings(signOut = vi.fn()) {
@@ -15,14 +15,14 @@ function renderSettings(signOut = vi.fn()) {
     signOut,
     refresh: vi.fn(),
   };
-  return render(
-    <MemoryRouter>
-      <ThemeProvider>
-        <AuthContext.Provider value={value}>
-          <Settings />
-        </AuthContext.Provider>
-      </ThemeProvider>
-    </MemoryRouter>,
+  // renderWithProviders supplies QueryClient + router + PlayerContext (SleepTimer
+  // uses usePlayer); layer the theme + auth contexts the Settings screen needs.
+  return renderWithProviders(
+    <ThemeProvider>
+      <AuthContext.Provider value={value}>
+        <Settings />
+      </AuthContext.Provider>
+    </ThemeProvider>,
   );
 }
 

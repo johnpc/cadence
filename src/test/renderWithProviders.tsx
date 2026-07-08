@@ -29,6 +29,8 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
     seek: vi.fn(),
     toggleShuffle: vi.fn(),
     cycleRepeat: vi.fn(),
+    sleepMinutes: null,
+    armSleep: vi.fn(),
     ...overrides,
   };
 }

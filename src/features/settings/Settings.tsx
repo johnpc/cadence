@@ -8,6 +8,7 @@ import {
   IonToolbar,
 } from '@ionic/react';
 import { Appearance } from '../theme/Appearance';
+import { SleepTimer } from './SleepTimer';
 import { useAuth } from '../auth/useAuth';
 import './settings.css';
 
@@ -28,6 +29,7 @@ export function Settings() {
       <IonContent className="ion-padding">
         <div className="settings">
           <Appearance />
+          <SleepTimer />
           <section className="settings__account">
             <h2 className="settings__title cad-kicker">Account</h2>
             <p className="cad-body" data-testid="settings-username">
