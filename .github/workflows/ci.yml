@@ -100,14 +100,19 @@ jobs:
         run: npm ci
 
       - name: Cache Playwright browsers
+        id: pw-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install Playwright browsers
-        timeout-minutes: 4
-        run: npx playwright install --with-deps chromium
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 5
+        # Chromium binary only — ubuntu-latest already ships the shared libs, so
+        # we skip --with-deps (its apt step is what intermittently hangs). Retry
+        # once on the occasional flaky download.
+        run: npx playwright install chromium || npx playwright install chromium
 
       - name: Run acceptance tests (${{ matrix.area.name }})
         env:
