@@ -9,7 +9,7 @@ import './nowPlayingBar.css';
 
 /** Persistent mini-player above the tab bar. Tap to open the full player. */
 export function NowPlayingBar() {
-  const { current, isPlaying, toggle } = usePlayer();
+  const { current, isPlaying, position, duration, toggle } = usePlayer();
   const [open, setOpen] = useState(false);
 
   // Flag the document while a track is loaded so scroll views can reserve
@@ -20,6 +20,8 @@ export function NowPlayingBar() {
   }, [current]);
 
   if (!current) return null;
+
+  const pct = duration > 0 ? Math.min(100, (position / duration) * 100) : 0;
 
   return (
     <>
@@ -45,6 +47,9 @@ export function NowPlayingBar() {
         >
           <IonIcon icon={isPlaying ? pause : play} />
         </button>
+        <div className="npbar__progress" data-testid="now-playing-progress">
+          <div className="npbar__progress-fill" style={{ width: `${pct}%` }} />
+        </div>
       </div>
       <FullPlayer open={open} onClose={() => setOpen(false)} />
     </>

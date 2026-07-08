@@ -45,4 +45,10 @@ describe('NowPlayingBar', () => {
     await userEvent.click(screen.getByTestId('now-playing-open'));
     expect(await screen.findByTestId('full-player')).toBeInTheDocument();
   });
+
+  it('reflects playback progress as a fill width', () => {
+    renderBar(ctx({ current: song, position: 30, duration: 120 }));
+    const fill = screen.getByTestId('now-playing-progress').querySelector('.npbar__progress-fill');
+    expect((fill as HTMLElement).style.width).toBe('25%');
+  });
 });
