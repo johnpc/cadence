@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -47,8 +47,9 @@ describe('Search', () => {
     await type('found');
     await waitFor(() => expect(screen.getByText('Found Song')).toBeInTheDocument());
     expect(screen.getByText('Found Album')).toBeInTheDocument();
-    expect(screen.getByText('Songs')).toBeInTheDocument();
-    expect(screen.getByText('Albums')).toBeInTheDocument();
+    const results = screen.getByTestId('search-results');
+    expect(within(results).getByText('Songs')).toBeInTheDocument();
+    expect(within(results).getByText('Albums')).toBeInTheDocument();
   });
 
   it('shows an empty state when nothing matches', async () => {

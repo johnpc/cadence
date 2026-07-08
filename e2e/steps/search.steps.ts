@@ -23,6 +23,14 @@ When('I tap the first song result', async ({ page }) => {
   await page.getByTestId('search-results').getByTestId('track-row-play').first().click();
 });
 
+When('I filter results to {string}', async ({ page }, label: string) => {
+  await page.getByTestId(`filter-${label.toLowerCase()}`).click();
+});
+
+Then('I do not see the Albums section', async ({ page }) => {
+  await expect(page.getByTestId('search-results').getByText('Albums')).toHaveCount(0);
+});
+
 Then('I see the no-results state', async ({ page }) => {
   await expect(page.getByTestId('load-empty')).toBeVisible();
 });
