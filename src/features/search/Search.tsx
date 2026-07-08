@@ -1,17 +1,17 @@
 import { IonContent, IonHeader, IonPage, IonSearchbar, IonTitle, IonToolbar } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
-import { TrackRow } from '../player/TrackRow';
-import { artistLine } from '../player/playerFormat';
-import { ResultRow } from './ResultRow';
+import { TrackListSkeleton } from '../../components/Skeleton';
+import { SearchResults } from './SearchResults';
+import { RecentSearches } from './RecentSearches';
 import { useSearch } from './useSearch';
+import { useRecentSearches } from './useRecentSearches';
 import './search.css';
 
-/** Search — the primary discovery surface. Songs play; albums open their detail
- * page; artists open their page (with a radio button). */
+/** Search — the primary discovery surface. Songs play; albums/artists open their
+ * detail pages. The idle state shows recent searches (like Spotify). */
 export function Search() {
   const s = useSearch();
-  const history = useHistory();
+  const { recents, record, clear } = useRecentSearches();
 
   return (
     <IonPage>
@@ -31,9 +31,7 @@ export function Search() {
       </IonHeader>
       <IonContent className="ion-padding">
         {s.isIdle ? (
-          <p className="cad-meta" data-testid="search-idle">
-            Search your library.
-          </p>
+          <RecentSearches recents={recents} onClear={clear} />
         ) : (
           <LoadState
             isLoading={s.isLoading}
@@ -42,43 +40,9 @@ export function Search() {
             isEmpty={s.isEmpty}
             emptyTitle="No results"
             emptyMessage="Try a different search."
+            skeleton={<TrackListSkeleton />}
           >
-            <div data-testid="search-results">
-              {s.groups.songs.length > 0 && (
-                <section>
-                  <h2 className="cad-kicker search__section">Songs</h2>
-                  {s.groups.songs.map((t, i) => (
-                    <TrackRow key={t.Id} track={t} queue={s.groups.songs} index={i} />
-                  ))}
-                </section>
-              )}
-              {s.groups.albums.length > 0 && (
-                <section>
-                  <h2 className="cad-kicker search__section">Albums</h2>
-                  {s.groups.albums.map((a) => (
-                    <ResultRow
-                      key={a.Id}
-                      item={a}
-                      subtitle={artistLine(a)}
-                      onSelect={() => history.push(`/album/${a.Id}`)}
-                    />
-                  ))}
-                </section>
-              )}
-              {s.groups.artists.length > 0 && (
-                <section data-testid="search-artists">
-                  <h2 className="cad-kicker search__section">Artists</h2>
-                  {s.groups.artists.map((a) => (
-                    <ResultRow
-                      key={a.Id}
-                      item={a}
-                      subtitle="Artist"
-                      onSelect={() => history.push(`/artist/${a.Id}`)}
-                    />
-                  ))}
-                </section>
-              )}
-            </div>
+            <SearchResults groups={s.groups} onPick={record} />
           </LoadState>
         )}
       </IonContent>

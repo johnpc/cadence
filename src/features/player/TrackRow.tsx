@@ -16,10 +16,13 @@ export function TrackRow({
   track,
   queue,
   index,
+  onPlay,
 }: {
   track: JellyfinItem;
   queue: JellyfinItem[];
   index: number;
+  /** Optional side-effect fired when the row is played (e.g. record a recent). */
+  onPlay?: () => void;
 }) {
   const { playQueue, current, isPlaying } = usePlayer();
   const isCurrent = current?.Id === track.Id;
@@ -32,7 +35,10 @@ export function TrackRow({
         type="button"
         className="track-row__play"
         data-testid="track-row-play"
-        onClick={() => playQueue(queue, index)}
+        onClick={() => {
+          onPlay?.();
+          playQueue(queue, index);
+        }}
       >
         <TrackArt item={track} size={44} />
         <span className="track-row__meta">
