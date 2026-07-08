@@ -40,6 +40,11 @@ describe('NowPlayingBar', () => {
     expect(toggle).toHaveBeenCalledOnce();
   });
 
+  it('offers a like toggle for the current track', () => {
+    renderBar(ctx({ current: song }));
+    expect(screen.getByTestId('like-button')).toBeInTheDocument();
+  });
+
   it('opens the full player when the bar is tapped', async () => {
     renderBar(ctx({ current: song }));
     await userEvent.click(screen.getByTestId('now-playing-open'));

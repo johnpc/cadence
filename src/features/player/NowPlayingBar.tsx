@@ -5,6 +5,7 @@ import { usePlayer } from './usePlayer';
 import { artistLine } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { FullPlayer } from './FullPlayer';
+import { LikeButton } from '../library/LikeButton';
 import './nowPlayingBar.css';
 
 /** Persistent mini-player above the tab bar. Tap to open the full player. */
@@ -39,6 +40,7 @@ export function NowPlayingBar() {
             <span className="npbar__artist">{artistLine(current)}</span>
           </span>
         </button>
+        <LikeButton track={current} size={22} />
         <button
           className="npbar__play"
           onClick={toggle}
