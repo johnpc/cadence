@@ -6,7 +6,7 @@ import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
-const audioFields = 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks';
+const audioFields = 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,IndexNumber,RunTimeTicks';
 
 /** A single item (album, artist, track) with its display fields, including
  * genres + production year for the detail-page meta line. */

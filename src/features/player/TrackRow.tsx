@@ -1,8 +1,9 @@
 import { IonIcon } from '@ionic/react';
 import { removeCircleOutline } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
-import { artistLine, trackDuration } from './playerFormat';
+import { trackDuration } from './playerFormat';
 import { TrackArt } from './TrackArt';
+import { TrackTitle } from './TrackTitle';
 import { LikeButton } from '../library/LikeButton';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
 import { TrackReorder } from './TrackReorder';
@@ -22,6 +23,7 @@ export function TrackRow({
   onPlay,
   onRemove,
   reorder,
+  showNumber,
 }: {
   track: JellyfinItem;
   queue: JellyfinItem[];
@@ -32,6 +34,8 @@ export function TrackRow({
   onRemove?: () => void;
   /** When set, shows up/down reorder controls (editable playlist). */
   reorder?: { isFirst: boolean; isLast: boolean; onMoveUp: () => void; onMoveDown: () => void };
+  /** Show the track's album number instead of its cover art (album view). */
+  showNumber?: boolean;
 }) {
   const { playQueue, current, isPlaying } = usePlayer();
   const isCurrent = current?.Id === track.Id;
@@ -49,23 +53,14 @@ export function TrackRow({
           playQueue(queue, index);
         }}
       >
-        <TrackArt item={track} size={44} />
-        <span className="track-row__meta">
-          <span className="track-row__title">
-            {isCurrent && (
-              <span
-                className={isPlaying ? 'track-row__eq track-row__eq--on' : 'track-row__eq'}
-                aria-hidden="true"
-              >
-                <i />
-                <i />
-                <i />
-              </span>
-            )}
-            {track.Name}
+        {showNumber && track.IndexNumber ? (
+          <span className="track-row__num" data-testid="track-number">
+            {track.IndexNumber}
           </span>
-          <span className="track-row__artist">{artistLine(track)}</span>
-        </span>
+        ) : (
+          <TrackArt item={track} size={44} />
+        )}
+        <TrackTitle track={track} isCurrent={isCurrent} isPlaying={isPlaying} />
       </button>
       {trackDuration(track.RunTimeTicks) && (
         <span className="track-row__duration cad-meta" data-testid="track-duration">

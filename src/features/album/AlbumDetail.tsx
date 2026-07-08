@@ -65,7 +65,7 @@ export function AlbumDetail() {
               </div>
             </div>
             {tracks.map((track, index) => (
-              <TrackRow key={track.Id} track={track} queue={tracks} index={index} />
+              <TrackRow key={track.Id} track={track} queue={tracks} index={index} showNumber />
             ))}
             {album?.Overview && (
               <section data-testid="album-about">

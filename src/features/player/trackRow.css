@@ -5,6 +5,16 @@
   width: 100%;
 }
 
+.track-row__num {
+  flex-shrink: 0;
+  width: 44px;
+  text-align: center;
+  font-family: var(--cad-font-sans);
+  font-size: 15px;
+  color: var(--cad-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
 .track-row__play {
   display: flex;
   align-items: center;
