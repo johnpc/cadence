@@ -9,7 +9,7 @@ vi.mock('../../lib/jellyfinDiscover', () => ({
 vi.mock('../../lib/jellyfinItems', () => ({ getFavoriteAlbums: vi.fn().mockResolvedValue([]) }));
 vi.mock('../../lib/jellyfinArtists', () => ({ getFavoriteArtists: vi.fn().mockResolvedValue([]) }));
 vi.mock('../player/usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
-import { getLatestAlbums, getSuggestedSongs } from '../../lib/jellyfinDiscover';
+import { getLatestAlbums, getSuggestedSongs, getRecentlyPlayed } from '../../lib/jellyfinDiscover';
 import { getFavoriteAlbums } from '../../lib/jellyfinItems';
 import { getFavoriteArtists } from '../../lib/jellyfinArtists';
 import { Home } from './Home';
@@ -55,6 +55,16 @@ describe('Home', () => {
     renderWithProviders(<Home />);
     await waitFor(() => expect(screen.getByText('Your artists')).toBeInTheDocument());
     expect(screen.getByText('Radiohead')).toBeInTheDocument();
+  });
+
+  it('shows a Recently played shelf with a Show all link to the history page', async () => {
+    vi.mocked(getLatestAlbums).mockResolvedValue([]);
+    vi.mocked(getSuggestedSongs).mockResolvedValue([]);
+    vi.mocked(getRecentlyPlayed).mockResolvedValue([song]);
+    renderWithProviders(<Home />);
+    await waitFor(() => expect(screen.getByText('Recently played')).toBeInTheDocument());
+    const seeAll = screen.getByTestId('shelf-see-all');
+    expect(seeAll).toHaveAttribute('href', '/history');
   });
 
   it('shows an empty state per shelf when there is no data', async () => {

@@ -12,6 +12,7 @@ import { AlbumDetail } from './features/album/AlbumDetail';
 import { ArtistDetail } from './features/artist/ArtistDetail';
 import { SongDetail } from './features/song/SongDetail';
 import { GenreDetail } from './features/genre/GenreDetail';
+import { History } from './features/home/History';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import { DesktopSidebar } from './features/library/DesktopSidebar';
 import './appTabs.css';
@@ -68,6 +69,9 @@ export function AppTabs() {
           </Route>
           <Route exact path="/genre/:name">
             <GenreDetail />
+          </Route>
+          <Route exact path="/history">
+            <History />
           </Route>
           <Route exact path="/">
             <Redirect to="/home" />
