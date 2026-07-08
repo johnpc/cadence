@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { artistLine, formatTime, trackDuration } from './playerFormat';
+import { artistLine, collectionSummary, formatTime, trackDuration } from './playerFormat';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 describe('trackDuration', () => {
@@ -24,6 +24,28 @@ describe('formatTime', () => {
   it('clamps NaN / negatives', () => {
     expect(formatTime(NaN)).toBe('0:00');
     expect(formatTime(-5)).toBe('0:00');
+  });
+});
+
+describe('collectionSummary', () => {
+  const t = (ticks?: number): JellyfinItem => ({
+    Id: 'x',
+    Name: 'x',
+    Type: 'Audio',
+    RunTimeTicks: ticks,
+  });
+  it('summarizes count and total minutes', () => {
+    // two tracks of 200s + 100s = 300s = 5 min
+    expect(collectionSummary([t(2_000_000_000), t(1_000_000_000)])).toBe('2 songs • 5 min');
+  });
+  it('uses the singular for one song', () => {
+    expect(collectionSummary([t(1_800_000_000)])).toBe('1 song • 3 min');
+  });
+  it('drops the duration when unknown', () => {
+    expect(collectionSummary([t(), t()])).toBe('2 songs');
+  });
+  it('is "0 songs" for an empty collection', () => {
+    expect(collectionSummary([])).toBe('0 songs');
   });
 });
 

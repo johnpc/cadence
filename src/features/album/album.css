@@ -18,7 +18,12 @@
 }
 
 .album__artist {
+  margin: 0 0 var(--cad-space-1);
+}
+
+.album__summary {
   margin: 0 0 var(--cad-space-3);
+  opacity: 0.8;
 }
 
 .album__play {

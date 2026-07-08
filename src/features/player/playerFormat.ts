@@ -21,3 +21,13 @@ export function trackDuration(ticks: number | undefined): string {
   if (!ticks || ticks <= 0) return '';
   return formatTime(ticks / 10_000_000);
 }
+
+/** A collection summary like "12 songs • 48 min" (duration dropped when unknown). */
+export function collectionSummary(tracks: JellyfinItem[]): string {
+  const count = tracks.length;
+  const label = `${count} ${count === 1 ? 'song' : 'songs'}`;
+  const ticks = tracks.reduce((sum, t) => sum + (t.RunTimeTicks ?? 0), 0);
+  if (ticks <= 0) return label;
+  const mins = Math.round(ticks / 10_000_000 / 60);
+  return `${label} • ${mins} min`;
+}

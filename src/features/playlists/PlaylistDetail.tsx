@@ -1,38 +1,27 @@
 import {
-  IonAlert,
-  IonButton,
   IonButtons,
   IonBackButton,
   IonContent,
   IonHeader,
-  IonIcon,
   IonPage,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { trashOutline } from 'ionicons/icons';
-import { useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
-import { usePlaylistItems, useRemoveFromPlaylist, useDeletePlaylist } from './playlistsApi';
+import { collectionSummary } from '../player/playerFormat';
+import { DeletePlaylistButton } from './DeletePlaylistButton';
+import { usePlaylistItems, useRemoveFromPlaylist } from './playlistsApi';
 import './playlists.css';
 
 /** One playlist: its tracks (playable/removable), plus delete-playlist. */
 export function PlaylistDetail() {
   const { id } = useParams<{ id: string }>();
-  const history = useHistory();
   const { tracks, isLoading, isError, refetch } = usePlaylistItems(id);
   const remove = useRemoveFromPlaylist(id);
-  const del = useDeletePlaylist();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-
-  const onDelete = () =>
-    del.mutate(id, {
-      onSuccess: () => history.replace('/library'),
-    });
 
   return (
     <IonPage>
@@ -43,13 +32,7 @@ export function PlaylistDetail() {
           </IonButtons>
           <IonTitle>Playlist</IonTitle>
           <IonButtons slot="end">
-            <IonButton
-              onClick={() => setConfirmOpen(true)}
-              data-testid="delete-playlist"
-              aria-label="Delete playlist"
-            >
-              <IonIcon slot="icon-only" icon={trashOutline} />
-            </IonButton>
+            <DeletePlaylistButton playlistId={id} />
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -64,6 +47,9 @@ export function PlaylistDetail() {
           skeleton={<TrackListSkeleton />}
         >
           <div data-testid="playlist-detail">
+            <p className="cad-meta" data-testid="playlist-summary">
+              {collectionSummary(tracks)}
+            </p>
             <CollectionActions tracks={tracks} />
             {tracks.map((track, index) => (
               <TrackRow
@@ -80,16 +66,6 @@ export function PlaylistDetail() {
             ))}
           </div>
         </LoadState>
-        <IonAlert
-          isOpen={confirmOpen}
-          header="Delete playlist?"
-          message="This removes the playlist from your library."
-          buttons={[
-            { text: 'Cancel', role: 'cancel' },
-            { text: 'Delete', role: 'destructive', handler: onDelete },
-          ]}
-          onDidDismiss={() => setConfirmOpen(false)}
-        />
       </IonContent>
     </IonPage>
   );
