@@ -4,13 +4,13 @@ Feature: Playback
 
   Scenario: Playing a track shows it in the Now-Playing bar
     Given I am signed in
-    When I tap the first track on Home
+    When I tap a track from search
     Then the Now-Playing bar shows a track
     And the audio element is loaded with a Jellyfin stream
 
   Scenario: Opening the full player and advancing to the next track
     Given I am signed in
-    When I tap the first track on Home
+    When I tap a track from search
     And I open the full player
     And I tap next
     Then the Now-Playing bar shows a track

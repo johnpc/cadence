@@ -1,14 +1,20 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { LoadState } from '../../components/LoadState';
-import { TrackRow } from '../player/TrackRow';
-import { useHomeTracks } from './homeApi';
+import { Shelf } from './Shelf';
+import { AlbumCard } from './AlbumCard';
+import { useLatestAlbums, useSuggestedSongs } from './homeApi';
+import { usePlayItem } from '../player/usePlayItem';
+import { usePlayer } from '../player/usePlayer';
 
 /**
- * Home. For now a simple play-through list of library tracks; slice 7 turns
- * this into Spotify-style recommendation shelves (recently added, radio…).
+ * Home — the Spotify anti-scroll surface: horizontal shelves of recommendations
+ * (recently added albums, suggested songs). No full-library list.
  */
 export function Home() {
-  const { tracks, isLoading, isError, refetch } = useHomeTracks();
+  const albums = useLatestAlbums();
+  const suggested = useSuggestedSongs();
+  const playItem = usePlayItem();
+  const { playQueue } = usePlayer();
+
   return (
     <IonPage>
       <IonHeader>
@@ -17,20 +23,34 @@ export function Home() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <LoadState
-          isLoading={isLoading}
-          isError={isError}
-          onRetry={() => void refetch()}
-          isEmpty={tracks.length === 0}
-          emptyTitle="No music yet"
-          emptyMessage="Your Jellyfin library has no audio tracks."
-        >
-          <div data-testid="home-tracks">
-            {tracks.map((track, index) => (
-              <TrackRow key={track.Id} track={track} queue={tracks} index={index} />
+        <div data-testid="home-shelves">
+          <Shelf
+            title="Recently added"
+            isLoading={albums.isLoading}
+            isError={albums.isError}
+            onRetry={() => void albums.refetch()}
+            isEmpty={albums.albums.length === 0}
+          >
+            {albums.albums.map((album) => (
+              <AlbumCard key={album.Id} item={album} onPlay={playItem} />
             ))}
-          </div>
-        </LoadState>
+          </Shelf>
+          <Shelf
+            title="Suggested for you"
+            isLoading={suggested.isLoading}
+            isError={suggested.isError}
+            onRetry={() => void suggested.refetch()}
+            isEmpty={suggested.songs.length === 0}
+          >
+            {suggested.songs.map((song, index) => (
+              <AlbumCard
+                key={song.Id}
+                item={song}
+                onPlay={() => playQueue(suggested.songs, index)}
+              />
+            ))}
+          </Shelf>
+        </div>
       </IonContent>
     </IonPage>
   );

@@ -8,21 +8,6 @@ import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
 const audioFields = 'Artists,AlbumArtist,Album,AlbumId,RunTimeTicks';
 
-/** A page of audio tracks from the library (used to seed playback + tests). */
-export async function getAudioItems(limit = 50): Promise<JellyfinItem[]> {
-  const userId = getSession()?.userId ?? '';
-  const params = new URLSearchParams({
-    IncludeItemTypes: 'Audio',
-    Recursive: 'true',
-    Limit: String(limit),
-    SortBy: 'SortName',
-    Fields: audioFields,
-    userId,
-  });
-  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
-  return res.Items;
-}
-
 /** All audio tracks belonging to a parent (an album or artist), in order. */
 export async function getItemTracks(parentId: string, limit = 200): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';

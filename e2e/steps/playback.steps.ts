@@ -3,10 +3,14 @@ import { expect } from '@playwright/test';
 
 const { When, Then } = createBdd();
 
-When('I tap the first track on Home', async ({ page }) => {
-  // Home loads real library tracks; wait for the list, then play the first.
-  await expect(page.getByTestId('home-tracks')).toBeVisible();
-  await page.getByTestId('track-row-play').first().click();
+When('I tap a track from search', async ({ page }) => {
+  // Home is now recommendation shelves (no flat track list), so drive playback
+  // from Search, which lists individual tracks.
+  await page.locator('ion-tab-button', { hasText: 'Search' }).click();
+  await page.getByTestId('search-input').locator('input').fill('love');
+  const rows = page.getByTestId('search-results').getByTestId('track-row-play');
+  await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+  await rows.first().click();
 });
 
 Then('the Now-Playing bar shows a track', async ({ page }) => {

@@ -9,6 +9,6 @@ Feature: Liked songs
 
   Scenario: Liking a song on Home adds it to the library
     Given I am signed in
-    When I like the first track on Home
+    When I like a track from search
     And I open the Library tab
     Then the liked songs list is not empty
