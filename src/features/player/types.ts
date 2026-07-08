@@ -30,6 +30,8 @@ export interface PlayerContextValue {
   prev: () => void;
   /** Jump to a specific index in the queue. */
   jumpTo: (index: number) => void;
+  /** Remove the track at a given queue index. */
+  removeFromQueue: (index: number) => void;
   /** Seek to a position in seconds. */
   seek: (seconds: number) => void;
   toggleShuffle: () => void;

@@ -71,4 +71,11 @@ describe('usePlayerQueue', () => {
     expect(result.current.queue.index).toBe(0);
     expect(result.current.queue.tracks.map((t) => t.Id).sort()).toEqual(['a', 'b', 'c']);
   });
+
+  it('removeFromQueue drops the track at an index', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.playQueue(tracks, 0));
+    act(() => result.current.removeFromQueue(1));
+    expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a', 'c']);
+  });
 });
