@@ -25,7 +25,7 @@ recommendations — all backed by the Jellyfin server you already run.
 | Log in with your Jellyfin account             | ✅     |
 | Playback + persistent Now-Playing bar         | ✅     |
 | Search (the primary discovery surface)        | ✅     |
-| Liked songs                                   | ⬜     |
+| Liked songs                                   | ✅     |
 | Playlists (browse, create, add)               | ⬜     |
 | Home recommendations (recently added, radio)  | ⬜     |
 | Native iOS (background audio, lock-screen)    | ⬜     |

@@ -1,13 +1,14 @@
 import { usePlayer } from './usePlayer';
 import { artistLine } from './playerFormat';
 import { TrackArt } from './TrackArt';
+import { LikeButton } from '../library/LikeButton';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './trackRow.css';
 
 /**
- * A tappable track row: art + title + artist. Tapping plays the whole `queue`
- * starting at this track, so a list plays through in order. Reused across Home,
- * Search, Library, and playlists.
+ * A tappable track row: art + title + artist + a like toggle. Tapping the row
+ * plays the whole `queue` starting at this track. Reused across Home, Search,
+ * Library, and playlists.
  */
 export function TrackRow({
   track,
@@ -20,17 +21,20 @@ export function TrackRow({
 }) {
   const { playQueue } = usePlayer();
   return (
-    <button
-      type="button"
-      className="track-row"
-      data-testid="track-row"
-      onClick={() => playQueue(queue, index)}
-    >
-      <TrackArt item={track} size={44} />
-      <span className="track-row__meta">
-        <span className="track-row__title">{track.Name}</span>
-        <span className="track-row__artist">{artistLine(track)}</span>
-      </span>
-    </button>
+    <div className="track-row" data-testid="track-row">
+      <button
+        type="button"
+        className="track-row__play"
+        data-testid="track-row-play"
+        onClick={() => playQueue(queue, index)}
+      >
+        <TrackArt item={track} size={44} />
+        <span className="track-row__meta">
+          <span className="track-row__title">{track.Name}</span>
+          <span className="track-row__artist">{artistLine(track)}</span>
+        </span>
+      </button>
+      <LikeButton track={track} />
+    </div>
   );
 }

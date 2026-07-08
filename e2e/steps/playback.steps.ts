@@ -6,7 +6,7 @@ const { When, Then } = createBdd();
 When('I tap the first track on Home', async ({ page }) => {
   // Home loads real library tracks; wait for the list, then play the first.
   await expect(page.getByTestId('home-tracks')).toBeVisible();
-  await page.getByTestId('track-row').first().click();
+  await page.getByTestId('track-row-play').first().click();
 });
 
 Then('the Now-Playing bar shows a track', async ({ page }) => {

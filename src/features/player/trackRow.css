@@ -1,8 +1,16 @@
 .track-row {
   display: flex;
   align-items: center;
-  gap: var(--cad-space-3);
+  gap: var(--cad-space-2);
   width: 100%;
+}
+
+.track-row__play {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  flex: 1;
+  min-width: 0;
   padding: var(--cad-space-2);
   border: none;
   background: none;
@@ -10,7 +18,7 @@
   text-align: left;
 }
 
-.track-row:active {
+.track-row__play:active {
   background: var(--cad-surface-2);
   border-radius: var(--cad-radius-thumb);
 }

@@ -1,11 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { PlayerContext } from './PlayerContext';
 import { FullPlayer } from './FullPlayer';
 import type { PlayerContextValue } from './types';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { renderWithProviders } from '../../test/renderWithProviders';
 
 // IonModal's real present/dismiss uses a "framework delegate" that jsdom can't
 // satisfy; render its children inline when open so we test our content only.
@@ -40,11 +40,7 @@ function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
 }
 
 const renderPlayer = (value: PlayerContextValue) =>
-  render(
-    <PlayerContext.Provider value={value}>
-      <FullPlayer open onClose={vi.fn()} />
-    </PlayerContext.Provider>,
-  );
+  renderWithProviders(<FullPlayer open onClose={vi.fn()} />, { player: value });
 
 describe('FullPlayer', () => {
   it('shows the current track and transport controls', async () => {

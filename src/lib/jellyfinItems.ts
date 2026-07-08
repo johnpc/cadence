@@ -46,3 +46,32 @@ export async function getInstantMix(itemId: string, limit = 50): Promise<Jellyfi
   const res = await request<ItemsResponse>(`/Items/${itemId}/InstantMix?${params.toString()}`);
   return res.Items;
 }
+
+/** The user's liked songs (Jellyfin favorites), most-recent first. */
+export async function getFavoriteSongs(limit = 200): Promise<JellyfinItem[]> {
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({
+    IncludeItemTypes: 'Audio',
+    Recursive: 'true',
+    Filters: 'IsFavorite',
+    SortBy: 'DateCreated',
+    SortOrder: 'Descending',
+    Limit: String(limit),
+    Fields: audioFields,
+    userId,
+  });
+  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
+  return res.Items;
+}
+
+/** Add a track to the user's liked songs. */
+export async function addFavorite(itemId: string): Promise<void> {
+  const userId = getSession()?.userId ?? '';
+  await request(`/Users/${userId}/FavoriteItems/${itemId}`, { method: 'POST' });
+}
+
+/** Remove a track from the user's liked songs. */
+export async function removeFavorite(itemId: string): Promise<void> {
+  const userId = getSession()?.userId ?? '';
+  await request(`/Users/${userId}/FavoriteItems/${itemId}`, { method: 'DELETE' });
+}

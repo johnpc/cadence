@@ -1,0 +1,44 @@
+import { render } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
+import type { ReactElement, ReactNode } from 'react';
+import { vi } from 'vitest';
+import { PlayerContext } from '../features/player/PlayerContext';
+import type { PlayerContextValue } from '../features/player/types';
+
+/** A no-op player context for components that consume usePlayer in tests. */
+export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
+  return {
+    current: null,
+    isPlaying: false,
+    position: 0,
+    duration: 0,
+    shuffle: false,
+    canNext: false,
+    canPrev: false,
+    playQueue: vi.fn(),
+    toggle: vi.fn(),
+    next: vi.fn(),
+    prev: vi.fn(),
+    seek: vi.fn(),
+    toggleShuffle: vi.fn(),
+    ...overrides,
+  };
+}
+
+/** Render a UI tree inside the providers most feature components need:
+ * a fresh QueryClient, a router, and a (stubbable) PlayerContext. */
+export function renderWithProviders(
+  ui: ReactElement,
+  { player }: { player?: PlayerContextValue } = {},
+) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={client}>
+      <MemoryRouter>
+        <PlayerContext.Provider value={player ?? stubPlayer()}>{children}</PlayerContext.Provider>
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
+  return render(ui, { wrapper });
+}
