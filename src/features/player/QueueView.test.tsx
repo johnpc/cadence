@@ -38,8 +38,17 @@ describe('QueueView', () => {
     renderWithProviders(<QueueView open onClose={onClose} />, {
       player: stubPlayer({ queue, queueIndex: 0, jumpTo }),
     });
-    await userEvent.click(screen.getAllByTestId('queue-row')[1]);
+    await userEvent.click(screen.getAllByTestId('queue-row-play')[1]);
     expect(jumpTo).toHaveBeenCalledWith(1);
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('removes a track from the queue', async () => {
+    const removeFromQueue = vi.fn();
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 0, removeFromQueue }),
+    });
+    await userEvent.click(screen.getAllByTestId('queue-row-remove')[1]);
+    expect(removeFromQueue).toHaveBeenCalledWith(1);
   });
 });

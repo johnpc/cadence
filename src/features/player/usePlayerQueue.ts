@@ -32,6 +32,7 @@ export function usePlayerQueue() {
   }, []);
   const next = useCallback(() => setQueue((c) => q.next(c)), []);
   const prev = useCallback(() => setQueue((c) => q.prev(c)), []);
+  const removeFromQueue = useCallback((at: number) => setQueue((c) => q.removeAt(c, at)), []);
   const jumpTo = useCallback((index: number) => setQueue((c) => ({ ...c, index })), []);
   const cycleRepeat = useCallback(() => setRepeat((r) => NEXT_REPEAT[r]), []);
   const toggleShuffle = useCallback(() => {
@@ -66,6 +67,7 @@ export function usePlayerQueue() {
     next,
     prev,
     jumpTo,
+    removeFromQueue,
     cycleRepeat,
     toggleShuffle,
     advance,

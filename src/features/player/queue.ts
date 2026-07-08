@@ -67,6 +67,17 @@ export function enqueueNext(q: QueueState, track: JellyfinItem): QueueState {
   return { ...q, tracks };
 }
 
+/** Remove the track at `at`. Removing before the current keeps it playing (index
+ * shifts down); removing the current or a later one leaves the index clamped. */
+export function removeAt(q: QueueState, at: number): QueueState {
+  if (at < 0 || at >= q.tracks.length) return q;
+  const tracks = q.tracks.filter((_, i) => i !== at);
+  let index = q.index;
+  if (at < q.index) index = q.index - 1;
+  index = Math.max(0, Math.min(index, tracks.length - 1));
+  return { tracks, index };
+}
+
 /**
  * Fisher–Yates shuffle of everything AFTER the current track, keeping the
  * playing track in place at index 0 of a new queue. `rand` is injected (returns

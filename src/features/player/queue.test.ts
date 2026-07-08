@@ -8,6 +8,7 @@ import {
   hasPrev,
   next,
   prev,
+  removeAt,
   shuffleRest,
   startQueue,
   startShuffled,
@@ -62,6 +63,24 @@ describe('queue', () => {
     const q = enqueueNext(EMPTY_QUEUE, track('x'));
     expect(q.tracks.map((t) => t.Id)).toEqual(['x']);
     expect(q.index).toBe(0);
+  });
+
+  it('removeAt before the current keeps it playing (index shifts down)', () => {
+    const q = removeAt(startQueue(tracks, 2), 0); // current 'c' at 2 → now at 1
+    expect(q.tracks.map((t) => t.Id)).toEqual(['b', 'c']);
+    expect(q.index).toBe(1);
+  });
+
+  it('removeAt after the current leaves the index', () => {
+    const q = removeAt(startQueue(tracks, 0), 2);
+    expect(q.tracks.map((t) => t.Id)).toEqual(['a', 'b']);
+    expect(q.index).toBe(0);
+  });
+
+  it('removeAt clamps the index and ignores out-of-range', () => {
+    expect(removeAt(startQueue(tracks, 0), 9)).toEqual(startQueue(tracks, 0));
+    const last = removeAt(startQueue(tracks, 2), 2); // remove current last
+    expect(last.index).toBe(1);
   });
 
   it('shuffles the rest, keeping the current track first', () => {
