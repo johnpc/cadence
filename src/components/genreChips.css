@@ -1,0 +1,18 @@
+.genre-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cad-space-2);
+  justify-content: center;
+}
+
+.genre-chips__chip {
+  font-family: var(--cad-font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cad-text-secondary);
+  background: var(--cad-surface);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
