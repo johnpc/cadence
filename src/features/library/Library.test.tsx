@@ -1,6 +1,6 @@
-import { screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinItems', () => ({
   getFavoriteSongs: vi.fn().mockResolvedValue([]),
@@ -29,7 +29,14 @@ const album: JellyfinItem = {
 const artist: JellyfinItem = { Id: 'ar1', Name: 'Radiohead', Type: 'MusicArtist' };
 
 describe('Library', () => {
+  beforeEach(() => {
+    vi.mocked(getFavoriteSongs).mockResolvedValue([]);
+    vi.mocked(getFavoriteAlbums).mockResolvedValue([]);
+    vi.mocked(getFavoriteArtists).mockResolvedValue([]);
+    vi.mocked(getPlaylists).mockResolvedValue([]);
+  });
   afterEach(() => {
+    cleanup();
     vi.resetAllMocks();
   });
 
@@ -54,5 +61,18 @@ describe('Library', () => {
     await waitFor(() => expect(screen.getByText('OK Computer')).toBeInTheDocument());
     await userEvent.click(screen.getByTestId('library-filter-artists'));
     await waitFor(() => expect(screen.getByText('Radiohead')).toBeInTheDocument());
+  });
+
+  it('filters the library rows by the search text', async () => {
+    vi.mocked(getFavoriteSongs).mockResolvedValue([song]);
+    vi.mocked(getPlaylists).mockResolvedValue([playlist]);
+    const { getByTestId, findByText, queryByText } = renderWithProviders(<Library />);
+    await findByText('Road Trip');
+    // Set the query directly (IonSearchbar debounce=0); userEvent.type can drop
+    // chars into Ionic's wrapped input under jsdom.
+    const bar = getByTestId('library-search');
+    fireEvent(bar, new CustomEvent('ionInput', { detail: { value: 'road' } }));
+    await waitFor(() => expect(queryByText('Liked Songs')).not.toBeInTheDocument());
+    expect(queryByText('Road Trip')).toBeInTheDocument();
   });
 });

@@ -69,3 +69,11 @@ export function buildLibraryRows(
     })),
   ];
 }
+
+/** Narrow rows to those whose name contains `query` (case-insensitive). An
+ * empty/blank query returns the list unchanged. */
+export function filterRowsByText(rows: LibraryRow[], query: string): LibraryRow[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return rows;
+  return rows.filter((r) => r.name.toLowerCase().includes(q));
+}
