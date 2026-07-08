@@ -33,3 +33,11 @@ it('does not mark a non-playing track', () => {
   });
   expect(screen.getByTestId('track-row').className).not.toContain('track-row--current');
 });
+
+it('shows a remove button (not the track menu) when onRemove is set', async () => {
+  const onRemove = vi.fn();
+  renderWithProviders(<TrackRow track={tracks[0]} queue={tracks} index={0} onRemove={onRemove} />);
+  expect(screen.queryByTestId('add-to-playlist')).not.toBeInTheDocument();
+  await userEvent.click(screen.getByTestId('track-row-remove'));
+  expect(onRemove).toHaveBeenCalledOnce();
+});

@@ -92,3 +92,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.track-row__remove {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--cad-text-secondary);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cad-space-2);
+  cursor: pointer;
+}

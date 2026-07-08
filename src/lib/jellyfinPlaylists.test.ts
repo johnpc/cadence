@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { addToPlaylist, createPlaylist, getPlaylistItems, getPlaylists } from './jellyfinPlaylists';
+import {
+  addToPlaylist,
+  createPlaylist,
+  getPlaylistItems,
+  getPlaylists,
+  removeFromPlaylist,
+} from './jellyfinPlaylists';
 import { setSession } from './sessionStore';
 
 function stub(body: unknown, status = 200) {
@@ -52,5 +58,15 @@ describe('jellyfinPlaylists', () => {
     expect(url).toContain('/Playlists/pl1/Items');
     expect(url).toContain('Ids=song1');
     expect(init.method).toBe('POST');
+  });
+
+  it('removeFromPlaylist DELETEs the entry id', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stub(undefined, 204);
+    await removeFromPlaylist('pl1', 'entry1');
+    const [url, init] = f.mock.calls[0];
+    expect(url).toContain('/Playlists/pl1/Items');
+    expect(url).toContain('EntryIds=entry1');
+    expect(init.method).toBe('DELETE');
   });
 });

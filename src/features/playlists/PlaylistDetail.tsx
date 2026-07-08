@@ -12,13 +12,14 @@ import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
-import { usePlaylistItems } from './playlistsApi';
+import { usePlaylistItems, useRemoveFromPlaylist } from './playlistsApi';
 import './playlists.css';
 
-/** One playlist: its tracks, playable as a queue. */
+/** One playlist: its tracks, playable as a queue, each removable. */
 export function PlaylistDetail() {
   const { id } = useParams<{ id: string }>();
   const { tracks, isLoading, isError, refetch } = usePlaylistItems(id);
+  const remove = useRemoveFromPlaylist(id);
 
   return (
     <IonPage>
@@ -43,7 +44,17 @@ export function PlaylistDetail() {
           <div data-testid="playlist-detail">
             <CollectionActions tracks={tracks} />
             {tracks.map((track, index) => (
-              <TrackRow key={track.Id} track={track} queue={tracks} index={index} />
+              <TrackRow
+                key={track.PlaylistItemId ?? track.Id}
+                track={track}
+                queue={tracks}
+                index={index}
+                onRemove={
+                  track.PlaylistItemId
+                    ? () => remove.mutate(track.PlaylistItemId as string)
+                    : undefined
+                }
+              />
             ))}
           </div>
         </LoadState>
