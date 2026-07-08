@@ -3,7 +3,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 
 function actions() {
-  return { toggle: vi.fn(), next: vi.fn(), prev: vi.fn() };
+  return {
+    toggle: vi.fn(),
+    next: vi.fn(),
+    prev: vi.fn(),
+    nudgeVolume: vi.fn(),
+    toggleMute: vi.fn(),
+  };
 }
 function press(key: string, target?: EventTarget) {
   const e = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
@@ -25,6 +31,17 @@ describe('useKeyboardShortcuts', () => {
     expect(a.toggle).toHaveBeenCalledOnce();
     expect(a.next).toHaveBeenCalledOnce();
     expect(a.prev).toHaveBeenCalledOnce();
+  });
+
+  it('maps Up/Down to volume nudges and M to mute', () => {
+    const a = actions();
+    renderHook(() => useKeyboardShortcuts(a, true));
+    press('ArrowUp');
+    press('ArrowDown');
+    press('m');
+    expect(a.nudgeVolume).toHaveBeenCalledWith(0.1);
+    expect(a.nudgeVolume).toHaveBeenCalledWith(-0.1);
+    expect(a.toggleMute).toHaveBeenCalledOnce();
   });
 
   it('does nothing when disabled', () => {

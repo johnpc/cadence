@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 
 const KEY = 'cadence.volume';
 
@@ -26,5 +26,20 @@ export function useVolume(audioRef: RefObject<HTMLAudioElement | null>, currentI
     localStorage.setItem(KEY, String(clamped));
   }, []);
 
-  return { volume, setVolume };
+  // Volume before the last mute, so a mute→unmute restores the prior level.
+  const premute = useRef(1);
+  const nudgeVolume = useCallback(
+    (delta: number) => setVolume(volume + delta),
+    [setVolume, volume],
+  );
+  const toggleMute = useCallback(() => {
+    if (volume === 0) {
+      setVolume(premute.current || 1);
+    } else {
+      premute.current = volume;
+      setVolume(0);
+    }
+  }, [setVolume, volume]);
+
+  return { volume, setVolume, nudgeVolume, toggleMute };
 }

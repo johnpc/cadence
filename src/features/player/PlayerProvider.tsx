@@ -38,7 +38,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const current = q.currentTrack(qh.queue);
   const currentId = current?.Id;
-  const { volume, setVolume } = useVolume(ref, currentId);
+  const { volume, setVolume, nudgeVolume, toggleMute } = useVolume(ref, currentId);
 
   // Load + play whenever the current track changes.
   useEffect(() => {
@@ -66,7 +66,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   );
   useMediaSessionSync(current, isPlaying, mediaHandlers);
   useKeyboardShortcuts(
-    useMemo(() => ({ toggle, next: qh.next, prev: qh.prev }), [toggle, qh.next, qh.prev]),
+    useMemo(
+      () => ({ toggle, next: qh.next, prev: qh.prev, nudgeVolume, toggleMute }),
+      [toggle, qh.next, qh.prev, nudgeVolume, toggleMute],
+    ),
     !!current,
   );
 
