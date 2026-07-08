@@ -4,6 +4,7 @@ import { home, search, library } from 'ionicons/icons';
 import { Home } from './features/home/Home';
 import { Search } from './features/search/Search';
 import { Library } from './features/library/Library';
+import { LikedSongsPage } from './features/library/LikedSongsPage';
 import { Settings } from './features/settings/Settings';
 import { PlaylistDetail } from './features/playlists/PlaylistDetail';
 import { AlbumDetail } from './features/album/AlbumDetail';
@@ -33,6 +34,9 @@ export function AppTabs() {
         </Route>
         <Route exact path="/library">
           <Library />
+        </Route>
+        <Route exact path="/liked">
+          <LikedSongsPage />
         </Route>
         <Route exact path="/settings">
           <Settings />

@@ -30,6 +30,6 @@ When('I save the album', async ({ page }) => {
 });
 
 Then('the saved albums list is not empty', async ({ page }) => {
-  const rows = page.getByTestId('saved-albums').getByTestId('saved-album-row');
+  const rows = page.getByTestId('library-list').getByTestId('library-row');
   await expect(rows.first()).toBeAttached({ timeout: 30_000 });
 });

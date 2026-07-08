@@ -8,6 +8,10 @@
   justify-content: center;
 }
 
+.track-art--round {
+  border-radius: 50%;
+}
+
 .track-art__img {
   width: 100%;
   height: 100%;

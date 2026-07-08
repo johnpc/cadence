@@ -30,6 +30,6 @@ When('I follow the artist', async ({ page }) => {
 });
 
 Then('the followed artists list is not empty', async ({ page }) => {
-  const rows = page.getByTestId('followed-artists').getByTestId('followed-artist-row');
+  const rows = page.getByTestId('library-list').getByTestId('library-row');
   await expect(rows.first()).toBeAttached({ timeout: 30_000 });
 });

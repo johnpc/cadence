@@ -4,7 +4,11 @@ import { expect } from '@playwright/test';
 const { When, Then } = createBdd();
 
 When('I open the first playlist', async ({ page }) => {
-  const row = page.getByTestId('playlists').getByTestId('playlist-row').first();
+  // Your Library lists Liked Songs first (pinned), then real playlists — open
+  // the first row that isn't Liked Songs.
+  const rows = page.getByTestId('library-list').getByTestId('library-row');
+  await expect(rows.first()).toBeAttached({ timeout: 15_000 });
+  const row = rows.filter({ hasNotText: 'Liked Songs' }).first();
   await expect(row).toBeAttached({ timeout: 15_000 });
   await row.click({ force: true });
 });

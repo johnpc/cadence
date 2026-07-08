@@ -9,12 +9,10 @@ import {
   IonToolbar,
 } from '@ionic/react';
 import { settingsOutline } from 'ionicons/icons';
-import { LikedSongs } from './LikedSongs';
-import { SavedAlbums } from './SavedAlbums';
-import { FollowedArtists } from './FollowedArtists';
-import { Playlists } from '../playlists/Playlists';
+import { LibraryList } from './LibraryList';
 
-/** Your Library — liked songs, saved albums, and playlists. */
+/** Your Library — one filterable list (Playlists / Albums / Artists), with
+ * Liked Songs pinned as the first playlist. */
 export function Library() {
   return (
     <IonPage>
@@ -29,10 +27,7 @@ export function Library() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <LikedSongs />
-        <SavedAlbums />
-        <FollowedArtists />
-        <Playlists />
+        <LibraryList />
       </IonContent>
     </IonPage>
   );

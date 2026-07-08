@@ -15,4 +15,5 @@ Feature: Album detail
     Then I see the album tracks
     When I save the album
     And I open the Library tab
+    And I filter the library to "albums"
     Then the saved albums list is not empty
