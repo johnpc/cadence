@@ -86,8 +86,9 @@ user out). `queryClient.ts` is copied verbatim.
 not JSX `<audio>`). Queue/next/prev/shuffle live in a pure `queue.ts`. On track change: set
 `audio.src = audioStreamUrl(id)`, `play()`; `'ended'` → `next()`. Spotify-style endless play: when
 the queue runs dry (or the user taps "radio"), fetch `InstantMix(seedId)` and append. Lock-screen /
-Bluetooth controls: W3C MediaSession on web + a Capacitor bridge on native, both behind
-`mediaSession.ts`.
+Control Center / Bluetooth controls use the **W3C MediaSession API** (`mediaSession.ts` +
+`useMediaSessionSync`) — it drives iOS Now Playing through the WKWebView, so no native plugin is
+needed; the native side only sets the `.playback` AVAudioSession (AppDelegate) + `UIBackgroundModes`.
 
 ### Code organization (vertical slices)
 
