@@ -45,5 +45,7 @@ Then('I land on the Home tab', async ({ page }) => {
 });
 
 Then('I see a sign-in error', async ({ page }) => {
-  await expect(page.getByTestId('signin-error')).toBeVisible();
+  // The rejecting Jellyfin round-trip can be slow under CI contention (and the
+  // server may throttle repeated bad-password attempts) — give it real headroom.
+  await expect(page.getByTestId('signin-error')).toBeVisible({ timeout: 30_000 });
 });
