@@ -4,9 +4,11 @@
  */
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
+import { dedupeTracks } from './dedupeTracks';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
-const audioFields = 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,IndexNumber,RunTimeTicks';
+const audioFields =
+  'Artists,AlbumArtist,Album,AlbumId,ArtistItems,IndexNumber,ParentIndexNumber,RunTimeTicks';
 
 /** A single item (album, artist, track) with its display fields, including
  * genres + production year for the detail-page meta line. */
@@ -30,7 +32,7 @@ export async function getItemTracks(albumId: string, limit = 200): Promise<Jelly
     userId,
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
-  return res.Items;
+  return dedupeTracks(res.Items);
 }
 
 /** A Jellyfin "instant mix" (radio) seeded from any item — Spotify-style. */
