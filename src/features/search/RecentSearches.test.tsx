@@ -12,24 +12,32 @@ const recents: RecentItem[] = [
 
 describe('RecentSearches', () => {
   it('shows the idle prompt when there are no recents', () => {
-    renderWithProviders(<RecentSearches recents={[]} onClear={vi.fn()} />);
+    renderWithProviders(<RecentSearches recents={[]} onClear={vi.fn()} onRemove={vi.fn()} />);
     expect(screen.getByTestId('search-idle')).toBeInTheDocument();
   });
 
   it('lists recent items and clears them', async () => {
     const onClear = vi.fn();
-    renderWithProviders(<RecentSearches recents={recents} onClear={onClear} />);
+    renderWithProviders(<RecentSearches recents={recents} onClear={onClear} onRemove={vi.fn()} />);
     expect(screen.getByText('A Song')).toBeInTheDocument();
     expect(screen.getByText('An Album')).toBeInTheDocument();
     await userEvent.click(screen.getByTestId('clear-recents'));
     expect(onClear).toHaveBeenCalledOnce();
   });
 
+  it('removes a single recent when its × is tapped', async () => {
+    const onRemove = vi.fn();
+    renderWithProviders(<RecentSearches recents={recents} onClear={vi.fn()} onRemove={onRemove} />);
+    await userEvent.click(screen.getAllByTestId('recent-remove')[1]);
+    expect(onRemove).toHaveBeenCalledWith('al');
+  });
+
   it('plays a recent song when tapped', async () => {
     const playQueue = vi.fn();
-    renderWithProviders(<RecentSearches recents={[recents[0]]} onClear={vi.fn()} />, {
-      player: stubPlayer({ playQueue }),
-    });
+    renderWithProviders(
+      <RecentSearches recents={[recents[0]]} onClear={vi.fn()} onRemove={vi.fn()} />,
+      { player: stubPlayer({ playQueue }) },
+    );
     await userEvent.click(screen.getByTestId('result-row'));
     expect(playQueue).toHaveBeenCalled();
   });

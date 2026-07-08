@@ -1,3 +1,5 @@
+import { IonIcon } from '@ionic/react';
+import { closeOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { usePlayer } from '../player/usePlayer';
 import { ResultRow } from './ResultRow';
@@ -8,9 +10,11 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 export function RecentSearches({
   recents,
   onClear,
+  onRemove,
 }: {
   recents: RecentItem[];
   onClear: () => void;
+  onRemove: (id: string) => void;
 }) {
   const history = useHistory();
   const { playQueue } = usePlayer();
@@ -38,14 +42,24 @@ export function RecentSearches({
         </button>
       </div>
       {recents.map((item) => (
-        <ResultRow
-          key={item.Id}
-          item={item as JellyfinItem}
-          subtitle={
-            item.Type === 'MusicArtist' ? 'Artist' : (item.Artists?.[0] ?? item.AlbumArtist ?? '')
-          }
-          onSelect={() => open(item)}
-        />
+        <div className="search__recent-row" key={item.Id}>
+          <ResultRow
+            item={item as JellyfinItem}
+            subtitle={
+              item.Type === 'MusicArtist' ? 'Artist' : (item.Artists?.[0] ?? item.AlbumArtist ?? '')
+            }
+            onSelect={() => open(item)}
+          />
+          <button
+            type="button"
+            className="search__recent-remove"
+            data-testid="recent-remove"
+            aria-label={`Remove ${item.Name} from recent searches`}
+            onClick={() => onRemove(item.Id)}
+          >
+            <IonIcon icon={closeOutline} />
+          </button>
+        </div>
       ))}
     </div>
   );

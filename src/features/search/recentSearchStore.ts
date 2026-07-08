@@ -37,6 +37,13 @@ export function addRecentSearch(item: RecentItem): RecentItem[] {
   return next;
 }
 
+/** Remove a single recent entry by Id and persist. Returns the new list. */
+export function removeRecentSearch(id: string): RecentItem[] {
+  const next = getRecentSearches().filter((i) => i.Id !== id);
+  localStorage.setItem(KEY, JSON.stringify(next));
+  return next;
+}
+
 export function clearRecentSearches(): RecentItem[] {
   localStorage.removeItem(KEY);
   return [];
