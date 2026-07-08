@@ -96,6 +96,17 @@ describe('PlayerProvider', () => {
     expect(audio.src).toContain('/Audio/b/universal');
   });
 
+  it('skips to the next track when the current one fails to load', async () => {
+    render(
+      <PlayerProvider>
+        <Probe />
+      </PlayerProvider>,
+    );
+    await userEvent.click(screen.getByText('play'));
+    act(() => audio.fire('error'));
+    expect(screen.getByTestId('current')).toHaveTextContent('Song b');
+  });
+
   it('toggles pause/resume', async () => {
     render(
       <PlayerProvider>
