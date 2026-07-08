@@ -12,6 +12,7 @@ import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { AlbumHeader } from './AlbumHeader';
+import { MoreByArtist } from './MoreByArtist';
 import { useAlbum, useAlbumTracks } from './albumApi';
 import './album.css';
 
@@ -56,6 +57,11 @@ export function AlbumDetail() {
               <p className="album__about cad-meta">{album.Overview}</p>
             </section>
           )}
+          <MoreByArtist
+            artistId={album?.ArtistItems?.[0]?.Id}
+            artistName={album?.ArtistItems?.[0]?.Name ?? album?.AlbumArtist ?? 'this artist'}
+            excludeId={id}
+          />
         </div>
       </IonContent>
     </IonPage>

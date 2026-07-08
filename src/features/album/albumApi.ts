@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getItem, getItemTracks } from '../../lib/jellyfinItems';
+import { getArtistAlbums } from '../../lib/jellyfinArtists';
 
 /** The album's header metadata (name, artist, art). */
 export function useAlbum(albumId: string) {
@@ -19,4 +20,15 @@ export function useAlbumTracks(albumId: string) {
     staleTime: 60_000,
   });
   return { tracks: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
+}
+
+/** Other albums by the same artist (excluding `excludeId`) for "More by …". */
+export function useMoreByArtist(artistId: string | undefined, excludeId: string) {
+  const q = useQuery({
+    queryKey: ['artist-albums', artistId],
+    queryFn: () => getArtistAlbums(artistId as string),
+    enabled: !!artistId,
+    staleTime: 60_000,
+  });
+  return { albums: (q.data ?? []).filter((a) => a.Id !== excludeId) };
 }
