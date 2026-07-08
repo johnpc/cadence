@@ -20,8 +20,11 @@ When("I sign in with the test user's credentials", async ({ page }) => {
   await page.getByTestId('signin-submit').click();
   // Wait for the persisted Jellyfin session before proceeding — navigating
   // before it lands races the session (the ghost-guest-read bug from stoop).
-  await page.waitForFunction(() =>
-    Object.keys(localStorage).some((k) => k.includes('cadence.session')),
+  // Generous timeout: the auth POST can be slow under CI contention.
+  await page.waitForFunction(
+    () => Object.keys(localStorage).some((k) => k.includes('cadence.session')),
+    undefined,
+    { timeout: 30_000 },
   );
 });
 

@@ -19,8 +19,12 @@ Given('I am signed in', async ({ page }) => {
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill(PASSWORD as string);
   await page.getByTestId('signin-submit').click();
-  await page.waitForFunction(() =>
-    Object.keys(localStorage).some((k) => k.includes('cadence.session')),
+  // The Jellyfin auth POST can be slow under CI contention — give the session
+  // token a generous window to land before proceeding.
+  await page.waitForFunction(
+    () => Object.keys(localStorage).some((k) => k.includes('cadence.session')),
+    undefined,
+    { timeout: 30_000 },
   );
 });
 
