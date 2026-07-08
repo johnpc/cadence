@@ -4,6 +4,7 @@ import { useAudioElement } from './useAudioElement';
 import { useMediaSessionSync } from './useMediaSessionSync';
 import { usePlayerQueue } from './usePlayerQueue';
 import { useSleepTimer } from './useSleepTimer';
+import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { audioStreamUrl } from '../../lib/jellyfinStream';
 import * as q from './queue';
 
@@ -59,6 +60,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     [toggle, qh.next, qh.prev],
   );
   useMediaSessionSync(current, isPlaying, mediaHandlers);
+  useKeyboardShortcuts(
+    useMemo(() => ({ toggle, next: qh.next, prev: qh.prev }), [toggle, qh.next, qh.prev]),
+    !!current,
+  );
 
   return (
     <PlayerContext.Provider

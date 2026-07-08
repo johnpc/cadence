@@ -38,3 +38,16 @@ When('I tap next', async ({ page }) => {
   // check unsatisfied even though the control is visible + enabled.
   await page.getByTestId('full-player-next').click({ force: true });
 });
+
+When('I press the spacebar', async ({ page }) => {
+  // Click empty page chrome first so focus isn't in the search input.
+  await page.locator('body').click({ position: { x: 5, y: 5 } });
+  await page.keyboard.press('Space');
+});
+
+Then('playback is paused', async ({ page }) => {
+  // The mini-player toggle flips to the Play icon (aria-label) when paused.
+  await expect(page.getByTestId('now-playing-toggle')).toHaveAttribute('aria-label', 'Play', {
+    timeout: 15_000,
+  });
+});
