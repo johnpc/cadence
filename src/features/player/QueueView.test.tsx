@@ -51,4 +51,16 @@ describe('QueueView', () => {
     await userEvent.click(screen.getAllByTestId('queue-row-remove')[1]);
     expect(removeFromQueue).toHaveBeenCalledWith(1);
   });
+
+  it('reorders a track down and disables the ends', async () => {
+    const moveInQueue = vi.fn();
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 0, moveInQueue }),
+    });
+    // First row cannot move up; last row cannot move down.
+    expect(screen.getAllByTestId('queue-row-up')[0]).toBeDisabled();
+    expect(screen.getAllByTestId('queue-row-down')[1]).toBeDisabled();
+    await userEvent.click(screen.getAllByTestId('queue-row-down')[0]);
+    expect(moveInQueue).toHaveBeenCalledWith(0, 1);
+  });
 });

@@ -77,6 +77,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         prev: qh.prev,
         jumpTo: qh.jumpTo,
         removeFromQueue: qh.removeFromQueue,
+        moveInQueue: qh.moveInQueue,
         seek,
         toggleShuffle: qh.toggleShuffle,
         cycleRepeat: qh.cycleRepeat,
