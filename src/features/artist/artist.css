@@ -24,6 +24,11 @@
   gap: var(--cad-space-3);
 }
 
+.artist__about {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 .artist__radio {
   display: inline-flex;
   align-items: center;
