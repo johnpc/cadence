@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildLibraryRows, filterRowsByText } from './libraryRows';
+import { buildLibraryRows, filterRowsByText, sortRows } from './libraryRows';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const pl: JellyfinItem[] = [{ Id: 'p1', Name: 'Road Trip', Type: 'Playlist' }];
@@ -51,5 +51,35 @@ describe('filterRowsByText', () => {
 
   it('returns nothing when no name matches', () => {
     expect(filterRowsByText(rows, 'zzz')).toEqual([]);
+  });
+});
+
+describe('sortRows', () => {
+  const albumRows = buildLibraryRows('albums', {
+    playlists: [],
+    albums: [
+      { Id: 'b', Name: 'Zebra', Type: 'MusicAlbum' },
+      { Id: 'a', Name: 'Apple', Type: 'MusicAlbum' },
+    ],
+    artists: [],
+    likedCount: 0,
+  });
+
+  it('leaves order unchanged for the default sort', () => {
+    expect(sortRows(albumRows, 'default').map((r) => r.name)).toEqual(['Zebra', 'Apple']);
+  });
+
+  it('sorts alphabetically by name', () => {
+    expect(sortRows(albumRows, 'alpha').map((r) => r.name)).toEqual(['Apple', 'Zebra']);
+  });
+
+  it('keeps the pinned Liked Songs row first when sorting A–Z', () => {
+    const playlistRows = buildLibraryRows('playlists', {
+      playlists: [{ Id: 'p', Name: 'Aaa First Alpha', Type: 'Playlist' }],
+      albums: [],
+      artists: [],
+      likedCount: 2,
+    });
+    expect(sortRows(playlistRows, 'alpha')[0].liked).toBe(true);
   });
 });
