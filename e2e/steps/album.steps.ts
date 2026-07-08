@@ -16,5 +16,5 @@ Then('I see the album tracks', async ({ page }) => {
 });
 
 When('I play the album', async ({ page }) => {
-  await page.getByTestId('album-play-all').click({ force: true });
+  await page.getByTestId('album-detail').getByTestId('play-all').click({ force: true });
 });

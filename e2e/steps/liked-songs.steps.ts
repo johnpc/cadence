@@ -7,6 +7,10 @@ When('I open the Library tab', async ({ page }) => {
   await page.locator('ion-tab-button', { hasText: 'Your Library' }).click();
 });
 
+When('I shuffle-play the liked songs', async ({ page }) => {
+  await page.getByTestId('liked-songs').getByTestId('shuffle-all').click({ force: true });
+});
+
 When('I like a track from search', async ({ page }) => {
   // Home is now shelves; like a track from Search (which lists tracks). Ensure
   // it ends LIKED (idempotent — clicking an already-liked heart unlikes it).

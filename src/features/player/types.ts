@@ -20,6 +20,8 @@ export interface PlayerContextValue {
   queueIndex: number;
   /** Load a list of tracks and start playing at `startIndex`. */
   playQueue: (tracks: JellyfinItem[], startIndex?: number) => void;
+  /** Play a list in shuffled order (turns shuffle on). */
+  playShuffled: (tracks: JellyfinItem[]) => void;
   /** Queue a track to play right after the current one. */
   playNext: (track: JellyfinItem) => void;
   /** Play/pause the current track. */

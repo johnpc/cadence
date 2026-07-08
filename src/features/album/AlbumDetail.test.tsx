@@ -63,7 +63,7 @@ describe('AlbumDetail', () => {
     vi.mocked(getItemTracks).mockResolvedValue(tracks);
     const playQueue = vi.fn();
     renderAlbum(stubPlayer({ playQueue }));
-    await userEvent.click(await screen.findByTestId('album-play-all'));
+    await userEvent.click(await screen.findByTestId('play-all'));
     expect(playQueue).toHaveBeenCalledWith(tracks, 0);
   });
 
