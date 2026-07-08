@@ -9,8 +9,9 @@ import {
   IonToolbar,
 } from '@ionic/react';
 import { settingsOutline } from 'ionicons/icons';
+import { LikedSongs } from './LikedSongs';
 
-/** Your Library — liked songs + playlists (slices 5–6). Placeholder for now. */
+/** Your Library — Liked Songs now; playlists arrive in the next slice. */
 export function Library() {
   return (
     <IonPage>
@@ -25,9 +26,7 @@ export function Library() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <p className="cad-body" data-testid="library-placeholder">
-          Songs and playlists you add will live here.
-        </p>
+        <LikedSongs />
       </IonContent>
     </IonPage>
   );

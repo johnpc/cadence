@@ -20,7 +20,7 @@ Then('I see song results', async ({ page }) => {
 });
 
 When('I tap the first song result', async ({ page }) => {
-  await page.getByTestId('search-results').getByTestId('track-row').first().click();
+  await page.getByTestId('search-results').getByTestId('track-row-play').first().click();
 });
 
 Then('I see the no-results state', async ({ page }) => {

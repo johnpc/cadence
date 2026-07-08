@@ -10,6 +10,7 @@ import {
 import { usePlayer } from './usePlayer';
 import { artistLine, formatTime } from './playerFormat';
 import { TrackArt } from './TrackArt';
+import { LikeButton } from '../library/LikeButton';
 import './fullPlayer.css';
 
 /** The full-screen player modal — art, scrubber, and transport controls. */
@@ -23,8 +24,11 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         </button>
         <TrackArt item={p.current} size={280} />
         <div className="fullplayer__meta">
-          <p className="fullplayer__title cad-headline">{p.current?.Name}</p>
-          <p className="fullplayer__artist cad-meta">{artistLine(p.current)}</p>
+          <div className="fullplayer__titles">
+            <p className="fullplayer__title cad-headline">{p.current?.Name}</p>
+            <p className="fullplayer__artist cad-meta">{artistLine(p.current)}</p>
+          </div>
+          {p.current && <LikeButton track={p.current} size={26} />}
         </div>
         <div className="fullplayer__scrubber">
           <input

@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getAudioItems, getInstantMix, getItemTracks } from './jellyfinItems';
+import {
+  addFavorite,
+  getAudioItems,
+  getFavoriteSongs,
+  getInstantMix,
+  getItemTracks,
+  removeFavorite,
+} from './jellyfinItems';
 import { setSession } from './sessionStore';
 
 function stubItems(items: unknown[]) {
@@ -53,5 +60,38 @@ describe('jellyfinItems', () => {
     const [url] = f.mock.calls[0];
     expect(url).toContain('/Items/seed1/InstantMix');
     expect(url).toContain('Limit=20');
+  });
+
+  it('getFavoriteSongs requests liked audio, newest first', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stubItems([{ Id: 'a', Name: 'x', Type: 'Audio' }]);
+    await getFavoriteSongs();
+    const [url] = f.mock.calls[0];
+    expect(url).toContain('Filters=IsFavorite');
+    expect(url).toContain('IncludeItemTypes=Audio');
+  });
+
+  it('addFavorite POSTs to the user favorite endpoint', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = vi
+      .fn()
+      .mockResolvedValue({ ok: true, status: 200, text: async () => '' } as Response);
+    vi.stubGlobal('fetch', f);
+    await addFavorite('song1');
+    const [url, init] = f.mock.calls[0];
+    expect(url).toContain('/Users/uid/FavoriteItems/song1');
+    expect(init.method).toBe('POST');
+  });
+
+  it('removeFavorite DELETEs from the user favorite endpoint', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = vi
+      .fn()
+      .mockResolvedValue({ ok: true, status: 200, text: async () => '' } as Response);
+    vi.stubGlobal('fetch', f);
+    await removeFavorite('song1');
+    const [url, init] = f.mock.calls[0];
+    expect(url).toContain('/Users/uid/FavoriteItems/song1');
+    expect(init.method).toBe('DELETE');
   });
 });

@@ -20,7 +20,15 @@
 
 .fullplayer__meta {
   width: 100%;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cad-space-3);
+  text-align: left;
+}
+
+.fullplayer__titles {
+  min-width: 0;
 }
 
 .fullplayer__title {

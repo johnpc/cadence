@@ -1,11 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { PlayerContext } from './PlayerContext';
 import { NowPlayingBar } from './NowPlayingBar';
 import type { PlayerContextValue } from './types';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { renderWithProviders } from '../../test/renderWithProviders';
 
 // Render IonModal children inline (see FullPlayer.test for why).
 vi.mock('@ionic/react', async (importOriginal) => {
@@ -39,7 +39,7 @@ function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
 const song: JellyfinItem = { Id: 's1', Name: 'Test Song', Type: 'Audio', Artists: ['Tester'] };
 
 const renderBar = (value: PlayerContextValue) =>
-  render(<PlayerContext.Provider value={value}>{<NowPlayingBar />}</PlayerContext.Provider>);
+  renderWithProviders(<NowPlayingBar />, { player: value });
 
 describe('NowPlayingBar', () => {
   it('renders nothing when no track is playing', () => {
