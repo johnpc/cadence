@@ -20,6 +20,8 @@ export async function getLatestAlbums(limit = 20): Promise<JellyfinItem[]> {
   return request<JellyfinItem[]>(`/Users/${userId}/Items/Latest?${params.toString()}`);
 }
 
+const songFields = 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks';
+
 /** Suggested songs ("Suggested for you" shelf). */
 export async function getSuggestedSongs(limit = 20): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
@@ -27,8 +29,25 @@ export async function getSuggestedSongs(limit = 20): Promise<JellyfinItem[]> {
     userId,
     type: 'Audio',
     limit: String(limit),
-    Fields: 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks',
+    Fields: songFields,
   });
   const res = await request<ItemsResponse>(`/Items/Suggestions?${params.toString()}`);
+  return res.Items;
+}
+
+/** Recently-played songs ("Recently played" shelf), most-recent first. */
+export async function getRecentlyPlayed(limit = 20): Promise<JellyfinItem[]> {
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({
+    IncludeItemTypes: 'Audio',
+    Recursive: 'true',
+    Filters: 'IsPlayed',
+    SortBy: 'DatePlayed',
+    SortOrder: 'Descending',
+    Limit: String(limit),
+    Fields: songFields,
+    userId,
+  });
+  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
   return res.Items;
 }

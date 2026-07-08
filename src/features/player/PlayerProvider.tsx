@@ -7,6 +7,7 @@ import { useSleepTimer } from './useSleepTimer';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { useVolume } from './useVolume';
 import { usePlaybackControls } from './usePlaybackControls';
+import { usePlaybackReporting } from './usePlaybackReporting';
 import { audioStreamUrl } from '../../lib/jellyfinStream';
 import * as q from './queue';
 
@@ -42,6 +43,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   }, [currentId, ref]);
 
   const { toggle, seek, pause } = usePlaybackControls(ref, qh.queue.tracks.length > 0);
+
+  // Report playback to Jellyfin (play counts + Recently Played). Reads position
+  // live from the audio element so it doesn't re-fire on every tick.
+  usePlaybackReporting(currentId, () => ref.current?.currentTime ?? 0);
 
   // Sleep timer: pause when it elapses.
   const { sleepMinutes, armSleep } = useSleepTimer(pause);

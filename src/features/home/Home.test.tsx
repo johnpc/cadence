@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../lib/jellyfinDiscover', () => ({
   getLatestAlbums: vi.fn(),
   getSuggestedSongs: vi.fn(),
+  getRecentlyPlayed: vi.fn().mockResolvedValue([]),
 }));
 vi.mock('../../lib/jellyfinItems', () => ({ getFavoriteAlbums: vi.fn().mockResolvedValue([]) }));
 vi.mock('../player/usePlayItem', () => ({ usePlayItem: () => vi.fn() }));

@@ -1,7 +1,6 @@
 import { useHistory } from 'react-router-dom';
-import { Shelf } from './Shelf';
-import { AlbumCard } from './AlbumCard';
-import { useLatestAlbums, useSuggestedSongs } from './homeApi';
+import { CardShelf } from './CardShelf';
+import { useLatestAlbums, useSuggestedSongs, useRecentlyPlayed } from './homeApi';
 import { useSavedAlbums } from '../library/libraryApi';
 import { usePlayer } from '../player/usePlayer';
 
@@ -11,58 +10,40 @@ export function useHomeShelves() {
   const albums = useLatestAlbums();
   const suggested = useSuggestedSongs();
   const saved = useSavedAlbums();
-  return { albums, suggested, saved };
+  const recent = useRecentlyPlayed();
+  return { albums, suggested, saved, recent };
 }
 
 export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShelves> }) {
-  const { albums, suggested, saved } = shelves;
+  const { albums, suggested, saved, recent } = shelves;
   const { playQueue } = usePlayer();
   const history = useHistory();
+  const openAlbum = (item: { Id: string }) => history.push(`/album/${item.Id}`);
   return (
     <div data-testid="home-shelves">
-      <Shelf
-        title="Recently added"
-        isLoading={albums.isLoading}
-        isError={albums.isError}
-        onRetry={() => void albums.refetch()}
-        isEmpty={albums.albums.length === 0}
-      >
-        {albums.albums.map((album) => (
-          <AlbumCard
-            key={album.Id}
-            item={album}
-            onPlay={() => history.push(`/album/${album.Id}`)}
-          />
-        ))}
-      </Shelf>
-      {saved.albums.length > 0 && (
-        <Shelf
-          title="From your library"
-          isLoading={saved.isLoading}
-          isError={saved.isError}
-          onRetry={() => void saved.refetch()}
-          isEmpty={saved.albums.length === 0}
-        >
-          {saved.albums.map((album) => (
-            <AlbumCard
-              key={album.Id}
-              item={album}
-              onPlay={() => history.push(`/album/${album.Id}`)}
-            />
-          ))}
-        </Shelf>
+      <CardShelf title="Recently added" items={albums.albums} state={albums} onPlay={openAlbum} />
+      {recent.songs.length > 0 && (
+        <CardShelf
+          title="Recently played"
+          items={recent.songs}
+          state={recent}
+          onPlay={(_i, index) => playQueue(recent.songs, index)}
+        />
       )}
-      <Shelf
+      {saved.albums.length > 0 && (
+        <CardShelf
+          title="From your library"
+          items={saved.albums}
+          state={saved}
+          onPlay={openAlbum}
+        />
+      )}
+      <CardShelf
         title="Suggested for you"
-        isLoading={suggested.isLoading}
-        isError={suggested.isError}
-        onRetry={() => void suggested.refetch()}
-        isEmpty={suggested.songs.length === 0}
-      >
-        {suggested.songs.map((song, index) => (
-          <AlbumCard key={song.Id} item={song} onPlay={() => playQueue(suggested.songs, index)} />
-        ))}
-      </Shelf>
+        items={suggested.songs}
+        state={suggested}
+        onPlay={(_i, index) => playQueue(suggested.songs, index)}
+      />
     </div>
   );
 }
