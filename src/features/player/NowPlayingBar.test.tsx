@@ -7,6 +7,8 @@ import type { PlayerContextValue } from './types';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 
+vi.mock('../../lib/jellyfinLyrics', () => ({ getLyrics: vi.fn().mockResolvedValue([]) }));
+
 // Render IonModal children inline (see FullPlayer.test for why).
 vi.mock('@ionic/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@ionic/react')>();
@@ -55,5 +57,20 @@ describe('NowPlayingBar', () => {
     renderBar(ctx({ current: song, position: 30, duration: 120 }));
     const fill = screen.getByTestId('now-playing-progress').querySelector('.npbar__progress-fill');
     expect((fill as HTMLElement).style.width).toBe('25%');
+  });
+
+  it('exposes desktop extras: mute toggles volume to 0 and back', async () => {
+    const setVolume = vi.fn();
+    renderBar(ctx({ current: song, volume: 0.8, setVolume }));
+    expect(screen.getByTestId('now-playing-extras')).toBeInTheDocument();
+    await userEvent.click(screen.getByTestId('npbar-mute'));
+    expect(setVolume).toHaveBeenCalledWith(0);
+  });
+
+  it('unmutes back to the previous volume', async () => {
+    const setVolume = vi.fn();
+    renderBar(ctx({ current: song, volume: 0, setVolume }));
+    await userEvent.click(screen.getByTestId('npbar-mute'));
+    expect(setVolume).toHaveBeenCalledWith(1);
   });
 });
