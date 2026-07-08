@@ -1,12 +1,14 @@
 import { IonIcon } from '@ionic/react';
 import { play, shuffle as shuffleIcon, listOutline } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
+import { useToast } from '../toast/useToast';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './collectionActions.css';
 
 /** Play-all, shuffle-all, and add-to-queue for a collection (album, playlist, likes). */
 export function CollectionActions({ tracks }: { tracks: JellyfinItem[] }) {
   const { playQueue, playShuffled, addToQueue } = usePlayer();
+  const toast = useToast();
   return (
     <div className="collection-actions">
       <button
@@ -20,7 +22,10 @@ export function CollectionActions({ tracks }: { tracks: JellyfinItem[] }) {
       <button
         className="collection-actions__queue"
         data-testid="queue-all"
-        onClick={() => addToQueue(tracks)}
+        onClick={() => {
+          addToQueue(tracks);
+          toast(`Added ${tracks.length} to queue`);
+        }}
         aria-label="Add to queue"
       >
         <IonIcon icon={listOutline} />
