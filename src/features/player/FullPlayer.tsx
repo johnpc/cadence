@@ -11,10 +11,10 @@ import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
 import { NowPlayingMenu } from './NowPlayingMenu';
 import { PlayerControls } from './PlayerControls';
+import { FullPlayerTitle } from './FullPlayerTitle';
 import { usePlayer } from './usePlayer';
-import { artistLine, formatTime } from './playerFormat';
+import { formatTime } from './playerFormat';
 import { TrackArt } from './TrackArt';
-import { LikeButton } from '../library/LikeButton';
 import './fullPlayer.css';
 
 /** The full-screen player modal — art, scrubber, and transport controls. */
@@ -29,13 +29,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           <IonIcon icon={chevronDown} />
         </button>
         <TrackArt item={p.current} size={280} />
-        <div className="fullplayer__meta">
-          <div className="fullplayer__titles">
-            <p className="fullplayer__title cad-headline">{p.current?.Name}</p>
-            <p className="fullplayer__artist cad-meta">{artistLine(p.current)}</p>
-          </div>
-          {p.current && <LikeButton track={p.current} size={26} />}
-        </div>
+        <FullPlayerTitle track={p.current} onNavigate={onClose} />
         <div className="fullplayer__scrubber">
           <input
             type="range"
