@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { NowPlayingBar } from './NowPlayingBar';
 import type { PlayerContextValue } from './types';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
-import { renderWithProviders } from '../../test/renderWithProviders';
+import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 
 // Render IonModal children inline (see FullPlayer.test for why).
 vi.mock('@ionic/react', async (importOriginal) => {
@@ -18,22 +18,7 @@ vi.mock('@ionic/react', async (importOriginal) => {
 });
 
 function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
-  return {
-    current: null,
-    isPlaying: false,
-    position: 0,
-    duration: 0,
-    shuffle: false,
-    canNext: false,
-    canPrev: false,
-    playQueue: vi.fn(),
-    toggle: vi.fn(),
-    next: vi.fn(),
-    prev: vi.fn(),
-    seek: vi.fn(),
-    toggleShuffle: vi.fn(),
-    ...overrides,
-  };
+  return stubPlayer(overrides);
 }
 
 const song: JellyfinItem = { Id: 's1', Name: 'Test Song', Type: 'Audio', Artists: ['Tester'] };

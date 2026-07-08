@@ -3,6 +3,7 @@ import {
   append,
   currentTrack,
   EMPTY_QUEUE,
+  enqueueNext,
   hasNext,
   hasPrev,
   next,
@@ -48,6 +49,18 @@ describe('queue', () => {
   it('appends tracks', () => {
     const q = append(startQueue(tracks, 0), [track('d')]);
     expect(q.tracks.map((t) => t.Id)).toEqual(['a', 'b', 'c', 'd']);
+  });
+
+  it('enqueues a track right after the current one', () => {
+    const q = enqueueNext(startQueue(tracks, 0), track('x')); // current = 'a'
+    expect(q.tracks.map((t) => t.Id)).toEqual(['a', 'x', 'b', 'c']);
+    expect(q.index).toBe(0);
+  });
+
+  it('enqueueNext on an empty queue starts one', () => {
+    const q = enqueueNext(EMPTY_QUEUE, track('x'));
+    expect(q.tracks.map((t) => t.Id)).toEqual(['x']);
+    expect(q.index).toBe(0);
   });
 
   it('shuffles the rest, keeping the current track first', () => {

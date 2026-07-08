@@ -2,18 +2,21 @@ import { useState } from 'react';
 import { IonActionSheet, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { usePlaylists, useAddToPlaylist } from './playlistsApi';
+import { usePlayer } from '../player/usePlayer';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './addToPlaylist.css';
 
-/** A "…" button that opens an action sheet to add this track to a playlist. */
+/** A "…" track menu: play next (queue) + add to any playlist. */
 export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
   const [open, setOpen] = useState(false);
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
+  const { playNext } = usePlayer();
 
   const buttons = [
+    { text: 'Play next', handler: () => playNext(track) },
     ...playlists.map((pl) => ({
-      text: pl.Name,
+      text: `Add to ${pl.Name}`,
       handler: () => add.mutate({ playlistId: pl.Id, itemId: track.Id }),
     })),
     { text: 'Cancel', role: 'cancel' as const },

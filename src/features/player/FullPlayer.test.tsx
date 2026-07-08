@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { FullPlayer } from './FullPlayer';
 import type { PlayerContextValue } from './types';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
-import { renderWithProviders } from '../../test/renderWithProviders';
+import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 
 // IonModal's real present/dismiss uses a "framework delegate" that jsdom can't
 // satisfy; render its children inline when open so we test our content only.
@@ -21,22 +21,15 @@ vi.mock('@ionic/react', async (importOriginal) => {
 const song: JellyfinItem = { Id: 's1', Name: 'Full Song', Type: 'Audio', Artists: ['Band'] };
 
 function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
-  return {
+  return stubPlayer({
     current: song,
     isPlaying: true,
     position: 30,
     duration: 200,
-    shuffle: false,
     canNext: true,
     canPrev: true,
-    playQueue: vi.fn(),
-    toggle: vi.fn(),
-    next: vi.fn(),
-    prev: vi.fn(),
-    seek: vi.fn(),
-    toggleShuffle: vi.fn(),
     ...overrides,
-  };
+  });
 }
 
 const renderPlayer = (value: PlayerContextValue) =>
@@ -69,5 +62,14 @@ describe('FullPlayer', () => {
     renderPlayer(ctx({ position: 30, duration: 200 }));
     expect(screen.getByText('0:30')).toBeInTheDocument();
     expect(screen.getByText('3:20')).toBeInTheDocument();
+  });
+
+  it('cycles repeat and opens the queue', async () => {
+    const cycleRepeat = vi.fn();
+    renderPlayer(ctx({ cycleRepeat, repeat: 'one' }));
+    await userEvent.click(screen.getByTestId('full-player-repeat'));
+    expect(cycleRepeat).toHaveBeenCalledOnce();
+    await userEvent.click(screen.getByTestId('full-player-queue'));
+    expect(await screen.findByTestId('queue-view')).toBeInTheDocument();
   });
 });
