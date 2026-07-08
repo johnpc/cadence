@@ -23,8 +23,13 @@
 }
 
 .album-card {
+  position: relative;
   flex: 0 0 auto;
   width: 140px;
+}
+
+.album-card__hit {
+  width: 100%;
   border: none;
   background: none;
   padding: 0;
@@ -35,9 +40,55 @@
   gap: var(--cad-space-1);
 }
 
+/* Green play FAB over the art, revealed on hover/focus (desktop affordance). */
+.album-card__play {
+  position: absolute;
+  top: 96px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.album-card:hover .album-card__play,
+.album-card:focus-within .album-card__play {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .album-card--round {
   text-align: center;
   align-items: center;
+}
+
+.album-card--round .album-card__hit {
+  align-items: center;
+  text-align: center;
+}
+
+/* Artist cards are round — center the play FAB below the circle. */
+.album-card--round .album-card__play {
+  right: 50%;
+  transform: translate(50%, 6px);
+}
+
+.album-card--round:hover .album-card__play,
+.album-card--round:focus-within .album-card__play {
+  transform: translate(50%, 0);
 }
 
 .album-card--round .album-card__title {
