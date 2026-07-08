@@ -1,10 +1,11 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
+import { navigate } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
 When('I open the Search tab', async ({ page }) => {
-  await page.locator('ion-tab-button', { hasText: 'Search' }).click();
+  await navigate(page, 'Search');
   await expect(page.getByTestId('search-input')).toBeVisible();
 });
 

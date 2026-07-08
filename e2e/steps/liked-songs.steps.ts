@@ -1,22 +1,26 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
+import { navigate, libraryList } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
 When('I open the Library tab', async ({ page }) => {
-  await page.locator('ion-tab-button', { hasText: 'Your Library' }).click();
-  // Wait for the library list to render before the next step acts on it.
-  await expect(page.getByTestId('library-list')).toBeAttached({ timeout: 15_000 });
+  await navigate(page, 'Your Library');
+  // Wait for the (sidebar/desktop) library list to render before acting on it.
+  await expect(libraryList(page)).toBeVisible({ timeout: 15_000 });
 });
 
 When('I filter the library to {string}', async ({ page }, filter: string) => {
-  await page.getByTestId(`library-filter-${filter}`).click({ force: true });
+  await page
+    .getByTestId('desktop-sidebar')
+    .getByTestId(`library-filter-${filter}`)
+    .click({ force: true });
 });
 
 When('I open Liked Songs', async ({ page }) => {
   // Liked Songs is the pinned first row of the Playlists filter.
-  const row = page.getByTestId('library-list').getByText('Liked Songs');
-  await expect(row).toBeAttached({ timeout: 15_000 });
+  const row = libraryList(page).getByText('Liked Songs');
+  await expect(row).toBeVisible({ timeout: 15_000 });
   await row.click({ force: true });
   // Wait for the Liked Songs page to render before the next step acts on it.
   await expect(page.getByTestId('liked-songs')).toBeAttached({ timeout: 15_000 });
@@ -30,6 +34,7 @@ When('I shuffle-play the liked songs', async ({ page }) => {
   // Retry the click until playback actually starts — the Ionic route transition
   // can swallow a click aimed at the still-animating page.
   const shuffle = page.getByTestId('liked-songs').getByTestId('shuffle-all');
+  await shuffle.scrollIntoViewIfNeeded();
   await expect(async () => {
     await shuffle.click({ force: true });
     await expect(page.getByTestId('now-playing-bar')).toBeAttached({ timeout: 2_000 });
@@ -39,7 +44,7 @@ When('I shuffle-play the liked songs', async ({ page }) => {
 When('I like a track from search', async ({ page }) => {
   // Home is shelves; like a track from Search (which lists tracks). Ensure it
   // ends LIKED (idempotent — clicking an already-liked heart unlikes it).
-  await page.locator('ion-tab-button', { hasText: 'Search' }).click();
+  await navigate(page, 'Search');
   await page.getByTestId('search-input').locator('input').fill('love');
   const heart = page.getByTestId('search-results').getByTestId('like-button').first();
   await expect(heart).toBeVisible({ timeout: 15_000 });
@@ -50,11 +55,7 @@ When('I like a track from search', async ({ page }) => {
 });
 
 Then('I see the Liked Songs row', async ({ page }) => {
-  // Ionic keeps inactive tab pages attached but flags them "not visible", so
-  // assert attachment.
-  await expect(page.getByTestId('library-list').getByText('Liked Songs')).toBeAttached({
-    timeout: 15_000,
-  });
+  await expect(libraryList(page).getByText('Liked Songs')).toBeVisible({ timeout: 15_000 });
 });
 
 Then('the liked songs list is not empty', async ({ page }) => {

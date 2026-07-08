@@ -1,5 +1,6 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
+import { libraryList } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
@@ -30,6 +31,6 @@ When('I follow the artist', async ({ page }) => {
 });
 
 Then('the followed artists list is not empty', async ({ page }) => {
-  const rows = page.getByTestId('library-list').getByTestId('library-row');
+  const rows = libraryList(page).getByTestId('library-row');
   await expect(rows.first()).toBeAttached({ timeout: 30_000 });
 });

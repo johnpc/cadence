@@ -39,9 +39,9 @@ When('I reload the app', async ({ page }) => {
 });
 
 Then('I land on the Home tab', async ({ page }) => {
-  await expect(page.locator('ion-tab-button', { hasText: 'Home' })).toBeVisible();
-  // Home shows recommendation shelves once signed in.
-  await expect(page.getByTestId('home-shelves')).toBeVisible();
+  // Home nav is the sidebar link (desktop) or tab button (mobile); either way
+  // the Home shelves confirm we're signed in and on Home.
+  await expect(page.getByTestId('home-shelves')).toBeVisible({ timeout: 30_000 });
 });
 
 Then('I see a sign-in error', async ({ page }) => {
