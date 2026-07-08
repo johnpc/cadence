@@ -17,6 +17,13 @@
   gap: var(--cad-space-2);
 }
 
+.artist__popular-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cad-space-3);
+}
+
 .artist__radio {
   display: inline-flex;
   align-items: center;

@@ -12,7 +12,7 @@ import { radio } from 'ionicons/icons';
 import { useHistory, useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackArt } from '../player/TrackArt';
-import { TrackRow } from '../player/TrackRow';
+import { ArtistPopular } from './ArtistPopular';
 import { SaveButton } from '../library/SaveButton';
 import { usePlayItem } from '../player/usePlayItem';
 import { useArtist, useArtistAlbums, useArtistTopTracks } from './artistApi';
@@ -55,14 +55,7 @@ export function ArtistDetail() {
             </div>
           )}
         </div>
-        {topTracks.length > 0 && (
-          <section data-testid="artist-top">
-            <h2 className="cad-kicker artist__section">Popular</h2>
-            {topTracks.map((track, index) => (
-              <TrackRow key={track.Id} track={track} queue={topTracks} index={index} />
-            ))}
-          </section>
-        )}
+        <ArtistPopular tracks={topTracks} />
         <h2 className="cad-kicker artist__section">Albums</h2>
         <LoadState
           isLoading={isLoading}
