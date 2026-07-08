@@ -37,8 +37,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
-  timeout: 60_000,
-  expect: { timeout: 15_000 },
+  // CI reaches the home Jellyfin through a cloudflared tunnel, so round-trips
+  // can be slow — give tests and assertions extra headroom there.
+  timeout: process.env.CI ? 120_000 : 60_000,
+  expect: { timeout: process.env.CI ? 30_000 : 15_000 },
   use: {
     baseURL: `http://localhost:${E2E_PORT}`,
     trace: 'on-first-retry',

@@ -24,7 +24,7 @@ When("I sign in with the test user's credentials", async ({ page }) => {
   await page.waitForFunction(
     () => Object.keys(localStorage).some((k) => k.includes('cadence.session')),
     undefined,
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
 });
 
@@ -47,5 +47,5 @@ Then('I land on the Home tab', async ({ page }) => {
 Then('I see a sign-in error', async ({ page }) => {
   // The rejecting Jellyfin round-trip can be slow under CI contention (and the
   // server may throttle repeated bad-password attempts) — give it real headroom.
-  await expect(page.getByTestId('signin-error')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('signin-error')).toBeVisible({ timeout: 60_000 });
 });

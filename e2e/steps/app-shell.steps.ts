@@ -24,7 +24,7 @@ Given('I am signed in', async ({ page }) => {
   await page.waitForFunction(
     () => Object.keys(localStorage).some((k) => k.includes('cadence.session')),
     undefined,
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
 });
 
