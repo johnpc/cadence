@@ -7,6 +7,7 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylists: vi.fn(),
   getPlaylistItems: vi.fn(),
   createPlaylist: vi.fn(),
+  createPlaylistWithItems: vi.fn(),
   addToPlaylist: vi.fn(),
   removeFromPlaylist: vi.fn(),
   deletePlaylist: vi.fn(),
@@ -21,12 +22,12 @@ import {
 } from '../../lib/jellyfinPlaylists';
 import {
   useAddToPlaylist,
-  useCreatePlaylist,
   useDeletePlaylist,
   useRemoveFromPlaylist,
   usePlaylistItems,
   usePlaylists,
 } from './playlistsApi';
+import { useCreatePlaylist } from './playlistCreate';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const wrapper = ({ children }: { children: ReactNode }) => (

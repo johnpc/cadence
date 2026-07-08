@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { IonAlert, IonButton, IonIcon } from '@ionic/react';
 import { add } from 'ionicons/icons';
-import { useCreatePlaylist } from './playlistsApi';
+import { useCreatePlaylist } from './playlistCreate';
 import { useToast } from '../toast/useToast';
 
 /** A "+" that prompts for a name and creates a playlist. */

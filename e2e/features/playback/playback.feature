@@ -33,3 +33,10 @@ Feature: Playback
     And I open the full player
     And I open lyrics
     Then the lyrics sheet is shown
+
+  Scenario: Saving the current queue as a playlist
+    Given I am signed in
+    When I tap a track from search
+    And I open the full player
+    And I open the queue
+    Then I can save the queue as a playlist

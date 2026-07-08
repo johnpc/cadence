@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   addToPlaylist,
-  createPlaylist,
   deletePlaylist,
   getPlaylistItems,
   getPlaylists,
@@ -41,15 +40,6 @@ export function usePlaylistItems(playlistId: string) {
     staleTime: 30_000,
   });
   return { tracks: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
-}
-
-/** Create a playlist; refreshes the list on success. */
-export function useCreatePlaylist() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (name: string) => createPlaylist(name),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: PLAYLISTS_KEY }),
-  });
 }
 
 /** Add a track to a playlist; refreshes that playlist's items. */
