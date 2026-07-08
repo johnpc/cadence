@@ -43,6 +43,7 @@ export function buildPlayerValue(
     jumpTo: qh.jumpTo,
     removeFromQueue: qh.removeFromQueue,
     moveInQueue: qh.moveInQueue,
+    clearQueue: qh.clearQueue,
     seek: transport.seek,
     toggleShuffle: qh.toggleShuffle,
     cycleRepeat: qh.cycleRepeat,

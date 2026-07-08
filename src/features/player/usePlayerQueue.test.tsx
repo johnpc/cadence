@@ -97,6 +97,13 @@ describe('usePlayerQueue', () => {
     expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a', 'b']);
   });
 
+  it('clearQueue drops everything after the current track', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.playQueue(tracks, 0));
+    act(() => result.current.clearQueue());
+    expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a']);
+  });
+
   it('moveInQueue reorders a track', () => {
     const { result } = renderHook(() => usePlayerQueue());
     act(() => result.current.playQueue(tracks, 0));

@@ -19,3 +19,9 @@ export function moveAt(q: QueueState, from: number, to: number): QueueState {
   tracks.splice(dest, 0, moved);
   return { tracks, index: tracks.indexOf(playing) };
 }
+
+/** Drop everything after the current track, keeping it playing. */
+export function clearUpcoming(q: QueueState): QueueState {
+  if (q.index >= q.tracks.length - 1) return q;
+  return { tracks: q.tracks.slice(0, q.index + 1), index: q.index };
+}

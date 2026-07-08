@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { moveAt } from './queueMove';
+import { moveAt, clearUpcoming } from './queueMove';
 import type { QueueState } from './queue';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -29,5 +29,24 @@ describe('moveAt', () => {
     const start = q(['a', 'b'], 0);
     expect(moveAt(start, 5, 0)).toBe(start);
     expect(moveAt(start, 1, 1)).toBe(start);
+  });
+});
+
+describe('clearUpcoming', () => {
+  it('drops everything after the current track', () => {
+    const r = clearUpcoming(q(['a', 'b', 'c'], 0));
+    expect(r.tracks.map((x) => x.Id)).toEqual(['a']);
+    expect(r.index).toBe(0);
+  });
+
+  it('keeps tracks before and including the current one', () => {
+    const r = clearUpcoming(q(['a', 'b', 'c'], 1));
+    expect(r.tracks.map((x) => x.Id)).toEqual(['a', 'b']);
+    expect(r.index).toBe(1);
+  });
+
+  it('is a no-op when already at the last track', () => {
+    const start = q(['a', 'b'], 1);
+    expect(clearUpcoming(start)).toBe(start);
   });
 });

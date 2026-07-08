@@ -7,7 +7,8 @@ import './queueView.css';
 /** The "Up Next" queue — the full play order, current track marked, tap to jump,
  * reorder with up/down, and remove any track from the queue. */
 export function QueueView({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { queue, queueIndex, jumpTo, removeFromQueue, moveInQueue } = usePlayer();
+  const { queue, queueIndex, jumpTo, removeFromQueue, moveInQueue, clearQueue } = usePlayer();
+  const hasUpcoming = queue.length - 1 > queueIndex;
   const jump = (index: number) => {
     jumpTo(index);
     onClose();
@@ -20,6 +21,16 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
             <IonIcon icon={chevronDown} />
           </button>
           <h2 className="cad-headline">Up next</h2>
+          {hasUpcoming && (
+            <button
+              type="button"
+              className="queueview__clear"
+              data-testid="queue-clear"
+              onClick={clearQueue}
+            >
+              Clear
+            </button>
+          )}
         </div>
         <div className="queueview__list">
           {queue.map((track, index) => (
