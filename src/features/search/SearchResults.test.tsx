@@ -9,6 +9,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 const items: JellyfinItem[] = [
   { Id: 's', Name: 'Found Song', Type: 'Audio', Artists: ['X'] },
   { Id: 'al', Name: 'Found Album', Type: 'MusicAlbum' },
+  { Id: 'pl', Name: 'Found Playlist', Type: 'Playlist' },
 ];
 
 describe('SearchResults', () => {
@@ -26,6 +27,16 @@ describe('SearchResults', () => {
     );
     expect(screen.getByText('Found Song')).toBeInTheDocument();
     expect(screen.queryByText('Found Album')).not.toBeInTheDocument();
+  });
+
+  it('navigates to a playlist result and records the tap', async () => {
+    const onPick = vi.fn();
+    renderWithProviders(
+      <SearchResults groups={groupResults(items)} filter="playlists" onPick={onPick} />,
+    );
+    expect(screen.queryByText('Found Song')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByText('Found Playlist'));
+    expect(onPick).toHaveBeenCalledWith(items[2]);
   });
 
   it('records a tap as recent when a song is played', async () => {

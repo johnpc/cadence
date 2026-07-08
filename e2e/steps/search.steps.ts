@@ -31,6 +31,19 @@ Then('I do not see the Albums section', async ({ page }) => {
   await expect(page.getByTestId('search-results').getByText('Albums')).toHaveCount(0);
 });
 
+Then('I see playlist results', async ({ page }) => {
+  const rows = page.getByTestId('search-playlists').getByTestId('result-row');
+  await expect(rows.first()).toBeAttached({ timeout: 15_000 });
+});
+
+When('I open the first playlist result', async ({ page }) => {
+  await page
+    .getByTestId('search-playlists')
+    .getByTestId('result-row')
+    .first()
+    .click({ force: true });
+});
+
 Then('I see the no-results state', async ({ page }) => {
   await expect(page.getByTestId('load-empty')).toBeVisible();
 });
