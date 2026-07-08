@@ -18,6 +18,7 @@ export function CardShelf({
   onPlay,
   onPlayNow,
   round = false,
+  seeAllHref,
 }: {
   title: string;
   items: JellyfinItem[];
@@ -25,6 +26,7 @@ export function CardShelf({
   onPlay: (item: JellyfinItem, index: number) => void;
   onPlayNow?: (item: JellyfinItem, index: number) => void;
   round?: boolean;
+  seeAllHref?: string;
 }) {
   return (
     <Shelf
@@ -33,6 +35,7 @@ export function CardShelf({
       isError={state.isError}
       onRetry={() => void state.refetch()}
       isEmpty={items.length === 0}
+      seeAllHref={seeAllHref}
     >
       {items.map((item, index) => (
         <AlbumCard

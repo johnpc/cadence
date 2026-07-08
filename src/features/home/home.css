@@ -6,8 +6,31 @@
   margin-bottom: var(--cad-space-8);
 }
 
+.shelf__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--cad-space-3);
+}
+
 .shelf__title {
-  margin: 0 0 var(--cad-space-3);
+  margin: 0;
+}
+
+.shelf__see-all {
+  flex: 0 0 auto;
+  font-family: var(--cad-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cad-text-secondary);
+  text-decoration: none;
+}
+
+.shelf__see-all:hover {
+  color: var(--cad-text);
+  text-decoration: underline;
 }
 
 .shelf__row {

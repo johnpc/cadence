@@ -19,3 +19,10 @@ Feature: Home recommendations
     Then I see a "Made for you" mix
     When I play the first mix
     Then the Now-Playing bar shows a track
+
+  Scenario: Playing a track then opening the full Recently played history
+    Given I am signed in
+    When I tap a track from search
+    And I open the Home tab
+    And I open the full play history
+    Then I see the play history list

@@ -39,6 +39,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
           title="Recently played"
           items={recent.songs}
           state={recent}
+          seeAllHref="/history"
           onPlay={(_i, index) => playQueue(recent.songs, index)}
           onPlayNow={(_i, index) => playQueue(recent.songs, index)}
         />
