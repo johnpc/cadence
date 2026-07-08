@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -57,6 +57,13 @@ describe('NowPlayingBar', () => {
     renderBar(ctx({ current: song, position: 30, duration: 120 }));
     const fill = screen.getByTestId('now-playing-progress').querySelector('.npbar__progress-fill');
     expect((fill as HTMLElement).style.width).toBe('25%');
+  });
+
+  it('seeks when the progress bar is scrubbed', () => {
+    const seek = vi.fn();
+    renderBar(ctx({ current: song, position: 30, duration: 120, seek }));
+    fireEvent.change(screen.getByTestId('now-playing-seek'), { target: { value: '90' } });
+    expect(seek).toHaveBeenCalledWith(90);
   });
 
   it('exposes desktop extras: mute toggles volume to 0 and back', async () => {

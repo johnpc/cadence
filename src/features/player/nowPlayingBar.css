@@ -28,6 +28,20 @@
   transition: width 0.25s linear;
 }
 
+/* Transparent range overlaid on the progress line for click/drag seeking, with
+ * a taller invisible hit area so it's easy to grab. */
+.npbar__seek {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  width: 100%;
+  height: 16px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
 .npbar__open {
   display: flex;
   align-items: center;
