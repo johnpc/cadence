@@ -55,11 +55,36 @@ stores nothing of its own except your session token and your theme choice (on-de
 or creating a playlist writes straight to Jellyfin — so it shows up in every other Jellyfin client
 too.
 
-## Deployment
+## Self-hosting
 
-Cadence is **live at [cadence.jpc.io](https://cadence.jpc.io)** — a small nginx container (`deploy/`)
-running on the homelab via Dockge, fronted by cloudflared. Install it as a PWA from the browser, or
-grab the iOS build from TestFlight (once live).
+Cadence works with **any** Jellyfin server — run it yourself in one command:
+
+```bash
+docker run -d -p 8095:80 mrorbitman/cadence:latest
+# or, with the compose file in this repo:
+docker compose up -d
+```
+
+Open **http://localhost:8095**, and on the sign-in screen enter your **Jellyfin server address**
+(e.g. `https://jellyfin.example.com`) along with your Jellyfin username and password. The server
+address is remembered on that device — the image itself is server-agnostic, so nothing about your
+setup is baked in.
+
+Notes:
+
+- The image is multi-arch (`linux/amd64` + `linux/arm64`), so it runs on x86 boxes, a Raspberry Pi,
+  or an ARM NAS.
+- The browser talks to your Jellyfin server **directly**. For remote access, put Cadence behind your
+  own HTTPS reverse proxy (Caddy, nginx, Traefik, cloudflared…), and make sure your Jellyfin server
+  is reachable from the browser and sends permissive CORS headers.
+- Installable as a PWA from the browser once loaded.
+
+## Deployment (maintainer)
+
+The hosted instance is **live at [cadence.jpc.io](https://cadence.jpc.io)** — a small nginx container
+(`deploy/`) running on the homelab via Dockge, fronted by cloudflared, with `cadence.jpc.io` prefilled
+as the default server. Images are published to Docker Hub by CI (`.github/workflows/docker-publish.yml`)
+on every push to `main` (`latest`) and on version tags (`vX.Y.Z`).
 
 ## Develop
 

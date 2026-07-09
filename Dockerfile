@@ -6,8 +6,11 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-# The Jellyfin base URL is baked in at build time (one server, never varies).
-ARG VITE_JELLYFIN_URL=https://jellyfin.jpc.io
+# Optional build-time default Jellyfin URL. EMPTY by default so the public image
+# is server-agnostic — each self-hoster enters their server at sign-in (see
+# serverUrlStore). The maintainer's deploy (deploy/compose.yaml) passes its own
+# URL as this build-arg to prefill the field for cadence.jpc.io users.
+ARG VITE_JELLYFIN_URL=
 ENV VITE_JELLYFIN_URL=$VITE_JELLYFIN_URL
 RUN npm run build
 

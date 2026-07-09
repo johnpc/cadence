@@ -1,0 +1,19 @@
+# Self-host Cadence — a Spotify-like web client for YOUR Jellyfin server.
+#
+#   docker compose up -d
+#
+# Then open http://localhost:8095 and, on the sign-in screen, enter your
+# Jellyfin server address (e.g. https://jellyfin.example.com) plus your Jellyfin
+# username and password. The server address is remembered on the device.
+#
+# The image is server-agnostic — nothing about your server is baked in. Put it
+# behind your own HTTPS reverse proxy (Caddy, nginx, Traefik, cloudflared…) for
+# remote access; the browser talks to Jellyfin directly, so your Jellyfin server
+# must be reachable from the browser and send permissive CORS headers.
+services:
+  cadence:
+    image: mrorbitman/cadence:latest
+    container_name: cadence
+    ports:
+      - '8095:80'
+    restart: unless-stopped
