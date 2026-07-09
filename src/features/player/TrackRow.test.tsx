@@ -20,6 +20,17 @@ it('plays the queue starting at the tapped track', async () => {
   expect(playQueue).toHaveBeenCalledWith(tracks, 1);
 });
 
+it('toggles playback (does not restart) when the current row is tapped', async () => {
+  const playQueue = vi.fn();
+  const toggle = vi.fn();
+  renderWithProviders(<TrackRow track={tracks[0]} queue={tracks} index={0} />, {
+    player: stubPlayer({ current: tracks[0], isPlaying: true, playQueue, toggle }),
+  });
+  await userEvent.click(screen.getByTestId('track-row-play'));
+  expect(toggle).toHaveBeenCalled();
+  expect(playQueue).not.toHaveBeenCalled();
+});
+
 it('marks the currently-playing track', () => {
   renderWithProviders(<TrackRow track={tracks[0]} queue={tracks} index={0} />, {
     player: stubPlayer({ current: tracks[0], isPlaying: true }),
