@@ -22,3 +22,9 @@ Feature: Sign in with a Jellyfin account
     Given I open the app signed out
     When I sign in by pressing Enter in the password field
     Then I land on the Home tab
+
+  Scenario: The sign-in screen offers a configurable server address
+    Given I open the app signed out
+    Then I see a server address field prefilled with a server
+    When I sign in with the test user's credentials
+    Then I land on the Home tab
