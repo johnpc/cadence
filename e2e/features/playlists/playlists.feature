@@ -10,6 +10,14 @@ Feature: Playlists
     When I play the playlist
     Then the Now-Playing bar shows a track
 
+  Scenario: A playlist can be renamed
+    Given I am signed in
+    When I open the Library tab
+    And I open the first playlist
+    Then I see the playlist tracks
+    When I open the rename prompt
+    Then I see the rename prompt prefilled with the playlist name
+
   Scenario: The playlist play button pauses in place once it is playing
     Given I am signed in
     When I open the Library tab

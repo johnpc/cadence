@@ -19,7 +19,9 @@ export function PlaylistHeader({
       <GradientHeader item={playlist}>
         <div className="playlist__header">
           <TrackArt item={playlist} size={160} />
-          <h1 className="playlist__title cad-headline">{playlist?.Name ?? 'Playlist'}</h1>
+          <h1 className="playlist__title cad-headline" data-testid="playlist-title">
+            {playlist?.Name ?? 'Playlist'}
+          </h1>
           {playlist?.Overview && (
             <p className="playlist__desc cad-meta" data-testid="playlist-desc">
               {playlist.Overview}

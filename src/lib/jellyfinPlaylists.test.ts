@@ -8,6 +8,7 @@ import {
   getPlaylists,
   movePlaylistItem,
   removeFromPlaylist,
+  renamePlaylist,
 } from './jellyfinPlaylists';
 import { setSession } from './sessionStore';
 
@@ -102,5 +103,15 @@ describe('jellyfinPlaylists', () => {
     const [url, init] = f.mock.calls[0];
     expect(url).toContain('/Items/pl1');
     expect(init.method).toBe('DELETE');
+  });
+
+  it('renamePlaylist POSTs the new name to the UpdatePlaylist endpoint', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stub(undefined, 204);
+    await renamePlaylist('pl1', 'New Name');
+    const [url, init] = f.mock.calls[0];
+    expect(url).toContain('/Playlists/pl1');
+    expect(init.method).toBe('POST');
+    expect(init.body).toContain('New Name');
   });
 });

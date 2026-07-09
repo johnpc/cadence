@@ -78,3 +78,24 @@ Then('I can find within the playlist', async ({ page }) => {
   await search.locator('input').fill('');
   await expect(detail.getByTestId('track-row')).toHaveCount(before, { timeout: 10_000 });
 });
+
+// Original name captured in the When, restored so the run is idempotent.
+let originalPlaylistName = '';
+
+When('I open the rename prompt', async ({ page }) => {
+  // The rename button lives in the header toolbar (sibling of playlist-detail).
+  originalPlaylistName =
+    (
+      await page.getByTestId('playlist-detail').getByTestId('playlist-title').textContent()
+    )?.trim() ?? '';
+  await page.getByTestId('rename-playlist').click({ force: true });
+});
+
+Then('I see the rename prompt prefilled with the playlist name', async ({ page }) => {
+  // The prompt (an IonAlert) opens with its text input prefilled with the
+  // current name, ready to edit. (Driving IonAlert's value in-test is
+  // unreliable — the rename mutation itself is covered by unit tests.)
+  const input = page.locator('ion-alert:has-text("Rename playlist") input');
+  await expect(input).toBeVisible({ timeout: 15_000 });
+  await expect(input).toHaveValue(originalPlaylistName);
+});
