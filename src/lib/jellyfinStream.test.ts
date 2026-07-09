@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { audioStreamUrl, imageUrl } from './jellyfinStream';
 import { setSession } from './sessionStore';
-import { JELLYFIN_URL } from './jellyfinConfig';
+import { getServerUrl } from './serverUrlStore';
 import type { JellyfinItem } from './jellyfinTypes';
 
 describe('jellyfinStream', () => {
@@ -10,7 +10,7 @@ describe('jellyfinStream', () => {
   it('builds an audio stream URL carrying the session token + user', () => {
     setSession({ token: 'tok', userId: 'uid' });
     const url = audioStreamUrl('song1');
-    expect(url.startsWith(`${JELLYFIN_URL}/Audio/song1/universal?`)).toBe(true);
+    expect(url.startsWith(`${getServerUrl()}/Audio/song1/universal?`)).toBe(true);
     expect(url).toContain('api_key=tok');
     expect(url).toContain('UserId=uid');
   });

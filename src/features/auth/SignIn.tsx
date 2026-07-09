@@ -22,6 +22,15 @@ export function SignIn() {
           <h1 className="auth__title cad-h1">Cadence</h1>
           <p className="auth__subtext cad-body">Sign in with your Jellyfin account.</p>
           <AuthField
+            label="Server"
+            type="url"
+            inputMode="url"
+            autoComplete="url"
+            value={f.server}
+            onChange={f.setServer}
+            testId="signin-server"
+          />
+          <AuthField
             label="Username"
             type="text"
             inputMode="text"

@@ -1,11 +1,10 @@
 /**
- * Jellyfin connection config: the base URL (a build-time constant — one server,
- * never varies per deploy) and the auth header builders. See ADR in CLAUDE.md.
+ * Jellyfin connection config: the runtime base URL (chosen at sign-in — see
+ * serverUrlStore; VITE_JELLYFIN_URL is only the initial default) and the auth
+ * header builders.
  */
 import { deviceId } from './deviceId';
-
-/** Trailing-slash-free base URL of the Jellyfin server. */
-export const JELLYFIN_URL: string = (import.meta.env.VITE_JELLYFIN_URL || '').replace(/\/$/, '');
+import { getServerUrl } from './serverUrlStore';
 
 const CLIENT = 'Cadence';
 const VERSION = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '0.0.0';
@@ -26,7 +25,8 @@ export function embyAuthHeader(token?: string): string {
   return `MediaBrowser ${parts.join(', ')}`;
 }
 
-/** Absolute URL for an API path (path must start with '/'). */
+/** Absolute URL for an API path (path must start with '/'), against the active
+ * (runtime-configured) server. */
 export function apiUrl(path: string): string {
-  return `${JELLYFIN_URL}${path}`;
+  return `${getServerUrl()}${path}`;
 }
