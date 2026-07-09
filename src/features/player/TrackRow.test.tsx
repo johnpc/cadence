@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import { TrackRow } from './TrackRow';
+import { getPlayContext, setPlayContext } from './playContext';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -18,6 +19,34 @@ it('plays the queue starting at the tapped track', async () => {
   expect(screen.getByText('Second')).toBeInTheDocument();
   await userEvent.click(screen.getByTestId('track-row-play'));
   expect(playQueue).toHaveBeenCalledWith(tracks, 1);
+});
+
+it('records the "Playing from" context when a row with a context is played', async () => {
+  setPlayContext(null);
+  renderWithProviders(
+    <TrackRow
+      track={tracks[1]}
+      queue={tracks}
+      index={1}
+      context={{ kind: 'album', label: 'Ren' }}
+    />,
+    { player: stubPlayer({ playQueue: vi.fn() }) },
+  );
+  await userEvent.click(screen.getByTestId('track-row-play'));
+  const ctx = getPlayContext();
+  expect(ctx?.kind).toBe('album');
+  expect(ctx?.label).toBe('Ren');
+  expect([...(ctx?.trackIds ?? [])]).toEqual(['a', 'b']);
+  setPlayContext(null);
+});
+
+it('leaves the context untouched when a row has no context (e.g. search)', async () => {
+  setPlayContext(null);
+  renderWithProviders(<TrackRow track={tracks[1]} queue={tracks} index={1} />, {
+    player: stubPlayer({ playQueue: vi.fn() }),
+  });
+  await userEvent.click(screen.getByTestId('track-row-play'));
+  expect(getPlayContext()).toBeNull();
 });
 
 it('toggles playback (does not restart) when the current row is tapped', async () => {

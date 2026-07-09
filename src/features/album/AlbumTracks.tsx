@@ -6,13 +6,21 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * Spotify-style "Disc N" headers; single-disc albums render a flat list. Every
  * row plays the whole album as its queue — the disc grouping is display-only,
  * so `index` stays the track's position in the flat album, not within its disc. */
-export function AlbumTracks({ tracks }: { tracks: JellyfinItem[] }) {
+export function AlbumTracks({ tracks, albumName }: { tracks: JellyfinItem[]; albumName?: string }) {
+  const ctx = { kind: 'album', label: albumName ?? 'Album' };
   const discs = groupByDisc(tracks);
   if (!isMultiDisc(discs)) {
     return (
       <>
         {tracks.map((track, index) => (
-          <TrackRow key={track.Id} track={track} queue={tracks} index={index} showNumber />
+          <TrackRow
+            key={track.Id}
+            track={track}
+            queue={tracks}
+            index={index}
+            showNumber
+            context={ctx}
+          />
         ))}
       </>
     );
@@ -25,7 +33,14 @@ export function AlbumTracks({ tracks }: { tracks: JellyfinItem[] }) {
             Disc {disc.disc}
           </h2>
           {disc.tracks.map(({ track, index }) => (
-            <TrackRow key={track.Id} track={track} queue={tracks} index={index} showNumber />
+            <TrackRow
+              key={track.Id}
+              track={track}
+              queue={tracks}
+              index={index}
+              showNumber
+              context={ctx}
+            />
           ))}
         </div>
       ))}

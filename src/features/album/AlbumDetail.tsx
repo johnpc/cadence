@@ -45,7 +45,7 @@ export function AlbumDetail() {
             emptyMessage="This album's songs aren't available on your server."
             skeleton={<TrackListSkeleton />}
           >
-            <AlbumTracks tracks={tracks} />
+            <AlbumTracks tracks={tracks} albumName={album?.Name} />
           </LoadState>
           {album?.Overview && (
             <section data-testid="album-about">

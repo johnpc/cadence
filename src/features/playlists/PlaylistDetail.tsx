@@ -50,7 +50,7 @@ export function PlaylistDetail() {
         >
           <div data-testid="playlist-detail">
             <PlaylistHeader playlist={playlist} tracks={tracks} />
-            <PlaylistTracks playlistId={id} tracks={tracks} />
+            <PlaylistTracks playlistId={id} playlistName={playlist?.Name} tracks={tracks} />
             <RecommendedSongs playlistId={id} tracks={tracks} />
           </div>
         </LoadState>

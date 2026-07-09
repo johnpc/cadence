@@ -43,7 +43,7 @@ export function ArtistDetail() {
           topTracks={topTracks}
           onRadio={() => artist && void playItem(artist)}
         />
-        <ArtistPopular tracks={topTracks} />
+        <ArtistPopular tracks={topTracks} artistName={artist?.Name} />
         <h2 className="cad-kicker artist__section">Albums</h2>
         <LoadState
           isLoading={isLoading}

@@ -11,11 +11,14 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * back to the real playlist); remove stays valid (keyed by PlaylistItemId). */
 export function PlaylistTracks({
   playlistId,
+  playlistName,
   tracks,
 }: {
   playlistId: string;
+  playlistName?: string;
   tracks: JellyfinItem[];
 }) {
+  const ctx = { kind: 'playlist', label: playlistName ?? 'Playlist' };
   const [query, setQuery] = useState('');
   const remove = useRemoveFromPlaylist(playlistId);
   const move = useMovePlaylistItem(playlistId);
@@ -48,6 +51,7 @@ export function PlaylistTracks({
             track={track}
             queue={shown}
             index={shown.indexOf(track)}
+            context={ctx}
             onRemove={
               track.PlaylistItemId ? () => remove.mutate(track.PlaylistItemId as string) : undefined
             }
