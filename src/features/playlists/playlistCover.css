@@ -1,0 +1,16 @@
+.pl-mosaic {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  border-radius: var(--cad-radius-thumb);
+  overflow: hidden;
+  background: var(--cad-hatch);
+}
+
+.pl-mosaic__tile {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
