@@ -32,6 +32,22 @@ Then('I do not see the Albums section', async ({ page }) => {
   await expect(page.getByTestId('search-results').getByText('Albums')).toHaveCount(0);
 });
 
+// The Songs section is the only place track-row appears in search results
+// (albums/artists/playlists render result-row), so counting track-rows in the
+// results = the songs shown.
+Then('the songs section shows at most 4 results', async ({ page }) => {
+  const rows = page.getByTestId('search-results').getByTestId('track-row');
+  await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+  expect(await rows.count()).toBeLessThanOrEqual(4);
+});
+
+Then('the songs section shows more than 4 results', async ({ page }) => {
+  const rows = page.getByTestId('search-results').getByTestId('track-row');
+  await expect(async () => {
+    expect(await rows.count()).toBeGreaterThan(4);
+  }).toPass({ timeout: 15_000 });
+});
+
 Then('I see playlist results', async ({ page }) => {
   const rows = page.getByTestId('search-playlists').getByTestId('result-row');
   await expect(rows.first()).toBeAttached({ timeout: 15_000 });
