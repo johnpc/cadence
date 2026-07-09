@@ -4,6 +4,8 @@ import { ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { usePlaylists, useAddToPlaylist } from '../playlists/playlistsApi';
 import { useCreatePlaylistWithItems } from '../playlists/playlistCreate';
+import { usePlayItem } from './usePlayItem';
+import { nowPlayingMenuButtons } from './nowPlayingMenuButtons';
 import { useToast } from '../toast/useToast';
 import { copyShareLink } from '../share/shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -24,36 +26,30 @@ export function NowPlayingMenu({
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
   const createWith = useCreatePlaylistWithItems();
+  const playItem = usePlayItem();
   const toast = useToast();
   const go = (path: string) => {
     history.push(path);
     onNavigate();
   };
-  const artist = track.ArtistItems?.[0];
-  const buttons = [
-    { text: 'Go to song', handler: () => go(`/song/${track.Id}`) },
-    ...(track.AlbumId
-      ? [{ text: 'Go to album', handler: () => go(`/album/${track.AlbumId}`) }]
-      : []),
-    ...(artist ? [{ text: 'Go to artist', handler: () => go(`/artist/${artist.Id}`) }] : []),
-    {
-      text: 'Copy link',
-      handler: () => {
-        void copyShareLink(track, window.location.origin).then((ok) =>
-          toast(ok ? 'Link copied' : 'Could not copy link'),
-        );
-      },
+  const buttons = nowPlayingMenuButtons(track, playlists, {
+    goToSong: () => go(`/song/${track.Id}`),
+    startRadio: () => {
+      void playItem(track);
+      toast('Starting radio');
     },
-    { text: 'New playlist…', handler: () => setNewOpen(true) },
-    ...playlists.map((pl) => ({
-      text: `Add to ${pl.Name}`,
-      handler: () => {
-        add.mutate({ playlistId: pl.Id, itemId: track.Id });
-        toast(`Added to ${pl.Name}`);
-      },
-    })),
-    { text: 'Cancel', role: 'cancel' as const },
-  ];
+    goToAlbum: () => go(`/album/${track.AlbumId}`),
+    goToArtist: () => go(`/artist/${track.ArtistItems?.[0]?.Id}`),
+    copyLink: () =>
+      void copyShareLink(track, window.location.origin).then((ok) =>
+        toast(ok ? 'Link copied' : 'Could not copy link'),
+      ),
+    newPlaylist: () => setNewOpen(true),
+    addTo: (pl) => {
+      add.mutate({ playlistId: pl.Id, itemId: track.Id });
+      toast(`Added to ${pl.Name}`);
+    },
+  });
   return (
     <>
       <button

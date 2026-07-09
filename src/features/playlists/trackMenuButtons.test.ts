@@ -5,6 +5,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 const actions = (): TrackMenuActions => ({
   playNext: vi.fn(),
   addToQueue: vi.fn(),
+  startRadio: vi.fn(),
   goToAlbum: vi.fn(),
   goToArtist: vi.fn(),
   copyLink: vi.fn(),
@@ -16,9 +17,23 @@ const labels = (track: JellyfinItem, playlists: JellyfinItem[]) =>
   trackMenuButtons(track, playlists, actions()).map((b) => b.text);
 
 describe('trackMenuButtons', () => {
-  it('always offers play/queue, copy link, New playlist…, and Cancel', () => {
+  it('always offers play/queue, radio, copy link, New playlist…, and Cancel', () => {
     const l = labels({ Id: 't', Name: 'x', Type: 'Audio' }, []);
-    expect(l).toEqual(['Play next', 'Add to queue', 'Copy link', 'New playlist…', 'Cancel']);
+    expect(l).toEqual([
+      'Play next',
+      'Add to queue',
+      'Go to song radio',
+      'Copy link',
+      'New playlist…',
+      'Cancel',
+    ]);
+  });
+
+  it('routes Go to song radio to startRadio', () => {
+    const a = actions();
+    const btns = trackMenuButtons({ Id: 't', Name: 'x', Type: 'Audio' }, [], a);
+    btns.find((b) => b.text === 'Go to song radio')?.handler?.();
+    expect(a.startRadio).toHaveBeenCalledOnce();
   });
 
   it('includes Go to album/artist only when the track has them', () => {

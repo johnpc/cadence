@@ -10,6 +10,7 @@ vi.mock('../playlists/playlistsApi', () => ({
 vi.mock('../playlists/playlistCreate', () => ({
   useCreatePlaylistWithItems: () => ({ mutate: vi.fn() }),
 }));
+vi.mock('./usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
 import { NowPlayingMenu } from './NowPlayingMenu';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
