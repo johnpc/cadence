@@ -17,6 +17,7 @@ export function CardShelf({
   state,
   onOpen,
   onPlay,
+  onPrefetch,
   round = false,
   seeAllHref,
 }: {
@@ -25,6 +26,7 @@ export function CardShelf({
   state: ShelfData;
   onOpen: (item: JellyfinItem, index: number) => void;
   onPlay: (item: JellyfinItem, index: number) => void;
+  onPrefetch?: (item: JellyfinItem) => void;
   round?: boolean;
   seeAllHref?: string;
 }) {
@@ -43,6 +45,7 @@ export function CardShelf({
           item={item}
           onOpen={() => onOpen(item, index)}
           onPlay={() => onPlay(item, index)}
+          onPrefetch={onPrefetch}
           round={round}
         />
       ))}

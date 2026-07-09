@@ -31,4 +31,11 @@ describe('AlbumCard', () => {
     expect(onPlay).toHaveBeenCalledWith(album);
     expect(onOpen).not.toHaveBeenCalled();
   });
+
+  it('prefetches the detail page on hover', async () => {
+    const onPrefetch = vi.fn();
+    render(<AlbumCard item={album} onOpen={vi.fn()} onPlay={vi.fn()} onPrefetch={onPrefetch} />);
+    await userEvent.hover(screen.getByTestId('album-card'));
+    expect(onPrefetch).toHaveBeenCalledWith(album);
+  });
 });
