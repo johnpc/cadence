@@ -33,7 +33,12 @@ const testDir = defineBddConfig({
 export default defineConfig({
   testDir,
   fullyParallel: true,
-  workers: 4,
+  // In CI, run scenarios within an area SERIALLY (workers: 1). Every scenario
+  // signs in and reads/writes the SAME self-hosted Jellyfin; with 4 workers ×
+  // 3 parallel area jobs that was ~12 concurrent sign-in storms hammering one
+  // server — the root of the acceptance "flakes". Serial per area + the
+  // max-parallel:3 cap keeps peak load gentle. Locally, 4 workers for speed.
+  workers: process.env.CI ? 1 : 4,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
