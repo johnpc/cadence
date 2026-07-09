@@ -1,12 +1,30 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinItems', () => ({
   getFavoriteSongs: vi.fn(),
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
 }));
+
+// jsdom lacks IntersectionObserver (used by the progressive list); stub a no-op.
+beforeEach(() => {
+  vi.stubGlobal(
+    'IntersectionObserver',
+    class {
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+      takeRecords() {
+        return [];
+      }
+      root = null;
+      rootMargin = '';
+      thresholds = [];
+    },
+  );
+});
 import { getFavoriteSongs } from '../../lib/jellyfinItems';
 import { LikedSongs } from './LikedSongs';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
@@ -20,6 +38,7 @@ const songs: JellyfinItem[] = [
 describe('LikedSongs', () => {
   afterEach(() => {
     vi.resetAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('renders the liked songs', async () => {
@@ -70,5 +89,19 @@ describe('LikedSongs', () => {
     bar.dispatchEvent(new CustomEvent('ionInput', { detail: { value: 'bohemian' } }));
     await waitFor(() => expect(screen.getByText('Bohemian Rhapsody')).toBeInTheDocument());
     expect(screen.queryByText('Filler 5')).not.toBeInTheDocument();
+  });
+
+  it('virtualizes a large liked-songs list — a window + a load-more sentinel', async () => {
+    const many: JellyfinItem[] = Array.from({ length: 120 }, (_, i) => ({
+      Id: String(i),
+      Name: `Song ${i}`,
+      Type: 'Audio',
+    }));
+    vi.mocked(getFavoriteSongs).mockResolvedValue(many);
+    renderWithProviders(<LikedSongs />);
+    await waitFor(() => expect(screen.getByTestId('liked-songs')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByTestId('track-row').length).toBeGreaterThan(0));
+    expect(screen.getAllByTestId('track-row').length).toBeLessThan(120);
+    expect(screen.getByTestId('liked-load-more')).toBeInTheDocument();
   });
 });

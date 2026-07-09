@@ -2,7 +2,7 @@ import { IonSearchbar } from '@ionic/react';
 import { useState } from 'react';
 import { TrackRow } from '../player/TrackRow';
 import { filterTracks } from './filterTracks';
-import { useProgressiveList } from './useProgressiveList';
+import { useProgressiveList } from '../../lib/useProgressiveList';
 import { useRemoveFromPlaylist, useMovePlaylistItem } from './playlistsApi';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 

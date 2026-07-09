@@ -7,6 +7,7 @@ import { collectionSummary } from '../player/playerFormat';
 import { LikedSongsControls } from './LikedSongsControls';
 import { sortLikedSongs, type LikedSort } from './sortLikedSongs';
 import { filterTracks } from '../playlists/filterTracks';
+import { useProgressiveList } from '../../lib/useProgressiveList';
 import { useLikedSongs } from './libraryApi';
 import './likedSongs.css';
 
@@ -22,6 +23,8 @@ export function LikedSongs() {
     () => filterTracks(sortLikedSongs(songs, sort), query),
     [songs, sort, query],
   );
+  // Render a growing window so a large Liked Songs list paints fast.
+  const { limit, sentinelRef, hasMore } = useProgressiveList(shown.length);
 
   return (
     <LoadState
@@ -46,9 +49,10 @@ export function LikedSongs() {
         {songs.length > 8 && (
           <LikedSongsControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />
         )}
-        {shown.map((track, index) => (
+        {shown.slice(0, limit).map((track, index) => (
           <TrackRow key={track.Id} track={track} queue={shown} index={index} />
         ))}
+        {hasMore && <div ref={sentinelRef} data-testid="liked-load-more" aria-hidden="true" />}
         {query.trim() && shown.length === 0 && (
           <p className="cad-meta" data-testid="liked-no-matches">
             No liked songs match “{query}”.
