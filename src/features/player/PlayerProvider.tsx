@@ -48,15 +48,22 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // Sleep timer: pause when it elapses.
   const { sleepMinutes, armSleep } = useSleepTimer(pause);
 
-  usePlayerIntegrations(current, isPlaying, {
-    toggle,
-    next: qh.next,
-    prev: qh.prev,
-    nudgeVolume,
-    toggleMute,
-    toggleShuffle: qh.toggleShuffle,
-    cycleRepeat: qh.cycleRepeat,
-  });
+  usePlayerIntegrations(
+    current,
+    isPlaying,
+    {
+      toggle,
+      next: qh.next,
+      prev: qh.prev,
+      seek,
+      nudgeVolume,
+      toggleMute,
+      toggleShuffle: qh.toggleShuffle,
+      cycleRepeat: qh.cycleRepeat,
+    },
+    position,
+    duration,
+  );
 
   // The main value excludes the fast-changing position/duration (those live in
   // PlayerProgressContext), so it only changes on real state transitions —

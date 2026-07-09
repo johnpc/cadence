@@ -13,6 +13,8 @@ export interface MediaSessionHandlers {
   pause: () => void;
   next: () => void;
   prev: () => void;
+  /** Seek to an absolute position in seconds (lock-screen scrubber). */
+  seek: (seconds: number) => void;
 }
 
 /** Publish the current track's metadata to the OS now-playing UI. */
@@ -37,11 +39,42 @@ export function setPlaybackState(isPlaying: boolean): void {
   navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
 }
 
-/** Bind the OS transport buttons to the player's actions (idempotent). */
+const SEEK_STEP = 10; // seconds, for the ±skip lock-screen buttons
+
+/** Bind the OS transport buttons to the player's actions (idempotent), incl.
+ * absolute seek + ±10s skip for the lock-screen/Control-Center scrubber. A
+ * handler set to null (unsupported action) is ignored by the OS. */
 export function bindMediaSessionHandlers(h: MediaSessionHandlers): void {
   if (!('mediaSession' in navigator)) return;
-  navigator.mediaSession.setActionHandler('play', h.play);
-  navigator.mediaSession.setActionHandler('pause', h.pause);
-  navigator.mediaSession.setActionHandler('nexttrack', h.next);
-  navigator.mediaSession.setActionHandler('previoustrack', h.prev);
+  const ms = navigator.mediaSession;
+  ms.setActionHandler('play', h.play);
+  ms.setActionHandler('pause', h.pause);
+  ms.setActionHandler('nexttrack', h.next);
+  ms.setActionHandler('previoustrack', h.prev);
+  ms.setActionHandler('seekto', (e) => {
+    if (typeof e.seekTime === 'number') h.seek(e.seekTime);
+  });
+  ms.setActionHandler('seekbackward', (e) => h.seek(current() - (e.seekOffset || SEEK_STEP)));
+  ms.setActionHandler('seekforward', (e) => h.seek(current() + (e.seekOffset || SEEK_STEP)));
+}
+
+// The player's live position, updated by setPositionState so the relative
+// ±skip handlers seek from the right place.
+let current = () => 0;
+
+/** Publish playback position/duration to the OS so the lock screen shows an
+ * accurate, scrubbable progress bar. Guards against the invalid states the API
+ * rejects (non-finite, position > duration). */
+export function setPositionState(position: number, duration: number): void {
+  if (!('mediaSession' in navigator) || !navigator.mediaSession.setPositionState) return;
+  current = () => position;
+  if (!Number.isFinite(duration) || duration <= 0) return;
+  try {
+    navigator.mediaSession.setPositionState({
+      duration,
+      position: Math.min(Math.max(position, 0), duration),
+    });
+  } catch {
+    // Some engines throw on transient bad values — ignore; next tick recovers.
+  }
 }
