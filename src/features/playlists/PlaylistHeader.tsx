@@ -1,4 +1,4 @@
-import { TrackArt } from '../player/TrackArt';
+import { PlaylistCover } from './PlaylistCover';
 import { CollectionActions } from '../player/CollectionActions';
 import { ShareButton } from '../share/ShareButton';
 import { GradientHeader } from '../color/GradientHeader';
@@ -18,7 +18,7 @@ export function PlaylistHeader({
     <>
       <GradientHeader item={playlist}>
         <div className="playlist__header">
-          <TrackArt item={playlist} size={160} />
+          <PlaylistCover playlist={playlist} tracks={tracks} size={160} />
           <h1 className="playlist__title cad-headline" data-testid="playlist-title">
             {playlist?.Name ?? 'Playlist'}
           </h1>
