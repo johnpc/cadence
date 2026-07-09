@@ -102,3 +102,15 @@ Then('I see the search placeholder', async ({ page }) => {
   await expect(page.getByTestId('search-input')).toBeVisible();
   await expect(page.getByTestId('search-idle')).toBeVisible();
 });
+
+When('I collapse the sidebar', async ({ page }) => {
+  await page.getByTestId('sidebar-collapse').click();
+});
+
+Then('the sidebar is collapsed', async ({ page }) => {
+  await expect(page.getByTestId('sidebar-collapse')).toHaveAttribute('aria-expanded', 'false');
+});
+
+Then('the sidebar is expanded', async ({ page }) => {
+  await expect(page.getByTestId('sidebar-collapse')).toHaveAttribute('aria-expanded', 'true');
+});

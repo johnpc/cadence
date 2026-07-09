@@ -1,7 +1,8 @@
 import { IonIcon } from '@ionic/react';
-import { home, search, library } from 'ionicons/icons';
+import { home, search, library, chevronBack, chevronForward } from 'ionicons/icons';
 import { NavLink } from 'react-router-dom';
 import { LibraryList } from './LibraryList';
+import { useSidebarCollapsed } from './useSidebarCollapsed';
 import './desktopSidebar.css';
 
 const NAV = [
@@ -11,11 +12,25 @@ const NAV = [
 ];
 
 /** Spotify-style persistent left sidebar, shown only at desktop widths (CSS).
- * Top: primary nav. Below: the full Your Library list (filter pills + rows) so
- * playlists/albums/artists are always one click away. */
+ * Top: primary nav + a collapse toggle. Below: the full Your Library list.
+ * Collapsed, it becomes an icons-only rail so the main area gets more room. */
 export function DesktopSidebar() {
+  const { collapsed, toggle } = useSidebarCollapsed();
   return (
-    <aside className="sidebar" data-testid="desktop-sidebar">
+    <aside
+      className={collapsed ? 'sidebar sidebar--collapsed' : 'sidebar'}
+      data-testid="desktop-sidebar"
+    >
+      <button
+        type="button"
+        className="sidebar__collapse"
+        data-testid="sidebar-collapse"
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-expanded={!collapsed}
+        onClick={toggle}
+      >
+        <IonIcon icon={collapsed ? chevronForward : chevronBack} aria-hidden="true" />
+      </button>
       <nav className="sidebar__nav">
         {NAV.map((n) => (
           <NavLink
@@ -24,9 +39,10 @@ export function DesktopSidebar() {
             activeClassName="sidebar__link--on"
             to={n.to}
             data-testid={n.testid}
+            title={n.label}
           >
             <IonIcon icon={n.icon} aria-hidden="true" />
-            <span>{n.label}</span>
+            <span className="sidebar__label">{n.label}</span>
           </NavLink>
         ))}
       </nav>
