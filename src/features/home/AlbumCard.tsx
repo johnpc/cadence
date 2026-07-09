@@ -7,20 +7,29 @@ import './home.css';
 
 /** A card for a Home shelf. Tapping the card body `onOpen`s the item's detail
  * page; the green play FAB `onPlay`s it immediately without leaving the shelf
- * (Spotify-style). `round` = circular artist card. */
+ * (Spotify-style). Hovering/focusing calls `onPrefetch` (if given) to warm the
+ * detail page's queries so the click paints instantly. `round` = circular. */
 export function AlbumCard({
   item,
   onOpen,
   onPlay,
+  onPrefetch,
   round = false,
 }: {
   item: JellyfinItem;
   onOpen: (item: JellyfinItem) => void;
   onPlay: (item: JellyfinItem) => void;
+  onPrefetch?: (item: JellyfinItem) => void;
   round?: boolean;
 }) {
+  const prefetch = onPrefetch ? () => onPrefetch(item) : undefined;
   return (
-    <div className={round ? 'album-card album-card--round' : 'album-card'} data-testid="album-card">
+    <div
+      className={round ? 'album-card album-card--round' : 'album-card'}
+      data-testid="album-card"
+      onMouseEnter={prefetch}
+      onFocus={prefetch}
+    >
       <button
         type="button"
         className="album-card__hit"
