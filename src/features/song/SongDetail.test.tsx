@@ -31,7 +31,18 @@ const song: JellyfinItem = {
   AlbumId: 'al1',
   ArtistItems: [{ Id: 'ar1', Name: 'The Artist' }],
   RunTimeTicks: 1_800_000_000,
+  ProductionYear: 1985,
 };
+const album: JellyfinItem = { Id: 'al1', Name: 'The Album', Type: 'MusicAlbum' };
+const artist: JellyfinItem = { Id: 'ar1', Name: 'The Artist', Type: 'MusicArtist' };
+
+/** getItem serves the song, its album, and its artist by id — the page fetches
+ * all three to build the rich context cards. */
+function itemById(id: string): Promise<JellyfinItem> {
+  if (id === 'al1') return Promise.resolve(album);
+  if (id === 'ar1') return Promise.resolve(artist);
+  return Promise.resolve(song);
+}
 
 function renderSong(playQueue = vi.fn()) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -54,15 +65,41 @@ afterEach(() => {
 
 describe('SongDetail', () => {
   it('shows the title with linked artist and album', async () => {
-    vi.mocked(getItem).mockResolvedValue(song);
+    vi.mocked(getItem).mockImplementation(itemById);
     renderSong();
     expect(await screen.findByRole('heading', { name: 'A Song' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'The Artist' })).toHaveAttribute('href', '/artist/ar1');
-    expect(screen.getByRole('link', { name: 'The Album' })).toHaveAttribute('href', '/album/al1');
+    expect(screen.getByTestId('song-links').querySelector('a[href="/artist/ar1"]')).not.toBeNull();
+    expect(screen.getByTestId('song-links').querySelector('a[href="/album/al1"]')).not.toBeNull();
+  });
+
+  it('shows the year·duration meta line', async () => {
+    vi.mocked(getItem).mockImplementation(itemById);
+    renderSong();
+    await screen.findByRole('heading', { name: 'A Song' });
+    expect(screen.getByText('1985 · 3:00')).toBeInTheDocument();
+  });
+
+  it('shows rich album and artist context cards', async () => {
+    vi.mocked(getItem).mockImplementation(itemById);
+    renderSong();
+    await screen.findByRole('heading', { name: 'A Song' });
+    await waitFor(() =>
+      expect(screen.getByTestId('song-about-album')).toHaveAttribute('href', '/album/al1'),
+    );
+    expect(screen.getByTestId('song-about-artist')).toHaveAttribute('href', '/artist/ar1');
+  });
+
+  it('shows a skeleton while the song loads', async () => {
+    let resolve: (v: JellyfinItem) => void = () => {};
+    vi.mocked(getItem).mockReturnValue(new Promise<JellyfinItem>((r) => (resolve = r)));
+    renderSong();
+    expect(screen.getByTestId('song-skeleton')).toBeInTheDocument();
+    resolve(song);
+    await screen.findByRole('heading', { name: 'A Song' });
   });
 
   it('plays the song when the play button is tapped', async () => {
-    vi.mocked(getItem).mockResolvedValue(song);
+    vi.mocked(getItem).mockImplementation(itemById);
     const playQueue = vi.fn();
     renderSong(playQueue);
     await screen.findByRole('heading', { name: 'A Song' });
@@ -71,7 +108,7 @@ describe('SongDetail', () => {
   });
 
   it('starts song radio from the current track', async () => {
-    vi.mocked(getItem).mockResolvedValue(song);
+    vi.mocked(getItem).mockImplementation(itemById);
     vi.mocked(getInstantMix).mockResolvedValue([song]);
     renderSong();
     await screen.findByRole('heading', { name: 'A Song' });
@@ -80,7 +117,7 @@ describe('SongDetail', () => {
   });
 
   it('lists the playlists the song appears in', async () => {
-    vi.mocked(getItem).mockResolvedValue(song);
+    vi.mocked(getItem).mockImplementation(itemById);
     vi.mocked(getPlaylists).mockResolvedValue([{ Id: 'p1', Name: 'My Mix', Type: 'Playlist' }]);
     vi.mocked(getPlaylistItems).mockResolvedValue([song]);
     renderSong();

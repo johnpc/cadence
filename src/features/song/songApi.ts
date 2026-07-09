@@ -36,3 +36,27 @@ export function useSongPlaylists(songId: string) {
   });
   return { playlists: q.data ?? [] };
 }
+
+/** The full album item a track belongs to — for the rich "From the album" card
+ * (art + year + genres). Skipped when the track has no album id. */
+export function useSongAlbum(albumId: string | undefined) {
+  const q = useQuery({
+    queryKey: ['album', albumId],
+    queryFn: () => getItem(albumId as string),
+    enabled: !!albumId,
+    staleTime: 60_000,
+  });
+  return { album: q.data ?? null };
+}
+
+/** The primary artist item for a track — for the "About the artist" card
+ * (image + bio snippet). Skipped when the track credits no linkable artist. */
+export function useSongArtist(artistId: string | undefined) {
+  const q = useQuery({
+    queryKey: ['artist', artistId],
+    queryFn: () => getItem(artistId as string),
+    enabled: !!artistId,
+    staleTime: 60_000,
+  });
+  return { artist: q.data ?? null };
+}

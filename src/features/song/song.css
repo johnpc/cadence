@@ -62,6 +62,47 @@
   cursor: pointer;
 }
 
+.song__about {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-3);
+  margin-top: var(--cad-space-5);
+}
+
+.song-about__card {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-2);
+  border-radius: var(--cad-radius-card);
+  background: var(--cad-surface);
+  text-decoration: none;
+  color: var(--cad-text);
+}
+
+.song-about__card:hover {
+  background: var(--cad-surface-2);
+}
+
+.song-about__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.song-about__name {
+  font-family: var(--cad-font-sans);
+  font-weight: 600;
+}
+
+.song-about__body .cad-meta {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .song__section {
   margin: var(--cad-space-5) 0 var(--cad-space-2);
 }
