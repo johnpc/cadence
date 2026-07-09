@@ -2,10 +2,12 @@ import { useHistory } from 'react-router-dom';
 import { CardShelf } from './CardShelf';
 import { DailyMixShelf } from './DailyMixShelf';
 import { useLatestAlbums, useSuggestedSongs, useRecentlyPlayed } from './homeApi';
+import { useJumpBackIn } from './useJumpBackIn';
 import { useSavedAlbums, useFollowedArtists } from '../library/libraryApi';
 import { usePlayer } from '../player/usePlayer';
 import { usePlayItem } from '../player/usePlayItem';
 import { usePrefetchItem } from './usePrefetchItem';
+import { detailPath } from './itemPath';
 
 /** The Home recommendation shelves. Grouped here so Home.tsx stays a thin page
  * shell (and the refresher can refetch them all). */
@@ -15,11 +17,12 @@ export function useHomeShelves() {
   const saved = useSavedAlbums();
   const recent = useRecentlyPlayed();
   const artists = useFollowedArtists();
-  return { albums, suggested, saved, recent, artists };
+  const jumpBackIn = useJumpBackIn();
+  return { albums, suggested, saved, recent, artists, jumpBackIn };
 }
 
 export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShelves> }) {
-  const { albums, suggested, saved, recent, artists } = shelves;
+  const { albums, suggested, saved, recent, artists, jumpBackIn } = shelves;
   const { playQueue } = usePlayer();
   const playItem = usePlayItem();
   const prefetch = usePrefetchItem();
@@ -29,6 +32,16 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
   const openSong = (item: { Id: string }) => history.push(`/song/${item.Id}`);
   return (
     <div data-testid="home-shelves">
+      {jumpBackIn.items.length > 0 && (
+        <CardShelf
+          title="Jump back in"
+          items={jumpBackIn.items}
+          state={jumpBackIn}
+          onOpen={(item) => history.push(detailPath(item))}
+          onPlay={(item) => void playItem(item)}
+          onPrefetch={prefetch}
+        />
+      )}
       <CardShelf
         title="Recently added"
         items={albums.albums}

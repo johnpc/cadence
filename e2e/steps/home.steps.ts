@@ -9,6 +9,14 @@ When('I open the Home tab', async ({ page }) => {
   await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: 15_000 });
 });
 
+Then('I see a {string} shelf', async ({ page }, title: string) => {
+  // A recently-played collection surfaces a "Jump back in" shelf, with at least
+  // one card. Scope to the shelves container so the title match is unambiguous.
+  const shelves = page.getByTestId('home-shelves');
+  await expect(shelves.getByText(title, { exact: true })).toBeVisible({ timeout: 15_000 });
+  await expect(shelves.getByTestId('album-card').first()).toBeAttached({ timeout: 15_000 });
+});
+
 Then('I see a {string} mix', async ({ page }, label: string) => {
   // The "Made for you" shelf appears once the user follows ≥1 artist. Its
   // heading and at least one mix card resolve — never a hung spinner.
