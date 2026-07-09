@@ -1,11 +1,13 @@
 import { IonContent, IonPage } from '@ionic/react';
 import { AuthField } from './AuthField';
 import { useSignInForm } from './useSignInForm';
+import { signupUrl } from '../../lib/runtimeConfig';
 import './auth.css';
 
 /** Jellyfin username/password sign-in. */
 export function SignIn() {
   const f = useSignInForm();
+  const signup = signupUrl();
 
   return (
     <IonPage>
@@ -55,6 +57,19 @@ export function SignIn() {
           <button type="submit" className="auth__cta" disabled={f.busy} data-testid="signin-submit">
             {f.busy ? 'Signing in…' : 'Sign in'}
           </button>
+          {signup && (
+            <p className="auth__signup cad-body">
+              Don&rsquo;t have an account?{' '}
+              <a
+                href={signup}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="signin-signup"
+              >
+                Sign up
+              </a>
+            </p>
+          )}
         </form>
       </IonContent>
     </IonPage>

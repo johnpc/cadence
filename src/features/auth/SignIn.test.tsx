@@ -26,6 +26,21 @@ function renderSignIn(signIn: AuthContextValue['signIn']) {
 describe('SignIn', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    delete window.__CADENCE_CONFIG__;
+  });
+
+  it('shows no sign-up link by default (no runtime config)', () => {
+    renderSignIn(vi.fn());
+    expect(screen.queryByTestId('signin-signup')).not.toBeInTheDocument();
+  });
+
+  it('shows a Sign up link pointing at the runtime SIGNUP_URL when set', () => {
+    window.__CADENCE_CONFIG__ = { signupUrl: 'https://s.jpc.io/getthejelly' };
+    renderSignIn(vi.fn());
+    const link = screen.getByTestId('signin-signup');
+    expect(link).toHaveAttribute('href', 'https://s.jpc.io/getthejelly');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   it('submits the entered credentials', async () => {

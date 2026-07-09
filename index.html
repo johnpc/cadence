@@ -39,6 +39,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Runtime config (window.__CADENCE_CONFIG__), written per-deploy by the
+         container entrypoint from env (e.g. SIGNUP_URL). Loaded before the app;
+         ships empty by default so nothing is baked into the image. -->
+    <script src="/config.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

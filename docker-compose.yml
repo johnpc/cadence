@@ -17,3 +17,7 @@ services:
     ports:
       - '8095:80'
     restart: unless-stopped
+    # environment:
+    #   # Optional: show a "Sign up" link on the sign-in screen pointing at your
+    #   # own registration/invite page. Applied at container start — no rebuild.
+    #   SIGNUP_URL: https://your-server.example/signup

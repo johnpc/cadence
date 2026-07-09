@@ -70,6 +70,18 @@ Open **http://localhost:8095**, and on the sign-in screen enter your **Jellyfin 
 address is remembered on that device — the image itself is server-agnostic, so nothing about your
 setup is baked in.
 
+### Optional: a "Sign up" link
+
+Set the **`SIGNUP_URL`** environment variable to show a _Sign up_ link on the sign-in screen
+pointing at your own registration/invite page:
+
+```bash
+docker run -d -p 8095:80 -e SIGNUP_URL=https://your-server.example/signup mrorbitman/cadence:latest
+```
+
+It's read at **container start** (not baked into the image) — set or change it per deployment without
+rebuilding. Unset → no link.
+
 Notes:
 
 - The image is multi-arch (`linux/amd64` + `linux/arm64`), so it runs on x86 boxes, a Raspberry Pi,
