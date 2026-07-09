@@ -1,10 +1,11 @@
-import { useCallback, useMemo, useRef, type ReactNode } from 'react';
+import { useMemo, useRef, type ReactNode } from 'react';
 import { PlayerContext } from './PlayerContext';
 import { PlayerProgressContext } from './PlayerProgressContext';
 import { useAudioElement } from './useAudioElement';
 import { usePlayerQueue } from './usePlayerQueue';
 import { useSleepTimer } from './useSleepTimer';
 import { usePlayerIntegrations } from './usePlayerIntegrations';
+import { usePlaybackHandlers } from './usePlaybackHandlers';
 import { useVolume } from './useVolume';
 import { usePlaybackControls } from './usePlaybackControls';
 import { usePlaybackReporting } from './usePlaybackReporting';
@@ -12,28 +13,16 @@ import { useEndlessPlay } from './useEndlessPlay';
 import { useDocumentTitle } from './useDocumentTitle';
 import { buildPlayerValue } from './playerValue';
 import { useTrackLoader } from './useTrackLoader';
+import { useToast } from '../toast/useToast';
 import * as q from './queue';
 
 /** Holds the play queue + the one audio element, exposing player controls. */
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const qh = usePlayerQueue();
+  const toast = useToast();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // On track end, apply the repeat rule; 'one' restarts the same element.
-  const onEnded = useCallback(() => {
-    qh.advance(() => {
-      const audio = audioRef.current;
-      if (audio) {
-        audio.currentTime = 0;
-        void audio.play().catch(() => undefined);
-      }
-    });
-  }, [qh]);
-
-  // A track that fails to load (bad transcode / 404) shouldn't stall playback —
-  // skip to the next one, like Spotify. `next()` is a no-op at the queue end.
-  const onError = useCallback(() => qh.next(), [qh]);
-
+  const { onEnded, onError } = usePlaybackHandlers(qh, audioRef, toast);
   const { ref, isPlaying, position, duration } = useAudioElement(onEnded, onError);
   audioRef.current = ref.current;
 
