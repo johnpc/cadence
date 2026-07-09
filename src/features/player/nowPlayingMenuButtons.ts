@@ -1,8 +1,7 @@
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-export interface TrackMenuActions {
-  playNext: () => void;
-  addToQueue: () => void;
+export interface NowPlayingMenuActions {
+  goToSong: () => void;
   startRadio: () => void;
   goToAlbum: () => void;
   goToArtist: () => void;
@@ -17,20 +16,18 @@ interface SheetButton {
   handler?: () => void;
 }
 
-/** Build the "…" track-menu action-sheet buttons: play next, add to queue,
- * start a radio seeded on this track, go to album/artist (when known), copy
- * link, create a new playlist with this track, and add to each existing
- * playlist. Pure so the ordering/inclusion logic is unit-testable without
- * IonActionSheet. */
-export function trackMenuButtons(
+/** Build the now-playing "…" action-sheet buttons: go to song, start a radio
+ * seeded on it, go to album/artist (when known), copy link, create a playlist
+ * with it, and add to each existing playlist. Pure so the ordering/inclusion
+ * logic is unit-testable without IonActionSheet. */
+export function nowPlayingMenuButtons(
   track: JellyfinItem,
   playlists: JellyfinItem[],
-  a: TrackMenuActions,
+  a: NowPlayingMenuActions,
 ): SheetButton[] {
   const artist = track.ArtistItems?.[0];
   return [
-    { text: 'Play next', handler: a.playNext },
-    { text: 'Add to queue', handler: a.addToQueue },
+    { text: 'Go to song', handler: a.goToSong },
     { text: 'Go to song radio', handler: a.startRadio },
     ...(track.AlbumId ? [{ text: 'Go to album', handler: a.goToAlbum }] : []),
     ...(artist ? [{ text: 'Go to artist', handler: a.goToArtist }] : []),

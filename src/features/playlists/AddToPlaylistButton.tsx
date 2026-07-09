@@ -6,6 +6,7 @@ import { usePlaylists, useAddToPlaylist } from './playlistsApi';
 import { useCreatePlaylistWithItems } from './playlistCreate';
 import { trackMenuButtons } from './trackMenuButtons';
 import { usePlayer } from '../player/usePlayer';
+import { usePlayItem } from '../player/usePlayItem';
 import { useToast } from '../toast/useToast';
 import { copyShareLink } from '../share/shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -20,6 +21,7 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
   const add = useAddToPlaylist();
   const createWith = useCreatePlaylistWithItems();
   const { playNext, addToQueue } = usePlayer();
+  const playItem = usePlayItem();
   const toast = useToast();
   const history = useHistory();
 
@@ -31,6 +33,10 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
     addToQueue: () => {
       addToQueue(track);
       toast('Added to queue');
+    },
+    startRadio: () => {
+      void playItem(track);
+      toast('Starting radio');
     },
     goToAlbum: () => history.push(`/album/${track.AlbumId}`),
     goToArtist: () => history.push(`/artist/${track.ArtistItems?.[0]?.Id}`),
