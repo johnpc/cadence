@@ -62,15 +62,30 @@ export async function searchUntilResults(
   }
 }
 
+// A single fixed DeviceId for ALL e2e runs. ensureDeviceId reads it from the
+// Capacitor-Preferences localStorage key, so every test reuses ONE Jellyfin
+// session instead of minting a fresh device per scenario/retry/run — which
+// otherwise piles up thousands of sessions and slows Jellyfin auth to a crawl
+// (the real cause of the CI "sign-in flake").
+const E2E_DEVICE_ID = 'cadence-e2e-fixed-device';
+
+async function resetStorage(page: Page): Promise<void> {
+  await page.evaluate((id) => {
+    localStorage.clear();
+    // Preferences (web) namespaces keys as `CapacitorStorage.<key>`.
+    localStorage.setItem('CapacitorStorage.cadence.device-id', id);
+  }, E2E_DEVICE_ID);
+}
+
 Given('I open the app', async ({ page }) => {
   await page.goto('/');
-  await page.evaluate(() => localStorage.clear());
+  await resetStorage(page);
   await page.reload();
 });
 
 Given('I am signed in', async ({ page }) => {
   await page.goto('/');
-  await page.evaluate(() => localStorage.clear());
+  await resetStorage(page);
   await page.reload();
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill(PASSWORD as string);
