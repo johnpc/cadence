@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { bindMediaSessionHandlers, setNowPlaying, setPlaybackState } from './mediaSession';
+import {
+  bindMediaSessionHandlers,
+  setNowPlaying,
+  setPlaybackState,
+  setPositionState,
+} from './mediaSession';
 import { setSession } from '../../lib/sessionStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -24,7 +29,12 @@ describe('mediaSession', () => {
       },
     );
     Object.defineProperty(navigator, 'mediaSession', {
-      value: { metadata: null, playbackState: 'none', setActionHandler: vi.fn() },
+      value: {
+        metadata: null,
+        playbackState: 'none',
+        setActionHandler: vi.fn(),
+        setPositionState: vi.fn(),
+      },
       configurable: true,
     });
   });
@@ -52,11 +62,37 @@ describe('mediaSession', () => {
     expect(navigator.mediaSession.playbackState).toBe('paused');
   });
 
-  it('binds the transport handlers', () => {
-    const handlers = { play: vi.fn(), pause: vi.fn(), next: vi.fn(), prev: vi.fn() };
+  it('binds the transport + seek handlers', () => {
+    const handlers = { play: vi.fn(), pause: vi.fn(), next: vi.fn(), prev: vi.fn(), seek: vi.fn() };
     bindMediaSessionHandlers(handlers);
     const set = navigator.mediaSession.setActionHandler as ReturnType<typeof vi.fn>;
     expect(set).toHaveBeenCalledWith('play', handlers.play);
     expect(set).toHaveBeenCalledWith('nexttrack', handlers.next);
+    // seekto/seekbackward/seekforward are wired (as functions, not the raw fn).
+    for (const action of ['seekto', 'seekbackward', 'seekforward']) {
+      expect(set.mock.calls.some((c) => c[0] === action && typeof c[1] === 'function')).toBe(true);
+    }
+  });
+
+  it('seekto calls seek with the requested absolute time', () => {
+    const seek = vi.fn();
+    bindMediaSessionHandlers({ play: vi.fn(), pause: vi.fn(), next: vi.fn(), prev: vi.fn(), seek });
+    const set = navigator.mediaSession.setActionHandler as ReturnType<typeof vi.fn>;
+    const seekto = set.mock.calls.find((c) => c[0] === 'seekto')?.[1] as (e: {
+      seekTime?: number;
+    }) => void;
+    seekto({ seekTime: 42 });
+    expect(seek).toHaveBeenCalledWith(42);
+  });
+
+  it('publishes a clamped, finite position state (and skips invalid durations)', () => {
+    const sps = navigator.mediaSession.setPositionState as ReturnType<typeof vi.fn>;
+    setPositionState(30, 200);
+    expect(sps).toHaveBeenCalledWith({ duration: 200, position: 30 });
+    sps.mockClear();
+    setPositionState(10, 0); // no duration yet → don't publish
+    expect(sps).not.toHaveBeenCalled();
+    setPositionState(250, 200); // position past the end → clamped
+    expect(sps).toHaveBeenCalledWith({ duration: 200, position: 200 });
   });
 });

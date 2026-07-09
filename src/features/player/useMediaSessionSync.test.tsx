@@ -5,7 +5,7 @@ import { setSession } from '../../lib/sessionStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const track: JellyfinItem = { Id: 't', Name: 'S', Type: 'Audio', Artists: ['A'] };
-const handlers = { play: vi.fn(), pause: vi.fn(), next: vi.fn(), prev: vi.fn() };
+const handlers = { play: vi.fn(), pause: vi.fn(), next: vi.fn(), prev: vi.fn(), seek: vi.fn() };
 
 describe('useMediaSessionSync', () => {
   afterEach(() => {
@@ -16,7 +16,9 @@ describe('useMediaSessionSync', () => {
   });
 
   it('no-ops safely when MediaSession is unavailable', () => {
-    expect(() => renderHook(() => useMediaSessionSync(track, true, handlers))).not.toThrow();
+    expect(() =>
+      renderHook(() => useMediaSessionSync(track, true, handlers, 10, 100)),
+    ).not.toThrow();
   });
 
   it('publishes metadata + state + handlers when available', () => {
@@ -29,13 +31,15 @@ describe('useMediaSessionSync', () => {
       },
     );
     const setActionHandler = vi.fn();
+    const setPositionState = vi.fn();
     Object.defineProperty(navigator, 'mediaSession', {
-      value: { metadata: null, playbackState: 'none', setActionHandler },
+      value: { metadata: null, playbackState: 'none', setActionHandler, setPositionState },
       configurable: true,
     });
-    renderHook(() => useMediaSessionSync(track, true, handlers));
+    renderHook(() => useMediaSessionSync(track, true, handlers, 30, 100));
     expect(navigator.mediaSession.metadata).toBeTruthy();
     expect(navigator.mediaSession.playbackState).toBe('playing');
     expect(setActionHandler).toHaveBeenCalled();
+    expect(setPositionState).toHaveBeenCalledWith({ duration: 100, position: 30 });
   });
 });
