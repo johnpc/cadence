@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 export function useAudioElement(onEnded: () => void, onError: () => void = () => {}) {
   const ref = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [waiting, setWaiting] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -36,12 +37,19 @@ export function useAudioElement(onEnded: () => void, onError: () => void = () =>
     const onPause = () => setIsPlaying(false);
     const onEnd = () => endedRef.current();
     const onErr = () => errorRef.current();
+    // Buffering/stall: 'waiting' fires when playback halts for data; 'playing'
+    // and 'canplay' fire when it has enough to resume. Drives the spinner.
+    const onWaiting = () => setWaiting(true);
+    const onResumed = () => setWaiting(false);
     audio.addEventListener('timeupdate', onTime);
     audio.addEventListener('loadedmetadata', onMeta);
     audio.addEventListener('play', onPlay);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('ended', onEnd);
     audio.addEventListener('error', onErr);
+    audio.addEventListener('waiting', onWaiting);
+    audio.addEventListener('playing', onResumed);
+    audio.addEventListener('canplay', onResumed);
     return () => {
       audio.removeEventListener('timeupdate', onTime);
       audio.removeEventListener('loadedmetadata', onMeta);
@@ -49,8 +57,11 @@ export function useAudioElement(onEnded: () => void, onError: () => void = () =>
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('ended', onEnd);
       audio.removeEventListener('error', onErr);
+      audio.removeEventListener('waiting', onWaiting);
+      audio.removeEventListener('playing', onResumed);
+      audio.removeEventListener('canplay', onResumed);
     };
   }, []);
 
-  return { ref, isPlaying, position, duration };
+  return { ref, isPlaying, waiting, position, duration };
 }

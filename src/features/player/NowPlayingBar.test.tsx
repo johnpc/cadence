@@ -42,6 +42,11 @@ describe('NowPlayingBar', () => {
     expect(toggle).toHaveBeenCalledOnce();
   });
 
+  it('shows a buffering spinner (not the play/pause icon) while waiting', () => {
+    renderBar(ctx({ current: song, isPlaying: true, waiting: true }));
+    expect(screen.getByTestId('now-playing-buffering')).toBeInTheDocument();
+  });
+
   it('offers a like toggle for the current track', () => {
     renderBar(ctx({ current: song }));
     expect(screen.getByTestId('like-button')).toBeInTheDocument();

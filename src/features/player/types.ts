@@ -8,6 +8,8 @@ export interface PlayerContextValue {
   /** The track currently loaded, or null when nothing is playing. */
   current: JellyfinItem | null;
   isPlaying: boolean;
+  /** True while playback is stalled buffering (drives the loading spinner). */
+  waiting: boolean;
   shuffle: boolean;
   repeat: RepeatMode;
   canNext: boolean;

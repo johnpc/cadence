@@ -23,7 +23,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const { onEnded, onError } = usePlaybackHandlers(qh, audioRef, toast);
-  const { ref, isPlaying, position, duration } = useAudioElement(onEnded, onError);
+  const { ref, isPlaying, waiting, position, duration } = useAudioElement(onEnded, onError);
   audioRef.current = ref.current;
 
   const current = q.currentTrack(qh.queue);
@@ -72,6 +72,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     () =>
       buildPlayerValue(qh, current, {
         isPlaying,
+        waiting,
         toggle,
         seek,
         sleepMinutes,
@@ -79,7 +80,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         volume,
         setVolume,
       }),
-    [qh, current, isPlaying, toggle, seek, sleepMinutes, armSleep, volume, setVolume],
+    [qh, current, isPlaying, waiting, toggle, seek, sleepMinutes, armSleep, volume, setVolume],
   );
 
   // Progress ticks several times a second — its own context so only the
