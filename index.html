@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <title>Cadence</title>
+    <meta
+      name="description"
+      content="Cadence — a Spotify-like music client for your self-hosted Jellyfin server."
+    />
 
     <base href="/" />
 
@@ -22,6 +26,16 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Cadence" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <!-- Social preview when a Cadence link is shared -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Cadence" />
+    <meta
+      property="og:description"
+      content="A Spotify-like music client for your self-hosted Jellyfin server."
+    />
+    <meta property="og:image" content="/icons/icon-512.png" />
+    <meta name="twitter:card" content="summary" />
   </head>
   <body>
     <div id="root"></div>
