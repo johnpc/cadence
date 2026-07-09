@@ -115,6 +115,24 @@ Then('the sidebar is expanded', async ({ page }) => {
   await expect(page.getByTestId('sidebar-collapse')).toHaveAttribute('aria-expanded', 'true');
 });
 
+When('I press the search hotkey', async ({ page }) => {
+  // Wait for the shell (which mounts the "/" listener) to be ready, then focus
+  // neutral chrome so "/" isn't typed into a field, and press it.
+  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: 15_000 });
+  await page.locator('body').click({ position: { x: 5, y: 5 } });
+  await expect(async () => {
+    await page.keyboard.press('/');
+    await expect(page).toHaveURL(/\/search$/, { timeout: 2_000 });
+  }).toPass({ timeout: 15_000 });
+});
+
+Then('the search box is focused', async ({ page }) => {
+  // "/" navigates to Search and focuses its input (Spotify-style). Assert the
+  // route landed first, then that the searchbar's inner input holds focus.
+  await expect(page).toHaveURL(/\/search$/, { timeout: 15_000 });
+  await expect(page.getByTestId('search-input').locator('input')).toBeFocused({ timeout: 15_000 });
+});
+
 When('I navigate to an unknown URL', async ({ page }) => {
   await page.goto('/this-route-does-not-exist');
 });

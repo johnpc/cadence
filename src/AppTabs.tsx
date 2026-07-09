@@ -7,6 +7,7 @@ import { Search } from './features/search/Search';
 import { Library } from './features/library/Library';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import { DesktopSidebar } from './features/library/DesktopSidebar';
+import { useSearchHotkey } from './features/search/useSearchHotkey';
 import * as L from './lazyPages';
 import './appTabs.css';
 
@@ -25,6 +26,9 @@ export function AppTabs() {
     document.body.classList.add('app-has-sidebar');
     return () => document.body.classList.remove('app-has-sidebar');
   }, []);
+
+  // "/" from anywhere jumps to Search and focuses the box (Spotify-style).
+  useSearchHotkey();
 
   return (
     <>
