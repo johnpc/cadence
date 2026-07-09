@@ -5,23 +5,18 @@ import { home, search, library } from 'ionicons/icons';
 import { Home } from './features/home/Home';
 import { Search } from './features/search/Search';
 import { Library } from './features/library/Library';
-import { LikedSongsPage } from './features/library/LikedSongsPage';
-import { Settings } from './features/settings/Settings';
-import { PlaylistDetail } from './features/playlists/PlaylistDetail';
-import { AlbumDetail } from './features/album/AlbumDetail';
-import { ArtistDetail } from './features/artist/ArtistDetail';
-import { SongDetail } from './features/song/SongDetail';
-import { GenreDetail } from './features/genre/GenreDetail';
-import { History } from './features/home/History';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import { DesktopSidebar } from './features/library/DesktopSidebar';
+import * as L from './lazyPages';
 import './appTabs.css';
 
 /**
  * The signed-in shell: a Spotify-style bottom tab bar over Home / Search / Your
- * Library. There is deliberately NO full-library scroll — discovery is driven
- * by recommendations (Home), Search, and playlists/likes (Library). Settings is
- * reachable from Your Library, not a tab.
+ * Library, a persistent mini-player, and (on desktop) a left sidebar. There is
+ * deliberately NO full-library scroll — discovery is driven by recommendations
+ * (Home), Search, and playlists/likes (Library). Settings is reachable from Your
+ * Library, not a tab. Detail pages are code-split (lazyPages). IonRouterOutlet
+ * MUST be a direct child of IonTabs (Ionic inspects its direct children).
  */
 export function AppTabs() {
   // Flag the shell so CSS can inset the tab pages + mini-player for the desktop
@@ -35,7 +30,6 @@ export function AppTabs() {
     <>
       <DesktopSidebar />
       <IonTabs>
-        {/* Persistent mini-player, fixed just above the tab bar (CSS). */}
         <div className="apptabs__npbar" slot="bottom">
           <NowPlayingBar />
         </div>
@@ -50,28 +44,28 @@ export function AppTabs() {
             <Library />
           </Route>
           <Route exact path="/liked">
-            <LikedSongsPage />
+            <L.LikedSongsPage />
           </Route>
           <Route exact path="/settings">
-            <Settings />
+            <L.Settings />
           </Route>
           <Route exact path="/playlist/:id">
-            <PlaylistDetail />
+            <L.PlaylistDetail />
           </Route>
           <Route exact path="/album/:id">
-            <AlbumDetail />
+            <L.AlbumDetail />
           </Route>
           <Route exact path="/artist/:id">
-            <ArtistDetail />
+            <L.ArtistDetail />
           </Route>
           <Route exact path="/song/:id">
-            <SongDetail />
+            <L.SongDetail />
           </Route>
           <Route exact path="/genre/:name">
-            <GenreDetail />
+            <L.GenreDetail />
           </Route>
           <Route exact path="/history">
-            <History />
+            <L.History />
           </Route>
           <Route exact path="/">
             <Redirect to="/home" />
