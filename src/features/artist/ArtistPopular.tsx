@@ -1,25 +1,13 @@
 import { TrackRow } from '../player/TrackRow';
-import { CollectionActions } from '../player/CollectionActions';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** The artist's "Popular" tracks with play / shuffle / add-to-queue actions. */
-export function ArtistPopular({
-  tracks,
-  artistName,
-}: {
-  tracks: JellyfinItem[];
-  artistName?: string;
-}) {
+/** The artist's "Popular" tracks. Play/shuffle for them lives in the artist
+ * header (Spotify-style), so this section is just the ranked tracklist. */
+export function ArtistPopular({ tracks }: { tracks: JellyfinItem[] }) {
   if (tracks.length === 0) return null;
   return (
     <section data-testid="artist-top">
-      <div className="artist__popular-head">
-        <h2 className="cad-kicker artist__section">Popular</h2>
-        <CollectionActions
-          tracks={tracks}
-          context={{ kind: 'artist', label: artistName ?? 'Artist' }}
-        />
-      </div>
+      <h2 className="cad-kicker artist__section">Popular</h2>
       {tracks.map((track, index) => (
         <TrackRow key={track.Id} track={track} queue={tracks} index={index} />
       ))}

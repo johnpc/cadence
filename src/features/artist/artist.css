@@ -14,14 +14,9 @@
 .artist__actions {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: var(--cad-space-2);
-}
-
-.artist__popular-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--cad-space-3);
 }
 
 .artist__about {
