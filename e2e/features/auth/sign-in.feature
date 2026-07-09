@@ -17,3 +17,8 @@ Feature: Sign in with a Jellyfin account
     When I sign in with the test user's credentials
     And I reload the app
     Then I land on the Home tab
+
+  Scenario: Pressing Enter submits the sign-in form
+    Given I open the app signed out
+    When I sign in by pressing Enter in the password field
+    Then I land on the Home tab

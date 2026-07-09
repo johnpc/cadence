@@ -37,6 +37,15 @@ describe('SignIn', () => {
     expect(signIn).toHaveBeenCalledWith('cadence-test', 'pw');
   });
 
+  it('submits when Enter is pressed in a field (native form submit)', async () => {
+    const signIn = vi.fn().mockResolvedValue(undefined);
+    renderSignIn(signIn);
+    await userEvent.type(screen.getByTestId('signin-username'), 'cadence-test');
+    // {enter} inside a form field triggers submit without touching the button.
+    await userEvent.type(screen.getByTestId('signin-password'), 'pw{enter}');
+    expect(signIn).toHaveBeenCalledWith('cadence-test', 'pw');
+  });
+
   it('shows an error when sign-in fails', async () => {
     const signIn = vi.fn().mockRejectedValue(new Error('401'));
     renderSignIn(signIn);
