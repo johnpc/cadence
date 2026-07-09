@@ -47,6 +47,18 @@ describe('NowPlayingBar', () => {
     expect(screen.getByTestId('now-playing-buffering')).toBeInTheDocument();
   });
 
+  it('skips to the next track via the mini-bar next button', async () => {
+    const next = vi.fn();
+    renderBar(ctx({ current: song, canNext: true, next }));
+    await userEvent.click(screen.getByTestId('now-playing-next'));
+    expect(next).toHaveBeenCalledOnce();
+  });
+
+  it('disables the next button at the end of the queue', () => {
+    renderBar(ctx({ current: song, canNext: false }));
+    expect(screen.getByTestId('now-playing-next')).toBeDisabled();
+  });
+
   it('offers a like toggle for the current track', () => {
     renderBar(ctx({ current: song }));
     expect(screen.getByTestId('like-button')).toBeInTheDocument();

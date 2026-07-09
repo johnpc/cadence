@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { IonIcon, IonSpinner } from '@ionic/react';
-import { play, pause } from 'ionicons/icons';
+import { play, pause, playSkipForward } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { usePlayerProgress } from './PlayerProgressContext';
 import { useScrubber } from './useScrubber';
@@ -13,7 +13,7 @@ import './nowPlayingBar.css';
 
 /** Persistent mini-player above the tab bar. Tap to open the full player. */
 export function NowPlayingBar() {
-  const { current, isPlaying, waiting, toggle, seek } = usePlayer();
+  const { current, isPlaying, waiting, canNext, next, toggle, seek } = usePlayer();
   const { position, duration } = usePlayerProgress();
   const scrub = useScrubber(position, seek);
   const [open, setOpen] = useState(false);
@@ -58,6 +58,17 @@ export function NowPlayingBar() {
           ) : (
             <IonIcon icon={isPlaying ? pause : play} />
           )}
+        </button>
+        {/* Skip button — mobile only (desktop has full transport in the extras).
+            Hidden ≥768px via CSS to avoid duplicating NowPlayingExtras. */}
+        <button
+          className="npbar__next"
+          onClick={next}
+          disabled={!canNext}
+          data-testid="now-playing-next"
+          aria-label="Next"
+        >
+          <IonIcon icon={playSkipForward} />
         </button>
         <div className="npbar__progress" data-testid="now-playing-progress">
           <div className="npbar__progress-fill" style={{ width: `${pct}%` }} />

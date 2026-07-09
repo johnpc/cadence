@@ -80,7 +80,8 @@
   text-overflow: ellipsis;
 }
 
-.npbar__play {
+.npbar__play,
+.npbar__next {
   flex-shrink: 0;
   width: 40px;
   height: 40px;
@@ -92,6 +93,18 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+/* The skip button reads as secondary next to play/pause, and dims at the queue
+   end. */
+.npbar__next {
+  font-size: 22px;
+  color: var(--cad-text-secondary);
+}
+
+.npbar__next:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 /* Desktop-only extras: full transport + queue/lyrics/volume. Hidden on mobile,
@@ -129,8 +142,10 @@
     gap: var(--cad-space-2);
   }
 
-  /* The bar's own mobile play button is redundant once the transport shows. */
-  .npbar > .npbar__play {
+  /* The bar's own mobile play + skip buttons are redundant once the desktop
+     transport row shows. */
+  .npbar > .npbar__play,
+  .npbar > .npbar__next {
     display: none;
   }
 
