@@ -20,10 +20,13 @@ export class RequestTimeout extends Error {
   }
 }
 
-/** Per-request ceiling. Jellyfin is normally sub-second; a request past this is
- * effectively stalled (overloaded server / flaky network) — abort and let the
- * caller retry rather than block the UI indefinitely. */
-export const REQUEST_TIMEOUT_MS = 12_000;
+/** Per-request ceiling. Jellyfin is normally sub-second, but a server behind a
+ * tunnel/proxy that has gone idle can COLD-START the first request to ~15s
+ * (measured on cloudflared) before it warms to sub-second. A 12s ceiling
+ * aborted that first request — sign-in would fail on a cold server for a real
+ * user, not just in CI — so allow 30s: still bounded (no indefinite hang), but
+ * above the cold-start worst case. */
+export const REQUEST_TIMEOUT_MS = 30_000;
 
 /** True for failures worth retrying — a timeout or a 5xx/network error, but
  * NOT a 401 (a confirmed dead session — retrying is pointless and hides it). */
