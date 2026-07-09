@@ -1,7 +1,7 @@
 import { createBdd } from 'playwright-bdd';
 import { expect, type Page } from '@playwright/test';
 
-const { Given, When, Then } = createBdd();
+const { Given, When, Then, Before } = createBdd();
 
 const USERNAME = process.env.TEST_USERNAME;
 const PASSWORD = process.env.TEST_PASSWORD;
@@ -68,25 +68,28 @@ export async function searchUntilResults(
 // otherwise piles up thousands of sessions and slows Jellyfin auth to a crawl
 // (the real cause of the CI "sign-in flake").
 const E2E_DEVICE_ID = 'cadence-e2e-fixed-device';
+const DEVICE_KEY = 'CapacitorStorage.cadence.device-id';
 
-async function resetStorage(page: Page): Promise<void> {
-  await page.evaluate((id) => {
-    localStorage.clear();
-    // Preferences (web) namespaces keys as `CapacitorStorage.<key>`.
-    localStorage.setItem('CapacitorStorage.cadence.device-id', id);
-  }, E2E_DEVICE_ID);
-}
+// Seed the fixed DeviceId via an init script — it runs BEFORE any app code on
+// every navigation, so the app's ensureDeviceId() finds it already present and
+// never mints a random one. (Seeding after goto() raced the app's own async
+// Preferences.set of a fresh UUID, which clobbered the seed — so every scenario
+// still authenticated as a new device and the sessions kept piling up.)
+Before(async ({ page }) => {
+  await page.addInitScript(
+    ([key, id]) => {
+      if (!localStorage.getItem(key)) localStorage.setItem(key, id);
+    },
+    [DEVICE_KEY, E2E_DEVICE_ID],
+  );
+});
 
 Given('I open the app', async ({ page }) => {
   await page.goto('/');
-  await resetStorage(page);
-  await page.reload();
 });
 
 Given('I am signed in', async ({ page }) => {
   await page.goto('/');
-  await resetStorage(page);
-  await page.reload();
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill(PASSWORD as string);
   await page.getByTestId('signin-submit').click();
