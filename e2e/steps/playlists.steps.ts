@@ -47,22 +47,29 @@ Then('I see recommended songs to add', async ({ page }) => {
   await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: 30_000 });
 });
 
-// The recommendation dismissed in the When step, asserted gone in the Then.
-let dismissedRec = '';
+// The dismissed rec's track id — we assert on the id (via data-track-id), not
+// its track name, which can recur in the instant-mix pool (duplicate titles)
+// and made a name-based "is it gone?" check flaky.
+let dismissedId = '';
 
 When('I dismiss the first recommendation', async ({ page }) => {
   const first = page.getByTestId('playlist-rec').first();
-  // Remember the track name so we can assert it's replaced, not just removed.
-  dismissedRec = (await first.getByTestId('rec-add').getAttribute('aria-label')) ?? '';
-  await first.getByTestId('rec-dismiss').click({ force: true });
+  await expect(first).toBeAttached({ timeout: 15_000 });
+  dismissedId = (await first.getAttribute('data-track-id')) ?? '';
+  // A real (non-force) click: force-clicking the small dismiss button can land
+  // on an overlapping element without firing its handler.
+  const dismiss = first.getByTestId('rec-dismiss');
+  await dismiss.scrollIntoViewIfNeeded();
+  await dismiss.click();
 });
 
 Then('a different recommendation takes its place', async ({ page }) => {
-  // The dismissed track is gone, and the section still offers recommendations.
-  await expect(page.getByRole('button', { name: dismissedRec })).toHaveCount(0, {
-    timeout: 15_000,
-  });
-  await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: 15_000 });
+  // The exact dismissed track (by id) is gone and never re-appears; the section
+  // stays functional with at least one recommendation.
+  await expect(
+    page.locator(`[data-testid="playlist-rec"][data-track-id="${dismissedId}"]`),
+  ).toHaveCount(0, { timeout: 15_000 });
+  await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: 20_000 });
 });
 
 Then('I can find within the playlist', async ({ page }) => {
