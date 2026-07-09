@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { Skeleton, ShelfSkeleton, TrackListSkeleton } from './Skeleton';
+import { CardGridSkeleton, Skeleton, ShelfSkeleton, TrackListSkeleton } from './Skeleton';
 
 describe('Skeleton', () => {
   it('renders a block with the given size', () => {
@@ -22,5 +22,12 @@ describe('Skeleton', () => {
     expect(
       screen.getByTestId('skeleton-list').querySelectorAll('.skeleton-list__row'),
     ).toHaveLength(5);
+  });
+
+  it('renders a grid of card placeholders', () => {
+    render(<CardGridSkeleton count={4} />);
+    expect(
+      screen.getByTestId('skeleton-grid').querySelectorAll('.skeleton-grid__card'),
+    ).toHaveLength(4);
   });
 });

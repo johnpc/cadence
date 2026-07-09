@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
+import { CardGridSkeleton } from '../../components/Skeleton';
 import { TrackArt } from '../player/TrackArt';
 import { ArtistHeader } from './ArtistHeader';
 import { ArtistPopular } from './ArtistPopular';
@@ -51,6 +52,7 @@ export function ArtistDetail() {
           onRetry={() => void refetch()}
           isEmpty={albums.length === 0}
           emptyTitle="No albums"
+          skeleton={<CardGridSkeleton />}
         >
           <div className="artist__albums" data-testid="artist-albums">
             {albums.map((album) => (

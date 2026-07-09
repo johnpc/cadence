@@ -51,3 +51,15 @@
   gap: var(--cad-space-2);
   flex: 1;
 }
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--cad-space-4);
+}
+
+.skeleton-grid__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-2);
+}
