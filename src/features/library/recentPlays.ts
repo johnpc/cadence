@@ -5,6 +5,18 @@ const MAX = 200;
  * of Your Library, so collections you play bubble up and stale ones drift down. */
 export type RecentPlays = Record<string, number>;
 
+const listeners = new Set<() => void>();
+
+/** Subscribe to recent-plays changes (for useSyncExternalStore). Returns an
+ * unsubscribe fn. Lets the Home "Jump back in" shelf update live when you play
+ * something, without a reload. */
+export function subscribeRecentPlays(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
 export function getRecentPlays(): RecentPlays {
   try {
     const raw = localStorage.getItem(KEY);
@@ -16,7 +28,8 @@ export function getRecentPlays(): RecentPlays {
 }
 
 /** Stamp an item as played now (epoch ms injected for testability). Caps the
- * store to the most-recent MAX ids so it can't grow unbounded. */
+ * store to the most-recent MAX ids so it can't grow unbounded, then notifies
+ * subscribers so live surfaces (Home's "Jump back in") refresh. */
 export function touchRecentPlay(id: string, now: number): void {
   if (!id) return;
   try {
@@ -29,4 +42,5 @@ export function touchRecentPlay(id: string, now: number): void {
   } catch {
     // best-effort
   }
+  for (const l of listeners) l();
 }

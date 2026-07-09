@@ -33,3 +33,12 @@ Feature: Home recommendations
     And I open the Home tab
     And I open the full play history
     Then I see the play history list
+
+  Scenario: Playing a collection surfaces a "Jump back in" shelf on Home
+    Given I am signed in
+    When I open the Library tab
+    And I open the first playlist
+    Then I see the playlist tracks
+    When I play the playlist
+    And I open the Home tab
+    Then I see a "Jump back in" shelf
