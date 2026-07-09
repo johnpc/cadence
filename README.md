@@ -70,17 +70,24 @@ Open **http://localhost:8095**, and on the sign-in screen enter your **Jellyfin 
 address is remembered on that device — the image itself is server-agnostic, so nothing about your
 setup is baked in.
 
-### Optional: a "Sign up" link
+### Optional runtime settings
 
-Set the **`SIGNUP_URL`** environment variable to show a _Sign up_ link on the sign-in screen
-pointing at your own registration/invite page:
+Both are read at **container start** (not baked into the image) — set or change them per deployment
+without rebuilding:
+
+- **`JELLYFIN_URL`** — pre-fills the sign-in **Server** field with your Jellyfin URL, so users don't
+  have to type it. They can still override it, and a saved choice on the device wins.
+- **`SIGNUP_URL`** — shows a _Sign up_ link on the sign-in screen pointing at your own
+  registration/invite page.
 
 ```bash
-docker run -d -p 8095:80 -e SIGNUP_URL=https://your-server.example/signup mrorbitman/cadence:latest
+docker run -d -p 8095:80 \
+  -e JELLYFIN_URL=https://jellyfin.example.com \
+  -e SIGNUP_URL=https://your-server.example/signup \
+  mrorbitman/cadence:latest
 ```
 
-It's read at **container start** (not baked into the image) — set or change it per deployment without
-rebuilding. Unset → no link.
+Unset → the field is empty / no link.
 
 Notes:
 

@@ -25,10 +25,12 @@ async function freshStore() {
 beforeEach(() => {
   localStorage.clear();
   prefs.clear();
+  delete window.__CADENCE_CONFIG__;
 });
 afterEach(() => {
   localStorage.clear();
   prefs.clear();
+  delete window.__CADENCE_CONFIG__;
 });
 
 describe('serverUrlStore', () => {
@@ -81,5 +83,21 @@ describe('serverUrlStore', () => {
   it('hasServerUrl reflects whether a usable URL is configured', async () => {
     const { hasServerUrl } = await freshStore();
     expect(hasServerUrl()).toBe(true);
+  });
+
+  // Runtime env (window.__CADENCE_CONFIG__.serverUrl, from the JELLYFIN_URL env)
+  // is the default when the user hasn't chosen a server — so a self-hoster can
+  // pin their server without rebuilding.
+  it('uses the runtime-configured server URL as the default (over build default)', async () => {
+    window.__CADENCE_CONFIG__ = { serverUrl: 'https://runtime.example.com' };
+    const { getServerUrl } = await freshStore();
+    expect(getServerUrl()).toBe('https://runtime.example.com');
+  });
+
+  it('prefers a stored user choice over the runtime-configured default', async () => {
+    window.__CADENCE_CONFIG__ = { serverUrl: 'https://runtime.example.com' };
+    localStorage.setItem('cadence.server-url', 'https://my.pick.example');
+    const { getServerUrl } = await freshStore();
+    expect(getServerUrl()).toBe('https://my.pick.example');
   });
 });

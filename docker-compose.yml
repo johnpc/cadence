@@ -18,6 +18,10 @@ services:
       - '8095:80'
     restart: unless-stopped
     # environment:
+    #   # Optional: pre-fill the sign-in Server field with your Jellyfin URL so
+    #   # users don't type it (they can still override). Applied at container
+    #   # start — no rebuild.
+    #   JELLYFIN_URL: https://jellyfin.example.com
     #   # Optional: show a "Sign up" link on the sign-in screen pointing at your
-    #   # own registration/invite page. Applied at container start — no rebuild.
+    #   # own registration/invite page.
     #   SIGNUP_URL: https://your-server.example/signup
