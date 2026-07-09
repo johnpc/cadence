@@ -79,13 +79,6 @@ Notes:
   is reachable from the browser and sends permissive CORS headers.
 - Installable as a PWA from the browser once loaded.
 
-## Deployment (maintainer)
-
-The hosted instance is **live at [cadence.jpc.io](https://cadence.jpc.io)** — a small nginx container
-(`deploy/`) running on the homelab via Dockge, fronted by cloudflared, with `cadence.jpc.io` prefilled
-as the default server. Images are published to Docker Hub by CI (`.github/workflows/docker-publish.yml`)
-on every push to `main` (`latest`) and on version tags (`vX.Y.Z`).
-
 ## Develop
 
 ```bash
