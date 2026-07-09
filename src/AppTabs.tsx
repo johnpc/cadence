@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonRouterOutlet, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
 import { home, search, library } from 'ionicons/icons';
@@ -7,7 +6,8 @@ import { Search } from './features/search/Search';
 import { Library } from './features/library/Library';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import { DesktopSidebar } from './features/library/DesktopSidebar';
-import { useSearchHotkey } from './features/search/useSearchHotkey';
+import { OfflineBanner } from './features/shell/OfflineBanner';
+import { useShellChrome } from './features/shell/useShellChrome';
 import * as L from './lazyPages';
 import './appTabs.css';
 
@@ -20,18 +20,10 @@ import './appTabs.css';
  * MUST be a direct child of IonTabs (Ionic inspects its direct children).
  */
 export function AppTabs() {
-  // Flag the shell so CSS can inset the tab pages + mini-player for the desktop
-  // sidebar (a no-op on mobile, where the sidebar is hidden).
-  useEffect(() => {
-    document.body.classList.add('app-has-sidebar');
-    return () => document.body.classList.remove('app-has-sidebar');
-  }, []);
-
-  // "/" from anywhere jumps to Search and focuses the box (Spotify-style).
-  useSearchHotkey();
-
+  useShellChrome(); // body sidebar class + "/" search hotkey
   return (
     <>
+      <OfflineBanner />
       <DesktopSidebar />
       <IonTabs>
         <div className="apptabs__npbar" slot="bottom">

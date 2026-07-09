@@ -36,3 +36,10 @@ Feature: App shell
     Given I am signed in
     When I press the search hotkey
     Then the search box is focused
+
+  Scenario: Losing connectivity shows an offline banner
+    Given I am signed in
+    When the device goes offline
+    Then I see the offline banner
+    When the device comes back online
+    Then the offline banner is gone
