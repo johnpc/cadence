@@ -1,62 +1,49 @@
 import { useState } from 'react';
-import { IonActionSheet, IonIcon } from '@ionic/react';
+import { IonActionSheet, IonAlert, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { usePlaylists, useAddToPlaylist } from './playlistsApi';
+import { useCreatePlaylistWithItems } from './playlistCreate';
+import { trackMenuButtons } from './trackMenuButtons';
 import { usePlayer } from '../player/usePlayer';
 import { useToast } from '../toast/useToast';
 import { copyShareLink } from '../share/shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './addToPlaylist.css';
 
-/** A "…" track menu: play next, add to queue, go to album/artist, add to playlist. */
+/** A "…" track menu: play next, add to queue, go to album/artist, copy link,
+ * create a new playlist with this track, or add it to an existing one. */
 export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
   const [open, setOpen] = useState(false);
+  const [newOpen, setNewOpen] = useState(false);
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
+  const createWith = useCreatePlaylistWithItems();
   const { playNext, addToQueue } = usePlayer();
   const toast = useToast();
   const history = useHistory();
-  const artist = track.ArtistItems?.[0];
 
-  const buttons = [
-    {
-      text: 'Play next',
-      handler: () => {
-        playNext(track);
-        toast('Playing next');
-      },
+  const buttons = trackMenuButtons(track, playlists, {
+    playNext: () => {
+      playNext(track);
+      toast('Playing next');
     },
-    {
-      text: 'Add to queue',
-      handler: () => {
-        addToQueue(track);
-        toast('Added to queue');
-      },
+    addToQueue: () => {
+      addToQueue(track);
+      toast('Added to queue');
     },
-    ...(track.AlbumId
-      ? [{ text: 'Go to album', handler: () => history.push(`/album/${track.AlbumId}`) }]
-      : []),
-    ...(artist
-      ? [{ text: 'Go to artist', handler: () => history.push(`/artist/${artist.Id}`) }]
-      : []),
-    {
-      text: 'Copy link',
-      handler: () => {
-        void copyShareLink(track, window.location.origin).then((ok) =>
-          toast(ok ? 'Link copied' : 'Could not copy link'),
-        );
-      },
+    goToAlbum: () => history.push(`/album/${track.AlbumId}`),
+    goToArtist: () => history.push(`/artist/${track.ArtistItems?.[0]?.Id}`),
+    copyLink: () =>
+      void copyShareLink(track, window.location.origin).then((ok) =>
+        toast(ok ? 'Link copied' : 'Could not copy link'),
+      ),
+    newPlaylist: () => setNewOpen(true),
+    addTo: (pl) => {
+      add.mutate({ playlistId: pl.Id, itemId: track.Id });
+      toast(`Added to ${pl.Name}`);
     },
-    ...playlists.map((pl) => ({
-      text: `Add to ${pl.Name}`,
-      handler: () => {
-        add.mutate({ playlistId: pl.Id, itemId: track.Id });
-        toast(`Added to ${pl.Name}`);
-      },
-    })),
-    { text: 'Cancel', role: 'cancel' as const },
-  ];
+  });
 
   return (
     <>
@@ -77,6 +64,25 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
         header="Track options"
         buttons={buttons}
         onDidDismiss={() => setOpen(false)}
+      />
+      <IonAlert
+        isOpen={newOpen}
+        header="New playlist"
+        inputs={[{ name: 'name', type: 'text', placeholder: 'Playlist name' }]}
+        buttons={[
+          { text: 'Cancel', role: 'cancel' },
+          {
+            text: 'Create',
+            handler: (data: { name?: string }) => {
+              const name = (data.name ?? '').trim();
+              if (name) {
+                createWith.mutate({ name, itemIds: [track.Id] });
+                toast(`Created "${name}"`);
+              }
+            },
+          },
+        ]}
+        onDidDismiss={() => setNewOpen(false)}
       />
     </>
   );
