@@ -44,8 +44,11 @@ export async function getInstantMix(itemId: string, limit = 50): Promise<Jellyfi
   return res.Items;
 }
 
-/** The user's liked songs (Jellyfin favorites), most-recent first. */
-export async function getFavoriteSongs(limit = 200): Promise<JellyfinItem[]> {
+/** The user's liked songs (Jellyfin favorites), most-recent first. The limit is
+ * high enough to cover a full Liked Songs collection (a 200-cap would silently
+ * hide songs past #200); the Liked Songs list is virtualized so a big result
+ * still renders fast. */
+export async function getFavoriteSongs(limit = 1000): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'Audio',
@@ -61,8 +64,9 @@ export async function getFavoriteSongs(limit = 200): Promise<JellyfinItem[]> {
   return res.Items;
 }
 
-/** The user's saved albums (Jellyfin favorites), most-recent first. */
-export async function getFavoriteAlbums(limit = 200): Promise<JellyfinItem[]> {
+/** The user's saved albums (Jellyfin favorites), most-recent first. Limit high
+ * enough to cover a full collection (a 200-cap would silently hide albums). */
+export async function getFavoriteAlbums(limit = 500): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'MusicAlbum',
