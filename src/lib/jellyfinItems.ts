@@ -18,10 +18,11 @@ export async function getItem(itemId: string): Promise<JellyfinItem> {
   return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}?Fields=Genres,Overview`);
 }
 
-/** All audio tracks on an album, in track order. Uses AlbumIds, not ParentId:
- * some albums (e.g. where the songs live under a different container) return
- * nothing for ParentId+Recursive but resolve correctly by AlbumIds. */
-export async function getItemTracks(albumId: string, limit = 200): Promise<JellyfinItem[]> {
+/** All audio tracks on an album, in disc+track order. Uses AlbumIds, not
+ * ParentId: some albums (e.g. where the songs live under a different container)
+ * return nothing for ParentId+Recursive but resolve correctly by AlbumIds. The
+ * limit covers even large box sets (a 200-cap would silently drop later discs). */
+export async function getItemTracks(albumId: string, limit = 1000): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     AlbumIds: albumId,

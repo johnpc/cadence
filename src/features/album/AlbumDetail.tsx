@@ -10,7 +10,7 @@ import {
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
-import { TrackRow } from '../player/TrackRow';
+import { AlbumTracks } from './AlbumTracks';
 import { AlbumHeader } from './AlbumHeader';
 import { MoreByArtist } from './MoreByArtist';
 import { useAlbum, useAlbumTracks } from './albumApi';
@@ -45,11 +45,7 @@ export function AlbumDetail() {
             emptyMessage="This album's songs aren't available on your server."
             skeleton={<TrackListSkeleton />}
           >
-            <>
-              {tracks.map((track, index) => (
-                <TrackRow key={track.Id} track={track} queue={tracks} index={index} showNumber />
-              ))}
-            </>
+            <AlbumTracks tracks={tracks} />
           </LoadState>
           {album?.Overview && (
             <section data-testid="album-about">

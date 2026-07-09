@@ -35,6 +35,14 @@
   margin: var(--cad-space-5) 0 var(--cad-space-2);
 }
 
+.album__disc {
+  margin: var(--cad-space-4) 0 var(--cad-space-2);
+}
+
+.album__disc:first-child {
+  margin-top: 0;
+}
+
 .album__about {
   line-height: 1.6;
   white-space: pre-wrap;

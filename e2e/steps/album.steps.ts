@@ -36,3 +36,20 @@ Then('the saved albums list is not empty', async ({ page }) => {
   const rows = libraryList(page).getByTestId('library-row');
   await expect(rows.first()).toBeAttached({ timeout: 30_000 });
 });
+
+When('I open the {string} album result', async ({ page }, name: string) => {
+  const albums = page.getByTestId('search-albums');
+  await expect(albums).toBeVisible({ timeout: 30_000 });
+  await albums.getByTestId('result-row').filter({ hasText: name }).first().click({ force: true });
+});
+
+Then(
+  'I see disc headers {string} and {string}',
+  async ({ page }, first: string, second: string) => {
+    // A genuine multi-disc album (e.g. "Rent") renders Spotify-style disc headers
+    // over its tracks; the tracklist is one continuous queue underneath.
+    const headings = page.getByTestId('album-detail').getByTestId('album-disc-heading');
+    await expect(headings.filter({ hasText: first })).toBeVisible({ timeout: 30_000 });
+    await expect(headings.filter({ hasText: second })).toBeVisible({ timeout: 30_000 });
+  },
+);

@@ -54,7 +54,7 @@ export function SearchResults({
         </section>
       )}
       {show('albums') && groups.albums.length > 0 && (
-        <section>
+        <section data-testid="search-albums">
           <h2 className="cad-kicker search__section">Albums</h2>
           {groups.albums.map((a) => (
             <ResultRow key={a.Id} item={a} subtitle={artistLine(a)} onSelect={goAlbum} />
