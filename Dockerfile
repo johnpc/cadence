@@ -1,7 +1,13 @@
 # Self-contained static image: build the PWA, then serve dist/ with nginx.
 # Deployed to umbrel via Dockge (see deploy/compose.yaml), fronted by cloudflared
 # at cadence.jpc.io.
-FROM node:22-alpine AS build
+#
+# The build stage is pinned to $BUILDPLATFORM so the heavy Node/Vite build always
+# runs NATIVELY on the CI runner (never under QEMU emulation) even for arm64
+# targets — the output dist/ is static and arch-independent, so only the tiny
+# final nginx layer differs per arch. Keeps multi-arch publishes ~2min instead
+# of ~40min of emulated `npm ci`.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
