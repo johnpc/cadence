@@ -59,10 +59,16 @@ describe('NowPlayingBar', () => {
     expect((fill as HTMLElement).style.width).toBe('25%');
   });
 
-  it('seeks when the progress bar is scrubbed', () => {
+  it('seeks once on release after dragging the progress bar', () => {
     const seek = vi.fn();
     renderBar(ctx({ current: song, seek }), { position: 30, duration: 120 });
-    fireEvent.change(screen.getByTestId('now-playing-seek'), { target: { value: '90' } });
+    const bar = screen.getByTestId('now-playing-seek');
+    // Drag steps fire React's onChange (no seek yet); release commits one seek.
+    fireEvent.change(bar, { target: { value: '60' } });
+    fireEvent.change(bar, { target: { value: '90' } });
+    expect(seek).not.toHaveBeenCalled();
+    fireEvent.pointerUp(bar);
+    expect(seek).toHaveBeenCalledTimes(1);
     expect(seek).toHaveBeenCalledWith(90);
   });
 

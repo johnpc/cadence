@@ -3,6 +3,7 @@ import { IonIcon } from '@ionic/react';
 import { play, pause } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { usePlayerProgress } from './PlayerProgressContext';
+import { useScrubber } from './useScrubber';
 import { artistLine } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { FullPlayer } from './FullPlayer';
@@ -14,6 +15,7 @@ import './nowPlayingBar.css';
 export function NowPlayingBar() {
   const { current, isPlaying, toggle, seek } = usePlayer();
   const { position, duration } = usePlayerProgress();
+  const scrub = useScrubber(position, seek);
   const [open, setOpen] = useState(false);
 
   // Flag the document while a track is loaded so scroll views can reserve
@@ -25,7 +27,7 @@ export function NowPlayingBar() {
 
   if (!current) return null;
 
-  const pct = duration > 0 ? Math.min(100, (position / duration) * 100) : 0;
+  const pct = duration > 0 ? Math.min(100, (scrub.value / duration) * 100) : 0;
 
   return (
     <>
@@ -60,8 +62,11 @@ export function NowPlayingBar() {
             type="range"
             min={0}
             max={duration || 0}
-            value={Math.min(position, duration || 0)}
-            onChange={(e) => seek(Number(e.target.value))}
+            value={Math.min(scrub.value, duration || 0)}
+            onChange={(e) => scrub.onInput(Number(e.currentTarget.value))}
+            onPointerUp={scrub.onCommit}
+            onKeyUp={scrub.onCommit}
+            onBlur={scrub.onCommit}
             aria-label="Seek"
             data-testid="now-playing-seek"
           />

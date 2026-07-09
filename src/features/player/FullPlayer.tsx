@@ -16,6 +16,7 @@ import { PlayingFrom } from './PlayingFrom';
 import { FullPlayerTitle } from './FullPlayerTitle';
 import { usePlayer } from './usePlayer';
 import { usePlayerProgress } from './PlayerProgressContext';
+import { useScrubber } from './useScrubber';
 import { formatTime } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import './fullPlayer.css';
@@ -24,6 +25,7 @@ import './fullPlayer.css';
 export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const p = usePlayer();
   const { position, duration } = usePlayerProgress();
+  const scrub = useScrubber(position, p.seek);
   const [queueOpen, setQueueOpen] = useState(false);
   const [lyricsOpen, setLyricsOpen] = useState(false);
   return (
@@ -40,12 +42,15 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
             type="range"
             min={0}
             max={duration || 0}
-            value={Math.min(position, duration || 0)}
-            onChange={(e) => p.seek(Number(e.target.value))}
+            value={Math.min(scrub.value, duration || 0)}
+            onChange={(e) => scrub.onInput(Number(e.currentTarget.value))}
+            onPointerUp={scrub.onCommit}
+            onKeyUp={scrub.onCommit}
+            onBlur={scrub.onCommit}
             aria-label="Seek"
           />
           <div className="fullplayer__times cad-meta">
-            <span>{formatTime(position)}</span>
+            <span>{formatTime(scrub.value)}</span>
             <span>{formatTime(duration)}</span>
           </div>
         </div>
