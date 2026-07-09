@@ -12,22 +12,32 @@
  * hydrateServerUrl() seeds the cache from Preferences at startup.
  */
 import { Preferences } from '@capacitor/preferences';
+import { configuredServerUrl } from './runtimeConfig';
 
 const KEY = 'cadence.server-url';
 
 const trim = (url: string): string => url.trim().replace(/\/+$/, '');
 
 /** The build-time default (the maintainer's server), or '' for a generic image. */
-const DEFAULT_URL = trim(import.meta.env.VITE_JELLYFIN_URL || '');
+const BUILD_DEFAULT_URL = trim(import.meta.env.VITE_JELLYFIN_URL || '');
+
+/** The default server when the user hasn't chosen one: a runtime-configured URL
+ * (window.__CADENCE_CONFIG__.serverUrl, set per-deployment via the JELLYFIN_URL
+ * env) takes precedence over the build-time constant — so a self-hoster can pin
+ * their server without rebuilding the image. */
+function defaultUrl(): string {
+  const runtime = configuredServerUrl();
+  return runtime ? trim(runtime) : BUILD_DEFAULT_URL;
+}
 
 let cached: string | null = null;
 
 function readSync(): string {
   try {
     const stored = localStorage.getItem(KEY);
-    return stored ? trim(stored) : DEFAULT_URL;
+    return stored ? trim(stored) : defaultUrl();
   } catch {
-    return DEFAULT_URL;
+    return defaultUrl();
   }
 }
 

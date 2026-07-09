@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { signupUrl } from './runtimeConfig';
+import { configuredServerUrl, signupUrl } from './runtimeConfig';
 
 afterEach(() => {
   delete window.__CADENCE_CONFIG__;
@@ -35,5 +35,23 @@ describe('signupUrl', () => {
   it('rejects a non-URL string', () => {
     window.__CADENCE_CONFIG__ = { signupUrl: 'not a url' };
     expect(signupUrl()).toBeNull();
+  });
+});
+
+describe('configuredServerUrl', () => {
+  it('returns null when unset', () => {
+    expect(configuredServerUrl()).toBeNull();
+    window.__CADENCE_CONFIG__ = {};
+    expect(configuredServerUrl()).toBeNull();
+  });
+
+  it('returns a valid server URL', () => {
+    window.__CADENCE_CONFIG__ = { serverUrl: 'https://jf.example.com' };
+    expect(configuredServerUrl()).toBe('https://jf.example.com/');
+  });
+
+  it('rejects non-http(s) values', () => {
+    window.__CADENCE_CONFIG__ = { serverUrl: 'ftp://nope' };
+    expect(configuredServerUrl()).toBeNull();
   });
 });
