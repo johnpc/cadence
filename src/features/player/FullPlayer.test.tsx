@@ -32,8 +32,6 @@ function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
   return stubPlayer({
     current: song,
     isPlaying: true,
-    position: 30,
-    duration: 200,
     canNext: true,
     canPrev: true,
     ...overrides,
@@ -41,7 +39,10 @@ function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
 }
 
 const renderPlayer = (value: PlayerContextValue) =>
-  renderWithProviders(<FullPlayer open onClose={vi.fn()} />, { player: value });
+  renderWithProviders(<FullPlayer open onClose={vi.fn()} />, {
+    player: value,
+    progress: { position: 30, duration: 200 },
+  });
 
 describe('FullPlayer', () => {
   it('shows the current track and transport controls', async () => {
@@ -67,7 +68,7 @@ describe('FullPlayer', () => {
   });
 
   it('renders the position and duration times', async () => {
-    renderPlayer(ctx({ position: 30, duration: 200 }));
+    renderPlayer(ctx());
     expect(screen.getByText('0:30')).toBeInTheDocument();
     expect(screen.getByText('3:20')).toBeInTheDocument();
   });

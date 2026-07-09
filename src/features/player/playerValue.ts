@@ -12,8 +12,6 @@ export function buildPlayerValue(
   current: JellyfinItem | null,
   transport: {
     isPlaying: boolean;
-    position: number;
-    duration: number;
     toggle: () => void;
     seek: (seconds: number) => void;
     sleepMinutes: number | null;
@@ -25,8 +23,6 @@ export function buildPlayerValue(
   return {
     current,
     isPlaying: transport.isPlaying,
-    position: transport.position,
-    duration: transport.duration,
     shuffle: qh.shuffle,
     repeat: qh.repeat,
     canNext: q.hasNext(qh.queue),
