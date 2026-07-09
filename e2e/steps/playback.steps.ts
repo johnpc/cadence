@@ -87,3 +87,14 @@ Then('I can save the queue as a playlist', async ({ page }) => {
     timeout: 15_000,
   });
 });
+
+When('I tap the artist in the full player', async ({ page }) => {
+  // The artist line under the now-playing title links to the artist page.
+  const link = page.getByTestId('full-player-artists').getByRole('link').first();
+  await expect(link).toBeVisible({ timeout: 15_000 });
+  await link.click({ force: true });
+});
+
+Then('I see the artist page', async ({ page }) => {
+  await expect(page.getByTestId('artist-radio')).toBeAttached({ timeout: 30_000 });
+});
