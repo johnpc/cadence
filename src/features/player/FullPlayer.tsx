@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
 import { NowPlayingMenu } from './NowPlayingMenu';
+import { NextUpHint } from './NextUpHint';
 import { PlayerControls } from './PlayerControls';
 import { PlayingFrom } from './PlayingFrom';
 import { FullPlayerTitle } from './FullPlayerTitle';
@@ -80,6 +81,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           </button>
           {p.current && <NowPlayingMenu track={p.current} onNavigate={onClose} />}
         </div>
+        <NextUpHint onOpenQueue={() => setQueueOpen(true)} />
         <QueueView open={queueOpen} onClose={() => setQueueOpen(false)} />
         <LyricsSheet open={lyricsOpen} onClose={() => setLyricsOpen(false)} />
       </div>

@@ -21,6 +21,15 @@ Feature: Playback
     And I reload the app
     Then the Now-Playing bar shows a track
 
+  Scenario: The full player shows the next track in the queue
+    Given I am signed in
+    When I open the Library tab
+    And I open the first playlist
+    Then I see the playlist tracks
+    When I play the playlist
+    And I open the full player
+    Then the full player shows the next-up track
+
   Scenario: The spacebar toggles playback
     Given I am signed in
     When I tap a track from search
