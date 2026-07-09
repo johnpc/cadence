@@ -17,3 +17,11 @@ Feature: Album detail
     And I open the Library tab
     And I filter the library to "albums"
     Then the saved albums list is not empty
+
+  Scenario: A multi-disc album shows Disc headers over its tracklist
+    Given I am signed in
+    When I open the Search tab
+    And I search for "Rent"
+    And I open the "Rent" album result
+    Then I see the album tracks
+    And I see disc headers "Disc 1" and "Disc 2"
