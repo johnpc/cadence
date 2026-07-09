@@ -42,6 +42,16 @@
   margin: 0;
 }
 
+.fullplayer__artist-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.fullplayer__artist-link:hover {
+  color: var(--cad-text);
+  text-decoration: underline;
+}
+
 .fullplayer__scrubber {
   width: 100%;
 }
