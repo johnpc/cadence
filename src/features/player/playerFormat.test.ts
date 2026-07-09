@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { artistLine, collectionSummary, formatTime, trackDuration } from './playerFormat';
+import {
+  artistLine,
+  collectionSummary,
+  durationWords,
+  formatTime,
+  trackDuration,
+} from './playerFormat';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 describe('trackDuration', () => {
@@ -41,11 +47,30 @@ describe('collectionSummary', () => {
   it('uses the singular for one song', () => {
     expect(collectionSummary([t(1_800_000_000)])).toBe('1 song • 3 min');
   });
+  it('formats long collections in hours (Spotify-style)', () => {
+    // 24 tracks × 200s = 4800s = 80 min = 1 hr 20 min
+    expect(collectionSummary(Array.from({ length: 24 }, () => t(2_000_000_000)))).toBe(
+      '24 songs • 1 hr 20 min',
+    );
+  });
   it('drops the duration when unknown', () => {
     expect(collectionSummary([t(), t()])).toBe('2 songs');
   });
   it('is "0 songs" for an empty collection', () => {
     expect(collectionSummary([])).toBe('0 songs');
+  });
+});
+
+describe('durationWords', () => {
+  it('shows plain minutes under an hour', () => {
+    expect(durationWords(0)).toBe('0 min');
+    expect(durationWords(48)).toBe('48 min');
+    expect(durationWords(59)).toBe('59 min');
+  });
+  it('shows hours and minutes at or above an hour', () => {
+    expect(durationWords(60)).toBe('1 hr');
+    expect(durationWords(65)).toBe('1 hr 5 min');
+    expect(durationWords(1624)).toBe('27 hr 4 min');
   });
 });
 
