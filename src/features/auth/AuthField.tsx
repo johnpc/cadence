@@ -13,7 +13,7 @@ export function AuthField({
   value: string;
   onChange: (value: string) => void;
   autoComplete?: string;
-  inputMode?: 'text' | 'email' | 'numeric';
+  inputMode?: 'text' | 'email' | 'numeric' | 'url';
   testId?: string;
 }) {
   return (

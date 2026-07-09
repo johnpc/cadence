@@ -37,6 +37,19 @@ describe('SignIn', () => {
     expect(signIn).toHaveBeenCalledWith('cadence-test', 'pw');
   });
 
+  it('persists the entered server URL before authenticating', async () => {
+    localStorage.removeItem('cadence.server-url');
+    const signIn = vi.fn().mockResolvedValue(undefined);
+    renderSignIn(signIn);
+    const server = screen.getByTestId('signin-server');
+    await userEvent.clear(server);
+    await userEvent.type(server, 'https://my.jelly.example');
+    await userEvent.type(screen.getByTestId('signin-username'), 'u');
+    await userEvent.type(screen.getByTestId('signin-password'), 'p');
+    await userEvent.click(screen.getByTestId('signin-submit'));
+    expect(localStorage.getItem('cadence.server-url')).toBe('https://my.jelly.example');
+  });
+
   it('submits when Enter is pressed in a field (native form submit)', async () => {
     const signIn = vi.fn().mockResolvedValue(undefined);
     renderSignIn(signIn);
@@ -54,7 +67,7 @@ describe('SignIn', () => {
     await userEvent.click(screen.getByTestId('signin-submit'));
     await waitFor(() =>
       expect(screen.getByTestId('signin-error')).toHaveTextContent(
-        'Incorrect username or password.',
+        'Check your server address, username, and password.',
       ),
     );
   });

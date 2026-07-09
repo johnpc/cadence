@@ -14,6 +14,14 @@ Given('I open the app signed out', async ({ page }) => {
   await expect(page.getByTestId('signin-submit')).toBeVisible();
 });
 
+Then('I see a server address field prefilled with a server', async ({ page }) => {
+  const server = page.getByTestId('signin-server'); // testid sits on the <input>
+  await expect(server).toBeVisible();
+  // Prefilled with the build-time default so the maintainer's users sign in
+  // without typing a URL; self-hosters can overwrite it.
+  await expect(server).not.toHaveValue('');
+});
+
 When("I sign in with the test user's credentials", async ({ page }) => {
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill(PASSWORD as string);
