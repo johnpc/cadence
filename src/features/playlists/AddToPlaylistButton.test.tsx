@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([]),
   createPlaylist: vi.fn(),
+  createPlaylistWithItems: vi.fn(),
   getPlaylistItems: vi.fn(),
   addToPlaylist: vi.fn(),
 }));
