@@ -58,7 +58,6 @@ export default defineConfig({
         'src/App.tsx',
         'src/AppRoutes.tsx',
         'src/AppTabs.tsx',
-        'src/AppTabRoutes.tsx',
         'src/AppLoading.tsx',
         // Render-only route code-splitting glue (React.lazy wrappers).
         'src/lazyPages.tsx',
