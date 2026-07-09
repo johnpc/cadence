@@ -53,7 +53,13 @@ export function LikedSongs() {
           <LikedSongsControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />
         )}
         {shown.slice(0, limit).map((track, index) => (
-          <TrackRow key={track.Id} track={track} queue={shown} index={index} />
+          <TrackRow
+            key={track.Id}
+            track={track}
+            queue={shown}
+            index={index}
+            context={{ kind: 'your library', label: 'Liked Songs' }}
+          />
         ))}
         {hasMore && <div ref={sentinelRef} data-testid="liked-load-more" aria-hidden="true" />}
         {query.trim() && shown.length === 0 && (

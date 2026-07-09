@@ -1,6 +1,7 @@
 import { IonIcon } from '@ionic/react';
 import { removeCircleOutline } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
+import { setPlayContext } from './playContext';
 import { trackDuration } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { TrackTitle } from './TrackTitle';
@@ -24,6 +25,7 @@ export function TrackRow({
   onRemove,
   reorder,
   showNumber,
+  context,
 }: {
   track: JellyfinItem;
   queue: JellyfinItem[];
@@ -36,9 +38,18 @@ export function TrackRow({
   reorder?: { isFirst: boolean; isLast: boolean; onMoveUp: () => void; onMoveDown: () => void };
   /** Show the track's album number instead of its cover art (album view). */
   showNumber?: boolean;
+  /** When set, tapping a row records the "Playing from …" source for the queue. */
+  context?: { kind: string; label: string };
 }) {
   const { playQueue, current, isPlaying, toggle } = usePlayer();
   const isCurrent = current?.Id === track.Id;
+  // Tap the playing row to pause in place; any other row starts the queue here.
+  const onRowPlay = () => {
+    if (isCurrent) return toggle();
+    onPlay?.();
+    if (context) setPlayContext({ ...context, tracks: queue });
+    playQueue(queue, index);
+  };
   return (
     <div
       className={isCurrent ? 'track-row track-row--current' : 'track-row'}
@@ -48,16 +59,7 @@ export function TrackRow({
         type="button"
         className="track-row__play"
         data-testid="track-row-play"
-        onClick={() => {
-          // Tapping the already-playing row pauses/resumes in place (Spotify-
-          // style); any other row starts the queue from that track.
-          if (isCurrent) {
-            toggle();
-          } else {
-            onPlay?.();
-            playQueue(queue, index);
-          }
-        }}
+        onClick={onRowPlay}
       >
         {showNumber && track.IndexNumber ? (
           <span className="track-row__num" data-testid="track-number">
