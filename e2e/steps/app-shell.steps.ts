@@ -36,6 +36,32 @@ export async function navigate(page: Page, label: string): Promise<void> {
   }
 }
 
+/** Type a search term and wait for a result inside `sectionTestId` to attach,
+ * re-firing the query if the first attempt yields nothing in time. Mirrors a
+ * real user re-typing when a search is slow, and exercises the query-retry
+ * path — so a single transient Jellyfin hiccup doesn't fail the run. The result
+ * is the first `resultTestId` (default track-row-play) within the section. */
+export async function searchUntilResults(
+  page: Page,
+  term: string,
+  sectionTestId: string,
+  resultTestId = 'track-row-play',
+): Promise<void> {
+  const input = page.getByTestId('search-input').locator('input');
+  const result = page.getByTestId(sectionTestId).getByTestId(resultTestId).first();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await input.fill('');
+    await input.fill(term);
+    try {
+      await expect(result).toBeAttached({ timeout: 20_000 });
+      return;
+    } catch {
+      if (attempt === 2)
+        throw new Error(`No "${resultTestId}" in "${sectionTestId}" after 3 tries`);
+    }
+  }
+}
+
 Given('I open the app', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());

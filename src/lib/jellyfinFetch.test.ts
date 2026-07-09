@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { request, Unauthenticated } from './jellyfinFetch';
+import { request, Unauthenticated, RequestTimeout } from './jellyfinFetch';
 import { setSession } from './sessionStore';
 
 function mockFetch(status: number, body: unknown = {}) {
@@ -63,5 +63,19 @@ describe('jellyfinFetch.request', () => {
     await request('/Items');
     const [, init] = f.mock.calls[0];
     expect(init.headers['Authorization']).toBe('MediaBrowser Token="stored"');
+  });
+
+  it('passes an abort signal so the request is bounded by a timeout', async () => {
+    const f = mockFetch(200, {});
+    vi.stubGlobal('fetch', f);
+    await request('/Items');
+    const [, init] = f.mock.calls[0];
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('throws RequestTimeout when the fetch is aborted', async () => {
+    const abortErr = new DOMException('aborted', 'AbortError');
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abortErr));
+    await expect(request('/Items')).rejects.toBeInstanceOf(RequestTimeout);
   });
 });
