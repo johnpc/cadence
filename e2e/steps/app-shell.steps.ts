@@ -133,6 +133,25 @@ Then('the search box is focused', async ({ page }) => {
   await expect(page.getByTestId('search-input').locator('input')).toBeFocused({ timeout: 15_000 });
 });
 
+When('the device goes offline', async ({ page }) => {
+  // Ensure the shell (which mounts the offline banner) is up before toggling,
+  // so the state change lands on a mounted listener rather than mid-transition.
+  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: 15_000 });
+  await page.context().setOffline(true);
+});
+
+Then('I see the offline banner', async ({ page }) => {
+  await expect(page.getByTestId('offline-banner')).toBeVisible({ timeout: 15_000 });
+});
+
+When('the device comes back online', async ({ page }) => {
+  await page.context().setOffline(false);
+});
+
+Then('the offline banner is gone', async ({ page }) => {
+  await expect(page.getByTestId('offline-banner')).toHaveCount(0, { timeout: 15_000 });
+});
+
 When('I navigate to an unknown URL', async ({ page }) => {
   await page.goto('/this-route-does-not-exist');
 });

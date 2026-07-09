@@ -1,0 +1,21 @@
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cad-space-2);
+  padding: max(var(--cad-safe-top), 6px) var(--cad-space-4) 6px;
+  background: var(--cad-warning);
+  color: #000;
+  font-family: var(--cad-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.offline-banner ion-icon {
+  font-size: 16px;
+}
