@@ -8,23 +8,23 @@ interface ShelfData {
   refetch: () => unknown;
 }
 
-/** A Home shelf of item cards backed by a query result. `onPlay` receives the
- * item and its index (songs play a queue; albums navigate). `onPlayNow`, when
- * given, adds a hover play FAB that plays the item immediately. */
+/** A Home shelf of item cards backed by a query result. Tapping a card body
+ * `onOpen`s its detail page; the play FAB `onPlay`s it. Both receive the item
+ * and its index. */
 export function CardShelf({
   title,
   items,
   state,
+  onOpen,
   onPlay,
-  onPlayNow,
   round = false,
   seeAllHref,
 }: {
   title: string;
   items: JellyfinItem[];
   state: ShelfData;
+  onOpen: (item: JellyfinItem, index: number) => void;
   onPlay: (item: JellyfinItem, index: number) => void;
-  onPlayNow?: (item: JellyfinItem, index: number) => void;
   round?: boolean;
   seeAllHref?: string;
 }) {
@@ -41,8 +41,8 @@ export function CardShelf({
         <AlbumCard
           key={item.Id}
           item={item}
+          onOpen={() => onOpen(item, index)}
           onPlay={() => onPlay(item, index)}
-          onPlayNow={onPlayNow ? () => onPlayNow(item, index) : undefined}
           round={round}
         />
       ))}
