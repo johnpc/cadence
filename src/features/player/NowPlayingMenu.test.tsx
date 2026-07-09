@@ -7,6 +7,9 @@ vi.mock('../playlists/playlistsApi', () => ({
   usePlaylists: () => ({ playlists: [{ Id: 'pl1', Name: 'Chill' }] }),
   useAddToPlaylist: () => ({ mutate: vi.fn() }),
 }));
+vi.mock('../playlists/playlistCreate', () => ({
+  useCreatePlaylistWithItems: () => ({ mutate: vi.fn() }),
+}));
 import { NowPlayingMenu } from './NowPlayingMenu';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -76,5 +79,13 @@ describe('NowPlayingMenu', () => {
     renderMenu();
     await userEvent.click(screen.getByTestId('full-player-more'));
     expect(screen.getByText('Add to Chill')).toBeInTheDocument();
+  });
+
+  it('offers a "New playlist…" option before the existing playlists', async () => {
+    renderMenu();
+    await userEvent.click(screen.getByTestId('full-player-more'));
+    const labels = screen.getAllByRole('button').map((b) => b.textContent);
+    expect(labels).toContain('New playlist…');
+    expect(labels.indexOf('New playlist…')).toBeLessThan(labels.indexOf('Add to Chill'));
   });
 });
