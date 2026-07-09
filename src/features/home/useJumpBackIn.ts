@@ -1,16 +1,21 @@
+import { useSyncExternalStore } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getItem } from '../../lib/jellyfinItems';
-import { getRecentPlays } from '../library/recentPlays';
+import { getRecentPlays, subscribeRecentPlays } from '../library/recentPlays';
 import { topRecentIds } from './jumpBackIn';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** Hydrate the most-recently-played collections (albums/playlists/artists the
  * user played) into cards for a Spotify-style "Jump back in" shelf. Ids come
- * from the local recent-plays store; each is resolved via getItem, and any that
+ * from the local recent-plays store (subscribed, so the shelf updates live when
+ * you play something — no reload); each is resolved via getItem, and any that
  * fail (a deleted/moved item) are dropped so a stale id can't break the shelf.
  * The query key includes the id list so it refreshes as you play more. */
 export function useJumpBackIn() {
-  const ids = topRecentIds(getRecentPlays());
+  const idsKey = useSyncExternalStore(subscribeRecentPlays, () =>
+    topRecentIds(getRecentPlays()).join(','),
+  );
+  const ids = idsKey ? idsKey.split(',') : [];
   const q = useQuery({
     queryKey: ['jump-back-in', ids],
     queryFn: async (): Promise<JellyfinItem[]> => {
