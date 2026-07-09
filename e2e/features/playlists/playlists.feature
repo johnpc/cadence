@@ -10,6 +10,17 @@ Feature: Playlists
     When I play the playlist
     Then the Now-Playing bar shows a track
 
+  Scenario: The playlist play button pauses in place once it is playing
+    Given I am signed in
+    When I open the Library tab
+    And I open the first playlist
+    Then I see the playlist tracks
+    When I play the playlist
+    Then the Now-Playing bar shows a track
+    And the playlist play button becomes a pause button
+    When I press the playlist play button
+    Then playback is paused
+
   Scenario: A playlist recommends songs to add and lets me dismiss them
     Given I am signed in
     When I open the Library tab

@@ -37,4 +37,30 @@ describe('CollectionActions', () => {
     await userEvent.click(screen.getByTestId('queue-all'));
     expect(addToQueue).toHaveBeenCalledWith(tracks);
   });
+
+  it('toggles (pauses) in place when this collection is the active, playing queue', async () => {
+    const toggle = vi.fn();
+    const playQueue = vi.fn();
+    renderWithProviders(<CollectionActions tracks={tracks} />, {
+      player: stubPlayer({ queue: tracks, isPlaying: true, toggle, playQueue }),
+    });
+    const btn = screen.getByTestId('play-all');
+    expect(btn).toHaveAttribute('aria-label', 'Pause');
+    await userEvent.click(btn);
+    expect(toggle).toHaveBeenCalled();
+    expect(playQueue).not.toHaveBeenCalled();
+  });
+
+  it('resumes (does not restart) when the active queue is paused', async () => {
+    const toggle = vi.fn();
+    const playQueue = vi.fn();
+    renderWithProviders(<CollectionActions tracks={tracks} />, {
+      player: stubPlayer({ queue: tracks, isPlaying: false, toggle, playQueue }),
+    });
+    const btn = screen.getByTestId('play-all');
+    expect(btn).toHaveAttribute('aria-label', 'Play');
+    await userEvent.click(btn);
+    expect(toggle).toHaveBeenCalled();
+    expect(playQueue).not.toHaveBeenCalled();
+  });
 });

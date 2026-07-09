@@ -1,13 +1,16 @@
 import { IonIcon } from '@ionic/react';
-import { play, shuffle as shuffleIcon, listOutline } from 'ionicons/icons';
+import { play, pause, shuffle as shuffleIcon, listOutline } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { useToast } from '../toast/useToast';
 import { touchRecentPlay } from '../library/recentPlays';
+import { isActiveQueue } from './isActiveQueue';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './collectionActions.css';
 
 /** Play-all, shuffle-all, and add-to-queue for a collection (album, playlist,
- * likes). `collectionId`, when given, records a recent play so the collection
+ * likes). When this collection is already the active queue, the play button
+ * becomes a pause/resume toggle (Spotify-style) instead of restarting from the
+ * top. `collectionId`, when given, records a recent play so the collection
  * bubbles to the top of Your Library's default (recents) order. */
 export function CollectionActions({
   tracks,
@@ -16,10 +19,21 @@ export function CollectionActions({
   tracks: JellyfinItem[];
   collectionId?: string;
 }) {
-  const { playQueue, playShuffled, addToQueue } = usePlayer();
+  const { playQueue, playShuffled, addToQueue, queue, isPlaying, toggle } = usePlayer();
   const toast = useToast();
+  const isActive = isActiveQueue(tracks, queue);
+  const showPause = isActive && isPlaying;
   const markPlayed = () => {
     if (collectionId) touchRecentPlay(collectionId, Date.now());
+  };
+  const onPlay = () => {
+    // Already this collection's queue → toggle in place; else (re)start it.
+    if (isActive) {
+      toggle();
+    } else {
+      markPlayed();
+      playQueue(tracks, 0);
+    }
   };
   return (
     <div className="collection-actions">
@@ -48,13 +62,10 @@ export function CollectionActions({
       <button
         className="collection-actions__play"
         data-testid="play-all"
-        onClick={() => {
-          markPlayed();
-          playQueue(tracks, 0);
-        }}
-        aria-label="Play"
+        onClick={onPlay}
+        aria-label={showPause ? 'Pause' : 'Play'}
       >
-        <IonIcon icon={play} />
+        <IonIcon icon={showPause ? pause : play} />
       </button>
     </div>
   );
