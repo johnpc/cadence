@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinItems', () => ({
@@ -25,6 +26,8 @@ describe('DesktopSidebar', () => {
   });
   afterEach(() => {
     vi.resetAllMocks();
+    localStorage.clear();
+    document.body.classList.remove('app-sidebar-collapsed');
   });
 
   it('shows primary nav links to Home, Search, and Your Library', () => {
@@ -38,5 +41,27 @@ describe('DesktopSidebar', () => {
     renderWithProviders(<DesktopSidebar />);
     await waitFor(() => expect(screen.getByText('Road Trip')).toBeInTheDocument());
     expect(screen.getByTestId('library-list')).toBeInTheDocument();
+  });
+
+  it('collapses and expands via the toggle, flagging the body + persisting', async () => {
+    renderWithProviders(<DesktopSidebar />);
+    const toggle = screen.getByTestId('sidebar-collapse');
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(document.body).toHaveClass('app-sidebar-collapsed');
+    expect(localStorage.getItem('cadence.sidebar-collapsed')).toBe('1');
+
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(document.body).not.toHaveClass('app-sidebar-collapsed');
+    expect(localStorage.getItem('cadence.sidebar-collapsed')).toBe('0');
+  });
+
+  it('restores the collapsed state from storage on mount', () => {
+    localStorage.setItem('cadence.sidebar-collapsed', '1');
+    renderWithProviders(<DesktopSidebar />);
+    expect(screen.getByTestId('sidebar-collapse')).toHaveAttribute('aria-expanded', 'false');
   });
 });
