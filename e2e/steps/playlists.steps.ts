@@ -63,6 +63,14 @@ When('I dismiss the first recommendation', async ({ page }) => {
   await dismiss.click();
 });
 
+Then('the full player shows it is playing from a playlist', async ({ page }) => {
+  // Spotify-style "Playing from playlist · <name>" caption at the top of the
+  // full player, driven by the collection the queue was started from.
+  const ctx = page.getByTestId('full-player').getByTestId('playing-from');
+  await expect(ctx).toBeVisible({ timeout: 15_000 });
+  await expect(ctx).toContainText('Playing from playlist');
+});
+
 Then('a different recommendation takes its place', async ({ page }) => {
   // The exact dismissed track (by id) is gone and never re-appears; the section
   // stays functional with at least one recommendation.

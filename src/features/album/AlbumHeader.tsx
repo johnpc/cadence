@@ -47,7 +47,13 @@ export function AlbumHeader({
         <div className="album__actions">
           <SaveButton item={album ?? null} />
           <ShareButton item={album ?? null} />
-          {tracks.length > 0 && <CollectionActions tracks={tracks} collectionId={album?.Id} />}
+          {tracks.length > 0 && (
+            <CollectionActions
+              tracks={tracks}
+              collectionId={album?.Id}
+              context={{ kind: 'album', label: album?.Name ?? 'Album' }}
+            />
+          )}
         </div>
       </div>
     </GradientHeader>

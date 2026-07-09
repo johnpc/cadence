@@ -1,7 +1,8 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CollectionActions } from './CollectionActions';
+import { getPlayContext, setPlayContext } from './playContext';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -11,6 +12,27 @@ const tracks: JellyfinItem[] = [
 ];
 
 describe('CollectionActions', () => {
+  afterEach(() => setPlayContext(null));
+
+  it('records the "Playing from" context when a labelled collection plays', async () => {
+    renderWithProviders(
+      <CollectionActions tracks={tracks} context={{ kind: 'playlist', label: 'Chill' }} />,
+      { player: stubPlayer({ playQueue: vi.fn() }) },
+    );
+    await userEvent.click(screen.getByTestId('play-all'));
+    const ctx = getPlayContext();
+    expect(ctx?.kind).toBe('playlist');
+    expect(ctx?.label).toBe('Chill');
+    expect([...(ctx?.trackIds ?? [])]).toEqual(['a', 'b']);
+  });
+
+  it('leaves the context untouched when no context prop is given', async () => {
+    renderWithProviders(<CollectionActions tracks={tracks} />, {
+      player: stubPlayer({ playQueue: vi.fn() }),
+    });
+    await userEvent.click(screen.getByTestId('play-all'));
+    expect(getPlayContext()).toBeNull();
+  });
   it('plays the collection in order', async () => {
     const playQueue = vi.fn();
     renderWithProviders(<CollectionActions tracks={tracks} />, {

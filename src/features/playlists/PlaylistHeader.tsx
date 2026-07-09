@@ -33,7 +33,11 @@ export function PlaylistHeader({
         </div>
       </GradientHeader>
       <div className="playlist__actions">
-        <CollectionActions tracks={tracks} collectionId={playlist?.Id} />
+        <CollectionActions
+          tracks={tracks}
+          collectionId={playlist?.Id}
+          context={playlist ? { kind: 'playlist', label: playlist.Name ?? 'Playlist' } : undefined}
+        />
         <ShareButton item={playlist} />
       </div>
     </>

@@ -3,6 +3,7 @@ import { play, pause, shuffle as shuffleIcon, listOutline } from 'ionicons/icons
 import { usePlayer } from './usePlayer';
 import { useToast } from '../toast/useToast';
 import { touchRecentPlay } from '../library/recentPlays';
+import { setPlayContext } from './playContext';
 import { isActiveQueue } from './isActiveQueue';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './collectionActions.css';
@@ -11,13 +12,16 @@ import './collectionActions.css';
  * likes). When this collection is already the active queue, the play button
  * becomes a pause/resume toggle (Spotify-style) instead of restarting from the
  * top. `collectionId`, when given, records a recent play so the collection
- * bubbles to the top of Your Library's default (recents) order. */
+ * bubbles to the top of Your Library's default (recents) order. `context`, when
+ * given, drives the full player's "Playing from …" header. */
 export function CollectionActions({
   tracks,
   collectionId,
+  context,
 }: {
   tracks: JellyfinItem[];
   collectionId?: string;
+  context?: { kind: string; label: string };
 }) {
   const { playQueue, playShuffled, addToQueue, queue, isPlaying, toggle } = usePlayer();
   const toast = useToast();
@@ -25,6 +29,7 @@ export function CollectionActions({
   const showPause = isActive && isPlaying;
   const markPlayed = () => {
     if (collectionId) touchRecentPlay(collectionId, Date.now());
+    if (context) setPlayContext({ ...context, tracks });
   };
   const onPlay = () => {
     // Already this collection's queue → toggle in place; else (re)start it.

@@ -21,6 +21,26 @@
   cursor: pointer;
 }
 
+.fullplayer__context {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  /* Pull up under the close chevron — it reads as a caption, not a block. */
+  margin-top: calc(-1 * var(--cad-space-4));
+}
+
+.fullplayer__context-kind {
+  opacity: 0.7;
+}
+
+.fullplayer__context-label {
+  color: var(--cad-text);
+  font-weight: 600;
+  font-size: 14px;
+}
+
 .fullplayer__meta {
   width: 100%;
   display: flex;

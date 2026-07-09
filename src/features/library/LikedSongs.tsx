@@ -44,7 +44,10 @@ export function LikedSongs() {
               {collectionSummary(songs)}
             </p>
           </div>
-          <CollectionActions tracks={shown} />
+          <CollectionActions
+            tracks={shown}
+            context={{ kind: 'your library', label: 'Liked Songs' }}
+          />
         </div>
         {songs.length > 8 && (
           <LikedSongsControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />
