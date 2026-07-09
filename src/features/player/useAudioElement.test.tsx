@@ -50,6 +50,20 @@ describe('useAudioElement', () => {
     expect(onEnded).toHaveBeenCalledOnce();
   });
 
+  it('tracks buffering: waiting on stall, cleared when playback resumes', () => {
+    const { result } = renderHook(() => useAudioElement(vi.fn()));
+    expect(result.current.waiting).toBe(false);
+    act(() => audio.fire('waiting'));
+    expect(result.current.waiting).toBe(true);
+    act(() => audio.fire('playing'));
+    expect(result.current.waiting).toBe(false);
+    // 'canplay' also clears a stall.
+    act(() => audio.fire('waiting'));
+    expect(result.current.waiting).toBe(true);
+    act(() => audio.fire('canplay'));
+    expect(result.current.waiting).toBe(false);
+  });
+
   it('fires onError when the audio element errors', () => {
     const onError = vi.fn();
     renderHook(() => useAudioElement(vi.fn(), onError));
