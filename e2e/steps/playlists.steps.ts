@@ -26,6 +26,20 @@ When('I play the playlist', async ({ page }) => {
   await page.getByTestId('playlist-detail').getByTestId('play-all').click({ force: true });
 });
 
+Then('the playlist play button becomes a pause button', async ({ page }) => {
+  // Once the playlist is the active, playing queue, its play-all flips to Pause
+  // (Spotify-style) rather than staying a restart button.
+  await expect(page.getByTestId('playlist-detail').getByTestId('play-all')).toHaveAttribute(
+    'aria-label',
+    'Pause',
+    { timeout: 15_000 },
+  );
+});
+
+When('I press the playlist play button', async ({ page }) => {
+  await page.getByTestId('playlist-detail').getByTestId('play-all').click({ force: true });
+});
+
 Then('I see recommended songs to add', async ({ page }) => {
   // Recommendations come from Jellyfin's instant-mix radio seeded on the
   // playlist — real tracks, fetched after the playlist's own items resolve.
