@@ -1,17 +1,16 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
-import { navigate } from './app-shell.steps';
+import { navigate, searchUntilResults } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
 When('I tap a track from search', async ({ page }) => {
   // Home is now recommendation shelves (no flat track list), so drive playback
-  // from Search, which lists individual tracks.
+  // from Search, which lists individual tracks. searchUntilResults re-fires the
+  // query if a transient hiccup means no results land in time.
   await navigate(page, 'Search');
-  await page.getByTestId('search-input').locator('input').fill('love');
-  const rows = page.getByTestId('search-results').getByTestId('track-row-play');
-  await expect(rows.first()).toBeVisible({ timeout: 15_000 });
-  await rows.first().click();
+  await searchUntilResults(page, 'love', 'search-results');
+  await page.getByTestId('search-results').getByTestId('track-row-play').first().click();
 });
 
 Then('the Now-Playing bar shows a track', async ({ page }) => {

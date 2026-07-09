@@ -67,6 +67,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      # Cap parallelism: all areas hit ONE self-hosted Jellyfin server. Running
+      # all ~10 at once stampedes it (auth throttling / stalled reads that read
+      # as flakes). 3 keeps the server responsive without slowing CI much.
+      max-parallel: 3
       matrix:
         area:
           - name: smoke
