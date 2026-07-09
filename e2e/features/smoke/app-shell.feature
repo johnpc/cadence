@@ -17,3 +17,10 @@ Feature: App shell
     Given I am signed in
     When I tap the "Search" tab
     Then I see the search placeholder
+
+  Scenario: I can collapse the desktop sidebar
+    Given I am signed in
+    When I collapse the sidebar
+    Then the sidebar is collapsed
+    When I collapse the sidebar
+    Then the sidebar is expanded

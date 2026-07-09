@@ -17,17 +17,47 @@
     background: var(--cad-bg);
     border-right: 1px solid var(--cad-hairline);
     overflow: hidden;
+    transition: width 0.2s ease;
+  }
+
+  /* Collapsed: an icons-only rail. Labels + the library list hide; the content
+     inset narrows to match (below). */
+  .sidebar--collapsed {
+    width: 72px;
+  }
+
+  .sidebar--collapsed .sidebar__label,
+  .sidebar--collapsed .sidebar__library {
+    display: none;
+  }
+
+  .sidebar--collapsed .sidebar__link {
+    justify-content: center;
   }
 
   /* Make room for the sidebar: inset the tab pages and the mini-player from the
-     left AND cap their width so content doesn't overflow off the right edge. */
+     left AND cap their width so content doesn't overflow off the right edge.
+     The inset transitions with the sidebar and narrows when collapsed. */
   .app-has-sidebar ion-tabs {
     left: 300px;
     width: calc(100% - 300px);
+    transition:
+      left 0.2s ease,
+      width 0.2s ease;
   }
 
   .app-has-sidebar .apptabs__npbar {
     left: 300px;
+    transition: left 0.2s ease;
+  }
+
+  .app-sidebar-collapsed ion-tabs {
+    left: 72px;
+    width: calc(100% - 72px);
+  }
+
+  .app-sidebar-collapsed .apptabs__npbar {
+    left: 72px;
   }
 
   /* The bottom tab bar is redundant on desktop — the sidebar carries nav. */
@@ -39,6 +69,30 @@
   .app-has-sidebar .apptabs__npbar {
     bottom: 0;
   }
+}
+
+.sidebar__collapse {
+  align-self: flex-end;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cad-surface);
+  color: var(--cad-text-secondary);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sidebar__collapse:hover {
+  color: var(--cad-text);
+}
+
+.sidebar--collapsed .sidebar__collapse {
+  align-self: center;
 }
 
 .sidebar__nav {
