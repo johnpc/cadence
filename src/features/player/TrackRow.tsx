@@ -37,7 +37,7 @@ export function TrackRow({
   /** Show the track's album number instead of its cover art (album view). */
   showNumber?: boolean;
 }) {
-  const { playQueue, current, isPlaying } = usePlayer();
+  const { playQueue, current, isPlaying, toggle } = usePlayer();
   const isCurrent = current?.Id === track.Id;
   return (
     <div
@@ -49,8 +49,14 @@ export function TrackRow({
         className="track-row__play"
         data-testid="track-row-play"
         onClick={() => {
-          onPlay?.();
-          playQueue(queue, index);
+          // Tapping the already-playing row pauses/resumes in place (Spotify-
+          // style); any other row starts the queue from that track.
+          if (isCurrent) {
+            toggle();
+          } else {
+            onPlay?.();
+            playQueue(queue, index);
+          }
         }}
       >
         {showNumber && track.IndexNumber ? (
