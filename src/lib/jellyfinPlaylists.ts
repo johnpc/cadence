@@ -21,8 +21,11 @@ export async function getPlaylists(): Promise<JellyfinItem[]> {
   return dedupeByName(res.Items);
 }
 
-/** The tracks in a playlist, in playlist order (capped for a fast first paint). */
-export async function getPlaylistItems(playlistId: string, limit = 200): Promise<JellyfinItem[]> {
+/** The tracks in a playlist, in playlist order. The limit is high enough to
+ * cover a full playlist (a 200-cap silently hid tracks past #200 on large
+ * playlists — e.g. a 463-track one); the row list is virtualized so a big
+ * result still renders fast. */
+export async function getPlaylistItems(playlistId: string, limit = 1000): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     userId,
