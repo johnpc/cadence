@@ -21,7 +21,12 @@ export function RecommendedSongs({
     <section className="playlist-recs" data-testid="playlist-recs">
       <h2 className="cad-kicker playlist-recs__title">Recommended songs to add</h2>
       {recommendations.map((track) => (
-        <div className="playlist-rec" data-testid="playlist-rec" key={track.Id}>
+        <div
+          className="playlist-rec"
+          data-testid="playlist-rec"
+          data-track-id={track.Id}
+          key={track.Id}
+        >
           <Link className="playlist-rec__info" to={`/song/${track.Id}`}>
             <TrackArt item={track} size={44} />
             <span className="playlist-rec__meta">
