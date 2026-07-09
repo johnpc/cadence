@@ -1,8 +1,9 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { QueueView } from './QueueView';
+import { setPlayContext } from './playContext';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -22,6 +23,24 @@ const queue: JellyfinItem[] = [
 ];
 
 describe('QueueView', () => {
+  afterEach(() => setPlayContext(null));
+
+  it('shows the "Playing from" source when the current track has a context', () => {
+    setPlayContext({ kind: 'playlist', label: 'Chill Mix', tracks: queue });
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 0, current: queue[0] }),
+    });
+    expect(screen.getByTestId('queue-playing-from')).toHaveTextContent('Playing from playlist');
+    expect(screen.getByTestId('queue-playing-from')).toHaveTextContent('Chill Mix');
+  });
+
+  it('shows no source line when there is no context', () => {
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 0, current: queue[0] }),
+    });
+    expect(screen.queryByTestId('queue-playing-from')).not.toBeInTheDocument();
+  });
+
   it('lists the queue and marks the current track', () => {
     renderWithProviders(<QueueView open onClose={vi.fn()} />, {
       player: stubPlayer({ queue, queueIndex: 1 }),

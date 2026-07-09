@@ -46,6 +46,17 @@
   margin: 0;
 }
 
+.queueview__titles {
+  min-width: 0;
+}
+
+.queueview__from {
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .queueview__list {
   flex: 1;
   overflow-y: auto;

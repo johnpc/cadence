@@ -1,6 +1,7 @@
 import { IonModal, IonIcon } from '@ionic/react';
 import { chevronDown } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
+import { usePlayContext } from './usePlayContext';
 import { QueueRow } from './QueueRow';
 import { SaveQueueButton } from './SaveQueueButton';
 import './queueView.css';
@@ -8,7 +9,9 @@ import './queueView.css';
 /** The "Up Next" queue — the full play order, current track marked, tap to jump,
  * reorder with up/down, and remove any track from the queue. */
 export function QueueView({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { queue, queueIndex, jumpTo, removeFromQueue, moveInQueue, clearQueue } = usePlayer();
+  const { queue, queueIndex, current, jumpTo, removeFromQueue, moveInQueue, clearQueue } =
+    usePlayer();
+  const ctx = usePlayContext(current?.Id);
   const hasUpcoming = queue.length - 1 > queueIndex;
   const jump = (index: number) => {
     jumpTo(index);
@@ -21,7 +24,14 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
           <button className="queueview__close" onClick={onClose} aria-label="Close queue">
             <IonIcon icon={chevronDown} />
           </button>
-          <h2 className="cad-headline">Up next</h2>
+          <div className="queueview__titles">
+            <h2 className="cad-headline">Up next</h2>
+            {ctx && (
+              <p className="queueview__from cad-meta" data-testid="queue-playing-from">
+                Playing from {ctx.kind} · {ctx.label}
+              </p>
+            )}
+          </div>
           <SaveQueueButton queue={queue} />
           {hasUpcoming && (
             <button
