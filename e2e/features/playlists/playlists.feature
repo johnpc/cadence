@@ -10,6 +10,15 @@ Feature: Playlists
     When I play the playlist
     Then the Now-Playing bar shows a track
 
+  Scenario: Playing a playlist labels the full player "Playing from playlist"
+    Given I am signed in
+    When I open the Library tab
+    And I open the first playlist
+    Then I see the playlist tracks
+    When I play the playlist
+    And I open the full player
+    Then the full player shows it is playing from a playlist
+
   Scenario: A playlist can be renamed
     Given I am signed in
     When I open the Library tab
