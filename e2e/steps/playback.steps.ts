@@ -54,6 +54,19 @@ Then('playback is paused', async ({ page }) => {
   });
 });
 
+When('I press the {string} key', async ({ page }, key: string) => {
+  // Click empty chrome first so focus isn't in a text field (shortcuts no-op
+  // while typing). The full player's own surface is a safe click target.
+  await page.getByTestId('full-player').click({ position: { x: 5, y: 5 } });
+  await page.keyboard.press(key);
+});
+
+Then('shuffle is on', async ({ page }) => {
+  // The shuffle control gains the "--on" state class when active.
+  const shuffle = page.getByTestId('full-player-shuffle');
+  await expect(shuffle).toHaveClass(/fullplayer__ctl--on/, { timeout: 15_000 });
+});
+
 When('I open lyrics', async ({ page }) => {
   const btn = page.getByTestId('full-player-lyrics');
   await btn.scrollIntoViewIfNeeded();

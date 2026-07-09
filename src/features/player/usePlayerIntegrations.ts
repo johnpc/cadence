@@ -9,6 +9,8 @@ interface Controls {
   prev: () => void;
   nudgeVolume: (delta: number) => void;
   toggleMute: () => void;
+  toggleShuffle: () => void;
+  cycleRepeat: () => void;
 }
 
 /** Wire OS-level integrations to the player: the W3C MediaSession (lock screen /
@@ -32,8 +34,10 @@ export function usePlayerIntegrations(
       prev: c.prev,
       nudgeVolume: c.nudgeVolume,
       toggleMute: c.toggleMute,
+      toggleShuffle: c.toggleShuffle,
+      cycleRepeat: c.cycleRepeat,
     }),
-    [c.toggle, c.next, c.prev, c.nudgeVolume, c.toggleMute],
+    [c.toggle, c.next, c.prev, c.nudgeVolume, c.toggleMute, c.toggleShuffle, c.cycleRepeat],
   );
   useKeyboardShortcuts(keys, !!current);
 }

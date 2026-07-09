@@ -7,6 +7,8 @@ export interface ShortcutActions {
   /** Nudge the volume by a delta in [-1,1] (clamped by the handler). */
   nudgeVolume: (delta: number) => void;
   toggleMute: () => void;
+  toggleShuffle: () => void;
+  cycleRepeat: () => void;
 }
 
 /** True when focus is in a text field, where our shortcuts must not steal keys. */
@@ -33,6 +35,12 @@ function actionFor(e: KeyboardEvent, a: ShortcutActions): (() => void) | null {
     case 'm':
     case 'M':
       return a.toggleMute;
+    case 's':
+    case 'S':
+      return a.toggleShuffle;
+    case 'r':
+    case 'R':
+      return a.cycleRepeat;
     default:
       return null;
   }
@@ -40,8 +48,8 @@ function actionFor(e: KeyboardEvent, a: ShortcutActions): (() => void) | null {
 
 /**
  * Desktop keyboard transport: Space = play/pause, ←/→ = prev/next,
- * ↑/↓ = volume, M = mute. No-ops while typing in a field. `enabled` gates it so
- * the shortcuts only act when a track is loaded.
+ * ↑/↓ = volume, M = mute, S = shuffle, R = repeat. No-ops while typing in a
+ * field. `enabled` gates it so the shortcuts only act when a track is loaded.
  */
 export function useKeyboardShortcuts(actions: ShortcutActions, enabled: boolean): void {
   useEffect(() => {
