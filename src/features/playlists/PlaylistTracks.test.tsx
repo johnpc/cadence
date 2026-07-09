@@ -1,7 +1,25 @@
 import { act, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// jsdom lacks IntersectionObserver (used by the progressive list); stub a no-op.
+beforeEach(() => {
+  vi.stubGlobal(
+    'IntersectionObserver',
+    class {
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+      takeRecords() {
+        return [];
+      }
+      root = null;
+      rootMargin = '';
+      thresholds = [];
+    },
+  );
+});
 
 /** IonSearchbar wraps a native input jsdom can't drive via userEvent; fire its
  * `ionInput` CustomEvent directly (the documented pattern for this codebase). */
@@ -48,12 +66,21 @@ function renderTracks(tracks: JellyfinItem[]) {
 
 afterEach(() => {
   vi.resetAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe('PlaylistTracks', () => {
   it('hides the filter box for short playlists', () => {
     renderTracks(makeTracks(3));
     expect(screen.queryByTestId('playlist-search')).not.toBeInTheDocument();
+  });
+
+  it('virtualizes a long playlist — renders a window + a load-more sentinel', () => {
+    renderTracks(makeTracks(120));
+    // Only the initial window (50) renders, not all 120.
+    expect(screen.getAllByTestId('track-row').length).toBeLessThan(120);
+    expect(screen.getAllByTestId('track-row').length).toBeGreaterThan(0);
+    expect(screen.getByTestId('playlist-load-more')).toBeInTheDocument();
   });
 
   it('filters the visible tracks by the query', () => {
