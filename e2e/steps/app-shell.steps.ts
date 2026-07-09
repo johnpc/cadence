@@ -114,3 +114,16 @@ Then('the sidebar is collapsed', async ({ page }) => {
 Then('the sidebar is expanded', async ({ page }) => {
   await expect(page.getByTestId('sidebar-collapse')).toHaveAttribute('aria-expanded', 'true');
 });
+
+When('I navigate to an unknown URL', async ({ page }) => {
+  await page.goto('/this-route-does-not-exist');
+});
+
+Then('I see the not-found page', async ({ page }) => {
+  await expect(page.getByTestId('not-found')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('404')).toBeVisible();
+});
+
+When('I tap {string} on the not-found page', async ({ page }, _label: string) => {
+  await page.getByTestId('not-found-home').click();
+});
