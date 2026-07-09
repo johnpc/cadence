@@ -45,6 +45,11 @@ export async function deletePlaylist(playlistId: string): Promise<void> {
   await request(`/Items/${playlistId}`, { method: 'DELETE' });
 }
 
+/** Rename a playlist via Jellyfin's UpdatePlaylist endpoint (POST /Playlists/{id}). */
+export async function renamePlaylist(playlistId: string, name: string): Promise<void> {
+  await request(`/Playlists/${playlistId}`, { method: 'POST', body: { Name: name } });
+}
+
 /** Create a new (audio) playlist and return its id. */
 export async function createPlaylist(name: string): Promise<string> {
   const userId = getSession()?.userId ?? '';

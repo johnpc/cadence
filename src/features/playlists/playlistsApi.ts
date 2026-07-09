@@ -6,6 +6,7 @@ import {
   getPlaylists,
   movePlaylistItem,
   removeFromPlaylist,
+  renamePlaylist,
 } from '../../lib/jellyfinPlaylists';
 import { getItem } from '../../lib/jellyfinItems';
 
@@ -78,5 +79,17 @@ export function useDeletePlaylist() {
   return useMutation({
     mutationFn: (playlistId: string) => deletePlaylist(playlistId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: PLAYLISTS_KEY }),
+  });
+}
+
+/** Rename a playlist; refreshes its header + the playlists list. */
+export function useRenamePlaylist(playlistId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => renamePlaylist(playlistId, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['playlist', playlistId] });
+      queryClient.invalidateQueries({ queryKey: PLAYLISTS_KEY });
+    },
   });
 }

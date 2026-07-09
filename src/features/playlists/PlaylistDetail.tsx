@@ -14,6 +14,7 @@ import { PlaylistHeader } from './PlaylistHeader';
 import { PlaylistTracks } from './PlaylistTracks';
 import { RecommendedSongs } from './RecommendedSongs';
 import { DeletePlaylistButton } from './DeletePlaylistButton';
+import { RenamePlaylistButton } from './RenamePlaylistButton';
 import { usePlaylist, usePlaylistItems } from './playlistsApi';
 import './playlists.css';
 
@@ -32,6 +33,7 @@ export function PlaylistDetail() {
           </IonButtons>
           <IonTitle>Playlist</IonTitle>
           <IonButtons slot="end">
+            {playlist && <RenamePlaylistButton playlistId={id} currentName={playlist.Name ?? ''} />}
             <DeletePlaylistButton playlistId={id} />
           </IonButtons>
         </IonToolbar>

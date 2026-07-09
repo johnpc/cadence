@@ -11,6 +11,7 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   addToPlaylist: vi.fn(),
   removeFromPlaylist: vi.fn(),
   deletePlaylist: vi.fn(),
+  renamePlaylist: vi.fn(),
 }));
 import {
   addToPlaylist,
@@ -19,11 +20,13 @@ import {
   getPlaylistItems,
   getPlaylists,
   removeFromPlaylist,
+  renamePlaylist,
 } from '../../lib/jellyfinPlaylists';
 import {
   useAddToPlaylist,
   useDeletePlaylist,
   useRemoveFromPlaylist,
+  useRenamePlaylist,
   usePlaylistItems,
   usePlaylists,
 } from './playlistsApi';
@@ -80,5 +83,12 @@ describe('playlistsApi', () => {
     const { result } = renderHook(() => useDeletePlaylist(), { wrapper });
     result.current.mutate('p');
     await waitFor(() => expect(deletePlaylist).toHaveBeenCalledWith('p'));
+  });
+
+  it('useRenamePlaylist renames a playlist', async () => {
+    vi.mocked(renamePlaylist).mockResolvedValue();
+    const { result } = renderHook(() => useRenamePlaylist('p'), { wrapper });
+    result.current.mutate('New Name');
+    await waitFor(() => expect(renamePlaylist).toHaveBeenCalledWith('p', 'New Name'));
   });
 });
