@@ -10,7 +10,14 @@ export function SignIn() {
   return (
     <IonPage>
       <IonContent fullscreen className="auth">
-        <div className="auth__body">
+        {/* A real form so Enter in any field submits (native behaviour). */}
+        <form
+          className="auth__body"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void f.submit();
+          }}
+        >
           <img className="auth__logo" src="/icons/icon-192.png" alt="" width={88} height={88} />
           <h1 className="auth__title cad-h1">Cadence</h1>
           <p className="auth__subtext cad-body">Sign in with your Jellyfin account.</p>
@@ -36,16 +43,10 @@ export function SignIn() {
               {f.error}
             </p>
           )}
-          <button
-            type="button"
-            className="auth__cta"
-            disabled={f.busy}
-            data-testid="signin-submit"
-            onClick={f.submit}
-          >
+          <button type="submit" className="auth__cta" disabled={f.busy} data-testid="signin-submit">
             {f.busy ? 'Signing in…' : 'Sign in'}
           </button>
-        </div>
+        </form>
       </IonContent>
     </IonPage>
   );

@@ -28,6 +28,18 @@ When("I sign in with the test user's credentials", async ({ page }) => {
   );
 });
 
+When('I sign in by pressing Enter in the password field', async ({ page }) => {
+  await page.getByTestId('signin-username').fill(USERNAME as string);
+  const password = page.getByTestId('signin-password');
+  await password.fill(PASSWORD as string);
+  await password.press('Enter'); // native form submit — no button click
+  await page.waitForFunction(
+    () => Object.keys(localStorage).some((k) => k.includes('cadence.session')),
+    undefined,
+    { timeout: 60_000 },
+  );
+});
+
 When('I sign in with a wrong password', async ({ page }) => {
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill('definitely-not-the-password');
