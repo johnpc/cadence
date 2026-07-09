@@ -11,6 +11,21 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [react(), legacy()],
+  build: {
+    // The vendor chunk (Ionic + React) is legitimately ~1.4MB and cached
+    // separately from app code; don't warn on it.
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        // Split the big, rarely-changing framework code into its own `vendor`
+        // chunk so it stays cached across app-only deploys (app code changes far
+        // more often than React/Ionic do) and the entry chunk shrinks. One chunk
+        // for all node_modules avoids the circular graph between React and
+        // Ionic's react-router bridge.
+        manualChunks: (id) => (id.includes('node_modules') ? 'vendor' : undefined),
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
@@ -43,7 +58,10 @@ export default defineConfig({
         'src/App.tsx',
         'src/AppRoutes.tsx',
         'src/AppTabs.tsx',
+        'src/AppTabRoutes.tsx',
         'src/AppLoading.tsx',
+        // Render-only route code-splitting glue (React.lazy wrappers).
+        'src/lazyPages.tsx',
       ],
       thresholds: {
         statements: 80,
