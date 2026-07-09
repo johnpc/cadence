@@ -1,13 +1,14 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
-import { libraryList } from './app-shell.steps';
+import { libraryList, searchUntilResults } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
 When('I open the first artist result', async ({ page }) => {
-  const row = page.getByTestId('search-artists').getByTestId('result-row').first();
-  await expect(row).toBeAttached({ timeout: 15_000 });
-  await row.click({ force: true });
+  // Re-fire the (already-typed) search if the artist section is slow to fill,
+  // so a transient Jellyfin hiccup doesn't fail the run.
+  await searchUntilResults(page, 'love', 'search-artists', 'result-row');
+  await page.getByTestId('search-artists').getByTestId('result-row').first().click({ force: true });
 });
 
 Then("I see the artist's albums", async ({ page }) => {

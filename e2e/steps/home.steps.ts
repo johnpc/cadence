@@ -17,11 +17,26 @@ Then('I see a {string} mix', async ({ page }, label: string) => {
 });
 
 When('I play the first mix', async ({ page }) => {
-  // A real (non-force) click on the always-visible card body: force-clicking
-  // lands on the hover FAB overlaying the card without firing its handler.
-  const mix = page.getByTestId('daily-mix-hit').first();
-  await mix.scrollIntoViewIfNeeded();
-  await mix.click();
+  // The play FAB starts the mix radio (the card body now navigates to the
+  // artist instead). Hover to reveal the FAB, then click it.
+  const card = page.getByTestId('daily-mix').first();
+  await card.scrollIntoViewIfNeeded();
+  await card.hover();
+  await card.getByTestId('daily-mix-play').click();
+});
+
+When('I play the first album on Home via its play button', async ({ page }) => {
+  const card = page.getByTestId('home-shelves').getByTestId('album-card').first();
+  await expect(card).toBeAttached({ timeout: 15_000 });
+  await card.scrollIntoViewIfNeeded();
+  await card.hover(); // reveal the hover-only FAB
+  await card.getByTestId('album-card-play').click();
+});
+
+Then('I am still on Home', async ({ page }) => {
+  // Playing from a card must NOT navigate away — the Home shelves stay mounted.
+  await expect(page.getByTestId('home-shelves')).toBeAttached();
+  await expect(page).toHaveURL(/\/home$/);
 });
 
 When('I open the full play history', async ({ page }) => {
