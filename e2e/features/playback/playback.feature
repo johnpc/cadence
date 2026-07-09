@@ -27,6 +27,13 @@ Feature: Playback
     And I press the spacebar
     Then playback is paused
 
+  Scenario: The S key toggles shuffle
+    Given I am signed in
+    When I tap a track from search
+    And I open the full player
+    And I press the "s" key
+    Then shuffle is on
+
   Scenario: Viewing lyrics for the playing track
     Given I am signed in
     When I tap a track from search

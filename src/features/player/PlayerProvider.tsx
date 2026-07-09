@@ -54,6 +54,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     prev: qh.prev,
     nudgeVolume,
     toggleMute,
+    toggleShuffle: qh.toggleShuffle,
+    cycleRepeat: qh.cycleRepeat,
   });
 
   // The main value excludes the fast-changing position/duration (those live in

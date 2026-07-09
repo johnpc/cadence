@@ -9,6 +9,8 @@ function actions() {
     prev: vi.fn(),
     nudgeVolume: vi.fn(),
     toggleMute: vi.fn(),
+    toggleShuffle: vi.fn(),
+    cycleRepeat: vi.fn(),
   };
 }
 function press(key: string, target?: EventTarget) {
@@ -42,6 +44,15 @@ describe('useKeyboardShortcuts', () => {
     expect(a.nudgeVolume).toHaveBeenCalledWith(0.1);
     expect(a.nudgeVolume).toHaveBeenCalledWith(-0.1);
     expect(a.toggleMute).toHaveBeenCalledOnce();
+  });
+
+  it('maps S to shuffle and R to repeat (either case)', () => {
+    const a = actions();
+    renderHook(() => useKeyboardShortcuts(a, true));
+    press('s');
+    press('R');
+    expect(a.toggleShuffle).toHaveBeenCalledOnce();
+    expect(a.cycleRepeat).toHaveBeenCalledOnce();
   });
 
   it('does nothing when disabled', () => {
