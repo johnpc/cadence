@@ -28,6 +28,21 @@ export function ShelfSkeleton({ count = 4 }: { count?: number }) {
   );
 }
 
+/** A responsive grid of square card placeholders — matches an album/artist grid
+ * (e.g. an artist's discography) while it loads. */
+export function CardGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="skeleton-grid" data-testid="skeleton-grid">
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className="skeleton-grid__card">
+          <Skeleton width="100%" height={150} radius={8} />
+          <Skeleton width="80%" height={12} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** A stack of track-row placeholders — matches a track list while it loads. */
 export function TrackListSkeleton({ count = 6 }: { count?: number }) {
   return (
