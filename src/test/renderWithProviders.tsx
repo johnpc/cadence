@@ -4,6 +4,10 @@ import { MemoryRouter } from 'react-router-dom';
 import type { ReactElement, ReactNode } from 'react';
 import { vi } from 'vitest';
 import { PlayerContext } from '../features/player/PlayerContext';
+import {
+  PlayerProgressContext,
+  type PlayerProgress,
+} from '../features/player/PlayerProgressContext';
 import type { PlayerContextValue } from '../features/player/types';
 
 /** A no-op player context for components that consume usePlayer in tests. */
@@ -11,8 +15,6 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
   return {
     current: null,
     isPlaying: false,
-    position: 0,
-    duration: 0,
     shuffle: false,
     repeat: 'off',
     canNext: false,
@@ -45,13 +47,17 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
  * a fresh QueryClient, a router, and a (stubbable) PlayerContext. */
 export function renderWithProviders(
   ui: ReactElement,
-  { player }: { player?: PlayerContextValue } = {},
+  { player, progress }: { player?: PlayerContextValue; progress?: PlayerProgress } = {},
 ) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>
       <MemoryRouter>
-        <PlayerContext.Provider value={player ?? stubPlayer()}>{children}</PlayerContext.Provider>
+        <PlayerContext.Provider value={player ?? stubPlayer()}>
+          <PlayerProgressContext.Provider value={progress ?? { position: 0, duration: 0 }}>
+            {children}
+          </PlayerProgressContext.Provider>
+        </PlayerContext.Provider>
       </MemoryRouter>
     </QueryClientProvider>
   );

@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useRef, type ReactNode } from 'react';
 import { PlayerContext } from './PlayerContext';
+import { PlayerProgressContext } from './PlayerProgressContext';
 import { useAudioElement } from './useAudioElement';
-import { useMediaSessionSync } from './useMediaSessionSync';
 import { usePlayerQueue } from './usePlayerQueue';
 import { useSleepTimer } from './useSleepTimer';
-import { useKeyboardShortcuts } from './useKeyboardShortcuts';
+import { usePlayerIntegrations } from './usePlayerIntegrations';
 import { useVolume } from './useVolume';
 import { usePlaybackControls } from './usePlaybackControls';
 import { usePlaybackReporting } from './usePlaybackReporting';
@@ -59,30 +59,38 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // Sleep timer: pause when it elapses.
   const { sleepMinutes, armSleep } = useSleepTimer(pause);
 
-  const mediaHandlers = useMemo(
-    () => ({ play: toggle, pause: toggle, next: qh.next, prev: qh.prev }),
-    [toggle, qh.next, qh.prev],
-  );
-  useMediaSessionSync(current, isPlaying, mediaHandlers);
-  useKeyboardShortcuts(
-    useMemo(
-      () => ({ toggle, next: qh.next, prev: qh.prev, nudgeVolume, toggleMute }),
-      [toggle, qh.next, qh.prev, nudgeVolume, toggleMute],
-    ),
-    !!current,
-  );
-
-  const value = buildPlayerValue(qh, current, {
-    isPlaying,
-    position,
-    duration,
+  usePlayerIntegrations(current, isPlaying, {
     toggle,
-    seek,
-    sleepMinutes,
-    armSleep,
-    volume,
-    setVolume,
+    next: qh.next,
+    prev: qh.prev,
+    nudgeVolume,
+    toggleMute,
   });
 
-  return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;
+  // The main value excludes the fast-changing position/duration (those live in
+  // PlayerProgressContext), so it only changes on real state transitions —
+  // memoize it so a play/pause tick doesn't re-render every TrackRow in a list.
+  const value = useMemo(
+    () =>
+      buildPlayerValue(qh, current, {
+        isPlaying,
+        toggle,
+        seek,
+        sleepMinutes,
+        armSleep,
+        volume,
+        setVolume,
+      }),
+    [qh, current, isPlaying, toggle, seek, sleepMinutes, armSleep, volume, setVolume],
+  );
+
+  // Progress ticks several times a second — its own context so only the
+  // scrubbers (NowPlayingBar, FullPlayer) re-render on each tick.
+  const progress = useMemo(() => ({ position, duration }), [position, duration]);
+
+  return (
+    <PlayerContext.Provider value={value}>
+      <PlayerProgressContext.Provider value={progress}>{children}</PlayerProgressContext.Provider>
+    </PlayerContext.Provider>
+  );
 }

@@ -8,9 +8,6 @@ export interface PlayerContextValue {
   /** The track currently loaded, or null when nothing is playing. */
   current: JellyfinItem | null;
   isPlaying: boolean;
-  /** Playback position + duration in seconds (0 until known). */
-  position: number;
-  duration: number;
   shuffle: boolean;
   repeat: RepeatMode;
   canNext: boolean;

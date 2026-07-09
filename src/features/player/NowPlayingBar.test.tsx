@@ -25,8 +25,8 @@ function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
 
 const song: JellyfinItem = { Id: 's1', Name: 'Test Song', Type: 'Audio', Artists: ['Tester'] };
 
-const renderBar = (value: PlayerContextValue) =>
-  renderWithProviders(<NowPlayingBar />, { player: value });
+const renderBar = (value: PlayerContextValue, progress?: { position: number; duration: number }) =>
+  renderWithProviders(<NowPlayingBar />, { player: value, progress });
 
 describe('NowPlayingBar', () => {
   it('renders nothing when no track is playing', () => {
@@ -54,14 +54,14 @@ describe('NowPlayingBar', () => {
   });
 
   it('reflects playback progress as a fill width', () => {
-    renderBar(ctx({ current: song, position: 30, duration: 120 }));
+    renderBar(ctx({ current: song }), { position: 30, duration: 120 });
     const fill = screen.getByTestId('now-playing-progress').querySelector('.npbar__progress-fill');
     expect((fill as HTMLElement).style.width).toBe('25%');
   });
 
   it('seeks when the progress bar is scrubbed', () => {
     const seek = vi.fn();
-    renderBar(ctx({ current: song, position: 30, duration: 120, seek }));
+    renderBar(ctx({ current: song, seek }), { position: 30, duration: 120 });
     fireEvent.change(screen.getByTestId('now-playing-seek'), { target: { value: '90' } });
     expect(seek).toHaveBeenCalledWith(90);
   });

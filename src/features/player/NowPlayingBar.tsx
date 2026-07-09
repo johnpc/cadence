@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import { play, pause } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
+import { usePlayerProgress } from './PlayerProgressContext';
 import { artistLine } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { FullPlayer } from './FullPlayer';
@@ -11,7 +12,8 @@ import './nowPlayingBar.css';
 
 /** Persistent mini-player above the tab bar. Tap to open the full player. */
 export function NowPlayingBar() {
-  const { current, isPlaying, position, duration, toggle, seek } = usePlayer();
+  const { current, isPlaying, toggle, seek } = usePlayer();
+  const { position, duration } = usePlayerProgress();
   const [open, setOpen] = useState(false);
 
   // Flag the document while a track is loaded so scroll views can reserve

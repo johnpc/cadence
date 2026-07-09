@@ -13,6 +13,7 @@ import { NowPlayingMenu } from './NowPlayingMenu';
 import { PlayerControls } from './PlayerControls';
 import { FullPlayerTitle } from './FullPlayerTitle';
 import { usePlayer } from './usePlayer';
+import { usePlayerProgress } from './PlayerProgressContext';
 import { formatTime } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import './fullPlayer.css';
@@ -20,6 +21,7 @@ import './fullPlayer.css';
 /** The full-screen player modal — art, scrubber, and transport controls. */
 export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const p = usePlayer();
+  const { position, duration } = usePlayerProgress();
   const [queueOpen, setQueueOpen] = useState(false);
   const [lyricsOpen, setLyricsOpen] = useState(false);
   return (
@@ -34,14 +36,14 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           <input
             type="range"
             min={0}
-            max={p.duration || 0}
-            value={Math.min(p.position, p.duration || 0)}
+            max={duration || 0}
+            value={Math.min(position, duration || 0)}
             onChange={(e) => p.seek(Number(e.target.value))}
             aria-label="Seek"
           />
           <div className="fullplayer__times cad-meta">
-            <span>{formatTime(p.position)}</span>
-            <span>{formatTime(p.duration)}</span>
+            <span>{formatTime(position)}</span>
+            <span>{formatTime(duration)}</span>
           </div>
         </div>
         <PlayerControls />
