@@ -54,12 +54,12 @@ describe('ThemeProvider', () => {
     window.matchMedia = realMatchMedia;
   });
 
-  it('defaults to system and resolves against the OS appearance', () => {
-    renderProbe();
-    expect(screen.getByTestId('pref')).toHaveTextContent('system');
-    expect(screen.getByTestId('eff')).toHaveTextContent('light'); // OS is light in beforeEach
-    expect(document.documentElement.dataset.theme).toBe('light');
-    expect(document.documentElement.classList.contains('ion-palette-dark')).toBe(false);
+  it('defaults to dark, regardless of the OS appearance', () => {
+    renderProbe(); // OS is light in beforeEach, but the app default is dark
+    expect(screen.getByTestId('pref')).toHaveTextContent('dark');
+    expect(screen.getByTestId('eff')).toHaveTextContent('dark');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(document.documentElement.classList.contains('ion-palette-dark')).toBe(true);
   });
 
   it('persists and applies a light preference', () => {

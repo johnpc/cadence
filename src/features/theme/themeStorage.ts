@@ -4,11 +4,11 @@ import type { ThemePreference } from './types';
 export const THEME_STORAGE_KEY = 'cadence.theme-preference';
 
 /**
- * Out-of-the-box default: follow the OS appearance. Light mode ships with an
- * AA-clean accent (see variables.css), so a system-default user on a light OS
- * gets a compliant palette; users can still force light/dark in Appearance.
+ * Out-of-the-box default: dark, the Spotify-like near-black canvas the app is
+ * designed around. Users can switch to Light or System in Appearance (and an
+ * AA-clean light palette ships in variables.css for when they do).
  */
-export const DEFAULT_PREFERENCE: ThemePreference = 'system';
+export const DEFAULT_PREFERENCE: ThemePreference = 'dark';
 
 const PREFERENCES: readonly ThemePreference[] = ['system', 'light', 'dark'];
 
