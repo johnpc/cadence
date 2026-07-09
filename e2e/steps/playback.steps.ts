@@ -61,6 +61,14 @@ When('I press the {string} key', async ({ page }, key: string) => {
   await page.keyboard.press(key);
 });
 
+Then('the full player shows the next-up track', async ({ page }) => {
+  // With a multi-track queue playing, the full player shows a "Next: <song>"
+  // hint above the queue. It carries the upcoming track's name.
+  const hint = page.getByTestId('full-player-next-up');
+  await expect(hint).toBeVisible({ timeout: 15_000 });
+  await expect(hint).toContainText('Next');
+});
+
 Then('shuffle is on', async ({ page }) => {
   // The shuffle control gains the "--on" state class when active.
   const shuffle = page.getByTestId('full-player-shuffle');
