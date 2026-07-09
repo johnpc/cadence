@@ -9,6 +9,11 @@ describe('queryClient', () => {
     expect(defaults?.refetchOnWindowFocus).toBe(false);
   });
 
+  it('caches data across navigation (baseline staleTime + gcTime)', () => {
+    expect(defaults?.staleTime).toBe(30_000);
+    expect(defaults?.gcTime).toBe(10 * 60_000);
+  });
+
   it('retries transient failures up to 2x with capped backoff', () => {
     const retry = defaults?.retry as (n: number, e: unknown) => boolean;
     expect(retry(0, new RequestTimeout())).toBe(true);

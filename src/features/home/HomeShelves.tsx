@@ -5,6 +5,7 @@ import { useLatestAlbums, useSuggestedSongs, useRecentlyPlayed } from './homeApi
 import { useSavedAlbums, useFollowedArtists } from '../library/libraryApi';
 import { usePlayer } from '../player/usePlayer';
 import { usePlayItem } from '../player/usePlayItem';
+import { usePrefetchItem } from './usePrefetchItem';
 
 /** The Home recommendation shelves. Grouped here so Home.tsx stays a thin page
  * shell (and the refresher can refetch them all). */
@@ -21,6 +22,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
   const { albums, suggested, saved, recent, artists } = shelves;
   const { playQueue } = usePlayer();
   const playItem = usePlayItem();
+  const prefetch = usePrefetchItem();
   const history = useHistory();
   const openAlbum = (item: { Id: string }) => history.push(`/album/${item.Id}`);
   const openArtist = (item: { Id: string }) => history.push(`/artist/${item.Id}`);
@@ -33,6 +35,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
         state={albums}
         onOpen={openAlbum}
         onPlay={(item) => void playItem(item)}
+        onPrefetch={prefetch}
       />
       <DailyMixShelf artists={artists.artists} />
       {recent.songs.length > 0 && (
@@ -52,6 +55,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
           state={artists}
           onOpen={openArtist}
           onPlay={(item) => void playItem(item)}
+          onPrefetch={prefetch}
           round
         />
       )}
@@ -62,6 +66,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
           state={saved}
           onOpen={openAlbum}
           onPlay={(item) => void playItem(item)}
+          onPrefetch={prefetch}
         />
       )}
       <CardShelf
