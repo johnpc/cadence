@@ -10,12 +10,15 @@ import {
 import { Appearance } from '../theme/Appearance';
 import { SleepTimer } from './SleepTimer';
 import { InstallButton } from './InstallButton';
+import { SignOutButton } from './SignOutButton';
 import { useAuth } from '../auth/useAuth';
 import './settings.css';
 
-/** Settings — theme choice, the signed-in account, and sign-out. */
+const APP_VERSION = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '0.0.0';
+
+/** Settings — theme choice, the signed-in account, sign-out, and app info. */
 export function Settings() {
-  const { username, signOut } = useAuth();
+  const { username } = useAuth();
 
   return (
     <IonPage>
@@ -37,14 +40,13 @@ export function Settings() {
             <p className="cad-body" data-testid="settings-username">
               Signed in as {username}
             </p>
-            <button
-              type="button"
-              className="settings__signout"
-              data-testid="settings-signout"
-              onClick={() => void signOut()}
-            >
-              Sign out
-            </button>
+            <SignOutButton />
+          </section>
+          <section className="settings__about">
+            <h2 className="settings__title cad-kicker">About</h2>
+            <p className="cad-meta" data-testid="settings-version">
+              Cadence v{APP_VERSION}
+            </p>
           </section>
         </div>
       </IonContent>

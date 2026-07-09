@@ -4,7 +4,8 @@
   gap: var(--cad-space-8);
 }
 
-.settings__account {
+.settings__account,
+.settings__about {
   display: flex;
   flex-direction: column;
   gap: var(--cad-space-3);
