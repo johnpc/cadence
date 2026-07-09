@@ -93,6 +93,15 @@
   transform: translateY(0);
 }
 
+/* Touch devices can't hover — now that the body tap navigates, the play FAB
+ * must be permanently visible so playback stays reachable. */
+@media (hover: none) {
+  .album-card__play {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .album-card--round {
   text-align: center;
   align-items: center;

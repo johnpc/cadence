@@ -24,14 +24,15 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
   const history = useHistory();
   const openAlbum = (item: { Id: string }) => history.push(`/album/${item.Id}`);
   const openArtist = (item: { Id: string }) => history.push(`/artist/${item.Id}`);
+  const openSong = (item: { Id: string }) => history.push(`/song/${item.Id}`);
   return (
     <div data-testid="home-shelves">
       <CardShelf
         title="Recently added"
         items={albums.albums}
         state={albums}
-        onPlay={openAlbum}
-        onPlayNow={(item) => void playItem(item)}
+        onOpen={openAlbum}
+        onPlay={(item) => void playItem(item)}
       />
       <DailyMixShelf artists={artists.artists} />
       {recent.songs.length > 0 && (
@@ -40,8 +41,8 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
           items={recent.songs}
           state={recent}
           seeAllHref="/history"
+          onOpen={openSong}
           onPlay={(_i, index) => playQueue(recent.songs, index)}
-          onPlayNow={(_i, index) => playQueue(recent.songs, index)}
         />
       )}
       {artists.artists.length > 0 && (
@@ -49,8 +50,8 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
           title="Your artists"
           items={artists.artists}
           state={artists}
-          onPlay={openArtist}
-          onPlayNow={(item) => void playItem(item)}
+          onOpen={openArtist}
+          onPlay={(item) => void playItem(item)}
           round
         />
       )}
@@ -59,16 +60,16 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
           title="From your library"
           items={saved.albums}
           state={saved}
-          onPlay={openAlbum}
-          onPlayNow={(item) => void playItem(item)}
+          onOpen={openAlbum}
+          onPlay={(item) => void playItem(item)}
         />
       )}
       <CardShelf
         title="Suggested for you"
         items={suggested.songs}
         state={suggested}
+        onOpen={openSong}
         onPlay={(_i, index) => playQueue(suggested.songs, index)}
-        onPlayNow={(_i, index) => playQueue(suggested.songs, index)}
       />
     </div>
   );

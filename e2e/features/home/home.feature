@@ -8,6 +8,13 @@ Feature: Home recommendations
     When I open the first album on Home
     Then I see the album tracks
 
+  Scenario: The card play button plays without leaving Home
+    Given I am signed in
+    Then I see the Recently added shelf with albums
+    When I play the first album on Home via its play button
+    Then the Now-Playing bar shows a track
+    And I am still on Home
+
   Scenario: Following an artist surfaces a "Made for you" mix on Home
     Given I am signed in
     When I open the Search tab
