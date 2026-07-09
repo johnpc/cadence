@@ -31,3 +31,8 @@ Feature: App shell
     Then I see the not-found page
     When I tap "Go home" on the not-found page
     Then I see the "Home" tab
+
+  Scenario: Pressing "/" jumps to Search from anywhere
+    Given I am signed in
+    When I press the search hotkey
+    Then the search box is focused
