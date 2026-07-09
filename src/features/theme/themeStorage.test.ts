@@ -18,6 +18,10 @@ describe('themeStorage', () => {
     expect(isThemePreference(null)).toBe(false);
   });
 
+  it('defaults to dark out of the box', () => {
+    expect(DEFAULT_PREFERENCE).toBe('dark');
+  });
+
   it('falls back to the default when nothing valid is stored', () => {
     expect(readStoredPreference()).toBe(DEFAULT_PREFERENCE);
     localStorage.setItem(THEME_STORAGE_KEY, 'bogus');

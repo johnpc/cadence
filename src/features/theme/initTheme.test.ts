@@ -25,14 +25,8 @@ describe('initTheme', () => {
     expect(document.documentElement.classList.contains('ion-palette-dark')).toBe(false);
   });
 
-  it('follows the system appearance when nothing is stored (default = system)', () => {
-    // beforeEach sets the OS to light → system default resolves to light.
-    initTheme();
-    expect(document.documentElement.dataset.theme).toBe('light');
-    expect(document.documentElement.classList.contains('ion-palette-dark')).toBe(false);
-
-    // …and a dark OS resolves to dark.
-    setSystemDark(true);
+  it('defaults to dark when nothing is stored, regardless of the OS setting', () => {
+    // OS is light (beforeEach) but the app default is dark now.
     initTheme();
     expect(document.documentElement.dataset.theme).toBe('dark');
     expect(document.documentElement.classList.contains('ion-palette-dark')).toBe(true);
