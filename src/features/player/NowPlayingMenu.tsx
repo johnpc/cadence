@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { IonActionSheet, IonIcon } from '@ionic/react';
+import { IonActionSheet, IonAlert, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { usePlaylists, useAddToPlaylist } from '../playlists/playlistsApi';
+import { useCreatePlaylistWithItems } from '../playlists/playlistCreate';
 import { useToast } from '../toast/useToast';
 import { copyShareLink } from '../share/shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** The now-playing "…" menu: jump to the current track's album or artist, or
- * add it to a playlist, then close the full player so the destination shows. */
+/** The now-playing "…" menu: jump to the current track's song/album/artist,
+ * copy its link, or add it to a new or existing playlist, then close the full
+ * player so the destination shows. */
 export function NowPlayingMenu({
   track,
   onNavigate,
@@ -17,9 +19,11 @@ export function NowPlayingMenu({
   onNavigate: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [newOpen, setNewOpen] = useState(false);
   const history = useHistory();
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
+  const createWith = useCreatePlaylistWithItems();
   const toast = useToast();
   const go = (path: string) => {
     history.push(path);
@@ -40,9 +44,13 @@ export function NowPlayingMenu({
         );
       },
     },
+    { text: 'New playlist…', handler: () => setNewOpen(true) },
     ...playlists.map((pl) => ({
       text: `Add to ${pl.Name}`,
-      handler: () => add.mutate({ playlistId: pl.Id, itemId: track.Id }),
+      handler: () => {
+        add.mutate({ playlistId: pl.Id, itemId: track.Id });
+        toast(`Added to ${pl.Name}`);
+      },
     })),
     { text: 'Cancel', role: 'cancel' as const },
   ];
@@ -62,6 +70,25 @@ export function NowPlayingMenu({
         header="Track options"
         buttons={buttons}
         onDidDismiss={() => setOpen(false)}
+      />
+      <IonAlert
+        isOpen={newOpen}
+        header="New playlist"
+        inputs={[{ name: 'name', type: 'text', placeholder: 'Playlist name' }]}
+        buttons={[
+          { text: 'Cancel', role: 'cancel' },
+          {
+            text: 'Create',
+            handler: (data: { name?: string }) => {
+              const name = (data.name ?? '').trim();
+              if (name) {
+                createWith.mutate({ name, itemIds: [track.Id] });
+                toast(`Created "${name}"`);
+              }
+            },
+          },
+        ]}
+        onDidDismiss={() => setNewOpen(false)}
       />
     </>
   );
