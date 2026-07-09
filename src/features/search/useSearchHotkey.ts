@@ -18,17 +18,23 @@ function isTyping(target: EventTarget | null): boolean {
 export function useSearchHotkey(): void {
   const history = useHistory();
   useEffect(() => {
+    let focusTimer: ReturnType<typeof setTimeout> | undefined;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== '/' || isTyping(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
       e.preventDefault();
       history.push('/search');
       // Let the route render, then focus the search input.
-      setTimeout(() => {
+      focusTimer = setTimeout(() => {
         const box = document.querySelector<HTMLElement>('[data-testid="search-input"]');
         box?.querySelector('input')?.focus();
       }, 60);
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    // Clear a pending focus on unmount so it can't fire after teardown (which
+    // would touch `document` after the test env — or a real unmount — is gone).
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      if (focusTimer) clearTimeout(focusTimer);
+    };
   }, [history]);
 }
