@@ -120,11 +120,22 @@ jobs:
         # once on the occasional flaky download.
         run: npx playwright install chromium || npx playwright install chromium
 
+      # Auto-retry the whole area once on failure. Playwright already retries
+      # individual scenarios (retries: 2), but when a scenario exhausts all its
+      # attempts inside one bad ~60s Jellyfin window (auth throttle / stalled
+      # reads under CI load), the job fails. A fresh re-run usually hits a calm
+      # window — this automates the manual "re-run the failed job" and ends the
+      # flake tail without weakening any assertion.
       - name: Run acceptance tests (${{ matrix.area.name }})
+        uses: nick-fields/retry@v3
         env:
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-        run: npx bddgen && npx playwright test ${{ matrix.area.paths }}
+        with:
+          timeout_minutes: 15
+          max_attempts: 2
+          retry_wait_seconds: 30
+          command: npx bddgen && npx playwright test ${{ matrix.area.paths }}
 
       - name: Upload Playwright report
         if: always()
