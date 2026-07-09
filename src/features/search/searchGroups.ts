@@ -47,6 +47,19 @@ export function topResult(groups: SearchGroups, query: string): JellyfinItem | n
   return best;
 }
 
+/** On the "All" tab, cap each section to a short preview (Spotify shows a few
+ * per type; the filter chips reveal the rest). Any other filter shows a single
+ * type in full, so it's returned untouched. */
+export function previewGroups(groups: SearchGroups, isAll: boolean, limit = 4): SearchGroups {
+  if (!isAll) return groups;
+  return {
+    songs: groups.songs.slice(0, limit),
+    albums: groups.albums.slice(0, limit),
+    artists: groups.artists.slice(0, limit),
+    playlists: groups.playlists.slice(0, limit),
+  };
+}
+
 /** True when no group has any results. */
 export function isEmptyGroups(groups: SearchGroups): boolean {
   return (

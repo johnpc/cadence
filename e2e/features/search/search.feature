@@ -19,6 +19,15 @@ Feature: Search
     When I filter results to "Songs"
     Then I do not see the Albums section
 
+  Scenario: "All" previews a few songs; the Songs filter shows more
+    Given I am signed in
+    When I open the Search tab
+    And I search for "love"
+    Then I see song results
+    And the songs section shows at most 4 results
+    When I filter results to "Songs"
+    Then the songs section shows more than 4 results
+
   Scenario: Searching finds playlists and opens one
     Given I am signed in
     When I open the Search tab
