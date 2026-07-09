@@ -70,6 +70,9 @@ export function AppTabs() {
           <Route exact path="/">
             <Redirect to="/home" />
           </Route>
+          <Route>
+            <L.NotFound />
+          </Route>
         </IonRouterOutlet>
         <IonTabBar slot="bottom">
           <IonTabButton tab="home" href="/home">

@@ -24,3 +24,10 @@ Feature: App shell
     Then the sidebar is collapsed
     When I collapse the sidebar
     Then the sidebar is expanded
+
+  Scenario: An unknown URL shows a Not-found page with a way home
+    Given I am signed in
+    When I navigate to an unknown URL
+    Then I see the not-found page
+    When I tap "Go home" on the not-found page
+    Then I see the "Home" tab
