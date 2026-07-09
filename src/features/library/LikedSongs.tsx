@@ -1,14 +1,27 @@
+import { useMemo, useState } from 'react';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
 import { collectionSummary } from '../player/playerFormat';
+import { LikedSongsControls } from './LikedSongsControls';
+import { sortLikedSongs, type LikedSort } from './sortLikedSongs';
+import { filterTracks } from '../playlists/filterTracks';
 import { useLikedSongs } from './libraryApi';
 import './likedSongs.css';
 
-/** The "Liked Songs" collection — the user's Jellyfin favorites. */
+/** The "Liked Songs" collection — the user's Jellyfin favorites, with a find
+ * box and a sort selector (Recently added / Title / Artist) once the list is
+ * large enough to warrant them. */
 export function LikedSongs() {
   const { songs, isLoading, isError, refetch } = useLikedSongs();
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<LikedSort>('recent');
+
+  const shown = useMemo(
+    () => filterTracks(sortLikedSongs(songs, sort), query),
+    [songs, sort, query],
+  );
 
   return (
     <LoadState
@@ -28,11 +41,19 @@ export function LikedSongs() {
               {collectionSummary(songs)}
             </p>
           </div>
-          <CollectionActions tracks={songs} />
+          <CollectionActions tracks={shown} />
         </div>
-        {songs.map((track, index) => (
-          <TrackRow key={track.Id} track={track} queue={songs} index={index} />
+        {songs.length > 8 && (
+          <LikedSongsControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />
+        )}
+        {shown.map((track, index) => (
+          <TrackRow key={track.Id} track={track} queue={shown} index={index} />
         ))}
+        {query.trim() && shown.length === 0 && (
+          <p className="cad-meta" data-testid="liked-no-matches">
+            No liked songs match “{query}”.
+          </p>
+        )}
       </div>
     </LoadState>
   );

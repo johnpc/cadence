@@ -63,3 +63,17 @@ Then('the liked songs list is not empty', async ({ page }) => {
   await expect(rows.first()).toBeAttached({ timeout: 15_000 });
   expect(await rows.count()).toBeGreaterThan(0);
 });
+
+Then('I can sort and find within liked songs', async ({ page }) => {
+  // The sort/find controls appear only when >8 songs are liked. If present,
+  // finding a nonsense term empties the list then restores it; if absent (a
+  // small library), that's the documented behaviour — assert one or the other.
+  const liked = page.getByTestId('liked-songs');
+  const search = liked.getByTestId('liked-search');
+  if ((await search.count()) === 0) return;
+  const before = await liked.getByTestId('track-row').count();
+  await search.locator('input').fill('zzzznotarealsong');
+  await expect(page.getByTestId('liked-no-matches')).toBeVisible({ timeout: 10_000 });
+  await search.locator('input').fill('');
+  await expect(liked.getByTestId('track-row')).toHaveCount(before, { timeout: 10_000 });
+});
