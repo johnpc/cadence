@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { IonIcon } from '@ionic/react';
+import { IonIcon, IonSpinner } from '@ionic/react';
 import { play, pause } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { usePlayerProgress } from './PlayerProgressContext';
@@ -13,7 +13,7 @@ import './nowPlayingBar.css';
 
 /** Persistent mini-player above the tab bar. Tap to open the full player. */
 export function NowPlayingBar() {
-  const { current, isPlaying, toggle, seek } = usePlayer();
+  const { current, isPlaying, waiting, toggle, seek } = usePlayer();
   const { position, duration } = usePlayerProgress();
   const scrub = useScrubber(position, seek);
   const [open, setOpen] = useState(false);
@@ -53,7 +53,11 @@ export function NowPlayingBar() {
           data-testid="now-playing-toggle"
           aria-label={isPlaying ? 'Pause' : 'Play'}
         >
-          <IonIcon icon={isPlaying ? pause : play} />
+          {waiting ? (
+            <IonSpinner name="crescent" data-testid="now-playing-buffering" />
+          ) : (
+            <IonIcon icon={isPlaying ? pause : play} />
+          )}
         </button>
         <div className="npbar__progress" data-testid="now-playing-progress">
           <div className="npbar__progress-fill" style={{ width: `${pct}%` }} />

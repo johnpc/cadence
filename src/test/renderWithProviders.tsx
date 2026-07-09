@@ -15,6 +15,7 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
   return {
     current: null,
     isPlaying: false,
+    waiting: false,
     shuffle: false,
     repeat: 'off',
     canNext: false,
