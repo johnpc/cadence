@@ -49,4 +49,26 @@ describe('LikedSongs', () => {
     renderWithProviders(<LikedSongs />);
     await waitFor(() => expect(screen.getByTestId('load-empty')).toBeInTheDocument());
   });
+
+  it('hides the find/sort controls for short lists', async () => {
+    vi.mocked(getFavoriteSongs).mockResolvedValue(songs);
+    renderWithProviders(<LikedSongs />);
+    await waitFor(() => expect(screen.getByText('Liked A')).toBeInTheDocument());
+    expect(screen.queryByTestId('liked-search')).not.toBeInTheDocument();
+  });
+
+  it('filters the list via the find box on large libraries', async () => {
+    const many: JellyfinItem[] = Array.from({ length: 12 }, (_, i) => ({
+      Id: String(i),
+      Name: i === 0 ? 'Bohemian Rhapsody' : `Filler ${i}`,
+      Type: 'Audio',
+    }));
+    vi.mocked(getFavoriteSongs).mockResolvedValue(many);
+    renderWithProviders(<LikedSongs />);
+    await waitFor(() => expect(screen.getByTestId('liked-search')).toBeInTheDocument());
+    const bar = screen.getByTestId('liked-search');
+    bar.dispatchEvent(new CustomEvent('ionInput', { detail: { value: 'bohemian' } }));
+    await waitFor(() => expect(screen.getByText('Bohemian Rhapsody')).toBeInTheDocument());
+    expect(screen.queryByText('Filler 5')).not.toBeInTheDocument();
+  });
 });

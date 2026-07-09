@@ -34,3 +34,26 @@
   justify-content: center;
   cursor: pointer;
 }
+
+.liked__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  margin-bottom: var(--cad-space-3);
+}
+
+.liked__tools .liked__search {
+  flex: 1;
+  min-width: 0;
+  --background: var(--cad-elevated);
+  --border-radius: var(--cad-radius);
+  padding: 0;
+}
+
+.liked__sort {
+  flex-shrink: 0;
+  max-width: 44%;
+  color: var(--cad-text-secondary);
+  font-family: var(--cad-font-sans);
+  font-size: 13px;
+}

@@ -20,3 +20,10 @@ Feature: Liked songs
     And I open Liked Songs
     And I shuffle-play the liked songs
     Then the Now-Playing bar shows a track
+
+  Scenario: Sorting and finding within liked songs
+    Given I am signed in
+    When I open the Library tab
+    And I open Liked Songs
+    Then the liked songs list is not empty
+    And I can sort and find within liked songs
