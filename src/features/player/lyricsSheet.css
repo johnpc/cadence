@@ -43,3 +43,19 @@
   line-height: 1.35;
   color: var(--cad-text);
 }
+
+/* Synced (LRC) lyrics: dim every line so the active one — brought to the
+   accent colour — reads as the karaoke cursor. Unsynced sheets keep every
+   line at full strength (no --synced class). */
+.lyrics__body--synced .lyrics__line {
+  color: var(--cad-text-secondary);
+  opacity: 0.55;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.lyrics__body--synced .lyrics__line--active {
+  color: var(--cad-accent);
+  opacity: 1;
+}

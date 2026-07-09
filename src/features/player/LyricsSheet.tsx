@@ -1,14 +1,27 @@
 import { IonModal, IonIcon } from '@ionic/react';
 import { chevronDown } from 'ionicons/icons';
+import { useEffect, useRef } from 'react';
 import { LoadState } from '../../components/LoadState';
 import { usePlayer } from './usePlayer';
+import { usePlayerProgress } from './PlayerProgressContext';
 import { useLyrics } from './useLyrics';
+import { activeLineIndex, isSynced } from './activeLyric';
 import './lyricsSheet.css';
 
-/** A scrollable lyric sheet for the current track (Jellyfin lyrics). */
+/** A scrollable lyric sheet for the current track. When the track has synced
+ * (LRC) timing, the active line is highlighted and auto-scrolled into view
+ * (karaoke-style); otherwise it's a plain scrollable sheet. */
 export function LyricsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { current } = usePlayer();
+  const { position } = usePlayerProgress();
   const { lines, isLoading, isError, refetch } = useLyrics(current?.Id, open);
+  const synced = isSynced(lines);
+  const active = synced ? activeLineIndex(lines, position) : -1;
+  const activeRef = useRef<HTMLParagraphElement | null>(null);
+
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, [active]);
 
   return (
     <IonModal isOpen={open} onDidDismiss={onClose}>
@@ -27,10 +40,18 @@ export function LyricsSheet({ open, onClose }: { open: boolean; onClose: () => v
           emptyTitle="No lyrics"
           emptyMessage="This track has no lyrics on your server."
         >
-          <div className="lyrics__body" data-testid="lyrics-lines">
+          <div
+            className={synced ? 'lyrics__body lyrics__body--synced' : 'lyrics__body'}
+            data-testid="lyrics-lines"
+          >
             {lines.map((line, i) => (
-              <p key={i} className="lyrics__line">
-                {line || ' '}
+              <p
+                key={i}
+                ref={i === active ? activeRef : undefined}
+                className={i === active ? 'lyrics__line lyrics__line--active' : 'lyrics__line'}
+                data-active={i === active ? 'true' : undefined}
+              >
+                {line.text || ' '}
               </p>
             ))}
           </div>
