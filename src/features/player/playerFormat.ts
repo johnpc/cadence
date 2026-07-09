@@ -22,12 +22,22 @@ export function trackDuration(ticks: number | undefined): string {
   return formatTime(ticks / 10_000_000);
 }
 
-/** A collection summary like "12 songs • 48 min" (duration dropped when unknown). */
+/** A run time in whole minutes as Spotify-style words: "48 min" under an hour,
+ * "1 hr 5 min" / "28 hr" above it (the minutes part is dropped when it's zero). */
+export function durationWords(totalMinutes: number): string {
+  if (totalMinutes < 60) return `${totalMinutes} min`;
+  const hrs = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+  return mins > 0 ? `${hrs} hr ${mins} min` : `${hrs} hr`;
+}
+
+/** A collection summary like "12 songs • 48 min" or "463 songs • 27 hr 4 min"
+ * (duration dropped when unknown). */
 export function collectionSummary(tracks: JellyfinItem[]): string {
   const count = tracks.length;
   const label = `${count} ${count === 1 ? 'song' : 'songs'}`;
   const ticks = tracks.reduce((sum, t) => sum + (t.RunTimeTicks ?? 0), 0);
   if (ticks <= 0) return label;
   const mins = Math.round(ticks / 10_000_000 / 60);
-  return `${label} • ${mins} min`;
+  return `${label} • ${durationWords(mins)}`;
 }
