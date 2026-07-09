@@ -23,4 +23,9 @@ RUN npm run build
 FROM nginx:alpine
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+# Regenerate /config.js from env (e.g. SIGNUP_URL) at container startup, before
+# nginx boots — nginx:alpine runs every /docker-entrypoint.d/*.sh first. This
+# keeps runtime settings OUT of the built image (set them per-deployment).
+COPY deploy/runtime-config.sh /docker-entrypoint.d/40-cadence-config.sh
+RUN chmod +x /docker-entrypoint.d/40-cadence-config.sh
 EXPOSE 80

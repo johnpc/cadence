@@ -86,3 +86,19 @@
   color: var(--cad-live);
   margin: 0;
 }
+
+.auth__signup {
+  margin: var(--cad-space-2) 0 0;
+  text-align: center;
+  color: var(--cad-text-secondary);
+}
+
+.auth__signup a {
+  color: var(--cad-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth__signup a:hover {
+  text-decoration: underline;
+}
