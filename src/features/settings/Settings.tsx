@@ -10,6 +10,7 @@ import {
 import { Appearance } from '../theme/Appearance';
 import { Autoplay } from './Autoplay';
 import { AudioQuality } from './AudioQuality';
+import { PlaybackSpeed } from './PlaybackSpeed';
 import { SleepTimer } from './SleepTimer';
 import { InstallButton } from './InstallButton';
 import { SignOutButton } from './SignOutButton';
@@ -39,6 +40,7 @@ export function Settings() {
           <Appearance />
           <Autoplay />
           <AudioQuality />
+          <PlaybackSpeed />
           <SleepTimer />
           <InstallButton />
           <section className="settings__storage">

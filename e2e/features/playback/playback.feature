@@ -8,6 +8,12 @@ Feature: Playback
     Then the Now-Playing bar shows a track
     And the audio element is loaded with a Jellyfin stream
 
+  Scenario: Changing the playback speed applies to the audio
+    Given I am signed in
+    When I tap a track from search
+    And I set the playback speed to "1.5" in settings
+    Then the audio plays at 1.5x speed
+
   Scenario: An armed sleep timer shows in the player and can be cancelled there
     Given I am signed in
     When I tap a track from search

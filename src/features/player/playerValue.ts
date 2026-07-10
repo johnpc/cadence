@@ -20,6 +20,8 @@ export function buildPlayerValue(
     armSleep: (mode: SleepMode) => void;
     volume: number;
     setVolume: (volume: number) => void;
+    rate: number;
+    setRate: (rate: number) => void;
   },
 ): PlayerContextValue {
   return {
@@ -52,5 +54,7 @@ export function buildPlayerValue(
     armSleep: transport.armSleep,
     volume: transport.volume,
     setVolume: transport.setVolume,
+    rate: transport.rate,
+    setRate: transport.setRate,
   };
 }
