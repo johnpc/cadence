@@ -20,6 +20,16 @@ export class RequestTimeout extends Error {
   }
 }
 
+/** Thrown on a non-2xx that isn't a 401 — carries the HTTP status so retry logic
+ * can tell a transient 5xx (worth retrying) from a client 4xx like 404
+ * (a deleted/missing item — retrying only wastes time and delays the error). */
+export class HttpError extends Error {
+  constructor(readonly status: number) {
+    super(`Jellyfin request failed: ${status}`);
+    this.name = 'HttpError';
+  }
+}
+
 /** Per-request ceiling. Jellyfin is normally sub-second, but a server behind a
  * tunnel/proxy that has gone idle can COLD-START the first request to ~15s
  * (measured on cloudflared) before it warms to sub-second. A 12s ceiling
@@ -28,9 +38,13 @@ export class RequestTimeout extends Error {
  * above the cold-start worst case. */
 export const REQUEST_TIMEOUT_MS = 30_000;
 
-/** True for failures worth retrying — a timeout or a 5xx/network error, but
- * NOT a 401 (a confirmed dead session — retrying is pointless and hides it). */
+/** True for failures worth retrying: timeouts and 5xx/network errors — but NOT a
+ * 401 (a confirmed dead session; retrying hides it) and NOT a 4xx client error
+ * like 404 (a deleted/missing item won't appear on retry — retrying just wastes
+ * two backoff rounds before the error shows). An HttpError with a 4xx status is
+ * terminal; anything else (network drop, RequestTimeout, 5xx) is transient. */
 export function isRetryableError(error: unknown): boolean {
   if (error instanceof Unauthenticated) return false;
+  if (error instanceof HttpError) return error.status >= 500;
   return true;
 }

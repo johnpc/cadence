@@ -9,9 +9,9 @@
 import { apiUrl, embyAuthHeader } from './jellyfinConfig';
 import { getSession } from './sessionStore';
 import { notifySessionExpired } from './sessionExpiry';
-import { Unauthenticated, RequestTimeout, REQUEST_TIMEOUT_MS } from './jellyfinErrors';
+import { Unauthenticated, RequestTimeout, HttpError, REQUEST_TIMEOUT_MS } from './jellyfinErrors';
 
-export { Unauthenticated, RequestTimeout } from './jellyfinErrors';
+export { Unauthenticated, RequestTimeout, HttpError } from './jellyfinErrors';
 
 export interface RequestOptions {
   method?: 'GET' | 'POST' | 'DELETE';
@@ -51,7 +51,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     notifySessionExpired();
     throw new Unauthenticated();
   }
-  if (!res.ok) throw new Error(`Jellyfin ${method} ${path} failed: ${res.status}`);
+  if (!res.ok) throw new HttpError(res.status);
   if (res.status === 204) return undefined as T;
 
   const text = await res.text();
