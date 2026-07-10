@@ -15,6 +15,11 @@ When('I search for {string}', async ({ page }, term: string) => {
   await page.getByTestId('search-input').locator('input').fill(term);
 });
 
+When('I press Enter in the search box', async ({ page }) => {
+  // Enter activates the Top result (Spotify-style) — a song plays.
+  await page.getByTestId('search-input').locator('input').press('Enter');
+});
+
 Then('I see song results', async ({ page }) => {
   const results = page.getByTestId('search-results');
   await expect(results.getByText('Songs')).toBeVisible();

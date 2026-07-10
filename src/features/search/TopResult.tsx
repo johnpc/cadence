@@ -1,7 +1,6 @@
-import { useHistory } from 'react-router-dom';
 import { TrackArt } from '../player/TrackArt';
-import { usePlayer } from '../player/usePlayer';
 import { artistLine } from '../player/playerFormat';
+import { useActivateResult } from './useActivateResult';
 import type { RecentItem } from './recentSearchStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './topResult.css';
@@ -22,16 +21,9 @@ export function TopResult({
   item: JellyfinItem;
   onPick: (item: RecentItem) => void;
 }) {
-  const history = useHistory();
-  const { playQueue } = usePlayer();
+  const activateResult = useActivateResult(onPick);
   const isArtist = item.Type === 'MusicArtist';
-  const activate = () => {
-    onPick(item);
-    if (item.Type === 'MusicAlbum') history.push(`/album/${item.Id}`);
-    else if (item.Type === 'MusicArtist') history.push(`/artist/${item.Id}`);
-    else if (item.Type === 'Playlist') history.push(`/playlist/${item.Id}`);
-    else playQueue([item], 0);
-  };
+  const activate = () => activateResult(item);
   return (
     <section>
       <h2 className="cad-kicker search__section">Top result</h2>

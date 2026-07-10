@@ -8,6 +8,7 @@ import { RecentSearches } from './RecentSearches';
 import { GenreTiles } from '../genre/GenreTiles';
 import { useSearch } from './useSearch';
 import { useRecentSearches } from './useRecentSearches';
+import { useActivateResult } from './useActivateResult';
 import './search.css';
 
 /** Search — the primary discovery surface. Songs play; albums/artists open their
@@ -16,6 +17,12 @@ export function Search() {
   const s = useSearch();
   const { recents, record, remove, clear } = useRecentSearches();
   const [filter, setFilter] = useState<SearchFilter>('all');
+  const activateResult = useActivateResult(record);
+  // Enter in the search box plays/opens the top result (Spotify-style), so the
+  // keyboard-only path doesn't require tabbing to the card.
+  const onEnter = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && s.top) activateResult(s.top);
+  };
 
   return (
     <IonPage>
@@ -29,6 +36,7 @@ export function Search() {
             debounce={0}
             placeholder="Songs, albums, artists"
             onIonInput={(e) => s.setQuery(e.detail.value ?? '')}
+            onKeyDown={onEnter}
             data-testid="search-input"
           />
         </IonToolbar>
