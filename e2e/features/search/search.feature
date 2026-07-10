@@ -28,10 +28,15 @@ Feature: Search
     When I filter results to "Songs"
     Then the songs section shows more than 4 results
 
+  # Search for the seeded, cadence-test-OWNED playlist ("Cadence Test Mix",
+  # guaranteed by scripts/seed-e2e-user.sh) rather than an ambient public
+  # playlist — the community library's public playlists come and go (a cleanup
+  # that flips them private, or their owner deleting them, would silently break
+  # this), so the fixture we assert on must be one the test user owns.
   Scenario: Searching finds playlists and opens one
     Given I am signed in
     When I open the Search tab
-    And I search for "radio"
+    And I search for "Cadence"
     When I filter results to "Playlists"
     Then I see playlist results
     When I open the first playlist result
