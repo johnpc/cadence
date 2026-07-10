@@ -3,6 +3,7 @@ import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
+import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import { collectionSummary } from '../player/playerFormat';
 import { LikedSongsControls } from './LikedSongsControls';
 import { sortLikedSongs, type LikedSort } from './sortLikedSongs';
@@ -48,6 +49,7 @@ export function LikedSongs() {
             tracks={shown}
             context={{ kind: 'your library', label: 'Liked Songs', path: '/liked' }}
           />
+          <DownloadCollectionButton tracks={shown} />
         </div>
         {songs.length > 8 && (
           <LikedSongsControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />

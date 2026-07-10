@@ -22,3 +22,15 @@
   width: 1em;
   height: 1em;
 }
+
+.dl-btn__progress {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-1);
+}
+
+.dl-btn__count {
+  font-size: 0.6em;
+  color: var(--cad-text-secondary);
+  font-variant-numeric: tabular-nums;
+}

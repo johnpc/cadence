@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { TrackArt } from '../player/TrackArt';
 import { CollectionActions } from '../player/CollectionActions';
+import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import { SaveButton } from '../library/SaveButton';
 import { ShareButton } from '../share/ShareButton';
 import { GenreChips } from '../../components/GenreChips';
@@ -46,6 +47,7 @@ export function AlbumHeader({
         <GenreChips genres={album?.Genres} />
         <div className="album__actions">
           <SaveButton item={album ?? null} />
+          <DownloadCollectionButton tracks={tracks} />
           <ShareButton item={album ?? null} />
           {tracks.length > 0 && (
             <CollectionActions

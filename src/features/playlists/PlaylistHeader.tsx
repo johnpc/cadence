@@ -1,5 +1,6 @@
 import { PlaylistCover } from './PlaylistCover';
 import { CollectionActions } from '../player/CollectionActions';
+import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import { ShareButton } from '../share/ShareButton';
 import { GradientHeader } from '../color/GradientHeader';
 import { collectionSummary } from '../player/playerFormat';
@@ -46,6 +47,7 @@ export function PlaylistHeader({
               : undefined
           }
         />
+        <DownloadCollectionButton tracks={tracks} />
         <ShareButton item={playlist} />
       </div>
     </>

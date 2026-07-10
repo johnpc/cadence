@@ -53,6 +53,31 @@ export async function createPlaylist(s: Session, name: string, isPublic: boolean
   return r.Id;
 }
 
+/** A handful of real audio track ids from the library (for seeding fixtures). */
+export async function someTrackIds(s: Session, limit: number): Promise<string[]> {
+  const r = await api<{ Items: { Id: string }[] }>(
+    `/Items?IncludeItemTypes=Audio&Recursive=true&Limit=${limit}&userId=${s.userId}`,
+    { token: s.token },
+  );
+  return r.Items.map((t) => t.Id);
+}
+
+/** Create a small owned playlist seeded with `count` real tracks; returns its
+ * id. A tiny fixture so "download the whole playlist" completes fast + fully. */
+export async function createSmallPlaylist(
+  s: Session,
+  name: string,
+  count: number,
+): Promise<string> {
+  const ids = await someTrackIds(s, count);
+  const r = await api<{ Id: string }>('/Playlists', {
+    method: 'POST',
+    token: s.token,
+    body: { Name: name, UserId: s.userId, MediaType: 'Audio', IsPublic: false, Ids: ids },
+  });
+  return r.Id;
+}
+
 /** Flip a playlist public/private (owner session). */
 export async function setPlaylistPublic(s: Session, id: string, isPublic: boolean): Promise<void> {
   await api(`/Playlists/${id}`, { method: 'POST', token: s.token, body: { IsPublic: isPublic } });
