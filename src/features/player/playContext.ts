@@ -7,6 +7,10 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 export interface PlayContext {
   kind: string;
   label: string;
+  /** The route back to the source collection (e.g. /playlist/:id), so the
+   * "Playing from" header can link there. Omitted for contexts with no page
+   * (e.g. a genre radio built from mixed sources). */
+  path?: string;
   trackIds: Set<string>;
 }
 
@@ -20,10 +24,15 @@ function emit(): void {
 /** Record the collection a play started from. Passing null clears it (e.g. when
  * a single track is played from search, which has no collection context). */
 export function setPlayContext(
-  ctx: { kind: string; label: string; tracks: JellyfinItem[] } | null,
+  ctx: { kind: string; label: string; path?: string; tracks: JellyfinItem[] } | null,
 ): void {
   current = ctx
-    ? { kind: ctx.kind, label: ctx.label, trackIds: new Set(ctx.tracks.map((t) => t.Id)) }
+    ? {
+        kind: ctx.kind,
+        label: ctx.label,
+        path: ctx.path,
+        trackIds: new Set(ctx.tracks.map((t) => t.Id)),
+      }
     : null;
   emit();
 }

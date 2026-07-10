@@ -48,14 +48,17 @@ export function GenreDetail() {
             skeleton={<TrackListSkeleton />}
           >
             <>
-              <CollectionActions tracks={tracks} context={{ kind: 'genre', label: genre }} />
+              <CollectionActions
+                tracks={tracks}
+                context={{ kind: 'genre', label: genre, path: `/genre/${name}` }}
+              />
               {tracks.map((track, index) => (
                 <TrackRow
                   key={track.Id}
                   track={track}
                   queue={tracks}
                   index={index}
-                  context={{ kind: 'genre', label: genre }}
+                  context={{ kind: 'genre', label: genre, path: `/genre/${name}` }}
                 />
               ))}
             </>

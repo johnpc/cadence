@@ -41,7 +41,11 @@ export function ArtistHeader({
             {topTracks.length > 0 && (
               <CollectionActions
                 tracks={topTracks}
-                context={{ kind: 'artist', label: artist.Name ?? 'Artist' }}
+                context={{
+                  kind: 'artist',
+                  label: artist.Name ?? 'Artist',
+                  path: artist.Id ? `/artist/${artist.Id}` : undefined,
+                }}
               />
             )}
           </div>

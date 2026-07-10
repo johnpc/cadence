@@ -23,7 +23,11 @@ export function PlaylistTracks({
    * don't own (those mutations would 403). */
   editable?: boolean;
 }) {
-  const ctx = { kind: 'playlist', label: playlistName ?? 'Playlist' };
+  const ctx = {
+    kind: 'playlist',
+    label: playlistName ?? 'Playlist',
+    path: `/playlist/${playlistId}`,
+  };
   const [query, setQuery] = useState('');
   const toast = useToast();
   const remove = useRemoveFromPlaylist(playlistId);

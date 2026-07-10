@@ -51,7 +51,11 @@ export function AlbumHeader({
             <CollectionActions
               tracks={tracks}
               collectionId={album?.Id}
-              context={{ kind: 'album', label: album?.Name ?? 'Album' }}
+              context={{
+                kind: 'album',
+                label: album?.Name ?? 'Album',
+                path: album?.Id ? `/album/${album.Id}` : undefined,
+              }}
             />
           )}
         </div>

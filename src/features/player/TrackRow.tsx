@@ -1,5 +1,3 @@
-import { IonIcon } from '@ionic/react';
-import { removeCircleOutline } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { setPlayContext } from './playContext';
 import { trackDuration } from './playerFormat';
@@ -8,6 +6,7 @@ import { TrackTitle } from './TrackTitle';
 import { LikeButton } from '../library/LikeButton';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
 import { TrackReorder } from './TrackReorder';
+import { TrackRemoveButton } from './TrackRemoveButton';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './trackRow.css';
 
@@ -38,8 +37,9 @@ export function TrackRow({
   reorder?: { isFirst: boolean; isLast: boolean; onMoveUp: () => void; onMoveDown: () => void };
   /** Show the track's album number instead of its cover art (album view). */
   showNumber?: boolean;
-  /** When set, tapping a row records the "Playing from …" source for the queue. */
-  context?: { kind: string; label: string };
+  /** When set, tapping a row records the "Playing from …" source for the queue
+   * (optionally with a route back to it, shown as a link in the full player). */
+  context?: { kind: string; label: string; path?: string };
 }) {
   const { playQueue, current, isPlaying, toggle } = usePlayer();
   const isCurrent = current?.Id === track.Id;
@@ -78,22 +78,7 @@ export function TrackRow({
       )}
       {reorder && <TrackReorder {...reorder} />}
       <LikeButton track={track} />
-      {onRemove ? (
-        <button
-          type="button"
-          className="track-row__remove"
-          data-testid="track-row-remove"
-          aria-label="Remove from playlist"
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-        >
-          <IonIcon icon={removeCircleOutline} />
-        </button>
-      ) : (
-        <AddToPlaylistButton track={track} />
-      )}
+      {onRemove ? <TrackRemoveButton onRemove={onRemove} /> : <AddToPlaylistButton track={track} />}
     </div>
   );
 }
