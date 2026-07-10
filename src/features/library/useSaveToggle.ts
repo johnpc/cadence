@@ -17,15 +17,32 @@ export function useSaveToggle(item: JellyfinItem | null) {
   const toast = useToast();
   const [saved, setSaved] = useState(!!item?.UserData?.IsFavorite);
 
+  // "Follow/Unfollow" reads right for an artist; "library" for albums.
+  const isArtist = item?.Type === 'MusicArtist';
+  const words = isArtist
+    ? {
+        done: 'Following',
+        undone: 'Unfollowed',
+        failAdd: "Couldn't follow",
+        failRemove: "Couldn't unfollow",
+      }
+    : {
+        done: 'Saved to library',
+        undone: 'Removed from library',
+        failAdd: "Couldn't add to your library",
+        failRemove: "Couldn't remove from your library",
+      };
+
   const mutation = useMutation({
     mutationFn: (next: boolean) =>
       next ? addFavorite(item?.Id ?? '') : removeFavorite(item?.Id ?? ''),
     onMutate: (next: boolean) => setSaved(next),
     onError: (_e, next) => {
       setSaved(!next); // roll back
-      toast(next ? "Couldn't add to your library" : "Couldn't remove from your library");
+      toast(next ? words.failAdd : words.failRemove);
     },
-    onSuccess: () => {
+    onSuccess: (_r, next) => {
+      toast(next ? words.done : words.undone);
       void queryClient.invalidateQueries({ queryKey: SAVED_ALBUMS_KEY });
       void queryClient.invalidateQueries({ queryKey: FOLLOWED_ARTISTS_KEY });
     },

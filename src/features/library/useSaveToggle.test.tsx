@@ -23,6 +23,13 @@ const album = (fav: boolean): JellyfinItem => ({
   UserData: { IsFavorite: fav },
 });
 
+const artist = (fav: boolean): JellyfinItem => ({
+  Id: 'ar1',
+  Name: 'x',
+  Type: 'MusicArtist',
+  UserData: { IsFavorite: fav },
+});
+
 describe('useSaveToggle', () => {
   afterEach(() => {
     vi.resetAllMocks();
@@ -33,12 +40,20 @@ describe('useSaveToggle', () => {
     expect(result.current.saved).toBe(true);
   });
 
-  it('saves an unsaved album (optimistic + server call)', async () => {
+  it('saves an unsaved album (optimistic + server call) and toasts ON SUCCESS', async () => {
     vi.mocked(addFavorite).mockResolvedValue();
     const { result } = renderHook(() => useSaveToggle(album(false)), { wrapper });
     act(() => result.current.toggle());
     expect(result.current.saved).toBe(true);
     await waitFor(() => expect(addFavorite).toHaveBeenCalledWith('al1'));
+    await waitFor(() => expect(toast).toHaveBeenCalledWith('Saved to library'));
+  });
+
+  it('uses Follow/Unfollow wording for an artist', async () => {
+    vi.mocked(addFavorite).mockResolvedValue();
+    const { result } = renderHook(() => useSaveToggle(artist(false)), { wrapper });
+    act(() => result.current.toggle());
+    await waitFor(() => expect(toast).toHaveBeenCalledWith('Following'));
   });
 
   it('unsaves a saved album', async () => {
