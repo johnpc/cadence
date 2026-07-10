@@ -1,5 +1,23 @@
 import { useQuery } from '@tanstack/react-query';
 import { getLatestAlbums, getSuggestedSongs, getRecentlyPlayed } from '../../lib/jellyfinDiscover';
+import { getPublicPlaylists } from '../../lib/jellyfinPlaylists';
+
+/** Other users' public playlists, for a Home "From the community" shelf — the
+ * playlists Your Library deliberately excludes (not owned by you). Tapping one
+ * opens it read-only with a Clone action. */
+export function usePublicPlaylists() {
+  const q = useQuery({
+    queryKey: ['home', 'public-playlists'],
+    queryFn: () => getPublicPlaylists(20),
+    staleTime: 5 * 60_000,
+  });
+  return {
+    playlists: q.data ?? [],
+    isLoading: q.isLoading,
+    isError: q.isError,
+    refetch: q.refetch,
+  };
+}
 
 /** Recently-added albums shelf. */
 export function useLatestAlbums() {

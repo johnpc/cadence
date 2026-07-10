@@ -16,7 +16,9 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
 vi.mock('../../lib/jellyfinItems', () => ({
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
-  getItem: vi.fn().mockResolvedValue({ Id: 'p1', Name: 'My Playlist', Type: 'Playlist' }),
+  getItem: vi
+    .fn()
+    .mockResolvedValue({ Id: 'p1', Name: 'My Playlist', Type: 'Playlist', CanDelete: true }),
 }));
 import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import { getItem } from '../../lib/jellyfinItems';
@@ -48,7 +50,12 @@ function renderDetail(player: PlayerContextValue = stubPlayer()) {
 
 describe('PlaylistDetail', () => {
   beforeEach(() => {
-    vi.mocked(getItem).mockResolvedValue({ Id: 'p1', Name: 'My Playlist', Type: 'Playlist' });
+    vi.mocked(getItem).mockResolvedValue({
+      Id: 'p1',
+      Name: 'My Playlist',
+      Type: 'Playlist',
+      CanDelete: true,
+    });
   });
   afterEach(() => {
     vi.resetAllMocks();
@@ -107,5 +114,19 @@ describe('PlaylistDetail', () => {
     renderDetail();
     await userEvent.click(await screen.findByTestId('track-row-remove'));
     expect(removeFromPlaylist).toHaveBeenCalledWith('p1', 'e1');
+  });
+
+  it('for a playlist you do NOT own, offers Clone and hides delete + track-remove', async () => {
+    vi.mocked(getItem).mockResolvedValue({
+      Id: 'p1',
+      Name: 'Community Mix',
+      Type: 'Playlist',
+      CanDelete: false,
+    });
+    vi.mocked(getPlaylistItems).mockResolvedValue([{ ...tracks[0], PlaylistItemId: 'e1' }]);
+    renderDetail();
+    expect(await screen.findByTestId('clone-playlist')).toBeInTheDocument();
+    expect(screen.queryByTestId('delete-playlist')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('track-row-remove')).not.toBeInTheDocument();
   });
 });

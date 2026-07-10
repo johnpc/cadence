@@ -15,6 +15,7 @@ import { PlaylistTracks } from './PlaylistTracks';
 import { RecommendedSongs } from './RecommendedSongs';
 import { DeletePlaylistButton } from './DeletePlaylistButton';
 import { RenamePlaylistButton } from './RenamePlaylistButton';
+import { ClonePlaylistButton } from './ClonePlaylistButton';
 import { usePlaylist, usePlaylistItems } from './playlistsApi';
 import './playlists.css';
 
@@ -33,8 +34,14 @@ export function PlaylistDetail() {
           </IonButtons>
           <IonTitle>Playlist</IonTitle>
           <IonButtons slot="end">
-            {playlist && <RenamePlaylistButton playlistId={id} currentName={playlist.Name ?? ''} />}
-            <DeletePlaylistButton playlistId={id} />
+            {playlist?.CanDelete === true ? (
+              <>
+                <RenamePlaylistButton playlistId={id} currentName={playlist.Name ?? ''} />
+                <DeletePlaylistButton playlistId={id} />
+              </>
+            ) : (
+              playlist && <ClonePlaylistButton playlistId={id} name={playlist.Name ?? 'Playlist'} />
+            )}
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -50,8 +57,14 @@ export function PlaylistDetail() {
         >
           <div data-testid="playlist-detail">
             <PlaylistHeader playlist={playlist} tracks={tracks} />
-            <PlaylistTracks playlistId={id} playlistName={playlist?.Name} tracks={tracks} />
-            <RecommendedSongs playlistId={id} tracks={tracks} />
+            <PlaylistTracks
+              playlistId={id}
+              playlistName={playlist?.Name}
+              tracks={tracks}
+              editable={playlist?.CanDelete === true}
+            />
+            {/* Add-recommendations only makes sense for a playlist you own. */}
+            {playlist?.CanDelete === true && <RecommendedSongs playlistId={id} tracks={tracks} />}
           </div>
         </LoadState>
       </IonContent>

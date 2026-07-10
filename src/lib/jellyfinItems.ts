@@ -15,7 +15,9 @@ const audioFields =
  * genres + production year for the detail-page meta line. */
 export async function getItem(itemId: string): Promise<JellyfinItem> {
   const userId = getSession()?.userId ?? '';
-  return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}?Fields=Genres,Overview`);
+  // CanDelete tells us whether the current user OWNS this item (true only for
+  // owners) — the playlist page uses it to offer Clone vs edit/delete.
+  return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}?Fields=Genres,Overview,CanDelete`);
 }
 
 /** All audio tracks on an album, in disc+track order. Uses AlbumIds, not
