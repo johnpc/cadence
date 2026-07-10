@@ -1,0 +1,14 @@
+.autoplay__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cad-space-4);
+}
+
+.autoplay__text {
+  min-width: 0;
+}
+
+.autoplay__title {
+  margin-bottom: 2px;
+}
