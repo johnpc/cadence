@@ -42,23 +42,27 @@ export async function renamePlaylist(playlistId: string, name: string): Promise<
   await request(`/Playlists/${playlistId}`, { method: 'POST', body: { Name: name } });
 }
 
-/** Create a new (audio) playlist and return its id. */
+/** Create a new (audio) playlist and return its id. IsPublic:false is CRITICAL —
+ * Jellyfin 10.11 defaults new playlists to PUBLIC, which makes them visible in
+ * every other user's library (and dumps them into our "From the community"
+ * shelf). A user's playlists must be private to them unless they opt in. */
 export async function createPlaylist(name: string): Promise<string> {
   const userId = getSession()?.userId ?? '';
   const res = await request<{ Id: string }>('/Playlists', {
     method: 'POST',
-    body: { Name: name, UserId: userId, MediaType: 'Audio' },
+    body: { Name: name, UserId: userId, MediaType: 'Audio', IsPublic: false },
   });
   return res.Id;
 }
 
 /** Create a playlist pre-populated with `itemIds` (one call — Jellyfin's create
- * endpoint accepts initial Ids). Used to save the queue as a playlist. */
+ * endpoint accepts initial Ids). Used to save the queue as a playlist.
+ * IsPublic:false for the same reason as createPlaylist (10.11 defaults public). */
 export async function createPlaylistWithItems(name: string, itemIds: string[]): Promise<string> {
   const userId = getSession()?.userId ?? '';
   const res = await request<{ Id: string }>('/Playlists', {
     method: 'POST',
-    body: { Name: name, UserId: userId, MediaType: 'Audio', Ids: itemIds },
+    body: { Name: name, UserId: userId, MediaType: 'Audio', Ids: itemIds, IsPublic: false },
   });
   return res.Id;
 }

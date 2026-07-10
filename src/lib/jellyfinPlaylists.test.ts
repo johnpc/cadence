@@ -97,6 +97,9 @@ describe('jellyfinPlaylists', () => {
     expect(url).toContain('/Playlists');
     expect(init.method).toBe('POST');
     expect(init.body).toContain('My Mix');
+    // Must be created PRIVATE — Jellyfin 10.11 defaults playlists to public,
+    // which would leak them into every other user's library.
+    expect(JSON.parse(init.body).IsPublic).toBe(false);
   });
 
   it('createPlaylistWithItems POSTs the name and initial ids', async () => {
@@ -110,6 +113,7 @@ describe('jellyfinPlaylists', () => {
     expect(init.body).toContain('My Queue');
     expect(init.body).toContain('a');
     expect(init.body).toContain('b');
+    expect(JSON.parse(init.body).IsPublic).toBe(false); // private, not global
   });
 
   it('addToPlaylist POSTs the item id', async () => {
