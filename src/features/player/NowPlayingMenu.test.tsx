@@ -76,17 +76,21 @@ describe('NowPlayingMenu', () => {
     expect(screen.getByTestId('loc')).toHaveTextContent('/artist/ar1');
   });
 
-  it('offers each playlist as an add target', async () => {
+  it('reveals each playlist as an add target via the "Add to playlist…" picker', async () => {
     renderMenu();
     await userEvent.click(screen.getByTestId('full-player-more'));
-    expect(screen.getByText('Add to Chill')).toBeInTheDocument();
+    // The primary menu no longer inlines playlists — it opens a dedicated sheet.
+    expect(screen.queryByText('Add to Chill')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByText('Add to playlist…'));
+    expect(screen.getByText('Chill')).toBeInTheDocument();
   });
 
-  it('offers a "New playlist…" option before the existing playlists', async () => {
+  it('offers "New playlist…" before the existing playlists in the picker', async () => {
     renderMenu();
     await userEvent.click(screen.getByTestId('full-player-more'));
+    await userEvent.click(screen.getByText('Add to playlist…'));
     const labels = screen.getAllByRole('button').map((b) => b.textContent);
     expect(labels).toContain('New playlist…');
-    expect(labels.indexOf('New playlist…')).toBeLessThan(labels.indexOf('Add to Chill'));
+    expect(labels.indexOf('New playlist…')).toBeLessThan(labels.indexOf('Chill'));
   });
 });

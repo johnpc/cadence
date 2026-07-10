@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { IonActionSheet, IonAlert, IonIcon } from '@ionic/react';
+import { IonActionSheet, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { usePlaylists, useAddToPlaylist } from './playlistsApi';
-import { useCreatePlaylistWithItems } from './playlistCreate';
-import { trackMenuButtons } from './trackMenuButtons';
+import { trackMenuButtons, addToPlaylistButtons } from './trackMenuButtons';
+import { NewPlaylistAlert } from './NewPlaylistAlert';
 import { usePlayer } from '../player/usePlayer';
 import { usePlayItem } from '../player/usePlayItem';
 import { useToast } from '../toast/useToast';
@@ -12,20 +12,20 @@ import { copyShareLink } from '../share/shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './addToPlaylist.css';
 
-/** A "…" track menu: play next, add to queue, go to album/artist, copy link,
- * create a new playlist with this track, or add it to an existing one. */
+/** A "…" track menu: play next, add to queue, "Add to playlist…" (opens a
+ * dedicated picker), go to album/artist, copy link. */
 export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
   const [open, setOpen] = useState(false);
+  const [pickOpen, setPickOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
-  const createWith = useCreatePlaylistWithItems();
   const { playNext, addToQueue } = usePlayer();
   const playItem = usePlayItem();
   const toast = useToast();
   const history = useHistory();
 
-  const buttons = trackMenuButtons(track, playlists, {
+  const buttons = trackMenuButtons(track, {
     playNext: () => {
       playNext(track);
       toast('Playing next');
@@ -34,6 +34,7 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
       addToQueue(track);
       toast('Added to queue');
     },
+    addToPlaylist: () => setPickOpen(true),
     startRadio: () => {
       void playItem(track);
       toast('Starting radio');
@@ -44,6 +45,9 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
       void copyShareLink(track, window.location.origin).then((ok) =>
         toast(ok ? 'Link copied' : 'Could not copy link'),
       ),
+  });
+
+  const pickButtons = addToPlaylistButtons(playlists, {
     newPlaylist: () => setNewOpen(true),
     addTo: (pl) => {
       add.mutate({ playlistId: pl.Id, itemId: track.Id });
@@ -71,25 +75,14 @@ export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
         buttons={buttons}
         onDidDismiss={() => setOpen(false)}
       />
-      <IonAlert
-        isOpen={newOpen}
-        header="New playlist"
-        inputs={[{ name: 'name', type: 'text', placeholder: 'Playlist name' }]}
-        buttons={[
-          { text: 'Cancel', role: 'cancel' },
-          {
-            text: 'Create',
-            handler: (data: { name?: string }) => {
-              const name = (data.name ?? '').trim();
-              if (name) {
-                createWith.mutate({ name, itemIds: [track.Id] });
-                toast(`Created "${name}"`);
-              }
-            },
-          },
-        ]}
-        onDidDismiss={() => setNewOpen(false)}
+      <IonActionSheet
+        isOpen={pickOpen}
+        header="Add to playlist"
+        buttons={pickButtons}
+        onDidDismiss={() => setPickOpen(false)}
+        data-testid="add-to-playlist-sheet"
       />
+      <NewPlaylistAlert open={newOpen} onClose={() => setNewOpen(false)} itemId={track.Id} />
     </>
   );
 }

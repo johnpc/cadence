@@ -8,17 +8,26 @@ const actions = (): NowPlayingMenuActions => ({
   goToAlbum: vi.fn(),
   goToArtist: vi.fn(),
   copyLink: vi.fn(),
-  newPlaylist: vi.fn(),
-  addTo: vi.fn(),
+  addToPlaylist: vi.fn(),
 });
 
-const labels = (track: JellyfinItem, playlists: JellyfinItem[]) =>
-  nowPlayingMenuButtons(track, playlists, actions()).map((b) => b.text);
+const labels = (track: JellyfinItem) => nowPlayingMenuButtons(track, actions()).map((b) => b.text);
 
 describe('nowPlayingMenuButtons', () => {
-  it('always offers go-to-song, radio, copy link, New playlist…, and Cancel', () => {
-    const l = labels({ Id: 't', Name: 'x', Type: 'Audio' }, []);
-    expect(l).toEqual(['Go to song', 'Go to song radio', 'Copy link', 'New playlist…', 'Cancel']);
+  it('offers go-to-song, a single Add to playlist…, radio, copy link, Cancel', () => {
+    const l = labels({ Id: 't', Name: 'x', Type: 'Audio' });
+    expect(l).toEqual([
+      'Go to song',
+      'Add to playlist…',
+      'Go to song radio',
+      'Copy link',
+      'Cancel',
+    ]);
+  });
+
+  it('does NOT inline individual playlists', () => {
+    const l = labels({ Id: 't', Name: 'x', Type: 'Audio' });
+    expect(l.some((t) => t.startsWith('Add to ') && t !== 'Add to playlist…')).toBe(false);
   });
 
   it('includes Go to album/artist only when the track has them', () => {
@@ -29,23 +38,15 @@ describe('nowPlayingMenuButtons', () => {
       AlbumId: 'al',
       ArtistItems: [{ Id: 'ar', Name: 'A' }],
     };
-    expect(labels(track, [])).toContain('Go to album');
-    expect(labels(track, [])).toContain('Go to artist');
+    expect(labels(track)).toContain('Go to album');
+    expect(labels(track)).toContain('Go to artist');
   });
 
-  it('routes Go to song radio to startRadio', () => {
+  it('routes Add to playlist… to the picker opener', () => {
     const a = actions();
-    const btns = nowPlayingMenuButtons({ Id: 't', Name: 'x', Type: 'Audio' }, [], a);
-    btns.find((b) => b.text === 'Go to song radio')?.handler?.();
-    expect(a.startRadio).toHaveBeenCalledOnce();
-  });
-
-  it('lists an Add-to entry per playlist and routes it, before Cancel', () => {
-    const a = actions();
-    const pl: JellyfinItem = { Id: 'p1', Name: 'Chill', Type: 'Playlist' };
-    const btns = nowPlayingMenuButtons({ Id: 't', Name: 'x', Type: 'Audio' }, [pl], a);
-    btns.find((b) => b.text === 'Add to Chill')?.handler?.();
-    expect(a.addTo).toHaveBeenCalledWith(pl);
-    expect(btns[btns.length - 1].text).toBe('Cancel');
+    nowPlayingMenuButtons({ Id: 't', Name: 'x', Type: 'Audio' }, a)
+      .find((b) => b.text === 'Add to playlist…')
+      ?.handler?.();
+    expect(a.addToPlaylist).toHaveBeenCalledOnce();
   });
 });
