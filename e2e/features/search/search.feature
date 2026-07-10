@@ -11,6 +11,14 @@ Feature: Search
     When I tap the first song result
     Then the Now-Playing bar shows a track
 
+  Scenario: Pressing Enter plays the top result
+    Given I am signed in
+    When I open the Search tab
+    And I search for "love"
+    Then I see song results
+    When I press Enter in the search box
+    Then the Now-Playing bar shows a track
+
   Scenario: Filtering to Songs hides the Albums section
     Given I am signed in
     When I open the Search tab
