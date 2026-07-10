@@ -10,6 +10,10 @@
 FROM --platform=$BUILDPLATFORM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
+# scripts/ is copied before `npm ci` because package.json's postinstall runs a
+# script from it (the Chromecast podspec fix). Without this, `npm ci` fails on a
+# missing module before the later `COPY . .`.
+COPY scripts ./scripts
 RUN npm ci
 COPY . .
 # Optional build-time default Jellyfin URL. EMPTY by default so the public image
