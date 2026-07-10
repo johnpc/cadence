@@ -8,6 +8,7 @@ import {
   IonToolbar,
 } from '@ionic/react';
 import { Appearance } from '../theme/Appearance';
+import { Autoplay } from './Autoplay';
 import { SleepTimer } from './SleepTimer';
 import { InstallButton } from './InstallButton';
 import { SignOutButton } from './SignOutButton';
@@ -34,6 +35,7 @@ export function Settings() {
       <IonContent className="ion-padding">
         <div className="settings">
           <Appearance />
+          <Autoplay />
           <SleepTimer />
           <InstallButton />
           <section className="settings__storage">
