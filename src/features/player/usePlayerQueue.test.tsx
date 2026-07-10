@@ -84,6 +84,16 @@ describe('usePlayerQueue', () => {
     expect(result.current.queue.tracks.map((t) => t.Id).sort()).toEqual(['a', 'b', 'c']);
   });
 
+  it('toggling shuffle OFF restores the pre-shuffle order (Spotify-style)', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.playQueue(tracks, 0)); // a,b,c
+    act(() => result.current.toggleShuffle()); // ON — shuffles the upcoming
+    expect(result.current.shuffle).toBe(true);
+    act(() => result.current.toggleShuffle()); // OFF — must restore a,b,c
+    expect(result.current.shuffle).toBe(false);
+    expect(result.current.queue.tracks.map((t) => t.Id)).toEqual(['a', 'b', 'c']);
+  });
+
   it('removeFromQueue drops the track at an index', () => {
     const { result } = renderHook(() => usePlayerQueue());
     act(() => result.current.playQueue(tracks, 0));

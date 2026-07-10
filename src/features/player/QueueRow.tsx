@@ -1,11 +1,12 @@
-import { IonIcon } from '@ionic/react';
-import { arrowUp, arrowDown, closeOutline } from 'ionicons/icons';
+import { IonIcon, IonReorder } from '@ionic/react';
+import { arrowUp, arrowDown, closeOutline, reorderThreeOutline } from 'ionicons/icons';
 import { artistLine } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** One row of the Up Next queue: jump-to-play, reorder up/down, and remove.
- * Reorder buttons are disabled at the ends so the order can't drift. */
+/** One row of the Up Next queue: a drag handle (Spotify-style reorder),
+ * jump-to-play, up/down buttons (accessible fallback), and remove. Reorder
+ * buttons are disabled at the ends so the order can't drift. */
 export function QueueRow({
   track,
   index,
@@ -30,6 +31,9 @@ export function QueueRow({
       className={isCurrent ? 'queueview__row queueview__row--current' : 'queueview__row'}
       data-testid="queue-row"
     >
+      <IonReorder className="queueview__drag" data-testid="queue-row-drag">
+        <IonIcon icon={reorderThreeOutline} aria-hidden="true" />
+      </IonReorder>
       <button
         type="button"
         className="queueview__play"
