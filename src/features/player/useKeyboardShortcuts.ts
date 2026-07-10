@@ -4,12 +4,17 @@ export interface ShortcutActions {
   toggle: () => void;
   next: () => void;
   prev: () => void;
+  /** Seek by a relative delta in seconds (clamped by the handler). */
+  seekBy: (delta: number) => void;
   /** Nudge the volume by a delta in [-1,1] (clamped by the handler). */
   nudgeVolume: (delta: number) => void;
   toggleMute: () => void;
   toggleShuffle: () => void;
   cycleRepeat: () => void;
 }
+
+/** How far Shift+←/→ jumps within the current track. */
+const SEEK_STEP = 5;
 
 /** True when focus is in a text field, where our shortcuts must not steal keys. */
 function isTyping(target: EventTarget | null): boolean {
@@ -24,10 +29,11 @@ function actionFor(e: KeyboardEvent, a: ShortcutActions): (() => void) | null {
   switch (e.key) {
     case ' ':
       return a.toggle;
+    // Shift+←/→ seeks within the track; plain ←/→ change track (Spotify-style).
     case 'ArrowRight':
-      return a.next;
+      return e.shiftKey ? () => a.seekBy(SEEK_STEP) : a.next;
     case 'ArrowLeft':
-      return a.prev;
+      return e.shiftKey ? () => a.seekBy(-SEEK_STEP) : a.prev;
     case 'ArrowUp':
       return () => a.nudgeVolume(0.1);
     case 'ArrowDown':
@@ -48,8 +54,9 @@ function actionFor(e: KeyboardEvent, a: ShortcutActions): (() => void) | null {
 
 /**
  * Desktop keyboard transport: Space = play/pause, ←/→ = prev/next,
- * ↑/↓ = volume, M = mute, S = shuffle, R = repeat. No-ops while typing in a
- * field. `enabled` gates it so the shortcuts only act when a track is loaded.
+ * Shift+←/→ = seek ∓5s, ↑/↓ = volume, M = mute, S = shuffle, R = repeat.
+ * No-ops while typing in a field. `enabled` gates it so the shortcuts only act
+ * when a track is loaded.
  */
 export function useKeyboardShortcuts(actions: ShortcutActions, enabled: boolean): void {
   useEffect(() => {

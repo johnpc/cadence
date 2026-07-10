@@ -19,7 +19,19 @@ export function usePlaybackControls(ref: RefObject<HTMLAudioElement | null>, has
     [ref],
   );
 
+  // Relative seek (keyboard ±5s): read the live position off the element so
+  // there's no stale-closure risk, and clamp to [0, duration].
+  const seekBy = useCallback(
+    (delta: number) => {
+      const audio = ref.current;
+      if (!audio) return;
+      const max = Number.isFinite(audio.duration) ? audio.duration : audio.currentTime + delta;
+      audio.currentTime = Math.max(0, Math.min(audio.currentTime + delta, max));
+    },
+    [ref],
+  );
+
   const pause = useCallback(() => ref.current?.pause(), [ref]);
 
-  return { toggle, seek, pause };
+  return { toggle, seek, seekBy, pause };
 }

@@ -7,14 +7,15 @@ function actions() {
     toggle: vi.fn(),
     next: vi.fn(),
     prev: vi.fn(),
+    seekBy: vi.fn(),
     nudgeVolume: vi.fn(),
     toggleMute: vi.fn(),
     toggleShuffle: vi.fn(),
     cycleRepeat: vi.fn(),
   };
 }
-function press(key: string, target?: EventTarget) {
-  const e = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+function press(key: string, target?: EventTarget, init?: KeyboardEventInit) {
+  const e = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
   if (target) target.dispatchEvent(e);
   else window.dispatchEvent(e);
 }
@@ -33,6 +34,17 @@ describe('useKeyboardShortcuts', () => {
     expect(a.toggle).toHaveBeenCalledOnce();
     expect(a.next).toHaveBeenCalledOnce();
     expect(a.prev).toHaveBeenCalledOnce();
+  });
+
+  it('seeks ∓5s on Shift+←/→ instead of changing track', () => {
+    const a = actions();
+    renderHook(() => useKeyboardShortcuts(a, true));
+    press('ArrowRight', undefined, { shiftKey: true });
+    press('ArrowLeft', undefined, { shiftKey: true });
+    expect(a.seekBy).toHaveBeenCalledWith(5);
+    expect(a.seekBy).toHaveBeenCalledWith(-5);
+    expect(a.next).not.toHaveBeenCalled();
+    expect(a.prev).not.toHaveBeenCalled();
   });
 
   it('maps Up/Down to volume nudges and M to mute', () => {

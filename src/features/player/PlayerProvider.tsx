@@ -34,7 +34,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // Load the current track and play on change (restored tracks stay paused).
   useTrackLoader(ref, currentId);
 
-  const { toggle, seek, pause } = usePlaybackControls(ref, qh.queue.tracks.length > 0);
+  const { toggle, seek, seekBy, pause } = usePlaybackControls(ref, qh.queue.tracks.length > 0);
 
   // Report playback to Jellyfin (play counts + Recently Played). Reads position
   // live from the audio element so it doesn't re-fire on every tick.
@@ -52,22 +52,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // Sleep timer: pause when it elapses.
   const { sleepMinutes, armSleep } = useSleepTimer(pause);
 
-  usePlayerIntegrations(
-    current,
-    isPlaying,
-    {
-      toggle,
-      next: qh.next,
-      prev: qh.prev,
-      seek,
-      nudgeVolume,
-      toggleMute,
-      toggleShuffle: qh.toggleShuffle,
-      cycleRepeat: qh.cycleRepeat,
-    },
-    position,
-    duration,
-  );
+  const audioControls = { toggle, seek, seekBy, nudgeVolume, toggleMute };
+  usePlayerIntegrations(current, isPlaying, qh, audioControls, position, duration);
 
   // The main value excludes the fast-changing position/duration (those live in
   // PlayerProgressContext), so it only changes on real state transitions —
