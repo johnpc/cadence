@@ -51,6 +51,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Bundle size budget
+        # Fails if the gzipped entry/vendor/route chunks exceed .size-limit.json
+        # — catches silent bundle bloat we control (deps, imports), unlike the
+        # tunnel-noisy runtime metrics.
+        run: npm run size
+
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v5
