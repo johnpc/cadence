@@ -9,6 +9,7 @@ import { DesktopSidebar } from './features/library/DesktopSidebar';
 import { OfflineBanner } from './features/shell/OfflineBanner';
 import { KeyboardShortcutsHelp } from './features/shell/KeyboardShortcutsHelp';
 import { useShellChrome } from './features/shell/useShellChrome';
+import { useScrollToTopOnRetap } from './features/shell/useScrollToTopOnRetap';
 import * as L from './lazyPages';
 import './appTabs.css';
 
@@ -23,6 +24,8 @@ import './appTabs.css';
 export function AppTabs() {
   // body sidebar class + "/" search hotkey + "?" shortcuts-help overlay state
   const { helpOpen, setHelpOpen } = useShellChrome();
+  // Re-tapping the active tab scrolls that view to the top (iOS/Spotify).
+  const retap = useScrollToTopOnRetap();
   return (
     <>
       <OfflineBanner />
@@ -74,15 +77,15 @@ export function AppTabs() {
           </Route>
         </IonRouterOutlet>
         <IonTabBar slot="bottom">
-          <IonTabButton tab="home" href="/home">
+          <IonTabButton tab="home" href="/home" onClick={retap('/home')}>
             <IonIcon aria-hidden="true" icon={home} />
             <IonLabel>Home</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="search" href="/search">
+          <IonTabButton tab="search" href="/search" onClick={retap('/search')}>
             <IonIcon aria-hidden="true" icon={search} />
             <IonLabel>Search</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="library" href="/library">
+          <IonTabButton tab="library" href="/library" onClick={retap('/library')}>
             <IonIcon aria-hidden="true" icon={library} />
             <IonLabel>Your Library</IonLabel>
           </IonTabButton>
