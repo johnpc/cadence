@@ -11,6 +11,7 @@ import { Appearance } from '../theme/Appearance';
 import { SleepTimer } from './SleepTimer';
 import { InstallButton } from './InstallButton';
 import { SignOutButton } from './SignOutButton';
+import { ClearCacheButton } from './ClearCacheButton';
 import { useAuth } from '../auth/useAuth';
 import './settings.css';
 
@@ -35,6 +36,13 @@ export function Settings() {
           <Appearance />
           <SleepTimer />
           <InstallButton />
+          <section className="settings__storage">
+            <h2 className="settings__title cad-kicker">Storage</h2>
+            <p className="cad-meta">
+              Reload everything from your Jellyfin server if something looks stale or out of date.
+            </p>
+            <ClearCacheButton />
+          </section>
           <section className="settings__account">
             <h2 className="settings__title cad-kicker">Account</h2>
             <p className="cad-body" data-testid="settings-username">

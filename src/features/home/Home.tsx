@@ -9,6 +9,7 @@ import {
   type RefresherCustomEvent,
 } from '@ionic/react';
 import { HomeShelves, useHomeShelves } from './HomeShelves';
+import { isLibraryInaccessible } from './homeEmpty';
 import { greeting } from './greeting';
 import './home.css';
 
@@ -45,7 +46,17 @@ export function Home() {
         <h1 className="home__greeting cad-h1" data-testid="home-greeting">
           {greeting(new Date().getHours())}
         </h1>
-        <HomeShelves shelves={shelves} />
+        {isLibraryInaccessible(shelves) ? (
+          <div className="home__no-access" data-testid="home-no-access">
+            <p className="home__no-access-title cad-headline-sm">No music to show</p>
+            <p className="cad-meta">
+              You&apos;re signed in, but this account can&apos;t see any music. Ask your Jellyfin
+              admin to grant it access to the music library.
+            </p>
+          </div>
+        ) : (
+          <HomeShelves shelves={shelves} />
+        )}
       </IonContent>
     </IonPage>
   );
