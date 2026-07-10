@@ -15,6 +15,12 @@ describe('VolumeSlider', () => {
     expect(screen.getByTestId('full-player-volume')).toBeInTheDocument();
   });
 
+  it('announces volume as a percentage to screen readers', () => {
+    vi.mocked(hasSoftwareVolume).mockReturnValue(true);
+    render(<VolumeSlider volume={0.8} setVolume={vi.fn()} />);
+    expect(screen.getByTestId('full-player-volume')).toHaveAttribute('aria-valuetext', '80%');
+  });
+
   it('renders nothing on iOS (no software volume)', () => {
     vi.mocked(hasSoftwareVolume).mockReturnValue(false);
     const { container } = render(<VolumeSlider volume={0.5} setVolume={vi.fn()} />);

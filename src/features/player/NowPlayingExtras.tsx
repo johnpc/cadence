@@ -58,6 +58,7 @@ export function NowPlayingExtras() {
         value={volume}
         onChange={(e) => setVolume(Number(e.target.value))}
         aria-label="Volume"
+        aria-valuetext={`${Math.round(volume * 100)}%`}
         data-testid="npbar-volume"
       />
       <QueueView open={queueOpen} onClose={() => setQueueOpen(false)} />

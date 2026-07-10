@@ -111,4 +111,9 @@ describe('NowPlayingBar', () => {
     await userEvent.click(screen.getByTestId('npbar-mute'));
     expect(setVolume).toHaveBeenCalledWith(1);
   });
+
+  it('announces the desktop volume as a percentage', () => {
+    renderBar(ctx({ current: song, volume: 0.3 }));
+    expect(screen.getByTestId('npbar-volume')).toHaveAttribute('aria-valuetext', '30%');
+  });
 });
