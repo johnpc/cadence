@@ -45,6 +45,12 @@ describe('Library', () => {
     expect(screen.getByTestId('library-settings')).toBeInTheDocument();
   });
 
+  it('shows a track-list skeleton while the library is loading', () => {
+    vi.mocked(getPlaylists).mockReturnValue(new Promise(() => {})); // never resolves
+    renderWithProviders(<Library />);
+    expect(screen.getByTestId('skeleton-list')).toBeInTheDocument();
+  });
+
   it('pins Liked Songs and lists playlists by default', async () => {
     vi.mocked(getFavoriteSongs).mockResolvedValue([song]);
     vi.mocked(getPlaylists).mockResolvedValue([playlist]);

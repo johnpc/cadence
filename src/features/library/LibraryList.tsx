@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { IonSearchbar, IonIcon } from '@ionic/react';
 import { swapVertical } from 'ionicons/icons';
 import { LoadState } from '../../components/LoadState';
+import { TrackListSkeleton } from '../../components/Skeleton';
 import { LibraryFilters } from './LibraryFilters';
 import { LibraryRowItem } from './LibraryRowItem';
 import { CreatePlaylist } from '../playlists/CreatePlaylist';
@@ -79,6 +80,7 @@ export function LibraryList() {
         isEmpty={rows.length === 0}
         emptyTitle={query ? 'No matches' : 'Nothing here yet'}
         emptyMessage={query ? `Nothing in Your Library matches "${query}".` : EMPTY[filter]}
+        skeleton={<TrackListSkeleton />}
       >
         <div data-testid="library-list">
           {rows.map((row) => (
