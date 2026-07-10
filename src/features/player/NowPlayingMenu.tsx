@@ -3,6 +3,7 @@ import { IonActionSheet, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { usePlaylists, useAddToPlaylist } from '../playlists/playlistsApi';
+import { addToPlaylistWithToast } from '../playlists/addWithToast';
 import { NewPlaylistAlert } from '../playlists/NewPlaylistAlert';
 import { usePlayItem } from './usePlayItem';
 import { nowPlayingMenuButtons } from './nowPlayingMenuButtons';
@@ -49,10 +50,7 @@ export function NowPlayingMenu({
   });
   const pickButtons = addToPlaylistButtons(playlists, {
     newPlaylist: () => setNewOpen(true),
-    addTo: (pl) => {
-      add.mutate({ playlistId: pl.Id, itemId: track.Id });
-      toast(`Added to ${pl.Name}`);
-    },
+    addTo: (pl) => addToPlaylistWithToast(add, toast, pl.Id, track.Id, pl.Name ?? 'playlist'),
   });
   return (
     <>

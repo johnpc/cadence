@@ -18,6 +18,7 @@ export function DeletePlaylistButton({ playlistId }: { playlistId: string }) {
         toast('Playlist deleted');
         history.replace('/library');
       },
+      onError: () => toast("Couldn't delete the playlist"),
     });
   return (
     <>
