@@ -1,12 +1,15 @@
 import { screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinDiscover', () => ({
   getLatestAlbums: vi.fn(),
   getSuggestedSongs: vi.fn(),
   getRecentlyPlayed: vi.fn().mockResolvedValue([]),
 }));
-vi.mock('../../lib/jellyfinItems', () => ({ getFavoriteAlbums: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../lib/jellyfinItems', () => ({
+  getFavoriteAlbums: vi.fn().mockResolvedValue([]),
+  getItem: vi.fn().mockResolvedValue(null),
+}));
 vi.mock('../../lib/jellyfinArtists', () => ({ getFavoriteArtists: vi.fn().mockResolvedValue([]) }));
 vi.mock('../player/usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
 import { getLatestAlbums, getSuggestedSongs, getRecentlyPlayed } from '../../lib/jellyfinDiscover';
@@ -20,8 +23,15 @@ const album: JellyfinItem = { Id: 'al', Name: 'Fresh Album', Type: 'MusicAlbum',
 const song: JellyfinItem = { Id: 's', Name: 'Suggested Song', Type: 'Audio', Artists: ['B'] };
 
 describe('Home', () => {
+  // Clear the recent-plays store before AND after each test so a prior test's
+  // plays don't enable the "Jump back in" query (which would skew the all-empty
+  // no-access check).
+  beforeEach(() => {
+    localStorage.clear();
+  });
   afterEach(() => {
     vi.resetAllMocks();
+    localStorage.clear();
   });
 
   it('renders recommendation shelves with real data', async () => {
@@ -67,10 +77,30 @@ describe('Home', () => {
     expect(seeAll).toHaveAttribute('href', '/history');
   });
 
-  it('shows an empty state per shelf when there is no data', async () => {
+  it('shows a per-shelf empty state when some shelves have data but others are empty', async () => {
+    // Suggested has a song, so the library IS accessible — the empty "Recently
+    // added" shelf shows its own empty state rather than the no-access notice.
+    vi.mocked(getLatestAlbums).mockResolvedValue([]);
+    vi.mocked(getSuggestedSongs).mockResolvedValue([song]);
+    renderWithProviders(<Home />);
+    await waitFor(() => expect(screen.getByText('Suggested Song')).toBeInTheDocument());
+    expect(screen.getAllByTestId('load-empty').length).toBeGreaterThan(0);
+    expect(screen.queryByTestId('home-no-access')).not.toBeInTheDocument();
+  });
+
+  it('shows a "no music to show" notice when every shelf is empty (no library access)', async () => {
+    // Every source empty — a signed-in user with no music-library access.
     vi.mocked(getLatestAlbums).mockResolvedValue([]);
     vi.mocked(getSuggestedSongs).mockResolvedValue([]);
+    vi.mocked(getRecentlyPlayed).mockResolvedValue([]);
+    vi.mocked(getFavoriteAlbums).mockResolvedValue([]);
+    vi.mocked(getFavoriteArtists).mockResolvedValue([]);
     renderWithProviders(<Home />);
-    await waitFor(() => expect(screen.getAllByTestId('load-empty').length).toBeGreaterThan(0));
+    await waitFor(() => expect(screen.getByTestId('home-no-access')).toBeInTheDocument(), {
+      timeout: 3000,
+    });
+    expect(screen.getByText(/can't see any music/i)).toBeInTheDocument();
+    // The shelves (and their per-shelf empties) are replaced by the notice.
+    expect(screen.queryByTestId('home-shelves')).not.toBeInTheDocument();
   });
 });
