@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -56,10 +57,30 @@ describe('LyricsSheet', () => {
       player: stubPlayer({ current: song }),
       progress: { position: 3, duration: 200 },
     });
-    // At 3s the active line is "verse one" (start 2 ≤ 3 < 5).
-    const active = await screen.findByText('verse one');
+    // At 3s the active line is "verse one" (start 2 ≤ 3 < 5). The text is inside
+    // a seek button now; data-active lives on the wrapping <p>.
+    const active = (await screen.findByText('verse one')).closest('p');
     expect(active).toHaveAttribute('data-active', 'true');
-    expect(screen.getByText('verse two')).not.toHaveAttribute('data-active');
+    expect(screen.getByText('verse two').closest('p')).not.toHaveAttribute('data-active');
+  });
+
+  it('seeks to a synced line’s timestamp when tapped', async () => {
+    vi.mocked(useLyrics).mockReturnValue({
+      lines: [
+        { text: 'intro', start: 0 },
+        { text: 'the drop', start: 42 },
+      ],
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+    const seek = vi.fn();
+    renderWithProviders(<LyricsSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: song, seek }),
+      progress: { position: 1, duration: 200 },
+    });
+    await userEvent.click(await screen.findByText('the drop'));
+    expect(seek).toHaveBeenCalledWith(42);
   });
 
   it('shows an empty state when there are no lyrics', async () => {

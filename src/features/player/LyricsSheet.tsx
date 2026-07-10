@@ -6,13 +6,14 @@ import { usePlayer } from './usePlayer';
 import { usePlayerProgress } from './PlayerProgressContext';
 import { useLyrics } from './useLyrics';
 import { activeLineIndex, isSynced } from './activeLyric';
+import { LyricLineRow } from './LyricLineRow';
 import './lyricsSheet.css';
 
 /** A scrollable lyric sheet for the current track. When the track has synced
  * (LRC) timing, the active line is highlighted and auto-scrolled into view
  * (karaoke-style); otherwise it's a plain scrollable sheet. */
 export function LyricsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { current } = usePlayer();
+  const { current, seek } = usePlayer();
   const { position } = usePlayerProgress();
   const { lines, isLoading, isError, refetch } = useLyrics(current?.Id, open);
   const synced = isSynced(lines);
@@ -45,14 +46,13 @@ export function LyricsSheet({ open, onClose }: { open: boolean; onClose: () => v
             data-testid="lyrics-lines"
           >
             {lines.map((line, i) => (
-              <p
+              <LyricLineRow
                 key={i}
+                line={line}
+                active={i === active}
+                onSeek={seek}
                 ref={i === active ? activeRef : undefined}
-                className={i === active ? 'lyrics__line lyrics__line--active' : 'lyrics__line'}
-                data-active={i === active ? 'true' : undefined}
-              >
-                {line.text || ' '}
-              </p>
+              />
             ))}
           </div>
         </LoadState>
