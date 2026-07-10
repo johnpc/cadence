@@ -27,8 +27,10 @@ export function buildPlayerValue(
     waiting: transport.waiting,
     shuffle: qh.shuffle,
     repeat: qh.repeat,
-    canNext: q.hasNext(qh.queue),
-    canPrev: q.hasPrev(qh.queue),
+    // With repeat-all, next/prev wrap around the ends, so the controls stay
+    // enabled on the last/first track (as long as there's more than one track).
+    canNext: q.hasNext(qh.queue) || (qh.repeat === 'all' && qh.queue.tracks.length > 1),
+    canPrev: q.hasPrev(qh.queue) || (qh.repeat === 'all' && qh.queue.tracks.length > 1),
     queue: qh.queue.tracks,
     queueIndex: qh.queue.index,
     playQueue: qh.playQueue,

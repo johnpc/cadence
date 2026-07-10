@@ -49,6 +49,18 @@ describe('queue', () => {
     expect(prev(q)).toBe(q);
   });
 
+  it('next wraps to the first track at the end when repeat-all (wrap=true)', () => {
+    const q = startQueue(tracks, 2); // last
+    expect(next(q).index).toBe(2); // no wrap → stays put
+    expect(next(q, true).index).toBe(0); // wrap → first
+  });
+
+  it('prev wraps to the last track at the start when repeat-all (wrap=true)', () => {
+    const q = startQueue(tracks, 0); // first
+    expect(prev(q).index).toBe(0); // no wrap → stays put
+    expect(prev(q, true).index).toBe(2); // wrap → last
+  });
+
   it('appends tracks', () => {
     const q = append(startQueue(tracks, 0), [track('d')]);
     expect(q.tracks.map((t) => t.Id)).toEqual(['a', 'b', 'c', 'd']);

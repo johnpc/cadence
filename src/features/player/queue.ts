@@ -36,14 +36,18 @@ export function hasPrev(q: QueueState): boolean {
   return q.index > 0;
 }
 
-/** Advance one track; unchanged at the end of the queue. */
-export function next(q: QueueState): QueueState {
-  return hasNext(q) ? { ...q, index: q.index + 1 } : q;
+/** Advance one track. With `wrap` (repeat-all), the last track wraps to the
+ * first; otherwise it's unchanged at the end of the queue. */
+export function next(q: QueueState, wrap = false): QueueState {
+  if (hasNext(q)) return { ...q, index: q.index + 1 };
+  return wrap && q.tracks.length ? { ...q, index: 0 } : q;
 }
 
-/** Go back one track; unchanged at the start of the queue. */
-export function prev(q: QueueState): QueueState {
-  return hasPrev(q) ? { ...q, index: q.index - 1 } : q;
+/** Go back one track. With `wrap` (repeat-all), the first track wraps to the
+ * last; otherwise it's unchanged at the start of the queue. */
+export function prev(q: QueueState, wrap = false): QueueState {
+  if (hasPrev(q)) return { ...q, index: q.index - 1 };
+  return wrap && q.tracks.length ? { ...q, index: q.tracks.length - 1 } : q;
 }
 
 /** Append tracks to the end of the queue (used for radio / instant-mix). */
