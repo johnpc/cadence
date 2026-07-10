@@ -2,8 +2,40 @@ import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
 import { DATA_WAIT } from './timeouts';
 import { navigate } from './app-shell.steps';
+import { login, createSmallPlaylist, deletePlaylistsByName, type Session } from './jellyfinApi';
 
-const { When, Then } = createBdd();
+const { Given, When, Then, After } = createBdd();
+
+const USER = process.env.TEST_USERNAME as string;
+const PASS = process.env.TEST_PASSWORD as string;
+// A tiny fixture playlist (deterministic name) so "download the whole playlist"
+// finishes fast and fully — the real library's first playlist can have 400+
+// tracks, which no time budget can download.
+const FIXTURE = 'E2E Offline Fixture';
+let owner: Session | null = null;
+
+Given('I own a small playlist for offline download', async () => {
+  owner = await login(USER, PASS);
+  await deletePlaylistsByName(owner, FIXTURE); // sweep any crashed-run leftover
+  await createSmallPlaylist(owner, FIXTURE, 2);
+});
+
+After(async () => {
+  try {
+    const s = owner ?? (await login(USER, PASS));
+    await deletePlaylistsByName(s, FIXTURE);
+  } catch {
+    /* best-effort teardown */
+  }
+});
+
+When('I open my offline-fixture playlist', async ({ page }) => {
+  await navigate(page, 'Your Library');
+  const row = page.getByTestId('library-row').filter({ hasText: FIXTURE }).first();
+  await expect(row).toBeVisible({ timeout: DATA_WAIT });
+  await row.click();
+  await expect(page.getByTestId('playlist-detail')).toBeVisible({ timeout: DATA_WAIT });
+});
 
 /** The download toggle on the first search-result track row. */
 function firstResultDownload(page: import('@playwright/test').Page) {

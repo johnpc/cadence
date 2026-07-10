@@ -25,6 +25,16 @@ Feature: Offline downloads
     Then the Now-Playing bar shows a track
     And the audio element is playing from a local download
 
+  Scenario: Download a whole playlist in one tap
+    Given I own a small playlist for offline download
+    And I am signed in
+    When I open my offline-fixture playlist
+    Then I see the playlist tracks
+    When I download the whole playlist
+    Then the playlist shows as downloaded
+    When I open Downloads from the library
+    Then I see the downloaded track
+
   Scenario: Removing a download takes it out of Downloads
     Given I am signed in
     When I open the Search tab

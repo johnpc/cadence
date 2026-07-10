@@ -5,6 +5,22 @@ import { libraryList } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
+When('I download the whole playlist', async ({ page }) => {
+  const btn = page.getByTestId('download-collection');
+  await expect(btn).toBeVisible({ timeout: DATA_WAIT });
+  await btn.click();
+});
+
+Then('the playlist shows as downloaded', async ({ page }) => {
+  // Downloading every track fetches real audio over the tunnel — allow real
+  // headroom for the batch to settle to the downloaded state.
+  await expect(page.getByTestId('download-collection')).toHaveAttribute(
+    'data-state',
+    'downloaded',
+    { timeout: DATA_WAIT },
+  );
+});
+
 When('I open the first playlist', async ({ page }) => {
   // Your Library lists Liked Songs first (pinned), then real playlists — open
   // the first row that isn't Liked Songs.

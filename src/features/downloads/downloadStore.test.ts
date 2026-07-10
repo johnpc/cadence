@@ -63,10 +63,22 @@ describe('downloadStore', () => {
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
   });
 
-  it('throws when the stream fetch fails, leaving nothing indexed', async () => {
+  it('throws when the stream fetch fails on both attempts, leaving nothing indexed', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 404 })));
     await expect(downloadTrack(track('a'))).rejects.toThrow('download failed: 404');
+    expect(fetch).toHaveBeenCalledTimes(2); // retried once
     expect(isDownloaded('a')).toBe(false);
+  });
+
+  it('retries once and succeeds when the first fetch fails transiently', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('network blip'))
+      .mockResolvedValueOnce(new Response('audio-bytes', { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    await downloadTrack(track('a'));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(isDownloaded('a')).toBe(true);
   });
 
   it('remove deletes the download, revokes its URL, and de-indexes it', async () => {

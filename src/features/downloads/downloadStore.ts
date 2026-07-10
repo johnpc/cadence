@@ -43,14 +43,25 @@ export async function localAudioUrl(id: string): Promise<string | null> {
 }
 
 /** Fetch the track's audio and store it for offline playback, then index its
- * metadata. Throws on a failed fetch so the caller can surface an error. */
+ * metadata. Retries once on a transient failure — downloading a whole album at
+ * once can drop the odd connection over a slow link, and one blip shouldn't
+ * permanently fail a track. Throws only if both attempts fail. */
 export async function downloadTrack(item: JellyfinItem): Promise<void> {
-  const res = await fetch(audioStreamUrl(item.Id));
-  if (!res.ok) throw new Error(`download failed: ${res.status}`);
-  const cache = await caches.open(CACHE);
-  await cache.put(cacheKey(item.Id), res);
-  addToIndex(item);
-  emit();
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(audioStreamUrl(item.Id));
+      if (!res.ok) throw new Error(`download failed: ${res.status}`);
+      const cache = await caches.open(CACHE);
+      await cache.put(cacheKey(item.Id), res);
+      addToIndex(item);
+      emit();
+      return;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error('download failed');
 }
 
 /** Delete a downloaded track's bytes + index entry and revoke its object URL. */
