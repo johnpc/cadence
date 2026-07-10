@@ -16,7 +16,13 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 class FakeAudio {
   parentNode = document.body;
   setAttribute() {}
+  removeAttribute() {
+    this.src = '';
+  }
+  load() {}
   src = '';
+  preload = '';
+  muted = false;
   paused = true;
   currentTime = 0;
   duration = 0;
@@ -62,9 +68,18 @@ describe('PlayerProvider', () => {
   beforeEach(() => {
     setSession({ token: 't', userId: 'u' });
     audio = new FakeAudio();
+    // First construction is the main element; later ones are the prefetch
+    // hook's throwaway buffers (must not clobber the main element's src).
+    let first = true;
     vi.stubGlobal(
       'Audio',
-      vi.fn(() => audio),
+      vi.fn(() => {
+        if (first) {
+          first = false;
+          return audio;
+        }
+        return new FakeAudio();
+      }),
     );
   });
   afterEach(() => {

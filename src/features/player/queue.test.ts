@@ -7,6 +7,7 @@ import {
   hasNext,
   hasPrev,
   next,
+  peekNextId,
   prev,
   removeAt,
   shuffleRest,
@@ -59,6 +60,13 @@ describe('queue', () => {
     const q = startQueue(tracks, 0); // first
     expect(prev(q).index).toBe(0); // no wrap → stays put
     expect(prev(q, true).index).toBe(2); // wrap → last
+  });
+
+  it('peekNextId returns the upcoming id, respecting wrap and its absence', () => {
+    expect(peekNextId(startQueue(tracks, 0))).toBe('b'); // mid-queue
+    expect(peekNextId(startQueue(tracks, 2))).toBeNull(); // last, no wrap
+    expect(peekNextId(startQueue(tracks, 2), true)).toBe('a'); // last, wrap → first
+    expect(peekNextId(EMPTY_QUEUE)).toBeNull();
   });
 
   it('appends tracks', () => {

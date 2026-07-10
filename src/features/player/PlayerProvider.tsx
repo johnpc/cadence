@@ -10,6 +10,7 @@ import { useVolume } from './useVolume';
 import { usePlaybackControls } from './usePlaybackControls';
 import { usePlaybackReporting } from './usePlaybackReporting';
 import { useEndlessPlay } from './useEndlessPlay';
+import { useNextTrackPrefetch } from './useNextTrackPrefetch';
 import { useDocumentTitle } from './useDocumentTitle';
 import { buildPlayerValue } from './playerValue';
 import { useTrackLoader } from './useTrackLoader';
@@ -41,6 +42,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   // Endless play: append instant-mix radio when the queue reaches its end.
   useEndlessPlay(qh.queue.tracks, qh.queue.index, qh.repeat === 'off', qh.addToQueue);
+
+  // Warm the next track (web audio path only) so transitions are near-gapless.
+  useNextTrackPrefetch(qh.queue, qh.repeat === 'all', isPlaying);
 
   // Reflect the playing track in the browser tab title.
   useDocumentTitle(current);
