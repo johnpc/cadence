@@ -16,7 +16,7 @@ export async function getArtistAlbums(artistId: string, limit = 100): Promise<Je
     SortBy: 'PremiereDate,ProductionYear,SortName',
     SortOrder: 'Descending',
     Limit: String(limit),
-    Fields: 'AlbumArtist,Artists',
+    Fields: 'AlbumArtist,Artists,ChildCount',
     userId,
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);

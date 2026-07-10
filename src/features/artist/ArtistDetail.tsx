@@ -7,11 +7,9 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { useHistory, useParams } from 'react-router-dom';
-import { LoadState } from '../../components/LoadState';
-import { CardGridSkeleton } from '../../components/Skeleton';
-import { TrackArt } from '../player/TrackArt';
+import { useParams } from 'react-router-dom';
 import { ArtistHeader } from './ArtistHeader';
+import { ArtistAlbums } from './ArtistAlbums';
 import { ArtistPopular } from './ArtistPopular';
 import { RelatedArtists } from './RelatedArtists';
 import { usePlayItem } from '../player/usePlayItem';
@@ -26,7 +24,6 @@ export function ArtistDetail() {
   const { tracks: topTracks } = useArtistTopTracks(id);
   const { related } = useRelatedArtists(id);
   const playItem = usePlayItem();
-  const history = useHistory();
 
   return (
     <IonPage>
@@ -45,35 +42,12 @@ export function ArtistDetail() {
           onRadio={() => artist && void playItem(artist)}
         />
         <ArtistPopular tracks={topTracks} artistName={artist?.Name} />
-        <h2 className="cad-kicker artist__section">Albums</h2>
-        <LoadState
+        <ArtistAlbums
+          albums={albums}
           isLoading={isLoading}
           isError={isError}
           onRetry={() => void refetch()}
-          isEmpty={albums.length === 0}
-          emptyTitle="No albums"
-          emptyMessage="This artist has no albums on your server."
-          skeleton={<CardGridSkeleton />}
-        >
-          <div className="artist__albums" data-testid="artist-albums">
-            {albums.map((album) => (
-              <button
-                key={album.Id}
-                type="button"
-                className="artist__album"
-                data-testid="artist-album"
-                onClick={() => history.push(`/album/${album.Id}`)}
-                aria-label={`Open ${album.Name}`}
-              >
-                <TrackArt item={album} size={150} />
-                <span className="artist__album-name">{album.Name}</span>
-                {album.ProductionYear && (
-                  <span className="artist__album-year cad-meta">{album.ProductionYear}</span>
-                )}
-              </button>
-            ))}
-          </div>
-        </LoadState>
+        />
         <RelatedArtists artists={related} />
         {artist?.Overview && (
           <section data-testid="artist-about">
