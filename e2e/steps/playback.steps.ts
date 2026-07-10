@@ -11,14 +11,22 @@ When('I tap a track from search', async ({ page }) => {
   // query if a transient hiccup means no results land in time.
   await navigate(page, 'Search');
   await searchUntilResults(page, 'love', 'search-results');
-  await page.getByTestId('search-results').getByTestId('track-row-play').first().click();
+  const row = page.getByTestId('search-results').getByTestId('track-row-play').first();
+  await row.click();
+  // Confirm playback actually STARTED before returning — otherwise downstream
+  // steps (open full player, repeat/shuffle keys) race an empty queue and time
+  // out on the now-playing bar. The bar renders as soon as the queue has a
+  // current track (pure state, independent of audio decoding).
+  await expect(page.getByTestId('now-playing-bar')).toBeAttached({ timeout: DATA_WAIT });
 });
 
 Then('the Now-Playing bar shows a track', async ({ page }) => {
   // Assert attachment, not viewport visibility: on nested routes (e.g. /liked)
   // Ionic keeps the tab-slot mini-player attached but flags it "not visible".
   await expect(page.getByTestId('now-playing-bar')).toBeAttached({ timeout: DATA_WAIT });
-  await expect(page.getByTestId('now-playing-title')).not.toBeEmpty();
+  // Wait for the title TEXT to populate (data budget) — the bar can attach a
+  // tick before current.Name lands; a no-timeout not.toBeEmpty() races that.
+  await expect(page.getByTestId('now-playing-title')).toHaveText(/\S/, { timeout: DATA_WAIT });
 });
 
 Then('the audio element is loaded with a Jellyfin stream', async ({ page }) => {
