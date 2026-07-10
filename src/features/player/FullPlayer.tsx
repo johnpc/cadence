@@ -1,6 +1,7 @@
 import { IonModal, IonIcon } from '@ionic/react';
 import { chevronDown, listOutline, documentTextOutline } from 'ionicons/icons';
 import { useState } from 'react';
+import { AmbientBackground } from './AmbientBackground';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
 import { NowPlayingMenu } from './NowPlayingMenu';
@@ -26,6 +27,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
   return (
     <IonModal isOpen={open} onDidDismiss={onClose}>
       <div className="fullplayer" data-testid="full-player">
+        <AmbientBackground item={p.current} />
         <button className="fullplayer__close" onClick={onClose} aria-label="Close player">
           <IonIcon icon={chevronDown} />
         </button>
