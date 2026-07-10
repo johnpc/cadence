@@ -5,6 +5,30 @@ import { navigate, searchUntilResults } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
+When('I arm a 30 minute sleep timer in settings', async ({ page }) => {
+  // The timer lives on the Settings screen; arm it, then return to Home so the
+  // mini-player is on screen to open. Player state is app-level, so it persists.
+  await page.goto('/settings');
+  const opt = page.getByTestId('sleep-30');
+  await expect(opt).toBeVisible({ timeout: DATA_WAIT });
+  await opt.click();
+  await expect(opt).toHaveAttribute('aria-pressed', 'true');
+  await navigate(page, 'Home');
+});
+
+Then('I see the sleep timer indicator', async ({ page }) => {
+  await expect(page.getByTestId('sleep-indicator')).toBeVisible({ timeout: DATA_WAIT });
+  await expect(page.getByTestId('sleep-indicator')).toHaveText(/Sleep in 30 min/);
+});
+
+When('I cancel the sleep timer from the player', async ({ page }) => {
+  await page.getByTestId('sleep-cancel').click();
+});
+
+Then('the sleep timer indicator is gone', async ({ page }) => {
+  await expect(page.getByTestId('sleep-indicator')).toHaveCount(0, { timeout: DATA_WAIT });
+});
+
 When('I tap a track from search', async ({ page }) => {
   // Home is now recommendation shelves (no flat track list), so drive playback
   // from Search, which lists individual tracks. searchUntilResults re-fires the
