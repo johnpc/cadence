@@ -17,13 +17,11 @@ import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
 import '@ionic/react/css/typography.css';
 
-/* Optional CSS utils that can be commented out */
+/* Optional Ionic CSS utilities. Only `padding` is used (ion-padding, 12 files);
+ * the rest (float / text-alignment / text-transformation / flex-utils / display
+ * a.k.a. ion-hide) are unused — verified by class grep — so we drop them to trim
+ * render-blocking CSS. Re-add if you start using those ion-* utility classes. */
 import '@ionic/react/css/padding.css';
-import '@ionic/react/css/float-elements.css';
-import '@ionic/react/css/text-alignment.css';
-import '@ionic/react/css/text-transformation.css';
-import '@ionic/react/css/flex-utils.css';
-import '@ionic/react/css/display.css';
 
 /**
  * Ionic Dark Mode — class-based palette. The theme manager toggles the
