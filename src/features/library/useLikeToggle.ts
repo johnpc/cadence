@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
+import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import { LIKED_SONGS_KEY } from './libraryApi';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -26,5 +27,12 @@ export function useLikeToggle(track: JellyfinItem) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: LIKED_SONGS_KEY }),
   });
 
-  return { liked, toggle: () => mutation.mutate(!liked), busy: mutation.isPending };
+  return {
+    liked,
+    toggle: () => {
+      tap();
+      mutation.mutate(!liked);
+    },
+    busy: mutation.isPending,
+  };
 }

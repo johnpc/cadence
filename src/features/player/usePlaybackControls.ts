@@ -1,4 +1,5 @@
 import { useCallback, type RefObject } from 'react';
+import { tap } from '../../lib/haptics';
 
 /**
  * Transport actions bound to the audio element: toggle (play/pause), seek, and
@@ -8,6 +9,7 @@ export function usePlaybackControls(ref: RefObject<HTMLAudioElement | null>, has
   const toggle = useCallback(() => {
     const audio = ref.current;
     if (!audio || !hasQueue) return;
+    tap();
     if (audio.paused) void audio.play().catch(() => undefined);
     else audio.pause();
   }, [ref, hasQueue]);
