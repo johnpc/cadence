@@ -1,21 +1,16 @@
 import { audioStreamUrl } from '../../lib/jellyfinStream';
 import { addToIndex, removeFromIndex, readIndex } from './downloadIndex';
+import { selectBlobStore } from './blobStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /**
- * Persistent offline audio: each downloaded track's bytes live in a Cache
- * Storage bucket (survives reloads, works in the PWA and the native WKWebView),
- * keyed by a stable synthetic URL. An in-memory id→blobURL map gives the player
- * a SYNCHRONOUS lookup at track-load time (creating an object URL per play would
- * leak); it's hydrated lazily from the cache. Listeners repaint on change.
- *
- * Cache Storage (not Capacitor Filesystem) so a single implementation covers
- * web + installed PWA + native, and CI's chromium can prove offline playback.
+ * Persistent offline audio. The track's bytes go to a platform-appropriate blob
+ * store (Cache Storage on web, the app's Filesystem on native — see blobStore),
+ * and its metadata to a localStorage index so the Downloads screen renders with
+ * NO server round-trip. Listeners repaint on change.
  */
-const CACHE = 'cadence-downloads';
-const cacheKey = (id: string): string => `/cadence-download/${id}`;
+const store = selectBlobStore();
 
-const urls = new Map<string, string>();
 const listeners = new Set<() => void>();
 
 function emit(): void {
@@ -28,32 +23,22 @@ export function onDownloadsChange(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
-/** A local object URL for a downloaded track, or null if not downloaded. Reads
- * the in-memory map first; on a miss (e.g. first call after reload) it pulls the
- * blob from the cache and memoises a fresh object URL. */
+/** A local, playable URL for a downloaded track, or null if not downloaded. */
 export async function localAudioUrl(id: string): Promise<string | null> {
-  const cached = urls.get(id);
-  if (cached) return cached;
-  if (typeof caches === 'undefined') return null;
-  const res = await caches.open(CACHE).then((c) => c.match(cacheKey(id)));
-  if (!res) return null;
-  const url = URL.createObjectURL(await res.blob());
-  urls.set(id, url);
-  return url;
+  return store.blobUrl(id);
 }
 
 /** Fetch the track's audio and store it for offline playback, then index its
  * metadata. Retries once on a transient failure — downloading a whole album at
- * once can drop the odd connection over a slow link, and one blip shouldn't
- * permanently fail a track. Throws only if both attempts fail. */
+ * once can drop the odd connection, and one blip shouldn't permanently fail a
+ * track. Throws only if both attempts fail. */
 export async function downloadTrack(item: JellyfinItem): Promise<void> {
   let lastErr: unknown;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const res = await fetch(audioStreamUrl(item.Id));
       if (!res.ok) throw new Error(`download failed: ${res.status}`);
-      const cache = await caches.open(CACHE);
-      await cache.put(cacheKey(item.Id), res);
+      await store.putBlob(item.Id, await res.blob());
       addToIndex(item);
       emit();
       return;
@@ -64,16 +49,9 @@ export async function downloadTrack(item: JellyfinItem): Promise<void> {
   throw lastErr instanceof Error ? lastErr : new Error('download failed');
 }
 
-/** Delete a downloaded track's bytes + index entry and revoke its object URL. */
+/** Delete a downloaded track's bytes + index entry. */
 export async function removeDownload(id: string): Promise<void> {
-  if (typeof caches !== 'undefined') {
-    await caches.open(CACHE).then((c) => c.delete(cacheKey(id)));
-  }
-  const url = urls.get(id);
-  if (url) {
-    URL.revokeObjectURL(url);
-    urls.delete(id);
-  }
+  await store.removeBlob(id);
   removeFromIndex(id);
   emit();
 }
