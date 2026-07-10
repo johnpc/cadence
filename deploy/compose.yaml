@@ -1,24 +1,28 @@
-# Cadence PWA — deployed as a Dockge stack on umbrel (192.168.7.211), fronted by
-# cloudflared at cadence.jpc.io.
+# Cadence PWA — deployed as a Dockge stack on umbrel, fronted by cloudflared.
 #
 # The dind daemon has no `git`, so deploy by cloning the repo on the umbrel HOST
 # into this stack dir, then building from the local ./repo context:
 #
-#   ssh umbrel@192.168.7.211
+#   ssh umbrel@<host>
 #   cd /home/umbrel/umbrel/app-data/dockge/data/dockge-stacks/cadence
 #   sudo rm -rf repo && sudo git clone --depth 1 https://github.com/johnpc/cadence.git repo
 #   sudo docker exec dockge_dockge_1 docker compose -p cadence \
 #     -f /opt/stacks/cadence/compose.yaml up -d --build
 #
 # To update: re-pull repo (git -C repo pull) and re-run the `up -d --build`.
+#
+# The Jellyfin server URL is NOT baked into the build — set JELLYFIN_URL below
+# (or in a .env beside this file / Dockge's env field). It's injected at
+# container start into config.js by deploy/runtime-config.sh, so changing it
+# needs only a restart, not a rebuild — and the address never lives in source.
 services:
   cadence:
     build:
       context: ./repo
-      args:
-        VITE_JELLYFIN_URL: https://jellyfin.jpc.io
     image: cadence-local:latest
     container_name: cadence
+    environment:
+      JELLYFIN_URL: ${JELLYFIN_URL:-}
     ports:
       - '8095:80'
     restart: unless-stopped

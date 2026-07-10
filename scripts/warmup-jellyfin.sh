@@ -6,9 +6,12 @@
 # failing the job — the tests' own retries remain the real gate).
 set -u
 
-URL="$(grep -E '^VITE_JELLYFIN_URL=' .env | cut -d= -f2-)"
+# Prefer the env var (CI secret / local shell); fall back to .env then .env.local
+# for local runs. The URL is intentionally NOT committed in .env.
+URL="${VITE_JELLYFIN_URL:-}"
+[ -z "$URL" ] && URL="$(grep -hE '^VITE_JELLYFIN_URL=.' .env .env.local 2>/dev/null | head -1 | cut -d= -f2-)"
 if [ -z "${URL:-}" ]; then
-  echo "warmup: no VITE_JELLYFIN_URL in .env — skipping"
+  echo "warmup: no VITE_JELLYFIN_URL set — skipping"
   exit 0
 fi
 

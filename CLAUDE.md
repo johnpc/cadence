@@ -47,8 +47,9 @@ URL (it renders inline). All `aws` calls use `AWS_PROFILE=personal`; never inlin
 ## Stack
 
 - **Client:** Ionic 8 + React 19 + TypeScript (strict), Vite, Capacitor (iOS).
-- **Backend:** **your Jellyfin server** (`https://jellyfin.jpc.io`). No Amplify, no Cognito, no
-  DynamoDB. Jellyfin provides auth, the library, favorites (= liked songs), playlists, streaming, and
+- **Backend:** **your Jellyfin server** (URL is configured, never hardcoded — see Key facts). No
+  Amplify, no Cognito, no DynamoDB. Jellyfin provides auth, the library, favorites (= liked songs),
+  playlists, streaming, and
   recommendations/instant-mix radio — all natively, all per-user.
 - **Search:** Jellyfin native search (v1) → Meilisearch via the `marlin-search` indexer (later).
 - **Deploy:** static PWA in an nginx container on umbrel via Dockge → cloudflared → `cadence.jpc.io`;
@@ -159,7 +160,11 @@ npm run gen:icons      # regenerate app icons from assets/icon*.png (add --nativ
 ## Key facts
 
 - **Repo:** `johnpc/cadence`.
-- **Jellyfin server:** `https://jellyfin.jpc.io` (CORS `*`; the browser calls it directly).
+- **Jellyfin server URL is never hardcoded in source.** The browser calls it directly (server has
+  CORS `*`). It's supplied per-context: `.env.local` (local dev/e2e, gitignored), the
+  `VITE_JELLYFIN_URL` GitHub secret (CI), or the `JELLYFIN_URL` container env → runtime `config.js`
+  (self-host deploy). Committed `.env` is empty, so the App Store build ships with no default and the
+  user enters their server on the sign-in screen.
 - **iOS bundle id:** `com.johncorser.cadence`. Apple **team id `JW5SC3NYUV`**.
   `ITSAppUsesNonExemptEncryption=false`.
 - **Deploy:** nginx image (`Dockerfile` + `deploy/`) → Dockge on umbrel (192.168.7.211) → cloudflared
