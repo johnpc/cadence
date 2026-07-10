@@ -5,6 +5,7 @@
  * set in AppDelegate). No-ops where the API is unavailable.
  */
 import { imageUrl } from '../../lib/jellyfinStream';
+import { isIos } from '../../lib/platform';
 import { artistLine } from './playerFormat';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -54,8 +55,18 @@ export function bindMediaSessionHandlers(h: MediaSessionHandlers): void {
   ms.setActionHandler('seekto', (e) => {
     if (typeof e.seekTime === 'number') h.seek(e.seekTime);
   });
-  ms.setActionHandler('seekbackward', (e) => h.seek(current() - (e.seekOffset || SEEK_STEP)));
-  ms.setActionHandler('seekforward', (e) => h.seek(current() + (e.seekOffset || SEEK_STEP)));
+  // iOS's lock screen shows EITHER prev/next-track OR the ±skip (seek) buttons,
+  // and prefers the skip buttons when they're registered — which hides track
+  // skip, the control a music app wants. So on iOS we leave seekbackward/forward
+  // unset (a music-player, not a podcast). Elsewhere both can coexist, so keep
+  // the ±skip handlers for the lock-screen scrubber's convenience buttons.
+  if (isIos()) {
+    ms.setActionHandler('seekbackward', null);
+    ms.setActionHandler('seekforward', null);
+  } else {
+    ms.setActionHandler('seekbackward', (e) => h.seek(current() - (e.seekOffset || SEEK_STEP)));
+    ms.setActionHandler('seekforward', (e) => h.seek(current() + (e.seekOffset || SEEK_STEP)));
+  }
 }
 
 // The player's live position, updated by setPositionState so the relative
