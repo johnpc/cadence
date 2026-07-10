@@ -1,4 +1,5 @@
 /** DOM edges for theming: read the OS setting, apply the palette, watch changes. */
+import { syncStatusBar } from '../../lib/statusBar';
 import type { EffectiveTheme } from './types';
 
 const DARK_QUERY = '(prefers-color-scheme: dark)';
@@ -16,6 +17,7 @@ export function applyTheme(effective: EffectiveTheme): void {
   const root = document.documentElement;
   root.dataset.theme = effective;
   root.classList.toggle('ion-palette-dark', effective === 'dark');
+  syncStatusBar(effective); // keep the native status bar in step (no-op on web)
 }
 
 /** Subscribe to OS color-scheme changes; returns an unsubscribe fn. */
