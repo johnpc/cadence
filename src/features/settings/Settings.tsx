@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import { Appearance } from '../theme/Appearance';
 import { Autoplay } from './Autoplay';
+import { AudioQuality } from './AudioQuality';
 import { SleepTimer } from './SleepTimer';
 import { InstallButton } from './InstallButton';
 import { SignOutButton } from './SignOutButton';
@@ -37,6 +38,7 @@ export function Settings() {
         <div className="settings">
           <Appearance />
           <Autoplay />
+          <AudioQuality />
           <SleepTimer />
           <InstallButton />
           <section className="settings__storage">

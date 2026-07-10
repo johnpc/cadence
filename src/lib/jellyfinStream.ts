@@ -6,9 +6,12 @@
  */
 import { apiUrl } from './jellyfinConfig';
 import { getSession } from './sessionStore';
+import { currentBitrateCap } from '../features/settings/audioQualityStore';
 import type { JellyfinItem } from './jellyfinTypes';
 
-/** Streamable audio URL for a track, transcoded to a browser-friendly format. */
+/** Streamable audio URL for a track, transcoded to a browser-friendly format.
+ * Honours the user's audio-quality setting by capping the transcode bitrate
+ * (Jellyfin's MaxStreamingBitrate); 'auto' sends no cap. */
 export function audioStreamUrl(itemId: string): string {
   const session = getSession();
   const params = new URLSearchParams({
@@ -19,6 +22,8 @@ export function audioStreamUrl(itemId: string): string {
     TranscodingContainer: 'ts',
     AudioCodec: 'aac',
   });
+  const cap = currentBitrateCap();
+  if (cap) params.set('MaxStreamingBitrate', String(cap));
   return apiUrl(`/Audio/${itemId}/universal?${params.toString()}`);
 }
 

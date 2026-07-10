@@ -2,10 +2,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { audioStreamUrl, imageUrl } from './jellyfinStream';
 import { setSession } from './sessionStore';
 import { getServerUrl } from './serverUrlStore';
+import { writeAudioQuality } from '../features/settings/audioQualityStore';
 import type { JellyfinItem } from './jellyfinTypes';
 
 describe('jellyfinStream', () => {
-  afterEach(() => setSession(null));
+  afterEach(() => {
+    setSession(null);
+    writeAudioQuality('auto');
+    localStorage.clear();
+  });
 
   it('builds an audio stream URL carrying the session token + user', () => {
     setSession({ token: 'tok', userId: 'uid' });
@@ -13,6 +18,20 @@ describe('jellyfinStream', () => {
     expect(url.startsWith(`${getServerUrl()}/Audio/song1/universal?`)).toBe(true);
     expect(url).toContain('api_key=tok');
     expect(url).toContain('UserId=uid');
+  });
+
+  it('sends no bitrate cap on Automatic quality', () => {
+    setSession({ token: 'tok', userId: 'uid' });
+    writeAudioQuality('auto');
+    expect(audioStreamUrl('song1')).not.toContain('MaxStreamingBitrate');
+  });
+
+  it('caps the bitrate to the chosen quality tier', () => {
+    setSession({ token: 'tok', userId: 'uid' });
+    writeAudioQuality('low');
+    expect(audioStreamUrl('song1')).toContain('MaxStreamingBitrate=96000');
+    writeAudioQuality('high');
+    expect(audioStreamUrl('song1')).toContain('MaxStreamingBitrate=320000');
   });
 
   it('uses the item primary image when it has one', () => {
