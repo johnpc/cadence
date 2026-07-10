@@ -28,6 +28,7 @@ export function History() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <h1 className="cad-sr-only">Recently played</h1>
         <div data-testid="history">
           <LoadState
             isLoading={isLoading}
