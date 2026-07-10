@@ -12,6 +12,8 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   removeFromPlaylist: vi.fn(),
   movePlaylistItem: vi.fn(),
   deletePlaylist: vi.fn(),
+  getPlaylistIsPublic: vi.fn().mockResolvedValue(false),
+  setPlaylistIsPublic: vi.fn(),
 }));
 vi.mock('../../lib/jellyfinItems', () => ({
   addFavorite: vi.fn(),

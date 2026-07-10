@@ -1,0 +1,33 @@
+.pl-visibility {
+  display: inline-flex;
+  gap: var(--cad-space-1);
+  padding: 3px;
+  border-radius: var(--cad-radius-pill);
+  background: var(--cad-surface);
+  margin: var(--cad-space-2) auto 0;
+}
+
+.pl-visibility__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  color: var(--cad-text-secondary);
+  border-radius: var(--cad-radius-pill);
+  padding: 6px 14px;
+  font-family: var(--cad-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pl-visibility__opt--on {
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+}
+
+.pl-visibility__opt:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

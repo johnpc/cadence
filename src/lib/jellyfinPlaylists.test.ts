@@ -7,6 +7,8 @@ import {
   getPlaylistItems,
   getPlaylists,
   getPublicPlaylists,
+  getPlaylistIsPublic,
+  setPlaylistIsPublic,
   movePlaylistItem,
   removeFromPlaylist,
   renamePlaylist,
@@ -162,5 +164,25 @@ describe('jellyfinPlaylists', () => {
     expect(url).toContain('/Playlists/pl1');
     expect(init.method).toBe('POST');
     expect(init.body).toContain('New Name');
+  });
+
+  it('getPlaylistIsPublic reads OpenAccess from the playlist DTO', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    stub({ OpenAccess: true, Shares: [], ItemIds: [] });
+    expect(await getPlaylistIsPublic('pl1')).toBe(true);
+    stub({ OpenAccess: false });
+    expect(await getPlaylistIsPublic('pl1')).toBe(false);
+    stub({}); // missing → treat as private
+    expect(await getPlaylistIsPublic('pl1')).toBe(false);
+  });
+
+  it('setPlaylistIsPublic POSTs IsPublic to the UpdatePlaylist endpoint', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stub(undefined, 204);
+    await setPlaylistIsPublic('pl1', true);
+    const [url, init] = f.mock.calls[0];
+    expect(url).toContain('/Playlists/pl1');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(init.body).IsPublic).toBe(true);
   });
 });
