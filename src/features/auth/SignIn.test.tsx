@@ -46,6 +46,9 @@ describe('SignIn', () => {
   it('submits the entered credentials', async () => {
     const signIn = vi.fn().mockResolvedValue(undefined);
     renderSignIn(signIn);
+    // No build-time default server is committed, so the user must enter one —
+    // fill it before submitting or the form blocks with "enter your server".
+    await userEvent.type(screen.getByTestId('signin-server'), 'https://jf.example.com');
     await userEvent.type(screen.getByTestId('signin-username'), 'cadence-test');
     await userEvent.type(screen.getByTestId('signin-password'), 'pw');
     await userEvent.click(screen.getByTestId('signin-submit'));
@@ -68,6 +71,7 @@ describe('SignIn', () => {
   it('submits when Enter is pressed in a field (native form submit)', async () => {
     const signIn = vi.fn().mockResolvedValue(undefined);
     renderSignIn(signIn);
+    await userEvent.type(screen.getByTestId('signin-server'), 'https://jf.example.com');
     await userEvent.type(screen.getByTestId('signin-username'), 'cadence-test');
     // {enter} inside a form field triggers submit without touching the button.
     await userEvent.type(screen.getByTestId('signin-password'), 'pw{enter}');
@@ -77,6 +81,7 @@ describe('SignIn', () => {
   it('shows an error when sign-in fails', async () => {
     const signIn = vi.fn().mockRejectedValue(new Error('401'));
     renderSignIn(signIn);
+    await userEvent.type(screen.getByTestId('signin-server'), 'https://jf.example.com');
     await userEvent.type(screen.getByTestId('signin-username'), 'x');
     await userEvent.type(screen.getByTestId('signin-password'), 'bad');
     await userEvent.click(screen.getByTestId('signin-submit'));

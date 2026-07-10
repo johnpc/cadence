@@ -1,4 +1,5 @@
 import { createBdd } from 'playwright-bdd';
+import { DATA_WAIT } from './timeouts';
 import { expect } from '@playwright/test';
 
 const { Given, When, Then } = createBdd();
@@ -61,7 +62,7 @@ When('I reload the app', async ({ page }) => {
 Then('I land on the Home tab', async ({ page }) => {
   // Home nav is the sidebar link (desktop) or tab button (mobile); either way
   // the Home shelves confirm we're signed in and on Home.
-  await expect(page.getByTestId('home-shelves')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('home-shelves')).toBeVisible({ timeout: DATA_WAIT });
 });
 
 Then('I see a sign-in error', async ({ page }) => {

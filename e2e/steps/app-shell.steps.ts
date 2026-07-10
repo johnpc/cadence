@@ -1,4 +1,5 @@
 import { createBdd } from 'playwright-bdd';
+import { DATA_WAIT } from './timeouts';
 import { expect, type Page } from '@playwright/test';
 
 const { Given, When, Then, Before } = createBdd();
@@ -136,34 +137,36 @@ Then('the sidebar is expanded', async ({ page }) => {
 When('I press the search hotkey', async ({ page }) => {
   // Wait for the shell (which mounts the "/" listener) to be ready, then focus
   // neutral chrome so "/" isn't typed into a field, and press it.
-  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: 15_000 });
+  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: DATA_WAIT });
   await page.locator('body').click({ position: { x: 5, y: 5 } });
   await expect(async () => {
     await page.keyboard.press('/');
     await expect(page).toHaveURL(/\/search$/, { timeout: 2_000 });
-  }).toPass({ timeout: 15_000 });
+  }).toPass({ timeout: DATA_WAIT });
 });
 
 Then('the search box is focused', async ({ page }) => {
   // "/" navigates to Search and focuses its input (Spotify-style). Assert the
   // route landed first, then that the searchbar's inner input holds focus.
-  await expect(page).toHaveURL(/\/search$/, { timeout: 15_000 });
-  await expect(page.getByTestId('search-input').locator('input')).toBeFocused({ timeout: 15_000 });
+  await expect(page).toHaveURL(/\/search$/, { timeout: DATA_WAIT });
+  await expect(page.getByTestId('search-input').locator('input')).toBeFocused({
+    timeout: DATA_WAIT,
+  });
 });
 
 When('I press the shortcuts-help hotkey', async ({ page }) => {
   // Wait for the shell (which mounts the "?" listener) to be ready, then focus
   // neutral chrome so "?" isn't typed into a field, and press it.
-  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: 15_000 });
+  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: DATA_WAIT });
   await page.locator('body').click({ position: { x: 5, y: 5 } });
   await expect(async () => {
     await page.keyboard.press('?');
     await expect(page.getByTestId('shortcuts-help')).toBeVisible({ timeout: 2_000 });
-  }).toPass({ timeout: 15_000 });
+  }).toPass({ timeout: DATA_WAIT });
 });
 
 Then('I see the keyboard shortcuts overlay', async ({ page }) => {
-  await expect(page.getByTestId('shortcuts-help')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('shortcuts-help')).toBeVisible({ timeout: DATA_WAIT });
   // The overlay lists real shortcut rows (Space = play/pause among them).
   await expect(page.getByTestId('shortcut-row').first()).toBeVisible();
   await expect(page.getByText('Play / pause')).toBeVisible();
@@ -172,12 +175,12 @@ Then('I see the keyboard shortcuts overlay', async ({ page }) => {
 When('the device goes offline', async ({ page }) => {
   // Ensure the shell (which mounts the offline banner) is up before toggling,
   // so the state change lands on a mounted listener rather than mid-transition.
-  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: 15_000 });
+  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: DATA_WAIT });
   await page.context().setOffline(true);
 });
 
 Then('I see the offline banner', async ({ page }) => {
-  await expect(page.getByTestId('offline-banner')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('offline-banner')).toBeVisible({ timeout: DATA_WAIT });
 });
 
 When('the device comes back online', async ({ page }) => {
@@ -185,7 +188,7 @@ When('the device comes back online', async ({ page }) => {
 });
 
 Then('the offline banner is gone', async ({ page }) => {
-  await expect(page.getByTestId('offline-banner')).toHaveCount(0, { timeout: 15_000 });
+  await expect(page.getByTestId('offline-banner')).toHaveCount(0, { timeout: DATA_WAIT });
 });
 
 When('I navigate to an unknown URL', async ({ page }) => {
@@ -193,7 +196,7 @@ When('I navigate to an unknown URL', async ({ page }) => {
 });
 
 Then('I see the not-found page', async ({ page }) => {
-  await expect(page.getByTestId('not-found')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('not-found')).toBeVisible({ timeout: DATA_WAIT });
   await expect(page.getByText('404')).toBeVisible();
 });
 

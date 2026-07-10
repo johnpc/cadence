@@ -26,17 +26,24 @@ beforeEach(() => {
   localStorage.clear();
   prefs.clear();
   delete window.__CADENCE_CONFIG__;
+  // Pin the build-time default to empty so these tests are hermetic — they must
+  // not depend on whether the runner's env happens to set VITE_JELLYFIN_URL
+  // (empty in committed .env / CI, but present in a dev's .env.local).
+  vi.stubEnv('VITE_JELLYFIN_URL', '');
 });
 afterEach(() => {
   localStorage.clear();
   prefs.clear();
   delete window.__CADENCE_CONFIG__;
+  vi.unstubAllEnvs();
 });
 
 describe('serverUrlStore', () => {
-  it('falls back to the build-time default when nothing is stored', async () => {
+  it('returns an empty default when nothing is stored and no build URL is set', async () => {
+    // The committed build has no default server (VITE_JELLYFIN_URL empty), so a
+    // fresh store returns '' — the sign-in screen then asks the user for one.
     const { getServerUrl } = await freshStore();
-    expect(getServerUrl().endsWith('/')).toBe(false);
+    expect(getServerUrl()).toBe('');
   });
 
   it('persists a chosen URL to BOTH localStorage and Preferences (durable)', async () => {
@@ -81,7 +88,11 @@ describe('serverUrlStore', () => {
   });
 
   it('hasServerUrl reflects whether a usable URL is configured', async () => {
-    const { hasServerUrl } = await freshStore();
+    const { hasServerUrl, setServerUrl } = await freshStore();
+    // No build-time default is committed (VITE_JELLYFIN_URL is empty in source),
+    // so a fresh store has none until the user picks one — then it flips true.
+    expect(hasServerUrl()).toBe(false);
+    setServerUrl('https://jf.example.com');
     expect(hasServerUrl()).toBe(true);
   });
 
