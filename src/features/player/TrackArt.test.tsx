@@ -25,6 +25,16 @@ describe('TrackArt', () => {
     expect(container.querySelector('.track-art--round')).toBeInTheDocument();
   });
 
+  it('fades the image in only once it has loaded', () => {
+    setSession({ token: 't', userId: 'u' });
+    const item: JellyfinItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
+    const { container } = render(<TrackArt item={item} />);
+    const img = container.querySelector('img') as HTMLImageElement;
+    expect(img.className).not.toContain('track-art__img--loaded'); // faded out
+    fireEvent.load(img);
+    expect(img.className).toContain('track-art__img--loaded'); // faded in
+  });
+
   it('falls back to the placeholder when the image fails to load', () => {
     setSession({ token: 't', userId: 'u' });
     const item: JellyfinItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
