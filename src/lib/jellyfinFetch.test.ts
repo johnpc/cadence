@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { request, Unauthenticated, RequestTimeout } from './jellyfinFetch';
 import { setSession } from './sessionStore';
+import { onSessionExpired } from './sessionExpiry';
 
 function mockFetch(status: number, body: unknown = {}) {
   return vi.fn().mockResolvedValue({
@@ -38,6 +39,15 @@ describe('jellyfinFetch.request', () => {
   it('throws Unauthenticated on 401', async () => {
     vi.stubGlobal('fetch', mockFetch(401));
     await expect(request('/Users/Me')).rejects.toBeInstanceOf(Unauthenticated);
+  });
+
+  it('notifies session-expiry subscribers on 401 (so a mid-session expiry recovers)', async () => {
+    const spy = vi.fn();
+    const off = onSessionExpired(spy);
+    vi.stubGlobal('fetch', mockFetch(401));
+    await expect(request('/Items')).rejects.toBeInstanceOf(Unauthenticated);
+    expect(spy).toHaveBeenCalledOnce();
+    off();
   });
 
   it('throws a generic error on other non-2xx', async () => {

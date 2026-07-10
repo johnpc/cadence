@@ -8,6 +8,7 @@ vi.mock('../../lib/deviceId', () => ({ ensureDeviceId: vi.fn().mockResolvedValue
 
 import * as authClient from './authClient';
 import { resolveSession } from './resolveSession';
+import { notifySessionExpired } from '../../lib/sessionExpiry';
 import { AuthProvider } from './AuthProvider';
 import { useAuth } from './useAuth';
 
@@ -55,6 +56,18 @@ describe('AuthProvider', () => {
     await userEvent.click(screen.getByText('in'));
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('authenticated'));
     expect(authClient.signIn).toHaveBeenCalledWith('cadence-test', 'pw');
+  });
+
+  it('re-validates and signs out when the token expires mid-session (401)', async () => {
+    // First resolve: authenticated. After a 401 fires notifySessionExpired, the
+    // provider re-runs resolveSession, which now reports the dead token.
+    vi.mocked(resolveSession)
+      .mockResolvedValueOnce({ status: 'authenticated', username: 'cadence-test' })
+      .mockResolvedValueOnce({ status: 'unauthenticated', username: null });
+    renderProvider();
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('authenticated'));
+    notifySessionExpired();
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated'));
   });
 
   it('signs out to unauthenticated', async () => {
