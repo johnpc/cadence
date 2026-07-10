@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
+import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import { SAVED_ALBUMS_KEY, FOLLOWED_ARTISTS_KEY } from './libraryApi';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -30,5 +31,12 @@ export function useSaveToggle(item: JellyfinItem | null) {
     },
   });
 
-  return { saved, toggle: () => mutation.mutate(!saved), busy: mutation.isPending };
+  return {
+    saved,
+    toggle: () => {
+      tap();
+      mutation.mutate(!saved);
+    },
+    busy: mutation.isPending,
+  };
 }
