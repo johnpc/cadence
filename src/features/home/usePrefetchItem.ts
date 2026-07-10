@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { getItem, getItemTracks } from '../../lib/jellyfinItems';
 import { getArtistAlbums } from '../../lib/jellyfinArtists';
+import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** Warm a detail page's queries when the user hovers its card, so the page
@@ -34,6 +35,20 @@ export function usePrefetchItem() {
         void qc.prefetchQuery({
           queryKey: ['artist-albums', item.Id],
           queryFn: () => getArtistAlbums(item.Id),
+          ...opts,
+        });
+      } else if (item.Type === 'Playlist') {
+        // Playlist detail loads its header (['playlist', id]) + tracks
+        // (['playlist-items', id]) — warm both so a tap paints from cache
+        // instead of the long cold fetch John saw.
+        void qc.prefetchQuery({
+          queryKey: ['playlist', item.Id],
+          queryFn: () => getItem(item.Id),
+          ...opts,
+        });
+        void qc.prefetchQuery({
+          queryKey: ['playlist-items', item.Id],
+          queryFn: () => getPlaylistItems(item.Id),
           ...opts,
         });
       }
