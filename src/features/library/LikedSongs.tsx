@@ -39,7 +39,7 @@ export function LikedSongs() {
       <div data-testid="liked-songs">
         <div className="liked__header">
           <div className="liked__titles">
-            <h2 className="cad-headline">Liked Songs</h2>
+            <h1 className="cad-headline">Liked Songs</h1>
             <p className="cad-meta" data-testid="liked-summary">
               {collectionSummary(songs)}
             </p>

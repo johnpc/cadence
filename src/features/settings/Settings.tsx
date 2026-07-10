@@ -33,6 +33,7 @@ export function Settings() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <h1 className="cad-sr-only">Settings</h1>
         <div className="settings">
           <Appearance />
           <Autoplay />

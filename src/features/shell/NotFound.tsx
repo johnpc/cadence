@@ -28,7 +28,7 @@ export function NotFound() {
       <IonContent className="ion-padding">
         <div className="not-found" data-testid="not-found">
           <p className="not-found__code cad-headline">404</p>
-          <p className="not-found__title cad-headline-sm">We couldn&rsquo;t find that page</p>
+          <h1 className="not-found__title cad-headline-sm">We couldn&rsquo;t find that page</h1>
           <p className="not-found__message cad-meta">
             The link may be broken, or the page may have been removed.
           </p>
