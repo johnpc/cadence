@@ -1,39 +1,44 @@
 import { describe, expect, it, vi } from 'vitest';
-import { trackMenuButtons, type TrackMenuActions } from './trackMenuButtons';
+import { trackMenuButtons, addToPlaylistButtons, type TrackMenuActions } from './trackMenuButtons';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const actions = (): TrackMenuActions => ({
   playNext: vi.fn(),
   addToQueue: vi.fn(),
+  addToPlaylist: vi.fn(),
   startRadio: vi.fn(),
   goToAlbum: vi.fn(),
   goToArtist: vi.fn(),
   copyLink: vi.fn(),
-  newPlaylist: vi.fn(),
-  addTo: vi.fn(),
 });
 
-const labels = (track: JellyfinItem, playlists: JellyfinItem[]) =>
-  trackMenuButtons(track, playlists, actions()).map((b) => b.text);
+const labels = (track: JellyfinItem) => trackMenuButtons(track, actions()).map((b) => b.text);
 
 describe('trackMenuButtons', () => {
-  it('always offers play/queue, radio, copy link, New playlist…, and Cancel', () => {
-    const l = labels({ Id: 't', Name: 'x', Type: 'Audio' }, []);
+  it('offers play/queue, a single Add to playlist…, radio, copy link, Cancel', () => {
+    const l = labels({ Id: 't', Name: 'x', Type: 'Audio' });
     expect(l).toEqual([
       'Play next',
       'Add to queue',
+      'Add to playlist…',
       'Go to song radio',
       'Copy link',
-      'New playlist…',
       'Cancel',
     ]);
   });
 
-  it('routes Go to song radio to startRadio', () => {
+  it('does NOT inline individual playlists in the primary menu', () => {
+    const l = labels({ Id: 't', Name: 'x', Type: 'Audio' });
+    const generic = new Set(['Add to queue', 'Add to playlist…']);
+    expect(l.some((t) => t.startsWith('Add to ') && !generic.has(t))).toBe(false);
+  });
+
+  it('routes Add to playlist… to the picker opener', () => {
     const a = actions();
-    const btns = trackMenuButtons({ Id: 't', Name: 'x', Type: 'Audio' }, [], a);
-    btns.find((b) => b.text === 'Go to song radio')?.handler?.();
-    expect(a.startRadio).toHaveBeenCalledOnce();
+    trackMenuButtons({ Id: 't', Name: 'x', Type: 'Audio' }, a)
+      .find((b) => b.text === 'Add to playlist…')
+      ?.handler?.();
+    expect(a.addToPlaylist).toHaveBeenCalledOnce();
   });
 
   it('includes Go to album/artist only when the track has them', () => {
@@ -44,27 +49,29 @@ describe('trackMenuButtons', () => {
       AlbumId: 'al',
       ArtistItems: [{ Id: 'ar', Name: 'A' }],
     };
-    expect(labels(track, [])).toContain('Go to album');
-    expect(labels(track, [])).toContain('Go to artist');
+    expect(labels(track)).toContain('Go to album');
+    expect(labels(track)).toContain('Go to artist');
+  });
+});
+
+describe('addToPlaylistButtons', () => {
+  const playlists: JellyfinItem[] = [
+    { Id: 'p1', Name: 'Road Trip', Type: 'Playlist' },
+    { Id: 'p2', Name: 'Chill', Type: 'Playlist' },
+  ];
+
+  it('lists New playlist… then each playlist by name, then Cancel', () => {
+    const l = addToPlaylistButtons(playlists, { newPlaylist: vi.fn(), addTo: vi.fn() }).map(
+      (b) => b.text,
+    );
+    expect(l).toEqual(['New playlist…', 'Road Trip', 'Chill', 'Cancel']);
   });
 
-  it('lists an "Add to <name>" entry per existing playlist, before Cancel', () => {
-    const playlists: JellyfinItem[] = [
-      { Id: 'p1', Name: 'Road Trip', Type: 'Playlist' },
-      { Id: 'p2', Name: 'Chill', Type: 'Playlist' },
-    ];
-    const l = labels({ Id: 't', Name: 'x', Type: 'Audio' }, playlists);
-    expect(l).toContain('Add to Road Trip');
-    expect(l).toContain('Add to Chill');
-    expect(l.indexOf('New playlist…')).toBeLessThan(l.indexOf('Add to Road Trip'));
-    expect(l[l.length - 1]).toBe('Cancel');
-  });
-
-  it('routes addTo to the tapped playlist', () => {
-    const a = actions();
-    const pl: JellyfinItem = { Id: 'p1', Name: 'Road Trip', Type: 'Playlist' };
-    const btns = trackMenuButtons({ Id: 't', Name: 'x', Type: 'Audio' }, [pl], a);
-    btns.find((b) => b.text === 'Add to Road Trip')?.handler?.();
-    expect(a.addTo).toHaveBeenCalledWith(pl);
+  it('routes a playlist tap to addTo with that playlist', () => {
+    const addTo = vi.fn();
+    addToPlaylistButtons(playlists, { newPlaylist: vi.fn(), addTo })
+      .find((b) => b.text === 'Road Trip')
+      ?.handler?.();
+    expect(addTo).toHaveBeenCalledWith(playlists[0]);
   });
 });
