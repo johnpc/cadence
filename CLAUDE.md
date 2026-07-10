@@ -173,6 +173,46 @@ npm run gen:icons      # regenerate app icons from assets/icon*.png (add --nativ
   CI secrets `TEST_USERNAME` / `TEST_PASSWORD`).
 - **CI:** `.github/workflows/ci.yml` — `quality` + `acceptance` matrix (one area per feature). No AWS.
 
+## Gotchas learned the hard way
+
+Non-obvious things that have cost real time — check here before rediscovering them.
+
+- **Jellyfin playlist ownership: filter on `CanDelete`.** `GET /Items?IncludeItemTypes=Playlist`
+  returns EVERY playlist on the server (all users' + shared) with **no `OwnerUserId`** on the response.
+  `CanDelete` is `true` only for playlists the current user owns — that's the ownership signal. "Your
+  Library" shows own-only (`CanDelete === true`); others' surface as a "From the community" Home shelf
+  you can clone. Request `Fields=CanDelete` (getItem includes it too, for the detail page).
+- **Jellyfin writes need a FRESH token via `X-Emby-Authorization`** (with `Token="..."`). A token that's
+  only done GETs — or a slightly stale one — returns **401 on POST** (`/Playlists`, `FavoriteItems`).
+  The app's `jellyfinFetch` sends both `X-Emby-Authorization` (client+token) and `Authorization`; match
+  that in scripts. Symptom of getting it wrong: reads work, writes 401.
+- **iOS is not the browser.** `HTMLMediaElement.volume` is **read-only on iOS** (hardware buttons only)
+  — hide software volume there (`lib/platform.ts` `hasSoftwareVolume()`). iOS lock-screen shows EITHER
+  prev/next-track OR ±seek buttons and prefers seek when registered — so on iOS leave
+  `seekbackward`/`seekforward` MediaSession handlers unset to surface track skip.
+- **Ionic `IonReorderGroup` in a React list:** call `event.detail.complete(false)` so Ionic does NOT
+  mutate the DOM (React owns the list), then apply the move to your own state. The event is
+  `onIonItemReorder` → DOM `ionItemReorder`.
+- **`IonModal`/`IonActionSheet`/`IonAlert` don't render children in jsdom** (need a framework delegate).
+  In unit tests, `vi.mock('@ionic/react', ...)` and replace the overlay with
+  `({ isOpen, children }) => isOpen ? <div>{children}</div> : null` (or render the alert's buttons
+  inline). See `LyricsSheet.test`, `Settings.test`.
+- **Unit tests must be hermetic re: `import.meta.env`.** A dev's `.env.local` sets `VITE_JELLYFIN_URL`
+  but CI's quality job doesn't — tests that read it must `vi.stubEnv('VITE_JELLYFIN_URL', '')` (or set
+  the value they need) so they pass in both. This bit `serverUrlStore`/`SignIn` when the URL default
+  went empty.
+- **e2e flakiness levers (in priority order):** (1) the test user must OWN fixtures the scenarios
+  need — `scripts/seed-e2e-user.sh` guarantees an owned playlist + followed artist (a CI step). (2) All
+  ~10 acceptance areas hit ONE cold-prone cloudflared-tunneled Jellyfin; use the shared `DATA_WAIT`
+  (`e2e/steps/timeouts.ts`, 45s CI) for every server-backed wait, never a hardcoded 15s. (3) A single
+  fixed e2e DeviceId seeded via `page.addInitScript` (BEFORE app boot) so runs reuse one session
+  instead of minting thousands. Warmup step absorbs the tunnel cold-start before tests.
+- **Deploy: the active stack compose is separate from the repo.** `/opt/stacks/cadence/compose.yaml`
+  (inside Dockge's dind) is hand-maintained — editing `deploy/compose.yaml` in the repo does NOT update
+  it. After a deploy-config change, edit the active compose too. VERIFY every deploy:
+  `curl -s https://cadence.jpc.io/config.js` shows the right `serverUrl`, and the live `index-*.js` has
+  **zero** matches for the server hostname (it must come from runtime config, not the bundle).
+
 ## Decisions
 
 - **Jellyfin is the backend; we build no backend of our own.** Auth, library, likes, playlists,
@@ -180,8 +220,9 @@ npm run gen:icons      # regenerate app icons from assets/icon*.png (add --nativ
   (on-device).
 - **Log in with Jellyfin accounts** (multi-user). No sign-up in-app — users are provisioned in
   Jellyfin by the admin.
-- **Jellyfin base URL is a build-time constant** (`VITE_JELLYFIN_URL`). One server; revisit only if
-  multi-server support is ever wanted.
+- **Jellyfin base URL is runtime-configured, never hardcoded** (see Key facts + Gotchas). The app
+  supports any server; the sign-in screen's Server field is the ultimate source, seeded by an optional
+  per-context default.
 - **Search is native-first, Meilisearch later.** The `searchSource` adapter makes the swap a one-file
   change. Never ship the marlin `EXPRESS_AUTH_TOKEN` in client JS or expose raw Meilisearch — proxy
   `/api/search` through the serving nginx.

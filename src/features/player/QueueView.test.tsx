@@ -114,4 +114,27 @@ describe('QueueView', () => {
     await userEvent.click(screen.getAllByTestId('queue-row-down')[0]);
     expect(moveInQueue).toHaveBeenCalledWith(0, 1);
   });
+
+  it('applies a drag reorder to the queue (Ionic reorder event)', () => {
+    const moveInQueue = vi.fn();
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 0, moveInQueue }),
+    });
+    // Simulate Ionic's drag-complete event: from index 0 to 1. complete(false)
+    // tells Ionic not to touch the DOM (React owns the list).
+    const group = document.querySelector('ion-reorder-group')!;
+    const complete = vi.fn();
+    group.dispatchEvent(
+      new CustomEvent('ionItemReorder', { detail: { from: 0, to: 1, complete } }),
+    );
+    expect(complete).toHaveBeenCalledWith(false);
+    expect(moveInQueue).toHaveBeenCalledWith(0, 1);
+  });
+
+  it('renders a drag handle per row', () => {
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue, queueIndex: 0, current: queue[0] }),
+    });
+    expect(screen.getAllByTestId('queue-row-drag')).toHaveLength(queue.length);
+  });
 });

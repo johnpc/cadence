@@ -8,6 +8,9 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 export interface QueueState {
   tracks: JellyfinItem[];
   index: number;
+  /** The order before shuffle was turned on, so toggling shuffle OFF can restore
+   * it (Spotify-style). Set by shuffleRest, cleared by unshuffle. */
+  unshuffled?: JellyfinItem[];
 }
 
 export const EMPTY_QUEUE: QueueState = { tracks: [], index: 0 };
@@ -48,17 +51,6 @@ export function append(q: QueueState, tracks: JellyfinItem[]): QueueState {
   return { ...q, tracks: [...q.tracks, ...tracks] };
 }
 
-/** A fresh queue from a fully-shuffled copy of `tracks` (Fisher–Yates), starting
- * at index 0. `rand` is injected for deterministic tests. */
-export function startShuffled(tracks: JellyfinItem[], rand: () => number): QueueState {
-  const shuffled = [...tracks];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return { tracks: shuffled, index: 0 };
-}
-
 /** Insert a track right after the current one ("play next"). */
 export function enqueueNext(q: QueueState, track: JellyfinItem): QueueState {
   if (!q.tracks.length) return { tracks: [track], index: 0 };
@@ -78,18 +70,6 @@ export function removeAt(q: QueueState, at: number): QueueState {
   return { tracks, index };
 }
 
-/**
- * Fisher–Yates shuffle of everything AFTER the current track, keeping the
- * playing track in place at index 0 of a new queue. `rand` is injected (returns
- * [0,1)) so tests are deterministic.
- */
-export function shuffleRest(q: QueueState, rand: () => number): QueueState {
-  const current = currentTrack(q);
-  if (!current) return q;
-  const rest = q.tracks.filter((_, i) => i !== q.index);
-  for (let i = rest.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [rest[i], rest[j]] = [rest[j], rest[i]];
-  }
-  return { tracks: [current, ...rest], index: 0 };
-}
+// Shuffle helpers live in queueShuffle.ts (line gate); re-exported so `queue`
+// stays the one import surface for queue logic.
+export { startShuffled, shuffleRest, unshuffle } from './queueShuffle';

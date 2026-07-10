@@ -76,6 +76,19 @@ Then('shuffle is on', async ({ page }) => {
   await expect(shuffle).toHaveClass(/fullplayer__ctl--on/, { timeout: DATA_WAIT });
 });
 
+When('I tap the repeat button', async ({ page }) => {
+  await page.getByTestId('full-player-repeat').click({ force: true });
+});
+
+Then('repeat is set to {string}', async ({ page }, mode: string) => {
+  // The repeat control's aria-label reflects the current mode (off/all/one).
+  await expect(page.getByTestId('full-player-repeat')).toHaveAttribute(
+    'aria-label',
+    `Repeat ${mode}`,
+    { timeout: DATA_WAIT },
+  );
+});
+
 When('I open lyrics', async ({ page }) => {
   const btn = page.getByTestId('full-player-lyrics');
   await btn.scrollIntoViewIfNeeded();

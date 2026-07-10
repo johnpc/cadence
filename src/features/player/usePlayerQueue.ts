@@ -55,7 +55,10 @@ export function usePlayerQueue() {
   const cycleRepeat = useCallback(() => setRepeat((r) => NEXT_REPEAT[r]), []);
   const toggleShuffle = useCallback(() => {
     setShuffle((on) => {
-      if (!on) setQueue((c) => q.shuffleRest(c, random));
+      // Turning ON: shuffle the upcoming tracks (keeping current first) and
+      // remember the prior order. Turning OFF: restore that order (Spotify-style)
+      // rather than leaving the queue scrambled.
+      setQueue((c) => (on ? q.unshuffle(c) : q.shuffleRest(c, random)));
       return !on;
     });
   }, []);
