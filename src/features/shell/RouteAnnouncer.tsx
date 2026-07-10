@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { routeLabel } from './routeLabel';
-import './routeAnnouncer.css';
 
 /** A visually-hidden aria-live region that speaks the page name whenever the
  * route changes — SPA navigations are otherwise silent to screen readers, so a
@@ -16,7 +15,7 @@ export function RouteAnnouncer() {
   }, [pathname]);
 
   return (
-    <div className="route-announcer" role="status" aria-live="polite" data-testid="route-announcer">
+    <div className="cad-sr-only" role="status" aria-live="polite" data-testid="route-announcer">
       {label}
     </div>
   );

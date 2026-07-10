@@ -27,6 +27,9 @@ export function Library() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        {/* The visible title lives in the toolbar (a div); give the content a
+            real <h1> so screen-reader heading navigation lands here. */}
+        <h1 className="cad-sr-only">Your Library</h1>
         <LibraryList />
       </IonContent>
     </IonPage>

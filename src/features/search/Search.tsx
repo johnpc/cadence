@@ -34,6 +34,8 @@ export function Search() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        {/* Toolbar title is a div; give the content a real <h1> for a11y. */}
+        <h1 className="cad-sr-only">Search</h1>
         {s.isIdle ? (
           <>
             <RecentSearches recents={recents} onClear={clear} onRemove={remove} />

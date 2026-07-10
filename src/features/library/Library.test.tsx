@@ -45,6 +45,11 @@ describe('Library', () => {
     expect(screen.getByTestId('library-settings')).toBeInTheDocument();
   });
 
+  it('exposes a page heading for screen-reader navigation', () => {
+    renderWithProviders(<Library />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Your Library' })).toBeInTheDocument();
+  });
+
   it('shows a track-list skeleton while the library is loading', () => {
     vi.mocked(getPlaylists).mockReturnValue(new Promise(() => {})); // never resolves
     renderWithProviders(<Library />);

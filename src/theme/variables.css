@@ -191,6 +191,21 @@
   color: var(--cad-text-secondary);
 }
 
+/* Visually hidden but available to assistive tech (standard sr-only recipe) —
+   for content that screen readers need but the visual design carries another
+   way, e.g. a page <h1> when the title only shows in the toolbar. */
+.cad-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Safe-area hardening: the first toolbar in a header must clear the notch /
    Dynamic Island. max() so it can't double-pad where Ionic already insets. */
 ion-header ion-toolbar:first-of-type {
