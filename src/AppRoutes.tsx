@@ -16,8 +16,14 @@ export function AppRoutes() {
   return (
     <>
       {/* Speaks the page name on every route change (screen-reader a11y). Lives
-          above the auth branch so it announces sign-in ↔ app transitions too. */}
-      <RouteAnnouncer />
+          above the auth branch so it announces sign-in ↔ app transitions too;
+          when signed out/loading the shell shows a fixed screen regardless of
+          path, so announce that rather than the underlying route. */}
+      <RouteAnnouncer
+        override={
+          status === 'loading' ? 'Loading' : status === 'unauthenticated' ? 'Sign in' : undefined
+        }
+      />
       {status === 'loading' ? (
         <AppLoading />
       ) : status === 'unauthenticated' ? (

@@ -23,4 +23,13 @@ describe('RouteAnnouncer', () => {
     );
     expect(screen.getByTestId('route-announcer')).toHaveTextContent('Album page');
   });
+
+  it('announces the override instead of the route when given (e.g. Sign in)', () => {
+    render(
+      <MemoryRouter initialEntries={['/home']}>
+        <RouteAnnouncer override="Sign in" />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId('route-announcer')).toHaveTextContent('Sign in page');
+  });
 });
