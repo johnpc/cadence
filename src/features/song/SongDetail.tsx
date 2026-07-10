@@ -43,6 +43,9 @@ export function SongDetail() {
           isLoading={isLoading}
           isError={isError}
           onRetry={() => void refetch()}
+          isEmpty={!song}
+          emptyTitle="Song not found"
+          emptyMessage="This track may have been removed from your server."
           skeleton={<SongDetailSkeleton />}
         >
           {song && (
