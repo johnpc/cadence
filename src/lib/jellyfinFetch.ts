@@ -8,6 +8,7 @@
  */
 import { apiUrl, embyAuthHeader } from './jellyfinConfig';
 import { getSession } from './sessionStore';
+import { notifySessionExpired } from './sessionExpiry';
 import { Unauthenticated, RequestTimeout, REQUEST_TIMEOUT_MS } from './jellyfinErrors';
 
 export { Unauthenticated, RequestTimeout } from './jellyfinErrors';
@@ -44,7 +45,12 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     clearTimeout(timer);
   }
 
-  if (res.status === 401) throw new Unauthenticated();
+  if (res.status === 401) {
+    // Tell the auth layer the token was rejected so it can re-validate / sign
+    // out — otherwise a mid-session expiry fails silently everywhere.
+    notifySessionExpired();
+    throw new Unauthenticated();
+  }
   if (!res.ok) throw new Error(`Jellyfin ${method} ${path} failed: ${res.status}`);
   if (res.status === 204) return undefined as T;
 
