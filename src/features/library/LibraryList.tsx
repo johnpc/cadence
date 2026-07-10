@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { IonSearchbar, IonIcon } from '@ionic/react';
-import { swapVertical } from 'ionicons/icons';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { LibraryFilters } from './LibraryFilters';
 import { LibraryRowItem } from './LibraryRowItem';
+import { LibraryTools } from './LibraryTools';
+import { useLibraryView } from './useLibraryView';
 import { CreatePlaylist } from '../playlists/CreatePlaylist';
 import { usePlaylists } from '../playlists/playlistsApi';
 import { useLikedSongs, useSavedAlbums, useFollowedArtists } from './libraryApi';
@@ -30,6 +30,7 @@ export function LibraryList() {
   const [filter, setFilter] = useState<LibraryFilter>(() => filterFromSearch(search));
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<LibrarySort>('recents');
+  const { view, toggle: toggleView } = useLibraryView();
   const playlists = usePlaylists();
   const albums = useSavedAlbums();
   const artists = useFollowedArtists();
@@ -57,28 +58,14 @@ export function LibraryList() {
         <LibraryFilters filter={filter} onChange={setFilter} />
         {filter === 'playlists' && <CreatePlaylist />}
       </div>
-      <div className="library-list__tools">
-        <IonSearchbar
-          className="library-list__search"
-          value={query}
-          debounce={0}
-          placeholder="Filter in Your Library"
-          onIonInput={(e) => setQuery(e.detail.value ?? '')}
-          data-testid="library-search"
-        />
-        <button
-          type="button"
-          className={
-            sort === 'alpha' ? 'library-list__sort library-list__sort--on' : 'library-list__sort'
-          }
-          data-testid="library-sort"
-          aria-label={sort === 'alpha' ? 'Sorted A–Z; tap for recents' : 'Sort A–Z'}
-          aria-pressed={sort === 'alpha'}
-          onClick={() => setSort((s) => (s === 'alpha' ? 'recents' : 'alpha'))}
-        >
-          <IonIcon icon={swapVertical} />
-        </button>
-      </div>
+      <LibraryTools
+        query={query}
+        onQuery={setQuery}
+        sort={sort}
+        onToggleSort={() => setSort((s) => (s === 'alpha' ? 'recents' : 'alpha'))}
+        view={view}
+        onToggleView={toggleView}
+      />
       <LoadState
         isLoading={active.isLoading}
         isError={active.isError}
@@ -88,9 +75,13 @@ export function LibraryList() {
         emptyMessage={query ? `Nothing in Your Library matches "${query}".` : EMPTY[filter]}
         skeleton={<TrackListSkeleton />}
       >
-        <div data-testid="library-list">
+        <div
+          data-testid="library-list"
+          className={view === 'grid' ? 'library-list--grid' : undefined}
+          data-view={view}
+        >
           {rows.map((row) => (
-            <LibraryRowItem key={row.id} row={row} />
+            <LibraryRowItem key={row.id} row={row} view={view} />
           ))}
         </div>
       </LoadState>

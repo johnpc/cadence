@@ -38,6 +38,15 @@ describe('LibraryRowItem', () => {
     expect(prefetch).toHaveBeenCalledWith(playlist);
   });
 
+  it('applies the grid card class in grid view', () => {
+    render(
+      <MemoryRouter>
+        <LibraryRowItem row={row} view="grid" />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId('library-row')).toHaveClass('library-row--grid');
+  });
+
   it('does not prefetch the synthetic Liked Songs row (no backing item)', () => {
     prefetch.mockClear();
     renderRow({
