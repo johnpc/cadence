@@ -76,6 +76,11 @@
   text-overflow: ellipsis;
 }
 
+.artist__album-year {
+  /* Sits tight under the album name (the flex gap already spaces the art). */
+  margin-top: -2px;
+}
+
 .artist__related {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));

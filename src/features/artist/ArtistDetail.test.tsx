@@ -26,7 +26,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const artist: JellyfinItem = { Id: 'ar', Name: 'The Artist', Type: 'MusicArtist' };
 const albums: JellyfinItem[] = [
-  { Id: 'al1', Name: 'First Album', Type: 'MusicAlbum' },
+  { Id: 'al1', Name: 'First Album', Type: 'MusicAlbum', ProductionYear: 2019 },
   { Id: 'al2', Name: 'Second Album', Type: 'MusicAlbum' },
 ];
 
@@ -61,6 +61,7 @@ describe('ArtistDetail', () => {
     renderArtist();
     expect(await screen.findByText('First Album')).toBeInTheDocument();
     expect(screen.getByText('Second Album')).toBeInTheDocument();
+    expect(screen.getByText('2019')).toBeInTheDocument(); // release year on the card
     expect(getArtistAlbums).toHaveBeenCalledWith('ar');
   });
 

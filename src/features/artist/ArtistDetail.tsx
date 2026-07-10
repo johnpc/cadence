@@ -67,6 +67,9 @@ export function ArtistDetail() {
               >
                 <TrackArt item={album} size={150} />
                 <span className="artist__album-name">{album.Name}</span>
+                {album.ProductionYear && (
+                  <span className="artist__album-year cad-meta">{album.ProductionYear}</span>
+                )}
               </button>
             ))}
           </div>
