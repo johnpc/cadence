@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../lib/platform', () => ({ isIos: vi.fn(() => false) }));
 import {
   bindMediaSessionHandlers,
   setNowPlaying,
   setPlaybackState,
   setPositionState,
 } from './mediaSession';
+import { isIos } from '../../lib/platform';
 import { setSession } from '../../lib/sessionStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -72,6 +74,24 @@ describe('mediaSession', () => {
     for (const action of ['seekto', 'seekbackward', 'seekforward']) {
       expect(set.mock.calls.some((c) => c[0] === action && typeof c[1] === 'function')).toBe(true);
     }
+  });
+
+  it('on iOS, leaves ±skip (seek) buttons unset so the lock screen shows track skip', () => {
+    vi.mocked(isIos).mockReturnValue(true);
+    bindMediaSessionHandlers({
+      play: vi.fn(),
+      pause: vi.fn(),
+      next: vi.fn(),
+      prev: vi.fn(),
+      seek: vi.fn(),
+    });
+    const set = navigator.mediaSession.setActionHandler as ReturnType<typeof vi.fn>;
+    // Track skip stays wired...
+    expect(set).toHaveBeenCalledWith('nexttrack', expect.any(Function));
+    expect(set).toHaveBeenCalledWith('previoustrack', expect.any(Function));
+    // ...but the ±skip handlers are explicitly cleared (null) on iOS.
+    expect(set).toHaveBeenCalledWith('seekbackward', null);
+    expect(set).toHaveBeenCalledWith('seekforward', null);
   });
 
   it('seekto calls seek with the requested absolute time', () => {

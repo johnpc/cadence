@@ -1,17 +1,12 @@
 import { IonModal, IonIcon } from '@ionic/react';
-import {
-  chevronDown,
-  listOutline,
-  volumeLow,
-  volumeHigh,
-  documentTextOutline,
-} from 'ionicons/icons';
+import { chevronDown, listOutline, documentTextOutline } from 'ionicons/icons';
 import { useState } from 'react';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
 import { NowPlayingMenu } from './NowPlayingMenu';
 import { NextUpHint } from './NextUpHint';
 import { PlayerControls } from './PlayerControls';
+import { VolumeSlider } from './VolumeSlider';
 import { PlayingFrom } from './PlayingFrom';
 import { FullPlayerTitle } from './FullPlayerTitle';
 import { usePlayer } from './usePlayer';
@@ -55,20 +50,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           </div>
         </div>
         <PlayerControls />
-        <div className="fullplayer__volume">
-          <IonIcon icon={volumeLow} aria-hidden="true" />
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={p.volume}
-            onChange={(e) => p.setVolume(Number(e.target.value))}
-            aria-label="Volume"
-            data-testid="full-player-volume"
-          />
-          <IonIcon icon={volumeHigh} aria-hidden="true" />
-        </div>
+        <VolumeSlider volume={p.volume} setVolume={p.setVolume} />
         <div className="fullplayer__footer">
           <button
             className="fullplayer__foot-btn"
