@@ -42,6 +42,21 @@ export async function renamePlaylist(playlistId: string, name: string): Promise<
   await request(`/Playlists/${playlistId}`, { method: 'POST', body: { Name: name } });
 }
 
+/** Read a playlist's visibility. `GET /Playlists/{id}` (owner-only) returns
+ * `OpenAccess`: true = public (shows in every user's library + our community
+ * shelf, others can clone it), false = private (only the owner's library).
+ * Owner-only — only call for playlists the current user owns. */
+export async function getPlaylistIsPublic(playlistId: string): Promise<boolean> {
+  const res = await request<{ OpenAccess?: boolean }>(`/Playlists/${playlistId}`);
+  return res.OpenAccess === true;
+}
+
+/** Set a playlist public or private (owner-only). Jellyfin's UpdatePlaylist
+ * takes `IsPublic`; flipping it changes cross-user visibility immediately. */
+export async function setPlaylistIsPublic(playlistId: string, isPublic: boolean): Promise<void> {
+  await request(`/Playlists/${playlistId}`, { method: 'POST', body: { IsPublic: isPublic } });
+}
+
 /** Create a new (audio) playlist and return its id. IsPublic:false is CRITICAL —
  * Jellyfin 10.11 defaults new playlists to PUBLIC, which makes them visible in
  * every other user's library (and dumps them into our "From the community"

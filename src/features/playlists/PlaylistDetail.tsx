@@ -12,6 +12,7 @@ import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { PlaylistHeader } from './PlaylistHeader';
 import { PlaylistTracks } from './PlaylistTracks';
+import { PlaylistVisibilityToggle } from './PlaylistVisibilityToggle';
 import { RecommendedSongs } from './RecommendedSongs';
 import { DeletePlaylistButton } from './DeletePlaylistButton';
 import { RenamePlaylistButton } from './RenamePlaylistButton';
@@ -57,6 +58,7 @@ export function PlaylistDetail() {
         >
           <div data-testid="playlist-detail">
             <PlaylistHeader playlist={playlist} tracks={tracks} />
+            <PlaylistVisibilityToggle playlistId={id} owned={playlist?.CanDelete === true} />
             <PlaylistTracks
               playlistId={id}
               playlistName={playlist?.Name}
