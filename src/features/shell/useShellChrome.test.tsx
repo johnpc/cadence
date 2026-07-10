@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { createElement, type ReactNode } from 'react';
@@ -29,5 +29,12 @@ describe('useShellChrome', () => {
     const { history } = setup();
     window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true }));
     expect(history.location.pathname).toBe('/search');
+  });
+
+  it('exposes help-overlay state that "?" toggles', () => {
+    const { result } = setup();
+    expect(result.current.helpOpen).toBe(false);
+    act(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: '?', bubbles: true })));
+    expect(result.current.helpOpen).toBe(true);
   });
 });
