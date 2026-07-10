@@ -7,6 +7,7 @@ import { LyricsSheet } from './LyricsSheet';
 import { NowPlayingMenu } from './NowPlayingMenu';
 import { CastButton } from '../cast/CastButton';
 import { CastingBanner } from '../cast/CastingBanner';
+import { SleepIndicator } from './SleepIndicator';
 import { NextUpHint } from './NextUpHint';
 import { PlayerControls } from './PlayerControls';
 import { VolumeSlider } from './VolumeSlider';
@@ -35,6 +36,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         </button>
         <PlayingFrom trackId={p.current?.Id} onNavigate={onClose} />
         <CastingBanner />
+        <SleepIndicator />
         <TrackArt item={p.current} size={280} />
         <FullPlayerTitle track={p.current} onNavigate={onClose} />
         <div className="fullplayer__scrubber">

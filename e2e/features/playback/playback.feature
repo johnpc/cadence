@@ -8,6 +8,15 @@ Feature: Playback
     Then the Now-Playing bar shows a track
     And the audio element is loaded with a Jellyfin stream
 
+  Scenario: An armed sleep timer shows in the player and can be cancelled there
+    Given I am signed in
+    When I tap a track from search
+    And I arm a 30 minute sleep timer in settings
+    And I open the full player
+    Then I see the sleep timer indicator
+    When I cancel the sleep timer from the player
+    Then the sleep timer indicator is gone
+
   Scenario: Opening the full player and advancing to the next track
     Given I am signed in
     When I tap a track from search
