@@ -3,6 +3,14 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 /** Which section of the library is shown. */
 export type LibraryFilter = 'playlists' | 'albums' | 'artists';
 
+/** Parse the initial library filter from a URL search string (e.g.
+ * "?filter=artists" from a Home "Show all" link), defaulting to 'playlists'
+ * for anything missing/unrecognised. */
+export function filterFromSearch(search: string): LibraryFilter {
+  const value = new URLSearchParams(search).get('filter');
+  return value === 'albums' || value === 'artists' ? value : 'playlists';
+}
+
 /** A single row in the unified library list. `to` is its route; `round` marks
  * artist art; `subtitle` is the small line under the name. */
 export interface LibraryRow {

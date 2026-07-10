@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { IonSearchbar, IonIcon } from '@ionic/react';
 import { swapVertical } from 'ionicons/icons';
 import { LoadState } from '../../components/LoadState';
@@ -9,8 +10,8 @@ import { CreatePlaylist } from '../playlists/CreatePlaylist';
 import { usePlaylists } from '../playlists/playlistsApi';
 import { useLikedSongs, useSavedAlbums, useFollowedArtists } from './libraryApi';
 import { getRecentPlays } from './recentPlays';
-import { buildLibraryRows, filterRowsByText, type LibraryFilter } from './libraryRows';
-import { sortRows, type LibrarySort } from './librarySort';
+import { filterFromSearch, type LibraryFilter } from './libraryRows';
+import { composeLibraryRows, type LibrarySort } from './librarySort';
 import './libraryList.css';
 
 const EMPTY: Record<LibraryFilter, string> = {
@@ -22,7 +23,10 @@ const EMPTY: Record<LibraryFilter, string> = {
 /** Your Library as one filterable list — Playlists (Liked Songs pinned first),
  * Albums, or Artists — matching Spotify's unified library. */
 export function LibraryList() {
-  const [filter, setFilter] = useState<LibraryFilter>('playlists');
+  // Seed the filter from ?filter= so a Home "Show all" link (e.g. Your artists)
+  // lands on the right section instead of the default Playlists.
+  const { search } = useLocation();
+  const [filter, setFilter] = useState<LibraryFilter>(() => filterFromSearch(search));
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<LibrarySort>('recents');
   const playlists = usePlaylists();
@@ -31,16 +35,15 @@ export function LibraryList() {
   const liked = useLikedSongs();
 
   const active = filter === 'albums' ? albums : filter === 'artists' ? artists : playlists;
-  const rows = sortRows(
-    filterRowsByText(
-      buildLibraryRows(filter, {
-        playlists: playlists.playlists,
-        albums: albums.albums,
-        artists: artists.artists,
-        likedCount: liked.songs.length,
-      }),
-      query,
-    ),
+  const rows = composeLibraryRows(
+    filter,
+    {
+      playlists: playlists.playlists,
+      albums: albums.albums,
+      artists: artists.artists,
+      likedCount: liked.songs.length,
+    },
+    query,
     sort,
     getRecentPlays(),
   );

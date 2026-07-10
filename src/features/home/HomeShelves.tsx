@@ -54,6 +54,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
           title="Your artists"
           items={artists.artists}
           state={artists}
+          seeAllHref="/library?filter=artists"
           onOpen={openArtist}
           onPlay={(item) => void playItem(item)}
           onPrefetch={prefetch}
@@ -65,6 +66,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
           title="From your library"
           items={saved.albums}
           state={saved}
+          seeAllHref="/library?filter=albums"
           onOpen={openAlbum}
           onPlay={(item) => void playItem(item)}
           onPrefetch={prefetch}
