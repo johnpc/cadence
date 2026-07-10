@@ -218,3 +218,25 @@ ion-header ion-toolbar:first-of-type {
 body.has-now-playing ion-content {
   --padding-bottom: 96px;
 }
+
+/* Keyboard focus ring. :focus-visible only matches keyboard (not pointer)
+   focus, so mouse/touch users never see it — but tabbing through the app's many
+   custom buttons/links (track rows, cards, transport, tab bar) now shows a
+   clear accent ring instead of nothing. outline (not box-shadow) so it never
+   shifts layout; offset keeps it off the content edge. */
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--cad-accent);
+  outline-offset: 2px;
+  border-radius: var(--cad-radius-thumb, 4px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:focus-visible,
+  button:focus-visible {
+    transition: outline-color 0.1s ease;
+  }
+}
