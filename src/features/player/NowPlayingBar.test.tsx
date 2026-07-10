@@ -9,6 +9,16 @@ import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders'
 
 vi.mock('../../lib/jellyfinLyrics', () => ({ getLyrics: vi.fn().mockResolvedValue([]) }));
 
+// useCast defaults to disconnected; a test overrides it to assert the cast pill.
+const castState = {
+  available: false,
+  connected: false,
+  deviceName: '',
+  cast: vi.fn(),
+  stop: vi.fn(),
+};
+vi.mock('../cast/useCast', () => ({ useCast: () => castState }));
+
 // Render IonModal children inline (see FullPlayer.test for why).
 vi.mock('@ionic/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@ionic/react')>();
@@ -45,6 +55,18 @@ describe('NowPlayingBar', () => {
   it('shows a buffering spinner (not the play/pause icon) while waiting', () => {
     renderBar(ctx({ current: song, isPlaying: true, waiting: true }));
     expect(screen.getByTestId('now-playing-buffering')).toBeInTheDocument();
+  });
+
+  it('shows a cast indicator with the device name while casting', () => {
+    castState.connected = true;
+    castState.deviceName = 'Living Room TV';
+    try {
+      renderBar(ctx({ current: song }));
+      expect(screen.getByTestId('now-playing-cast')).toHaveTextContent('Living Room TV');
+    } finally {
+      castState.connected = false;
+      castState.deviceName = '';
+    }
   });
 
   it('skips to the next track via the mini-bar next button', async () => {

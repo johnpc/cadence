@@ -51,6 +51,11 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
             </button>
           )}
         </div>
+        {queue.length === 0 && (
+          <p className="queueview__empty cad-meta" data-testid="queue-empty">
+            Your queue is empty. Play something to build it up.
+          </p>
+        )}
         <div className="queueview__list">
           <IonReorderGroup disabled={false} onIonItemReorder={onReorder}>
             {queue.map((track, index) => (

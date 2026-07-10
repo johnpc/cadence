@@ -167,3 +167,10 @@
     font-size: 20px;
   }
 }
+
+.npbar__casting {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-1);
+  color: var(--cad-accent);
+}
