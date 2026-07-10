@@ -1,0 +1,16 @@
+diff --git a/node_modules/@hauxir2/capacitor-chromecast/HauxirCapacitorChromecast.podspec b/node_modules/@hauxir2/capacitor-chromecast/Hauxir2CapacitorChromecast.podspec
+similarity index 93%
+rename from node_modules/@hauxir2/capacitor-chromecast/HauxirCapacitorChromecast.podspec
+rename to node_modules/@hauxir2/capacitor-chromecast/Hauxir2CapacitorChromecast.podspec
+index 78fc434..c399722 100644
+--- a/node_modules/@hauxir2/capacitor-chromecast/HauxirCapacitorChromecast.podspec
++++ b/node_modules/@hauxir2/capacitor-chromecast/Hauxir2CapacitorChromecast.podspec
+@@ -3,7 +3,7 @@ require 'json'
+ package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
+ 
+ Pod::Spec.new do |s|
+-  s.name = 'HauxirCapacitorChromecast'
++  s.name = 'Hauxir2CapacitorChromecast'
+   s.version = package['version']
+   s.summary = package['description']
+   s.license = package['license']

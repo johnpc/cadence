@@ -5,6 +5,8 @@ import { AmbientBackground } from './AmbientBackground';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
 import { NowPlayingMenu } from './NowPlayingMenu';
+import { CastButton } from '../cast/CastButton';
+import { CastingBanner } from '../cast/CastingBanner';
 import { NextUpHint } from './NextUpHint';
 import { PlayerControls } from './PlayerControls';
 import { VolumeSlider } from './VolumeSlider';
@@ -32,6 +34,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           <IonIcon icon={chevronDown} />
         </button>
         <PlayingFrom trackId={p.current?.Id} onNavigate={onClose} />
+        <CastingBanner />
         <TrackArt item={p.current} size={280} />
         <FullPlayerTitle track={p.current} onNavigate={onClose} />
         <div className="fullplayer__scrubber">
@@ -69,6 +72,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           >
             <IonIcon icon={listOutline} /> Up next
           </button>
+          <CastButton />
           {p.current && <NowPlayingMenu track={p.current} onNavigate={onClose} />}
         </div>
         <NextUpHint onOpenQueue={() => setQueueOpen(true)} />

@@ -17,6 +17,10 @@ PODS:
     - Capacitor
   - CapacitorStatusBar (8.0.2):
     - Capacitor
+  - google-cast-sdk (4.8.4)
+  - Hauxir2CapacitorChromecast (0.0.7):
+    - Capacitor
+    - google-cast-sdk (~> 4.8)
   - IONFilesystemLib (1.1.2)
 
 DEPENDENCIES:
@@ -29,9 +33,11 @@ DEPENDENCIES:
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
+  - "Hauxir2CapacitorChromecast (from `../../node_modules/@hauxir2/capacitor-chromecast`)"
 
 SPEC REPOS:
   trunk:
+    - google-cast-sdk
     - IONFilesystemLib
 
 EXTERNAL SOURCES:
@@ -53,6 +59,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/preferences"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
+  Hauxir2CapacitorChromecast:
+    :path: "../../node_modules/@hauxir2/capacitor-chromecast"
 
 SPEC CHECKSUMS:
   Capacitor: 35242afe195b1e53c58ca1b827d1b444c5e6602b
@@ -64,8 +72,10 @@ SPEC CHECKSUMS:
   CapacitorKeyboard: b6b0744890cdb1d9a96e2cafcc9253fdcc55de3b
   CapacitorPreferences: cca2021f386efb75947c850334447d9ff22b14f1
   CapacitorStatusBar: 01d5763b4ed720de5ce2edbc938de6a98f4c8f32
+  google-cast-sdk: 32f65af50d164e3c475e79ad123db3cc26fbcd37
+  Hauxir2CapacitorChromecast: 066ef95ed776d2eb8da634cb61e20af593bb4cf2
   IONFilesystemLib: 21a63377696b2d8fab5632ecfb7d2ac67bddb68a
 
-PODFILE CHECKSUM: 91571783ba8e0ec55db235e4a2bd9193d94664f5
+PODFILE CHECKSUM: 319d75b80a04b0f27e049bcdc244214dcc3e45be
 
 COCOAPODS: 1.16.2

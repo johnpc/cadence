@@ -1,0 +1,29 @@
+.cast-btn {
+  border: none;
+  background: none;
+  color: var(--cad-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cad-space-2);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.cast-btn--on {
+  color: var(--cad-accent);
+}
+
+.casting-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  align-self: center;
+  margin: var(--cad-space-2) 0;
+  padding: var(--cad-space-1) var(--cad-space-3);
+  border-radius: var(--cad-radius-pill, 999px);
+  background: color-mix(in srgb, var(--cad-accent) 18%, transparent);
+  color: var(--cad-accent);
+  font-size: 13px;
+  font-weight: 600;
+}

@@ -37,7 +37,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const { volume, setVolume, nudgeVolume, toggleMute } = useVolume(ref, currentId);
 
   // Load the current track and play on change (restored tracks stay paused).
-  useTrackLoader(ref, currentId);
+  useTrackLoader(ref, current ?? undefined);
 
   const { toggle, seek, seekBy, pause } = usePlaybackControls(ref, qh.queue.tracks.length > 0);
 
