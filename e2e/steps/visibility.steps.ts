@@ -5,7 +5,7 @@ import {
   login,
   createPlaylist,
   setPlaylistPublic,
-  deletePlaylist,
+  deletePlaylistsByName,
   type Session,
 } from './jellyfinApi';
 
@@ -29,19 +29,22 @@ Before({ tags: '' }, () => {
 });
 
 After(async () => {
-  // Teardown: remove the fixture so runs stay clean, even if the scenario failed.
-  if (user2 && playlistId) {
-    try {
-      await deletePlaylist(user2, playlistId);
-    } catch {
-      /* best-effort */
-    }
+  // Teardown: remove EVERY fixture by name, not just this run's id — a run that
+  // crashed between create and here (or created more than one) would otherwise
+  // orphan public playlists on the shared server. Best-effort.
+  try {
+    const s = user2 ?? (await login(USER2, PASS2));
+    await deletePlaylistsByName(s, NAME);
+  } catch {
+    /* best-effort */
   }
 });
 
 Given('user two owns a fresh public playlist', async () => {
   user2 = await login(USER2, PASS2);
-  // Start from a clean slate: any leftover fixture from a crashed prior run.
+  // Start from a clean slate: sweep any leftover fixture from a crashed prior
+  // run so the community-shelf assertion is unambiguous, then create ours.
+  await deletePlaylistsByName(user2, NAME);
   playlistId = await createPlaylist(user2, NAME, true);
 });
 
