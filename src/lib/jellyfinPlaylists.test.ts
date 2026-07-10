@@ -69,18 +69,25 @@ describe('jellyfinPlaylists', () => {
     expect(f.mock.calls[0][0]).toContain('Fields=CanDelete');
   });
 
-  it('getPublicPlaylists returns only playlists the user does NOT own', async () => {
+  it('getPublicPlaylists returns others playlists NEWEST-FIRST (Descending)', async () => {
     setSession({ token: 't', userId: 'uid' });
-    stubOwnership(
+    const f = stubOwnership(
       [
+        // Server returns these in DateCreated-Descending order (newest first).
+        // 'emily' has CanDelete true (admin) but isn't owned → community, and must
+        // stay at the FRONT (regression: it used to sink below CanDelete:false ones).
+        { Id: 'emily', Name: 'Emily’s jams', Type: 'Playlist', CanDelete: true },
         { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
-        { Id: 'emily', Name: 'Emily’s jams', Type: 'Playlist', CanDelete: true }, // admin can delete, not owner
         { Id: 'theirs', Name: 'Community', Type: 'Playlist', CanDelete: false },
       ],
       ['mine'],
     );
     const items = await getPublicPlaylists();
-    expect(items.map((p) => p.Id).sort()).toEqual(['emily', 'theirs']);
+    // Order preserved (newest 'emily' first), owner 'mine' excluded.
+    expect(items.map((p) => p.Id)).toEqual(['emily', 'theirs']);
+    // Must request newest-first, or the shelf's slice(limit) truncates new shares.
+    expect(f.mock.calls[0][0]).toContain('SortBy=DateCreated');
+    expect(f.mock.calls[0][0]).toContain('SortOrder=Descending');
   });
 
   it('getPlaylistItems reads a playlist’s tracks', async () => {

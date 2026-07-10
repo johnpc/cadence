@@ -7,12 +7,20 @@ import { getSession } from './sessionStore';
 import { dedupeByName } from './dedupeByName';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
-async function fetchAllPlaylists(sortBy: string, fields: string): Promise<JellyfinItem[]> {
+async function fetchAllPlaylists(
+  sortBy: string,
+  fields: string,
+  sortOrder: 'Ascending' | 'Descending' = 'Ascending',
+): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'Playlist',
     Recursive: 'true',
     SortBy: sortBy,
+    // Jellyfin defaults to Ascending when omitted — which for DateCreated buries
+    // the NEWEST playlists at the end, where the community shelf's slice(limit)
+    // cuts them off. Callers that want newest-first MUST pass Descending.
+    SortOrder: sortOrder,
     Fields: fields,
     userId,
   });
@@ -41,11 +49,16 @@ async function isPlaylistOwner(id: string): Promise<boolean> {
 async function partitionByOwnership(
   playlists: JellyfinItem[],
 ): Promise<[JellyfinItem[], JellyfinItem[]]> {
+  // Only CanDelete!==false items need the (expensive) owner confirmation;
+  // CanDelete===false is a definite "not mine".
   const candidates = playlists.filter((p) => p.CanDelete !== false);
-  const notMine = playlists.filter((p) => p.CanDelete === false);
-  const owned = await Promise.all(candidates.map((p) => isPlaylistOwner(p.Id)));
-  const mine: JellyfinItem[] = [];
-  candidates.forEach((p, i) => (owned[i] ? mine : notMine).push(p));
+  const confirmed = await Promise.all(candidates.map((p) => isPlaylistOwner(p.Id)));
+  const ownedIds = new Set(candidates.filter((_, i) => confirmed[i]).map((p) => p.Id));
+  // Filter the ORIGINAL list so BOTH partitions keep the caller's sort order
+  // (e.g. getPublicPlaylists relies on DateCreated-desc — a newly-shared
+  // playlist must stay at the front, not sink below the CanDelete:false ones).
+  const mine = playlists.filter((p) => ownedIds.has(p.Id));
+  const notMine = playlists.filter((p) => !ownedIds.has(p.Id));
   return [mine, notMine];
 }
 
@@ -64,7 +77,7 @@ export async function getPlaylists(): Promise<JellyfinItem[]> {
  * (not owned by the current user). Surfaced on Home so the user can browse and
  * clone them. Most-recently-added first; ChildCount drives the "N songs" line. */
 export async function getPublicPlaylists(limit = 20): Promise<JellyfinItem[]> {
-  const all = await fetchAllPlaylists('DateCreated', 'CanDelete,ChildCount');
+  const all = await fetchAllPlaylists('DateCreated', 'CanDelete,ChildCount', 'Descending');
   const [, notMine] = await partitionByOwnership(all);
   return dedupeByName(notMine).slice(0, limit);
 }
