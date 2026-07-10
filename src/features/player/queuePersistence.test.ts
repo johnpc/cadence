@@ -14,6 +14,18 @@ describe('queuePersistence', () => {
     expect(loaded.index).toBe(1);
   });
 
+  it('round-trips the pre-shuffle order so shuffle-off survives a reload', () => {
+    saveQueue({ tracks: [t('c'), t('a'), t('b')], index: 0, unshuffled: [t('a'), t('b'), t('c')] });
+    const loaded = loadQueue();
+    expect(loaded.tracks.map((x) => x.Id)).toEqual(['c', 'a', 'b']);
+    expect(loaded.unshuffled?.map((x) => x.Id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('omits unshuffled when the queue was not shuffled', () => {
+    saveQueue({ tracks: [t('a'), t('b')], index: 0 });
+    expect(loadQueue().unshuffled).toBeUndefined();
+  });
+
   it('returns the empty queue when nothing is stored', () => {
     expect(loadQueue()).toEqual({ tracks: [], index: 0 });
   });
