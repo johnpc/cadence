@@ -1,4 +1,5 @@
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { SleepMode } from './useSleepTimer';
 
 /** Repeat mode: off, repeat the whole queue, or repeat the current track. */
 export type RepeatMode = 'off' | 'all' | 'one';
@@ -42,10 +43,10 @@ export interface PlayerContextValue {
   toggleShuffle: () => void;
   /** Cycle repeat: off → all → one → off. */
   cycleRepeat: () => void;
-  /** Minutes remaining on the sleep timer, or null when unset. */
-  sleepMinutes: number | null;
-  /** Arm the sleep timer for N minutes (null/0 cancels). */
-  armSleep: (minutes: number | null) => void;
+  /** The armed sleep timer: minutes, 'track' (stop at song end), or null. */
+  sleepMode: SleepMode;
+  /** Arm the sleep timer: N minutes, 'track', or null to cancel. */
+  armSleep: (mode: SleepMode) => void;
   /** Playback volume, 0–1. */
   volume: number;
   setVolume: (volume: number) => void;

@@ -36,7 +36,7 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
     seek: vi.fn(),
     toggleShuffle: vi.fn(),
     cycleRepeat: vi.fn(),
-    sleepMinutes: null,
+    sleepMode: null,
     armSleep: vi.fn(),
     volume: 1,
     setVolume: vi.fn(),

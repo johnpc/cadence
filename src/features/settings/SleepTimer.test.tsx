@@ -14,8 +14,16 @@ describe('SleepTimer', () => {
 
   it('marks the active duration and cancels with Off', async () => {
     const armSleep = vi.fn();
-    renderWithProviders(<SleepTimer />, { player: stubPlayer({ sleepMinutes: 60, armSleep }) });
+    renderWithProviders(<SleepTimer />, { player: stubPlayer({ sleepMode: 60, armSleep }) });
     expect(screen.getByTestId('sleep-60')).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(screen.getByTestId('sleep-off'));
+    expect(armSleep).toHaveBeenCalledWith(null);
+  });
+
+  it('offers an "End of track" option that arms track mode', async () => {
+    const armSleep = vi.fn();
+    renderWithProviders(<SleepTimer />, { player: stubPlayer({ sleepMode: 'track', armSleep }) });
+    expect(screen.getByTestId('sleep-track')).toHaveAttribute('aria-pressed', 'true');
     await userEvent.click(screen.getByTestId('sleep-off'));
     expect(armSleep).toHaveBeenCalledWith(null);
   });

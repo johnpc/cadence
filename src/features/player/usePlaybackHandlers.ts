@@ -4,18 +4,34 @@ import type { usePlayerQueue } from './usePlayerQueue';
 
 type QueueHook = ReturnType<typeof usePlayerQueue>;
 
+/** Refs the ended-handler reads to honour an "end of track" sleep timer without
+ * depending on hook declaration order in PlayerProvider: `active` is true while
+ * that mode is armed, `onReached` pauses + disarms when the current track ends. */
+export interface SleepAtTrackEnd {
+  active: RefObject<boolean>;
+  onReached: RefObject<() => void>;
+}
+
 /** The audio element's `ended` and `error` handlers, kept out of PlayerProvider
  * for the line gate.
- * - ended: apply the repeat rule ('one' restarts the same element).
+ * - ended: if an "end of track" sleep timer is armed, pause + disarm; otherwise
+ *   apply the repeat rule ('one' restarts the same element).
  * - error: a track that fails to load (bad transcode / 404) shouldn't stall
- *   playback — tell the user, then skip to the next (a no-op at the queue end),
- *   like Spotify. */
+ *   playback — tell the user, then skip to the next (only when there IS a next;
+ *   at the queue end just report it), like Spotify. */
 export function usePlaybackHandlers(
   qh: QueueHook,
   audioRef: RefObject<HTMLAudioElement | null>,
   toast: (message: string) => void,
+  sleep?: SleepAtTrackEnd,
 ) {
   const onEnded = useCallback(() => {
+    // "Stop after this track" sleep timer: a NATURAL end (not a manual skip)
+    // pauses playback and disarms, instead of advancing the queue.
+    if (sleep?.active.current) {
+      sleep.onReached.current?.();
+      return;
+    }
     qh.advance(() => {
       const audio = audioRef.current;
       if (audio) {
@@ -23,7 +39,7 @@ export function usePlaybackHandlers(
         void audio.play().catch(() => undefined);
       }
     });
-  }, [qh, audioRef]);
+  }, [qh, audioRef, sleep]);
 
   const onError = useCallback(() => {
     // Only react to errors during ACTUAL playback. On cold launch the restored
