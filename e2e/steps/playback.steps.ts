@@ -30,7 +30,11 @@ Then('the audio element is loaded with a Jellyfin stream', async ({ page }) => {
 });
 
 When('I open the full player', async ({ page }) => {
-  await page.getByTestId('now-playing-open').click();
+  // Ensure the mini-player is actually on screen before tapping it to expand —
+  // clicking before it mounts was a source of timeouts on now-playing-open.
+  const open = page.getByTestId('now-playing-open');
+  await expect(open).toBeVisible({ timeout: DATA_WAIT });
+  await open.click();
   await expect(page.getByTestId('full-player')).toBeVisible();
   // Let the modal's enter animation finish so its backdrop stops intercepting.
   await page.waitForTimeout(600);

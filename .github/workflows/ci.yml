@@ -84,14 +84,17 @@ jobs:
     name: Acceptance Tests (${{ matrix.area.name }})
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
-      # Serialize the acceptance areas: all ~10 hit ONE self-hosted Jellyfin over
-      # a single cloudflared tunnel. Even 3 in parallel stampedes it — auth
-      # throttling / stalled first-paint reads that surface as widespread flaky
-      # timeouts (main went red across 5+ areas at once this way, while every
-      # scenario passes when run alone). 1 trades wall-clock for a green,
-      # trustworthy signal; raise it only if the server/tunnel gains headroom.
-      max-parallel: 1
+      # Stop the whole matrix as soon as one area fails — the earlier areas are a
+      # representative smoke of the shared server, so a real failure will surface
+      # fast without burning compute on the remaining areas. (Re-run after a fix.)
+      fail-fast: true
+      # All areas hit ONE self-hosted Jellyfin, but it handles concurrency fine
+      # (verified: list API <1s, owner-check burst ~0.1s). The "flake" that looked
+      # like a stampede was actually real defects — an ascending community-shelf
+      # sort that truncated new playlists, and play/search steps racing content
+      # into existence — now fixed at the source. So parallelism is back up for
+      # CI wall-clock; raise/lower if the server shows real contention.
+      max-parallel: 4
       matrix:
         area:
           - name: smoke
@@ -178,6 +181,9 @@ jobs:
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          # Second user — cross-user playlist-visibility scenario (playlists area).
+          TEST_USERNAME_2: ${{ secrets.TEST_USERNAME_2 }}
+          TEST_PASSWORD_2: ${{ secrets.TEST_PASSWORD_2 }}
         with:
           timeout_minutes: 15
           max_attempts: 2
