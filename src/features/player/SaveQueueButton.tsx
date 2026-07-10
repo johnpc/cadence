@@ -32,8 +32,13 @@ export function SaveQueueButton({ queue }: { queue: JellyfinItem[] }) {
             handler: (data: { name?: string }) => {
               const name = (data.name ?? '').trim();
               if (!name) return;
-              save.mutate({ name, itemIds: queue.map((t) => t.Id) });
-              toast(`Saved "${name}"`);
+              save.mutate(
+                { name, itemIds: queue.map((t) => t.Id) },
+                {
+                  onSuccess: () => toast(`Saved "${name}"`),
+                  onError: () => toast("Couldn't save the queue"),
+                },
+              );
             },
           },
         ]}

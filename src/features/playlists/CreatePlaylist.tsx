@@ -29,10 +29,11 @@ export function CreatePlaylist() {
             text: 'Create',
             handler: (data: { name?: string }) => {
               const name = (data.name ?? '').trim();
-              if (name) {
-                create.mutate(name);
-                toast(`Created "${name}"`);
-              }
+              if (name)
+                create.mutate(name, {
+                  onSuccess: () => toast(`Created "${name}"`),
+                  onError: () => toast("Couldn't create the playlist"),
+                });
             },
           },
         ]}

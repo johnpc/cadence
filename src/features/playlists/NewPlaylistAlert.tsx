@@ -27,10 +27,14 @@ export function NewPlaylistAlert({
           text: 'Create',
           handler: (data: { name?: string }) => {
             const name = (data.name ?? '').trim();
-            if (name) {
-              createWith.mutate({ name, itemIds: [itemId] });
-              toast(`Created "${name}"`);
-            }
+            if (name)
+              createWith.mutate(
+                { name, itemIds: [itemId] },
+                {
+                  onSuccess: () => toast(`Created "${name}"`),
+                  onError: () => toast("Couldn't create the playlist"),
+                },
+              );
           },
         },
       ]}
