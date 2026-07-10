@@ -45,6 +45,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
             onKeyUp={scrub.onCommit}
             onBlur={scrub.onCommit}
             aria-label="Seek"
+            aria-valuetext={`${formatTime(scrub.value)} of ${formatTime(duration)}`}
           />
           <div className="fullplayer__times cad-meta">
             <span>{formatTime(scrub.value)}</span>

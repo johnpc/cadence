@@ -4,7 +4,7 @@ import { play, pause, playSkipForward } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { usePlayerProgress } from './PlayerProgressContext';
 import { useScrubber } from './useScrubber';
-import { artistLine } from './playerFormat';
+import { artistLine, formatTime } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { FullPlayer } from './FullPlayer';
 import { NowPlayingExtras } from './NowPlayingExtras';
@@ -83,6 +83,7 @@ export function NowPlayingBar() {
             onKeyUp={scrub.onCommit}
             onBlur={scrub.onCommit}
             aria-label="Seek"
+            aria-valuetext={`${formatTime(scrub.value)} of ${formatTime(duration)}`}
             data-testid="now-playing-seek"
           />
         </div>

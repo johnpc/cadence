@@ -76,6 +76,14 @@ describe('NowPlayingBar', () => {
     expect((fill as HTMLElement).style.width).toBe('25%');
   });
 
+  it('announces the seek position as human time to screen readers', () => {
+    renderBar(ctx({ current: song }), { position: 45, duration: 200 });
+    expect(screen.getByTestId('now-playing-seek')).toHaveAttribute(
+      'aria-valuetext',
+      '0:45 of 3:20',
+    );
+  });
+
   it('seeks once on release after dragging the progress bar', () => {
     const seek = vi.fn();
     renderBar(ctx({ current: song, seek }), { position: 30, duration: 120 });
