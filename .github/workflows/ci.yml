@@ -57,6 +57,14 @@ jobs:
         # tunnel-noisy runtime metrics.
         run: npm run size
 
+      - name: Lighthouse CI (a11y / best-practices / TBT / CLS)
+        # Audits the built static shell (dist/, its own server — no Jellyfin
+        # needed). GATES accessibility + best-practices (≥0.9) + TBT + CLS; LCP/
+        # TTI/perf-score are WARN only (dominated by Ionic bundle parse + the
+        # runtime Jellyfin tunnel, so noisy to gate). Report uploads to LHCI's
+        # temporary public storage (link in the log).
+        run: npm run lhci
+
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v5
