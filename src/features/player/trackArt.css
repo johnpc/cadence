@@ -17,6 +17,19 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  /* Fade art in as it loads so covers don't pop against the hatch backing. */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.track-art__img--loaded {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track-art__img {
+    transition: none;
+  }
 }
 
 .track-art__placeholder {

@@ -18,6 +18,7 @@ export function TrackArt({
   round?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const src = item ? imageUrl(item, size * 2) : null;
   return (
     <div
@@ -26,10 +27,17 @@ export function TrackArt({
     >
       {src && !failed ? (
         <img
-          className="track-art__img"
+          // A cached image can already be `complete` before onLoad binds —
+          // flip immediately in that case so it doesn't stay stuck faded out.
+          ref={(el) => {
+            if (el?.complete) setLoaded(true);
+          }}
+          className={loaded ? 'track-art__img track-art__img--loaded' : 'track-art__img'}
           src={src}
           alt=""
           loading="lazy"
+          decoding="async"
+          onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
         />
       ) : (
