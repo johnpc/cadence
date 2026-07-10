@@ -127,6 +127,7 @@ jobs:
       # fails — so we absorb it here, in a retrying curl, before Playwright runs.
       - name: Warm up Jellyfin auth
         env:
+          VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: bash scripts/warmup-jellyfin.sh
@@ -140,6 +141,9 @@ jobs:
       - name: Run acceptance tests (${{ matrix.area.name }})
         uses: nick-fields/retry@v4
         env:
+          # The server URL is NOT in committed source — Vite reads it from this
+          # secret at dev-server start (webServer in playwright.config.ts).
+          VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         with:
