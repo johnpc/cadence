@@ -7,6 +7,7 @@ import { Library } from './features/library/Library';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import { DesktopSidebar } from './features/library/DesktopSidebar';
 import { OfflineBanner } from './features/shell/OfflineBanner';
+import { KeyboardShortcutsHelp } from './features/shell/KeyboardShortcutsHelp';
 import { useShellChrome } from './features/shell/useShellChrome';
 import * as L from './lazyPages';
 import './appTabs.css';
@@ -20,10 +21,12 @@ import './appTabs.css';
  * MUST be a direct child of IonTabs (Ionic inspects its direct children).
  */
 export function AppTabs() {
-  useShellChrome(); // body sidebar class + "/" search hotkey
+  // body sidebar class + "/" search hotkey + "?" shortcuts-help overlay state
+  const { helpOpen, setHelpOpen } = useShellChrome();
   return (
     <>
       <OfflineBanner />
+      <KeyboardShortcutsHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
       <DesktopSidebar />
       <IonTabs>
         <div className="apptabs__npbar" slot="bottom">

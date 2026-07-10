@@ -37,6 +37,11 @@ Feature: App shell
     When I press the search hotkey
     Then the search box is focused
 
+  Scenario: Pressing "?" opens the keyboard-shortcuts help
+    Given I am signed in
+    When I press the shortcuts-help hotkey
+    Then I see the keyboard shortcuts overlay
+
   Scenario: Losing connectivity shows an offline banner
     Given I am signed in
     When the device goes offline

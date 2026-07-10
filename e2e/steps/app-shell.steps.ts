@@ -151,6 +151,24 @@ Then('the search box is focused', async ({ page }) => {
   await expect(page.getByTestId('search-input').locator('input')).toBeFocused({ timeout: 15_000 });
 });
 
+When('I press the shortcuts-help hotkey', async ({ page }) => {
+  // Wait for the shell (which mounts the "?" listener) to be ready, then focus
+  // neutral chrome so "?" isn't typed into a field, and press it.
+  await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: 15_000 });
+  await page.locator('body').click({ position: { x: 5, y: 5 } });
+  await expect(async () => {
+    await page.keyboard.press('?');
+    await expect(page.getByTestId('shortcuts-help')).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 15_000 });
+});
+
+Then('I see the keyboard shortcuts overlay', async ({ page }) => {
+  await expect(page.getByTestId('shortcuts-help')).toBeVisible({ timeout: 15_000 });
+  // The overlay lists real shortcut rows (Space = play/pause among them).
+  await expect(page.getByTestId('shortcut-row').first()).toBeVisible();
+  await expect(page.getByText('Play / pause')).toBeVisible();
+});
+
 When('the device goes offline', async ({ page }) => {
   // Ensure the shell (which mounts the offline banner) is up before toggling,
   // so the state change lands on a mounted listener rather than mid-transition.

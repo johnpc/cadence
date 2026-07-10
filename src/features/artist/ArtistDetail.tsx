@@ -52,6 +52,7 @@ export function ArtistDetail() {
           onRetry={() => void refetch()}
           isEmpty={albums.length === 0}
           emptyTitle="No albums"
+          emptyMessage="This artist has no albums on your server."
           skeleton={<CardGridSkeleton />}
         >
           <div className="artist__albums" data-testid="artist-albums">

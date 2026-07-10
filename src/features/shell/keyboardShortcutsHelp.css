@@ -1,0 +1,72 @@
+/* A compact centered dialog (not a full-screen sheet) — it's a reference card. */
+.kbd-help {
+  --width: min(440px, 92vw);
+  --height: auto;
+  --border-radius: var(--cad-radius-card);
+  --background: var(--cad-surface);
+}
+
+.kbd-help__panel {
+  padding: var(--cad-space-4);
+  padding-top: max(var(--cad-safe-top), var(--cad-space-4));
+}
+
+.kbd-help__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cad-space-3);
+  margin-bottom: var(--cad-space-4);
+}
+
+.kbd-help__head h2 {
+  margin: 0;
+}
+
+.kbd-help__close {
+  border: none;
+  background: none;
+  color: var(--cad-text);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.kbd-help__list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-1);
+}
+
+.kbd-help__row {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-2) 0;
+}
+
+.kbd-help__keys {
+  margin: 0;
+  display: flex;
+  gap: var(--cad-space-1);
+  flex: 0 0 96px;
+}
+
+.kbd-help__key {
+  min-width: 28px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--cad-surface-2);
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.kbd-help__label {
+  margin: 0;
+  color: var(--cad-text-secondary);
+  font-family: var(--cad-font-sans);
+}
