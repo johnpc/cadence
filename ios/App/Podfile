@@ -18,6 +18,7 @@ def capacitor_pods
   pod 'CapacitorKeyboard', :path => '../../node_modules/@capacitor/keyboard'
   pod 'CapacitorPreferences', :path => '../../node_modules/@capacitor/preferences'
   pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
+  pod 'Hauxir2CapacitorChromecast', :path => '../../node_modules/@hauxir2/capacitor-chromecast'
 end
 
 target 'App' do

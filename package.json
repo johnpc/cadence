@@ -20,6 +20,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "quality": "npm run lint && npm run format:check && npm run check:lines && npm run check:features && npm run test:coverage && npm run crap && npm run build",
+    "postinstall": "node scripts/fix-chromecast-podspec.mjs",
     "prepare": "husky",
     "size": "size-limit",
     "lhci": "lhci autorun"
@@ -44,6 +45,7 @@
     "@capacitor/status-bar": "^8.0.2",
     "@fontsource/libre-franklin": "^5.2.8",
     "@fontsource/newsreader": "^5.2.10",
+    "@hauxir2/capacitor-chromecast": "github:hauxir/capacitor-chromecast",
     "@ionic/react": "^8.8.13",
     "@ionic/react-router": "^8.8.13",
     "@tanstack/react-query": "^5.101.2",

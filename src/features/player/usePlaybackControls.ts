@@ -1,21 +1,33 @@
 import { useCallback, type RefObject } from 'react';
 import { tap } from '../../lib/haptics';
+import { getCastState } from '../cast/castStore';
+import { castToggle, castSeek } from '../cast/castController';
 
 /**
  * Transport actions bound to the audio element: toggle (play/pause), seek, and
- * an explicit pause. Extracted from PlayerProvider to keep it thin.
+ * an explicit pause. Extracted from PlayerProvider to keep it thin. When casting
+ * to a TV, toggle/seek proxy to the receiver instead of the local element.
  */
 export function usePlaybackControls(ref: RefObject<HTMLAudioElement | null>, hasQueue: boolean) {
   const toggle = useCallback(() => {
-    const audio = ref.current;
-    if (!audio || !hasQueue) return;
+    if (!hasQueue) return;
     tap();
+    if (getCastState().connected) {
+      void castToggle().catch(() => undefined);
+      return;
+    }
+    const audio = ref.current;
+    if (!audio) return;
     if (audio.paused) void audio.play().catch(() => undefined);
     else audio.pause();
   }, [ref, hasQueue]);
 
   const seek = useCallback(
     (seconds: number) => {
+      if (getCastState().connected) {
+        void castSeek(seconds).catch(() => undefined);
+        return;
+      }
       if (ref.current) ref.current.currentTime = seconds;
     },
     [ref],
