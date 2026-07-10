@@ -4,6 +4,7 @@ import { TrackRow } from '../player/TrackRow';
 import { filterTracks } from './filterTracks';
 import { useProgressiveList } from '../../lib/useProgressiveList';
 import { useRemoveFromPlaylist, useMovePlaylistItem } from './playlistsApi';
+import { useToast } from '../toast/useToast';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** A playlist's tracklist with a "Find in playlist" filter. Reorder controls
@@ -24,10 +25,14 @@ export function PlaylistTracks({
 }) {
   const ctx = { kind: 'playlist', label: playlistName ?? 'Playlist' };
   const [query, setQuery] = useState('');
+  const toast = useToast();
   const remove = useRemoveFromPlaylist(playlistId);
   const move = useMovePlaylistItem(playlistId);
+  const onErr = (msg: string) => ({ onError: () => toast(msg) });
+  const removeEntry = (entryId: string) =>
+    remove.mutate(entryId, onErr("Couldn't remove that song"));
   const moveEntry = (entryId: string | undefined, index: number) => {
-    if (entryId) move.mutate({ entryId, index });
+    if (entryId) move.mutate({ entryId, index }, onErr("Couldn't reorder the playlist"));
   };
   const shown = filterTracks(tracks, query);
   const filtering = query.trim().length > 0;
@@ -58,7 +63,7 @@ export function PlaylistTracks({
             context={ctx}
             onRemove={
               editable && track.PlaylistItemId
-                ? () => remove.mutate(track.PlaylistItemId as string)
+                ? () => removeEntry(track.PlaylistItemId as string)
                 : undefined
             }
             reorder={

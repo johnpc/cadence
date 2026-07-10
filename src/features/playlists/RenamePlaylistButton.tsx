@@ -36,7 +36,11 @@ export function RenamePlaylistButton({
             text: 'Save',
             handler: (data: { name?: string }) => {
               const name = nextPlaylistName(data.name, currentName);
-              if (name) rename.mutate(name, { onSuccess: () => toast(`Renamed to "${name}"`) });
+              if (name)
+                rename.mutate(name, {
+                  onSuccess: () => toast(`Renamed to "${name}"`),
+                  onError: () => toast("Couldn't rename the playlist"),
+                });
             },
           },
         ]}

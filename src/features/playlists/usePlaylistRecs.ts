@@ -23,8 +23,16 @@ export function usePlaylistRecs(playlistId: string, existing: JellyfinItem[]) {
 
   const addRec = (track: JellyfinItem) => {
     setHidden((h) => [...h, track.Id]);
-    add.mutate({ playlistId, itemId: track.Id });
-    toast('Added to playlist');
+    add.mutate(
+      { playlistId, itemId: track.Id },
+      {
+        onSuccess: () => toast('Added to playlist'),
+        onError: () => {
+          setHidden((h) => h.filter((id) => id !== track.Id)); // restore — add failed
+          toast("Couldn't add to playlist");
+        },
+      },
+    );
   };
 
   const dismissRecommendation = (track: JellyfinItem) => {
