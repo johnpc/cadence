@@ -1,12 +1,13 @@
 import { IonIcon } from '@ionic/react';
 import { shareOutline } from 'ionicons/icons';
 import { useToast } from '../toast/useToast';
-import { copyShareLink } from './shareLink';
+import { shareItem } from './shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './shareButton.css';
 
-/** A share icon that copies the item's app link to the clipboard, with a toast.
- * Renders nothing until the item has loaded. */
+/** A share button: opens the OS share sheet where available (mobile), otherwise
+ * copies the item's app link — with a matching toast. Renders nothing until the
+ * item has loaded. */
 export function ShareButton({ item, size = 24 }: { item: JellyfinItem | null; size?: number }) {
   const toast = useToast();
   if (!item) return null;
@@ -16,12 +17,14 @@ export function ShareButton({ item, size = 24 }: { item: JellyfinItem | null; si
       className="share-btn"
       style={{ fontSize: size }}
       data-testid="share-button"
-      aria-label="Copy link"
+      aria-label="Share"
       onClick={(e) => {
         e.stopPropagation();
-        void copyShareLink(item, window.location.origin).then((ok) =>
-          toast(ok ? 'Link copied' : 'Could not copy link'),
-        );
+        void shareItem(item, window.location.origin).then((r) => {
+          // 'failed' is usually a dismissed share sheet — stay silent there.
+          if (r === 'shared') toast('Shared');
+          else if (r === 'copied') toast('Link copied');
+        });
       }}
     >
       <IonIcon icon={shareOutline} />
