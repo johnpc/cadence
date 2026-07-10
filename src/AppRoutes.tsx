@@ -2,6 +2,7 @@ import { useAuth } from './features/auth/useAuth';
 import { SignIn } from './features/auth/SignIn';
 import { AppTabs } from './AppTabs';
 import { AppLoading } from './AppLoading';
+import { RouteAnnouncer } from './features/shell/RouteAnnouncer';
 
 /**
  * The root session gate. While the Jellyfin session resolves we show the branded
@@ -12,7 +13,18 @@ import { AppLoading } from './AppLoading';
 export function AppRoutes() {
   const { status } = useAuth();
 
-  if (status === 'loading') return <AppLoading />;
-  if (status === 'unauthenticated') return <SignIn />;
-  return <AppTabs />;
+  return (
+    <>
+      {/* Speaks the page name on every route change (screen-reader a11y). Lives
+          above the auth branch so it announces sign-in ↔ app transitions too. */}
+      <RouteAnnouncer />
+      {status === 'loading' ? (
+        <AppLoading />
+      ) : status === 'unauthenticated' ? (
+        <SignIn />
+      ) : (
+        <AppTabs />
+      )}
+    </>
+  );
 }
