@@ -136,3 +136,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.queueview__drag {
+  color: var(--cad-text-tertiary);
+  font-size: 20px;
+  padding: 0 var(--cad-space-1);
+  flex: 0 0 auto;
+  cursor: grab;
+}

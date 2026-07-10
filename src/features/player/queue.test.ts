@@ -10,6 +10,7 @@ import {
   prev,
   removeAt,
   shuffleRest,
+  unshuffle,
   startQueue,
   startShuffled,
 } from './queue';
@@ -99,5 +100,27 @@ describe('queue', () => {
     const q = startShuffled(tracks, () => 0);
     expect(q.index).toBe(0);
     expect(q.tracks.map((t) => t.Id).sort()).toEqual(['a', 'b', 'c']);
+  });
+
+  it('shuffleRest snapshots the pre-shuffle order for later restore', () => {
+    const q = startQueue(tracks, 0);
+    const shuffled = shuffleRest(q, () => 0);
+    expect(shuffled.unshuffled?.map((t) => t.Id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('unshuffle restores the original order, keeping the current track selected', () => {
+    // Shuffle from current 'c', then unshuffle — order returns to a,b,c and the
+    // index points back at 'c'.
+    const q = startQueue(tracks, 2); // current = 'c'
+    const shuffled = shuffleRest(q, () => 0);
+    const restored = unshuffle(shuffled);
+    expect(restored.tracks.map((t) => t.Id)).toEqual(['a', 'b', 'c']);
+    expect(restored.tracks[restored.index].Id).toBe('c');
+    expect(restored.unshuffled).toBeUndefined();
+  });
+
+  it('unshuffle is a no-op without a snapshot', () => {
+    const q = startQueue(tracks, 0);
+    expect(unshuffle(q)).toBe(q);
   });
 });

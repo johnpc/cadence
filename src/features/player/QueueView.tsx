@@ -1,4 +1,4 @@
-import { IonModal, IonIcon } from '@ionic/react';
+import { IonModal, IonIcon, IonReorderGroup, type ItemReorderEventDetail } from '@ionic/react';
 import { chevronDown } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { usePlayContext } from './usePlayContext';
@@ -7,7 +7,8 @@ import { SaveQueueButton } from './SaveQueueButton';
 import './queueView.css';
 
 /** The "Up Next" queue — the full play order, current track marked, tap to jump,
- * reorder with up/down, and remove any track from the queue. */
+ * drag to reorder (Spotify-style; up/down buttons remain for accessibility), and
+ * remove any track from the queue. */
 export function QueueView({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { queue, queueIndex, current, jumpTo, removeFromQueue, moveInQueue, clearQueue } =
     usePlayer();
@@ -16,6 +17,12 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
   const jump = (index: number) => {
     jumpTo(index);
     onClose();
+  };
+  // Ionic drag reorder: complete(false) tells Ionic NOT to touch the DOM — React
+  // owns the list, so we apply the move to our own state (moveInQueue) instead.
+  const onReorder = (e: CustomEvent<ItemReorderEventDetail>) => {
+    e.detail.complete(false);
+    moveInQueue(e.detail.from, e.detail.to);
   };
   return (
     <IonModal isOpen={open} onDidDismiss={onClose}>
@@ -45,26 +52,28 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
           )}
         </div>
         <div className="queueview__list">
-          {queue.map((track, index) => (
-            <div key={`${track.Id}-${index}`}>
-              {index === queueIndex && (
-                <h3 className="cad-kicker queueview__section">Now playing</h3>
-              )}
-              {index === queueIndex + 1 && (
-                <h3 className="cad-kicker queueview__section">Next up</h3>
-              )}
-              <QueueRow
-                track={track}
-                index={index}
-                isCurrent={index === queueIndex}
-                isFirst={index === 0}
-                isLast={index === queue.length - 1}
-                onJump={jump}
-                onMove={moveInQueue}
-                onRemove={removeFromQueue}
-              />
-            </div>
-          ))}
+          <IonReorderGroup disabled={false} onIonItemReorder={onReorder}>
+            {queue.map((track, index) => (
+              <div key={`${track.Id}-${index}`}>
+                {index === queueIndex && (
+                  <h3 className="cad-kicker queueview__section">Now playing</h3>
+                )}
+                {index === queueIndex + 1 && (
+                  <h3 className="cad-kicker queueview__section">Next up</h3>
+                )}
+                <QueueRow
+                  track={track}
+                  index={index}
+                  isCurrent={index === queueIndex}
+                  isFirst={index === 0}
+                  isLast={index === queue.length - 1}
+                  onJump={jump}
+                  onMove={moveInQueue}
+                  onRemove={removeFromQueue}
+                />
+              </div>
+            ))}
+          </IonReorderGroup>
         </div>
       </div>
     </IonModal>

@@ -43,6 +43,17 @@ Feature: Playback
     And I press the "s" key
     Then shuffle is on
 
+  Scenario: The repeat button cycles off then all then one
+    Given I am signed in
+    When I tap a track from search
+    And I open the full player
+    And I tap the repeat button
+    Then repeat is set to "all"
+    When I tap the repeat button
+    Then repeat is set to "one"
+    When I tap the repeat button
+    Then repeat is set to "off"
+
   Scenario: Viewing lyrics for the playing track
     Given I am signed in
     When I tap a track from search
