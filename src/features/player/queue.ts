@@ -50,6 +50,12 @@ export function prev(q: QueueState, wrap = false): QueueState {
   return wrap && q.tracks.length ? { ...q, index: q.tracks.length - 1 } : q;
 }
 
+/** The track id that `next` would land on, or null when there's nowhere to
+ * advance. Used to prefetch the upcoming track for gapless-ish transitions. */
+export function peekNextId(q: QueueState, wrap = false): string | null {
+  return next(q, wrap).index === q.index ? null : (currentTrack(next(q, wrap))?.Id ?? null);
+}
+
 /** Append tracks to the end of the queue (used for radio / instant-mix). */
 export function append(q: QueueState, tracks: JellyfinItem[]): QueueState {
   return { ...q, tracks: [...q.tracks, ...tracks] };
