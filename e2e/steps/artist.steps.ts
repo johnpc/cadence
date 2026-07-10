@@ -9,7 +9,12 @@ When('I open the first artist result', async ({ page }) => {
   // Re-fire the (already-typed) search if the artist section is slow to fill,
   // so a transient Jellyfin hiccup doesn't fail the run.
   await searchUntilResults(page, 'love', 'search-artists', 'result-row');
-  await page.getByTestId('search-artists').getByTestId('result-row').first().click({ force: true });
+  // No force: a forced click can miss the row after a re-render (search debounce)
+  // and land on empty space — then the artist page never opens. Real click waits
+  // for the row to be hittable.
+  const row = page.getByTestId('search-artists').getByTestId('result-row').first();
+  await expect(row).toBeVisible({ timeout: DATA_WAIT });
+  await row.click();
 });
 
 Then("I see the artist's albums", async ({ page }) => {
@@ -37,7 +42,8 @@ When('I follow the artist', async ({ page }) => {
   await expect(btn).toBeAttached({ timeout: DATA_WAIT });
   // Idempotent: only follow if not already followed (re-runs shouldn't unfollow).
   if ((await btn.getAttribute('aria-pressed')) !== 'true') {
-    await btn.click({ force: true });
+    await expect(btn).toBeVisible({ timeout: DATA_WAIT });
+    await btn.click();
     await expect(btn).toHaveAttribute('aria-pressed', 'true', { timeout: DATA_WAIT });
   }
 });
