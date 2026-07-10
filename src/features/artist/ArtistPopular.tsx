@@ -11,17 +11,17 @@ export function ArtistPopular({
   artistName?: string;
 }) {
   if (tracks.length === 0) return null;
+  const artistId = tracks[0]?.ArtistItems?.[0]?.Id;
+  const ctx = {
+    kind: 'artist',
+    label: artistName ?? 'Artist',
+    path: artistId ? `/artist/${artistId}` : undefined,
+  };
   return (
     <section data-testid="artist-top">
       <h2 className="cad-kicker artist__section">Popular</h2>
       {tracks.map((track, index) => (
-        <TrackRow
-          key={track.Id}
-          track={track}
-          queue={tracks}
-          index={index}
-          context={{ kind: 'artist', label: artistName ?? 'Artist' }}
-        />
+        <TrackRow key={track.Id} track={track} queue={tracks} index={index} context={ctx} />
       ))}
     </section>
   );

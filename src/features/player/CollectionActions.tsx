@@ -21,7 +21,7 @@ export function CollectionActions({
 }: {
   tracks: JellyfinItem[];
   collectionId?: string;
-  context?: { kind: string; label: string };
+  context?: { kind: string; label: string; path?: string };
 }) {
   const { playQueue, playShuffled, addToQueue, queue, isPlaying, toggle } = usePlayer();
   const toast = useToast();

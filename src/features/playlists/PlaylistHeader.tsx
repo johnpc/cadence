@@ -36,7 +36,15 @@ export function PlaylistHeader({
         <CollectionActions
           tracks={tracks}
           collectionId={playlist?.Id}
-          context={playlist ? { kind: 'playlist', label: playlist.Name ?? 'Playlist' } : undefined}
+          context={
+            playlist
+              ? {
+                  kind: 'playlist',
+                  label: playlist.Name ?? 'Playlist',
+                  path: `/playlist/${playlist.Id}`,
+                }
+              : undefined
+          }
         />
         <ShareButton item={playlist} />
       </div>

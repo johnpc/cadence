@@ -46,7 +46,7 @@ export function LikedSongs() {
           </div>
           <CollectionActions
             tracks={shown}
-            context={{ kind: 'your library', label: 'Liked Songs' }}
+            context={{ kind: 'your library', label: 'Liked Songs', path: '/liked' }}
           />
         </div>
         {songs.length > 8 && (
@@ -58,7 +58,7 @@ export function LikedSongs() {
             track={track}
             queue={shown}
             index={index}
-            context={{ kind: 'your library', label: 'Liked Songs' }}
+            context={{ kind: 'your library', label: 'Liked Songs', path: '/liked' }}
           />
         ))}
         {hasMore && <div ref={sentinelRef} data-testid="liked-load-more" aria-hidden="true" />}

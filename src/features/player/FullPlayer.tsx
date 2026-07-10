@@ -31,7 +31,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         <button className="fullplayer__close" onClick={onClose} aria-label="Close player">
           <IonIcon icon={chevronDown} />
         </button>
-        <PlayingFrom trackId={p.current?.Id} />
+        <PlayingFrom trackId={p.current?.Id} onNavigate={onClose} />
         <TrackArt item={p.current} size={280} />
         <FullPlayerTitle track={p.current} onNavigate={onClose} />
         <div className="fullplayer__scrubber">

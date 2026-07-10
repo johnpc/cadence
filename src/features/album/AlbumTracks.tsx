@@ -7,7 +7,12 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * row plays the whole album as its queue — the disc grouping is display-only,
  * so `index` stays the track's position in the flat album, not within its disc. */
 export function AlbumTracks({ tracks, albumName }: { tracks: JellyfinItem[]; albumName?: string }) {
-  const ctx = { kind: 'album', label: albumName ?? 'Album' };
+  const albumId = tracks[0]?.AlbumId;
+  const ctx = {
+    kind: 'album',
+    label: albumName ?? 'Album',
+    path: albumId ? `/album/${albumId}` : undefined,
+  };
   const discs = groupByDisc(tracks);
   if (!isMultiDisc(discs)) {
     return (
