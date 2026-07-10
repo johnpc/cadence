@@ -49,6 +49,10 @@ export interface JellyfinItem {
   Overview?: string;
   /** True when the current user has favorited it. */
   UserData?: { IsFavorite?: boolean };
+  /** True when the current user may delete the item — for playlists this holds
+   * only for the OWNER, so it's our signal for "this is my playlist" (Jellyfin
+   * doesn't expose OwnerUserId on the /Items response). */
+  CanDelete?: boolean;
   /** Present on items carrying their own primary image. */
   ImageTags?: { Primary?: string };
   /** The per-entry id of this track WITHIN a playlist (for removal). */

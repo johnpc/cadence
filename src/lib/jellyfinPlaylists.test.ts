@@ -28,12 +28,20 @@ describe('jellyfinPlaylists', () => {
     vi.restoreAllMocks();
   });
 
-  it('getPlaylists lists playlist items', async () => {
+  it('getPlaylists returns only the user’s OWN playlists (CanDelete) and requests the field', async () => {
     setSession({ token: 't', userId: 'uid' });
-    const f = stub({ Items: [{ Id: 'p', Name: 'PL', Type: 'Playlist' }], TotalRecordCount: 1 });
+    const f = stub({
+      Items: [
+        { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
+        { Id: 'theirs', Name: 'Someone Else', Type: 'Playlist', CanDelete: false },
+        { Id: 'server', Name: 'Server PL', Type: 'Playlist' }, // no CanDelete → not mine
+      ],
+      TotalRecordCount: 3,
+    });
     const items = await getPlaylists();
-    expect(items).toHaveLength(1);
+    expect(items.map((p) => p.Id)).toEqual(['mine']);
     expect(f.mock.calls[0][0]).toContain('IncludeItemTypes=Playlist');
+    expect(f.mock.calls[0][0]).toContain('Fields=CanDelete');
   });
 
   it('getPlaylistItems reads a playlist’s tracks', async () => {
