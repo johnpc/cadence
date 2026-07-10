@@ -49,7 +49,14 @@ Then('the playlist opened within a reasonable time', async ({ page }) => {
 });
 
 When('I play the playlist', async ({ page }) => {
-  await page.getByTestId('playlist-detail').getByTestId('play-all').click({ force: true });
+  // NO force: a forced click bypasses actionability and can land on empty space
+  // (esp. after a layout shift like the visibility toggle mounting) — the click
+  // silently misses, playQueue never runs, and the now-playing bar never
+  // appears (a 45s-timeout flake downstream). A real click waits for the button
+  // to be stable + hittable.
+  const playAll = page.getByTestId('playlist-detail').getByTestId('play-all');
+  await expect(playAll).toBeVisible({ timeout: DATA_WAIT });
+  await playAll.click();
 });
 
 Then('the playlist play button becomes a pause button', async ({ page }) => {
@@ -63,7 +70,9 @@ Then('the playlist play button becomes a pause button', async ({ page }) => {
 });
 
 When('I press the playlist play button', async ({ page }) => {
-  await page.getByTestId('playlist-detail').getByTestId('play-all').click({ force: true });
+  const playAll = page.getByTestId('playlist-detail').getByTestId('play-all');
+  await expect(playAll).toBeVisible({ timeout: DATA_WAIT });
+  await playAll.click();
 });
 
 Then('I see recommended songs to add', async ({ page }) => {
