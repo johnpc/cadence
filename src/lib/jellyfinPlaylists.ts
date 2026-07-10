@@ -7,18 +7,24 @@ import { getSession } from './sessionStore';
 import { dedupeByName } from './dedupeByName';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
-/** The user's playlists, deduped by name (the library can hold several distinct
- * playlists with identical names, which read as duplicates). */
+/** The signed-in user's OWN playlists, deduped by name. Jellyfin's /Items
+ * returns EVERY playlist on the server (all users' + shared), with no
+ * OwnerUserId to filter by — so a naive read injected strangers' playlists into
+ * everyone's library. `CanDelete` is true only for playlists the current user
+ * owns (verified live: creating one flips it true; all others are false), so we
+ * filter on it. Others' *public* playlists are surfaced elsewhere (Home), never
+ * mixed into "Your Library". */
 export async function getPlaylists(): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'Playlist',
     Recursive: 'true',
     SortBy: 'SortName',
+    Fields: 'CanDelete',
     userId,
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
-  return dedupeByName(res.Items);
+  return dedupeByName(res.Items.filter((p) => p.CanDelete === true));
 }
 
 /** The tracks in a playlist, in playlist order. The limit is high enough to
