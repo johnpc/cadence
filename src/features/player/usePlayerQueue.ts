@@ -2,12 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import * as q from './queue';
 import { moveAt, clearUpcoming } from './queueMove';
 import { loadQueue, saveQueue } from './queuePersistence';
-import { loadModes, saveModes } from './playerModes';
+import { loadModes, saveModes, nextRepeat } from './playerModes';
 import { random } from '../../lib/random';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import type { RepeatMode } from './types';
-
-const NEXT_REPEAT: Record<RepeatMode, RepeatMode> = { off: 'all', all: 'one', one: 'off' };
 
 /**
  * Owns the play queue, shuffle, and repeat — all the pure-state orchestration —
@@ -43,8 +41,9 @@ export function usePlayerQueue() {
     setQueue(q.startShuffled(tracks, random));
     setShuffle(true);
   }, []);
-  const next = useCallback(() => setQueue((c) => q.next(c)), []);
-  const prev = useCallback(() => setQueue((c) => q.prev(c)), []);
+  // Manual next/prev wrap around the ends when repeat-all is on (Spotify-style).
+  const next = useCallback(() => setQueue((c) => q.next(c, repeatRef.current === 'all')), []);
+  const prev = useCallback(() => setQueue((c) => q.prev(c, repeatRef.current === 'all')), []);
   const removeFromQueue = useCallback((at: number) => setQueue((c) => q.removeAt(c, at)), []);
   const moveInQueue = useCallback(
     (from: number, to: number) => setQueue((c) => moveAt(c, from, to)),
@@ -52,7 +51,7 @@ export function usePlayerQueue() {
   );
   const jumpTo = useCallback((index: number) => setQueue((c) => ({ ...c, index })), []);
   const clearQueue = useCallback(() => setQueue((c) => clearUpcoming(c)), []);
-  const cycleRepeat = useCallback(() => setRepeat((r) => NEXT_REPEAT[r]), []);
+  const cycleRepeat = useCallback(() => setRepeat(nextRepeat), []);
   const toggleShuffle = useCallback(() => {
     setShuffle((on) => {
       // Turning ON: shuffle the upcoming tracks (keeping current first) and
@@ -63,7 +62,8 @@ export function usePlayerQueue() {
     });
   }, []);
 
-  /** Called when a track ends: 'one' replays, 'all' loops past the end, else next. */
+  /** Called when a track ends: 'one' replays in place; otherwise advance, with
+   * 'all' wrapping past the end (same wrap as manual next). */
   const advance = useCallback(
     (replaySame: () => void) =>
       setQueue((c) => {
@@ -71,8 +71,7 @@ export function usePlayerQueue() {
           replaySame();
           return c;
         }
-        if (q.hasNext(c)) return q.next(c);
-        return repeatRef.current === 'all' ? { ...c, index: 0 } : c;
+        return q.next(c, repeatRef.current === 'all');
       }),
     [],
   );

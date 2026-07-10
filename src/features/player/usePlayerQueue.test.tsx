@@ -62,6 +62,26 @@ describe('usePlayerQueue', () => {
     expect(result.current.queue.index).toBe(2);
   });
 
+  it('manual next wraps last→first only when repeat-all', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.playQueue(tracks, 2)); // last
+    act(() => result.current.next()); // repeat off → stays
+    expect(result.current.queue.index).toBe(2);
+    act(() => result.current.cycleRepeat()); // all
+    act(() => result.current.next()); // now wraps to first
+    expect(result.current.queue.index).toBe(0);
+  });
+
+  it('manual prev wraps first→last only when repeat-all', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.playQueue(tracks, 0)); // first
+    act(() => result.current.prev()); // repeat off → stays
+    expect(result.current.queue.index).toBe(0);
+    act(() => result.current.cycleRepeat()); // all
+    act(() => result.current.prev()); // now wraps to last
+    expect(result.current.queue.index).toBe(2);
+  });
+
   it('jumpTo moves to a given index', () => {
     const { result } = renderHook(() => usePlayerQueue());
     act(() => result.current.playQueue(tracks, 0));

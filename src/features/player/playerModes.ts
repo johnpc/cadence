@@ -10,6 +10,11 @@ export interface PlayerModes {
 const DEFAULT: PlayerModes = { shuffle: false, repeat: 'off' };
 const REPEATS: RepeatMode[] = ['off', 'all', 'one'];
 
+/** The next repeat mode in the off → all → one → off cycle. */
+export function nextRepeat(mode: RepeatMode): RepeatMode {
+  return REPEATS[(REPEATS.indexOf(mode) + 1) % REPEATS.length];
+}
+
 /** Load persisted shuffle + repeat so they survive a reload (like Spotify). */
 export function loadModes(): PlayerModes {
   try {

@@ -1,11 +1,17 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { loadModes, saveModes } from './playerModes';
+import { loadModes, saveModes, nextRepeat } from './playerModes';
 
 describe('playerModes', () => {
   afterEach(() => localStorage.clear());
 
   it('defaults to shuffle off, repeat off', () => {
     expect(loadModes()).toEqual({ shuffle: false, repeat: 'off' });
+  });
+
+  it('nextRepeat cycles off → all → one → off', () => {
+    expect(nextRepeat('off')).toBe('all');
+    expect(nextRepeat('all')).toBe('one');
+    expect(nextRepeat('one')).toBe('off');
   });
 
   it('round-trips shuffle + repeat', () => {
