@@ -132,4 +132,12 @@ describe('SongDetail', () => {
     renderSong();
     await waitFor(() => expect(screen.getByText(/try again/i)).toBeInTheDocument());
   });
+
+  it('shows a "not found" empty state (not a blank page) for a missing song', async () => {
+    // A resolved-but-null song (deleted/invalid id) must not leave a blank page.
+    vi.mocked(getItem).mockResolvedValue(null as unknown as JellyfinItem);
+    renderSong();
+    await waitFor(() => expect(screen.getByText('Song not found')).toBeInTheDocument());
+    expect(screen.queryByTestId('song-detail')).not.toBeInTheDocument();
+  });
 });
