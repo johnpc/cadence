@@ -5,10 +5,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 vi.mock('./authClient', () => ({ signIn: vi.fn(), signOut: vi.fn() }));
 vi.mock('./resolveSession', () => ({ resolveSession: vi.fn() }));
 vi.mock('../../lib/deviceId', () => ({ ensureDeviceId: vi.fn().mockResolvedValue('dev') }));
+vi.mock('../../lib/queryClient', () => ({ queryClient: { clear: vi.fn() } }));
+vi.mock('../player/queuePersistence', () => ({ clearPersistedQueue: vi.fn() }));
 
 import * as authClient from './authClient';
 import { resolveSession } from './resolveSession';
 import { notifySessionExpired } from '../../lib/sessionExpiry';
+import { queryClient } from '../../lib/queryClient';
+import { clearPersistedQueue } from '../player/queuePersistence';
 import { AuthProvider } from './AuthProvider';
 import { useAuth } from './useAuth';
 
@@ -80,5 +84,8 @@ describe('AuthProvider', () => {
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('authenticated'));
     await userEvent.click(screen.getByText('out'));
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated'));
+    // The previous user's cached data + queue must not leak into the next session.
+    expect(queryClient.clear).toHaveBeenCalled();
+    expect(clearPersistedQueue).toHaveBeenCalled();
   });
 });
