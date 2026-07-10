@@ -23,22 +23,44 @@ function stub(body: unknown, status = 200) {
   return f;
 }
 
+const res = (body: unknown, status = 200) =>
+  ({
+    ok: status >= 200 && status < 300,
+    status,
+    text: async () => (body === undefined ? '' : JSON.stringify(body)),
+  }) as Response;
+
+/** Route the /Items playlist list to `items`, and the owner-only
+ * `/Playlists/{id}/Users` check to 200 for `ownedIds` else 403 — so ownership
+ * tests exercise the real confirm-via-share-endpoint path. */
+function stubOwnership(items: unknown[], ownedIds: string[]) {
+  const f = vi.fn((url: string) => {
+    const m = url.match(/\/Playlists\/([^/]+)\/Users/);
+    if (m) return Promise.resolve(res(undefined, ownedIds.includes(m[1]) ? 200 : 403));
+    return Promise.resolve(res({ Items: items, TotalRecordCount: items.length }));
+  });
+  vi.stubGlobal('fetch', f);
+  return f;
+}
+
 describe('jellyfinPlaylists', () => {
   afterEach(() => {
     setSession(null);
     vi.restoreAllMocks();
   });
 
-  it('getPlaylists returns only the user’s OWN playlists (CanDelete) and requests the field', async () => {
+  it('getPlaylists returns only playlists the user OWNS (confirmed via the share endpoint)', async () => {
     setSession({ token: 't', userId: 'uid' });
-    const f = stub({
-      Items: [
+    // 'mine' + 'admincandelete' both have CanDelete true (admin sees that on
+    // everything), but only 'mine' passes the owner-only /Users check.
+    const f = stubOwnership(
+      [
         { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
+        { Id: 'admincandelete', Name: 'Emily’s', Type: 'Playlist', CanDelete: true },
         { Id: 'theirs', Name: 'Someone Else', Type: 'Playlist', CanDelete: false },
-        { Id: 'server', Name: 'Server PL', Type: 'Playlist' }, // no CanDelete → not mine
       ],
-      TotalRecordCount: 3,
-    });
+      ['mine'],
+    );
     const items = await getPlaylists();
     expect(items.map((p) => p.Id)).toEqual(['mine']);
     expect(f.mock.calls[0][0]).toContain('IncludeItemTypes=Playlist');
@@ -47,16 +69,16 @@ describe('jellyfinPlaylists', () => {
 
   it('getPublicPlaylists returns only playlists the user does NOT own', async () => {
     setSession({ token: 't', userId: 'uid' });
-    stub({
-      Items: [
+    stubOwnership(
+      [
         { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
+        { Id: 'emily', Name: 'Emily’s jams', Type: 'Playlist', CanDelete: true }, // admin can delete, not owner
         { Id: 'theirs', Name: 'Community', Type: 'Playlist', CanDelete: false },
-        { Id: 'server', Name: 'Server PL', Type: 'Playlist' },
       ],
-      TotalRecordCount: 3,
-    });
+      ['mine'],
+    );
     const items = await getPublicPlaylists();
-    expect(items.map((p) => p.Id)).toEqual(['theirs', 'server']);
+    expect(items.map((p) => p.Id).sort()).toEqual(['emily', 'theirs']);
   });
 
   it('getPlaylistItems reads a playlist’s tracks', async () => {
