@@ -10,6 +10,12 @@ Feature: Playlists
     When I play the playlist
     Then the Now-Playing bar shows a track
 
+  Scenario: Opening a playlist renders its tracks promptly
+    Given I am signed in
+    When I open the Library tab
+    And I time opening the first playlist
+    Then the playlist opened within a reasonable time
+
   Scenario: Playing a playlist labels the full player "Playing from playlist"
     Given I am signed in
     When I open the Library tab

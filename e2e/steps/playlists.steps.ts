@@ -23,6 +23,31 @@ Then('I see the playlist tracks', async ({ page }) => {
   expect(await rows.count()).toBeGreaterThan(0);
 });
 
+When('I time opening the first playlist', async ({ page }) => {
+  // Measure the interaction John flagged as slow: tap a library playlist →
+  // its first track row rendered. Report-only (logged, not asserted) so it's a
+  // watchable trend, not a flaky gate on the tunnel-latency-bound fetch.
+  const rows = libraryList(page).getByTestId('library-row');
+  await expect(rows.first()).toBeVisible({ timeout: DATA_WAIT });
+  const row = rows.filter({ hasNotText: 'Liked Songs' }).first();
+  await expect(row).toBeVisible({ timeout: DATA_WAIT });
+  const start = Date.now();
+  await row.click({ force: true });
+  await expect(page.getByTestId('playlist-detail').getByTestId('track-row').first()).toBeAttached({
+    timeout: DATA_WAIT,
+  });
+  const ms = Date.now() - start;
+  console.log(`[perf] playlist open → first track rendered: ${ms} ms`);
+});
+
+Then('the playlist opened within a reasonable time', async ({ page }) => {
+  // The timing itself is reported in the When; here we just confirm the tracks
+  // are actually present (the measurement wasn't of an empty/error state).
+  await expect(page.getByTestId('playlist-detail').getByTestId('track-row').first()).toBeAttached({
+    timeout: DATA_WAIT,
+  });
+});
+
 When('I play the playlist', async ({ page }) => {
   await page.getByTestId('playlist-detail').getByTestId('play-all').click({ force: true });
 });
