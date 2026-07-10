@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinItems', () => ({ getItem: vi.fn(), getItemTracks: vi.fn() }));
 vi.mock('../../lib/jellyfinArtists', () => ({ getArtistAlbums: vi.fn() }));
+vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylistItems: vi.fn() }));
 import { usePrefetchItem } from './usePrefetchItem';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -36,6 +37,12 @@ describe('usePrefetchItem', () => {
     const { prefetch, spy } = setup();
     prefetch({ Id: 'ar', Name: 'B', Type: 'MusicArtist' } as JellyfinItem);
     expect(keysOf(spy)).toEqual(['["artist","ar"]', '["artist-albums","ar"]']);
+  });
+
+  it('warms playlist metadata + items for a playlist', () => {
+    const { prefetch, spy } = setup();
+    prefetch({ Id: 'pl', Name: 'P', Type: 'Playlist' } as JellyfinItem);
+    expect(keysOf(spy)).toEqual(['["playlist","pl"]', '["playlist-items","pl"]']);
   });
 
   it('is a no-op for songs and other types', () => {

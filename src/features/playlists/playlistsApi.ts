@@ -33,12 +33,13 @@ export function usePlaylists() {
   };
 }
 
-/** The tracks in one playlist. */
+/** The tracks in one playlist. staleTime matches the hover/press prefetch
+ * (usePrefetchItem, 60s) so a warmed cache paints without an immediate refetch. */
 export function usePlaylistItems(playlistId: string) {
   const q = useQuery({
     queryKey: ['playlist-items', playlistId],
     queryFn: () => getPlaylistItems(playlistId),
-    staleTime: 30_000,
+    staleTime: 60_000,
   });
   return { tracks: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
