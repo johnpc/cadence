@@ -1,4 +1,5 @@
 import { useCallback, type RefObject } from 'react';
+import * as q from './queue';
 import type { usePlayerQueue } from './usePlayerQueue';
 
 type QueueHook = ReturnType<typeof usePlayerQueue>;
@@ -32,8 +33,15 @@ export function usePlaybackHandlers(
     // the next real play attempt will re-load a valid src.
     const audio = audioRef.current;
     if (audio && audio.paused) return;
-    toast("Couldn't play that track — skipping.");
-    qh.next();
+    // If there's somewhere to advance, skip past the bad track; otherwise it's
+    // the last one — say so, rather than a "skipping" toast that goes nowhere
+    // and leaves playback looking frozen on a track that never plays.
+    if (q.hasNext(qh.queue) || (qh.repeat === 'all' && qh.queue.tracks.length > 1)) {
+      toast("Couldn't play that track — skipping.");
+      qh.next();
+    } else {
+      toast("Couldn't play that track.");
+    }
   }, [qh, audioRef, toast]);
 
   return { onEnded, onError };
