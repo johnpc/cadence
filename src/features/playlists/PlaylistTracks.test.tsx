@@ -30,6 +30,14 @@ function typeSearch(value: string) {
   });
 }
 
+/** Fire IonSelect's `ionChange` to change the sort (jsdom can't open its popover). */
+function chooseSort(value: string) {
+  const sel = screen.getByTestId('playlist-sort');
+  act(() => {
+    sel.dispatchEvent(new CustomEvent('ionChange', { detail: { value } }));
+  });
+}
+
 vi.mock('../../lib/jellyfinPlaylists', () => ({
   removeFromPlaylist: vi.fn(),
   movePlaylistItem: vi.fn(),
@@ -95,5 +103,14 @@ describe('PlaylistTracks', () => {
     renderTracks(makeTracks(12));
     typeSearch('zzzznope');
     expect(screen.getByTestId('playlist-no-matches')).toBeInTheDocument();
+  });
+
+  it('offers reorder in custom order but hides it once sorted by title', () => {
+    renderTracks(makeTracks(12));
+    // Custom order (default): reorder controls present.
+    expect(screen.getAllByTestId('track-row-up').length).toBeGreaterThan(0);
+    chooseSort('title');
+    // Sorting a re-sorted view would break index mapping, so reorder is hidden.
+    expect(screen.queryByTestId('track-row-up')).not.toBeInTheDocument();
   });
 });

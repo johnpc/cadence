@@ -131,11 +131,27 @@
   opacity: 0.7;
 }
 
+.playlist__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  margin-bottom: var(--cad-space-2);
+}
+
 .playlist__search {
+  flex: 1;
+  min-width: 0;
   --background: var(--cad-elevated);
   --border-radius: var(--cad-radius);
-  margin-bottom: var(--cad-space-2);
   padding: 0;
+}
+
+.playlist__sort {
+  flex-shrink: 0;
+  max-width: 44%;
+  color: var(--cad-text-secondary);
+  font-family: var(--cad-font-sans);
+  font-size: 13px;
 }
 
 .playlist__clone {
