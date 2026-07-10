@@ -60,6 +60,7 @@ export function TrackRow({
         className="track-row__play"
         data-testid="track-row-play"
         onClick={onRowPlay}
+        aria-label={isCurrent && isPlaying ? `Pause ${track.Name}` : `Play ${track.Name}`}
       >
         {showNumber && track.IndexNumber ? (
           <span className="track-row__num" data-testid="track-number">

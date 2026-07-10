@@ -20,14 +20,25 @@ describe('usePlaybackHandlers', () => {
     expect(qh.advance).toHaveBeenCalled();
   });
 
-  it('onError toasts and skips to the next track', () => {
+  it('onError toasts and skips when the error happens during playback', () => {
     const qh = stubQueue();
     const toast = vi.fn();
-    const { result } = renderHook(() =>
-      usePlaybackHandlers(qh, createRef<HTMLAudioElement>(), toast),
-    );
+    const ref = createRef<HTMLAudioElement>();
+    (ref as { current: HTMLAudioElement }).current = { paused: false } as HTMLAudioElement;
+    const { result } = renderHook(() => usePlaybackHandlers(qh, ref, toast));
     result.current.onError();
     expect(toast).toHaveBeenCalledWith("Couldn't play that track — skipping.");
     expect(qh.next).toHaveBeenCalled();
+  });
+
+  it('onError is IGNORED when paused (spurious cold-launch error, not a real failure)', () => {
+    const qh = stubQueue();
+    const toast = vi.fn();
+    const ref = createRef<HTMLAudioElement>();
+    (ref as { current: HTMLAudioElement }).current = { paused: true } as HTMLAudioElement;
+    const { result } = renderHook(() => usePlaybackHandlers(qh, ref, toast));
+    result.current.onError();
+    expect(toast).not.toHaveBeenCalled();
+    expect(qh.next).not.toHaveBeenCalled();
   });
 });

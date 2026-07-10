@@ -35,6 +35,7 @@ export function AlbumCard({
         className="album-card__hit"
         data-testid="album-card-open"
         onClick={() => onOpen(item)}
+        aria-label={`Open ${item.Name}`}
       >
         <TrackArt item={item} size={140} round={round} />
         <span className="album-card__title">{item.Name}</span>

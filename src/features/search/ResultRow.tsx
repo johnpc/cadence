@@ -19,6 +19,7 @@ export function ResultRow({
       className="result-row"
       data-testid="result-row"
       onClick={() => onSelect(item)}
+      aria-label={item.Name}
     >
       <TrackArt item={item} size={44} round={item.Type === 'MusicArtist'} />
       <span className="result-row__meta">

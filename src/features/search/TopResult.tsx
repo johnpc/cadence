@@ -35,7 +35,13 @@ export function TopResult({
   return (
     <section>
       <h2 className="cad-kicker search__section">Top result</h2>
-      <button type="button" className="top-result" data-testid="top-result" onClick={activate}>
+      <button
+        type="button"
+        className="top-result"
+        data-testid="top-result"
+        onClick={activate}
+        aria-label={item.Name}
+      >
         <TrackArt item={item} size={92} round={isArtist} />
         <span className="top-result__name cad-headline">{item.Name}</span>
         <span className="top-result__kind cad-meta">
