@@ -9,6 +9,14 @@ Feature: Artist detail
     And I open the first artist result
     Then I see the artist's albums
 
+  Scenario: An artist page groups the discography into labelled sections
+    Given I am signed in
+    When I open the Search tab
+    And I search for "love"
+    And I open the first artist result
+    Then I see the artist's albums
+    And the discography shows a labelled section
+
   Scenario: An artist page suggests related artists
     Given I am signed in
     When I open the Search tab

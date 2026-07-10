@@ -27,6 +27,17 @@ Then("I see the artist's albums", async ({ page }) => {
   });
 });
 
+Then('the discography shows a labelled section', async ({ page }) => {
+  // The discography is grouped Spotify-style; whichever group is first renders a
+  // heading ("Albums" / "Singles & EPs" / "Compilations"). If the artist has no
+  // albums at all (credited only per-track), the empty state stands in — either
+  // way, never a hung/unlabelled grid.
+  const heading = page
+    .getByRole('heading', { name: /^(Albums|Singles & EPs|Compilations)$/ })
+    .first();
+  await expect(heading.or(page.getByTestId('load-empty'))).toBeVisible({ timeout: DATA_WAIT });
+});
+
 Then('I see related artists to explore', async ({ page }) => {
   // "Fans also like" is derived from the artist's instant-mix radio. Most
   // artists yield related picks, but a sparse mix can legitimately produce none

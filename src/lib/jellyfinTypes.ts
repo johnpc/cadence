@@ -43,6 +43,9 @@ export interface JellyfinItem {
   ParentIndexNumber?: number;
   /** Release year (albums). */
   ProductionYear?: number;
+  /** Number of child items — e.g. track count for an album; used to classify
+   * albums vs EPs vs singles on the artist page. */
+  ChildCount?: number;
   /** Genre names (albums/artists). */
   Genres?: string[];
   /** A prose description / bio (artists/albums), when the server has one. */

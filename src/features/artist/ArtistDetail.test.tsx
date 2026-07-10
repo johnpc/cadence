@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -65,6 +66,19 @@ describe('ArtistDetail', () => {
     expect(getArtistAlbums).toHaveBeenCalledWith('ar');
   });
 
+  it('splits the discography into Albums and Singles & EPs sections', async () => {
+    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtistAlbums).mockResolvedValue([
+      { Id: 'lp', Name: 'The LP', Type: 'MusicAlbum', ChildCount: 11 },
+      { Id: 'sg', Name: 'The Single', Type: 'MusicAlbum', ChildCount: 2 },
+    ]);
+    renderArtist();
+    expect(await screen.findByText('Albums')).toBeInTheDocument();
+    expect(screen.getByText('Singles & EPs')).toBeInTheDocument();
+    expect(screen.getByTestId('artist-albums')).toHaveTextContent('The LP');
+    expect(screen.getByTestId('artist-albums-singles')).toHaveTextContent('The Single');
+  });
+
   it('shows a Popular section with the artist top tracks', async () => {
     vi.mocked(getItem).mockResolvedValue(artist);
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);
@@ -76,11 +90,16 @@ describe('ArtistDetail', () => {
     expect(screen.getByTestId('artist-top')).toBeInTheDocument();
   });
 
-  it('offers a radio button once the artist loads', async () => {
+  it('offers a radio button that starts the artist radio', async () => {
     vi.mocked(getItem).mockResolvedValue(artist);
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);
+    vi.mocked(getInstantMix).mockResolvedValue([
+      { Id: 'mix1', Name: 'Radio Track', Type: 'Audio' },
+    ]);
     renderArtist();
-    expect(await screen.findByTestId('artist-radio')).toBeInTheDocument();
+    const radio = await screen.findByTestId('artist-radio');
+    await userEvent.click(radio); // exercises onRadio → playItem(artist)
+    await waitFor(() => expect(getInstantMix).toHaveBeenCalled());
   });
 
   it('shows a "Fans also like" section with related artists', async () => {
@@ -99,6 +118,16 @@ describe('ArtistDetail', () => {
     vi.mocked(getArtistAlbums).mockResolvedValue([]);
     renderArtist();
     await waitFor(() => expect(screen.getByTestId('load-empty')).toBeInTheDocument());
+  });
+
+  it('shows an error state and retries the albums fetch', async () => {
+    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtistAlbums)
+      .mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValueOnce(albums);
+    renderArtist();
+    await userEvent.click(await screen.findByRole('button', { name: /try again/i }));
+    expect(await screen.findByText('First Album')).toBeInTheDocument(); // refetch succeeded
   });
 
   it('shows genre chips when the artist has genres', async () => {
