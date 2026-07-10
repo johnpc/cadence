@@ -62,6 +62,18 @@ describe('serverUrlStore', () => {
     expect(getServerUrl()).toBe('https://jf.example.com');
   });
 
+  it('prepends https:// when the user types a bare host (no scheme)', async () => {
+    const { setServerUrl, getServerUrl } = await freshStore();
+    setServerUrl('jellyfin.jpc.io');
+    expect(getServerUrl()).toBe('https://jellyfin.jpc.io');
+  });
+
+  it('preserves an explicit http:// scheme (local/LAN servers)', async () => {
+    const { setServerUrl, getServerUrl } = await freshStore();
+    setServerUrl('http://192.168.1.10:8096');
+    expect(getServerUrl()).toBe('http://192.168.1.10:8096');
+  });
+
   it('reads a previously-stored URL from localStorage on a fresh load', async () => {
     localStorage.setItem('cadence.server-url', 'https://stored.example.com');
     const { getServerUrl } = await freshStore();
