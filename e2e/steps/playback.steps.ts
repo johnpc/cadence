@@ -5,6 +5,24 @@ import { navigate, searchUntilResults } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
+When('I set the playback speed to {string} in settings', async ({ page }, rate: string) => {
+  await page.goto('/settings');
+  const opt = page.getByTestId(`speed-${rate}`);
+  await expect(opt).toBeVisible({ timeout: DATA_WAIT });
+  await opt.click();
+  await expect(opt).toHaveAttribute('aria-pressed', 'true');
+});
+
+Then('the audio plays at {float}x speed', async ({ page }, rate: number) => {
+  // The one long-lived <audio> element reflects the chosen rate (persisted +
+  // re-applied on track change).
+  await expect
+    .poll(() => page.evaluate(() => document.querySelector('audio')?.playbackRate), {
+      timeout: DATA_WAIT,
+    })
+    .toBe(rate);
+});
+
 When('I arm a 30 minute sleep timer in settings', async ({ page }) => {
   // The timer lives on the Settings screen; arm it, then return to Home so the
   // mini-player is on screen to open. Player state is app-level, so it persists.

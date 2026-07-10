@@ -50,4 +50,7 @@ export interface PlayerContextValue {
   /** Playback volume, 0–1. */
   volume: number;
   setVolume: (volume: number) => void;
+  /** Playback speed multiplier (1 = normal). */
+  rate: number;
+  setRate: (rate: number) => void;
 }

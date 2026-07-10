@@ -40,6 +40,8 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
     armSleep: vi.fn(),
     volume: 1,
     setVolume: vi.fn(),
+    rate: 1,
+    setRate: vi.fn(),
     ...overrides,
   };
 }

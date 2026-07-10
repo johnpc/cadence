@@ -8,13 +8,14 @@ import { useSleepAtTrackEnd } from './useSleepAtTrackEnd';
 import { usePlayerIntegrations } from './usePlayerIntegrations';
 import { usePlaybackHandlers } from './usePlaybackHandlers';
 import { useVolume } from './useVolume';
+import { usePlaybackRate } from './usePlaybackRate';
 import { usePlaybackControls } from './usePlaybackControls';
 import { usePlaybackReporting } from './usePlaybackReporting';
 import { useEndlessPlay } from './useEndlessPlay';
 import { useNextTrackPrefetch } from './useNextTrackPrefetch';
 import { useAutoplay } from '../settings/useAutoplay';
 import { useDocumentTitle } from './useDocumentTitle';
-import { buildPlayerValue } from './playerValue';
+import { usePlayerValue } from './usePlayerValue';
 import { useTrackLoader } from './useTrackLoader';
 import { useToast } from '../toast/useToast';
 import * as q from './queue';
@@ -35,6 +36,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const current = q.currentTrack(qh.queue);
   const currentId = current?.Id;
   const { volume, setVolume, nudgeVolume, toggleMute } = useVolume(ref, currentId);
+  const { rate, setRate } = usePlaybackRate(ref, currentId);
 
   // Load the current track and play on change (restored tracks stay paused).
   useTrackLoader(ref, current ?? undefined);
@@ -66,23 +68,18 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const audioControls = { toggle, seek, seekBy, nudgeVolume, toggleMute };
   usePlayerIntegrations(current, isPlaying, qh, audioControls, position, duration);
 
-  // The main value excludes the fast-changing position/duration (those live in
-  // PlayerProgressContext), so it only changes on real state transitions —
-  // memoize it so a play/pause tick doesn't re-render every TrackRow in a list.
-  const value = useMemo(
-    () =>
-      buildPlayerValue(qh, current, {
-        isPlaying,
-        waiting,
-        toggle,
-        seek,
-        sleepMode,
-        armSleep,
-        volume,
-        setVolume,
-      }),
-    [qh, current, isPlaying, waiting, toggle, seek, sleepMode, armSleep, volume, setVolume],
-  );
+  const value = usePlayerValue(qh, current, {
+    isPlaying,
+    waiting,
+    toggle,
+    seek,
+    sleepMode,
+    armSleep,
+    volume,
+    setVolume,
+    rate,
+    setRate,
+  });
 
   // Progress ticks several times a second — its own context so only the
   // scrubbers (NowPlayingBar, FullPlayer) re-render on each tick.
