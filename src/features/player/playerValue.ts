@@ -2,6 +2,7 @@ import * as q from './queue';
 import type { usePlayerQueue } from './usePlayerQueue';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import type { PlayerContextValue } from './types';
+import type { SleepMode } from './useSleepTimer';
 
 type QueueHook = ReturnType<typeof usePlayerQueue>;
 
@@ -15,8 +16,8 @@ export function buildPlayerValue(
     waiting: boolean;
     toggle: () => void;
     seek: (seconds: number) => void;
-    sleepMinutes: number | null;
-    armSleep: (minutes: number | null) => void;
+    sleepMode: SleepMode;
+    armSleep: (mode: SleepMode) => void;
     volume: number;
     setVolume: (volume: number) => void;
   },
@@ -47,7 +48,7 @@ export function buildPlayerValue(
     seek: transport.seek,
     toggleShuffle: qh.toggleShuffle,
     cycleRepeat: qh.cycleRepeat,
-    sleepMinutes: transport.sleepMinutes,
+    sleepMode: transport.sleepMode,
     armSleep: transport.armSleep,
     volume: transport.volume,
     setVolume: transport.setVolume,

@@ -28,6 +28,28 @@ describe('usePlaybackHandlers', () => {
     expect(qh.advance).toHaveBeenCalled();
   });
 
+  it('onEnded honours an armed "end of track" sleep timer: pause + disarm, no advance', () => {
+    const qh = stubQueue();
+    const reached = vi.fn();
+    const sleep = { active: { current: true }, onReached: { current: reached } };
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, createRef<HTMLAudioElement>(), vi.fn(), sleep),
+    );
+    result.current.onEnded();
+    expect(reached).toHaveBeenCalledOnce();
+    expect(qh.advance).not.toHaveBeenCalled();
+  });
+
+  it('onEnded advances normally when the sleep timer is NOT armed', () => {
+    const qh = stubQueue();
+    const sleep = { active: { current: false }, onReached: { current: vi.fn() } };
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, createRef<HTMLAudioElement>(), vi.fn(), sleep),
+    );
+    result.current.onEnded();
+    expect(qh.advance).toHaveBeenCalled();
+  });
+
   it('onError toasts and skips when the error happens during playback', () => {
     const qh = stubQueue();
     const toast = vi.fn();

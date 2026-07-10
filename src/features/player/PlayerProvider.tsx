@@ -4,6 +4,7 @@ import { PlayerProgressContext } from './PlayerProgressContext';
 import { useAudioElement } from './useAudioElement';
 import { usePlayerQueue } from './usePlayerQueue';
 import { useSleepTimer } from './useSleepTimer';
+import { useSleepAtTrackEnd } from './useSleepAtTrackEnd';
 import { usePlayerIntegrations } from './usePlayerIntegrations';
 import { usePlaybackHandlers } from './usePlaybackHandlers';
 import { useVolume } from './useVolume';
@@ -23,8 +24,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const qh = usePlayerQueue();
   const toast = useToast();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // "Stop after this track" sleep timer: the ended-handler reads these refs and
+  // pauses+disarms on a natural track end (see useSleepAtTrackEnd).
+  const sleepEnd = useSleepAtTrackEnd();
 
-  const { onEnded, onError } = usePlaybackHandlers(qh, audioRef, toast);
+  const { onEnded, onError } = usePlaybackHandlers(qh, audioRef, toast, sleepEnd);
   const { ref, isPlaying, waiting, position, duration } = useAudioElement(onEnded, onError);
   audioRef.current = ref.current;
 
@@ -52,8 +56,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // Reflect the playing track in the browser tab title.
   useDocumentTitle(current);
 
-  // Sleep timer: pause when it elapses.
-  const { sleepMinutes, armSleep } = useSleepTimer(pause);
+  // Sleep timer: pause when it elapses (timed) or when the track ends ('track').
+  const { sleepMode, armSleep } = useSleepTimer(pause, sleepEnd.active);
+  sleepEnd.setOnReached(() => {
+    pause();
+    armSleep(null);
+  });
 
   const audioControls = { toggle, seek, seekBy, nudgeVolume, toggleMute };
   usePlayerIntegrations(current, isPlaying, qh, audioControls, position, duration);
@@ -68,12 +76,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         waiting,
         toggle,
         seek,
-        sleepMinutes,
+        sleepMode,
         armSleep,
         volume,
         setVolume,
       }),
-    [qh, current, isPlaying, waiting, toggle, seek, sleepMinutes, armSleep, volume, setVolume],
+    [qh, current, isPlaying, waiting, toggle, seek, sleepMode, armSleep, volume, setVolume],
   );
 
   // Progress ticks several times a second — its own context so only the
