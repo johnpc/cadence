@@ -54,7 +54,10 @@ export async function searchUntilResults(
     await input.fill('');
     await input.fill(term);
     try {
-      await expect(result).toBeAttached({ timeout: 20_000 });
+      // Wait for the result to be VISIBLE (not just attached) so a follow-up
+      // click actually lands — an attached-but-still-rendering row was the
+      // source of "clicked but now-playing bar never appeared" flakes.
+      await expect(result).toBeVisible({ timeout: 20_000 });
       return;
     } catch {
       if (attempt === 2)
