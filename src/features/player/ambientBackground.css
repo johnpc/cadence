@@ -1,0 +1,15 @@
+.ambient-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Fade the wash in as the sampled colour resolves so it doesn't pop. */
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-bg {
+    transition: none;
+  }
+}
