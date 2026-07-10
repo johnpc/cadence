@@ -42,3 +42,4 @@ yarn-error.log*
 # claude code (local agent state + git worktrees)
 .claude
 .lighthouseci/
+dev-dist
