@@ -13,10 +13,14 @@ export function PlaylistTracks({
   playlistId,
   playlistName,
   tracks,
+  editable = true,
 }: {
   playlistId: string;
   playlistName?: string;
   tracks: JellyfinItem[];
+  /** Owner-only: show remove + reorder. Off for cloned/community playlists you
+   * don't own (those mutations would 403). */
+  editable?: boolean;
 }) {
   const ctx = { kind: 'playlist', label: playlistName ?? 'Playlist' };
   const [query, setQuery] = useState('');
@@ -53,10 +57,12 @@ export function PlaylistTracks({
             index={shown.indexOf(track)}
             context={ctx}
             onRemove={
-              track.PlaylistItemId ? () => remove.mutate(track.PlaylistItemId as string) : undefined
+              editable && track.PlaylistItemId
+                ? () => remove.mutate(track.PlaylistItemId as string)
+                : undefined
             }
             reorder={
-              filtering
+              !editable || filtering
                 ? undefined
                 : {
                     isFirst: index === 0,

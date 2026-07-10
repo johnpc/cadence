@@ -6,6 +6,7 @@ import {
   deletePlaylist,
   getPlaylistItems,
   getPlaylists,
+  getPublicPlaylists,
   movePlaylistItem,
   removeFromPlaylist,
   renamePlaylist,
@@ -42,6 +43,20 @@ describe('jellyfinPlaylists', () => {
     expect(items.map((p) => p.Id)).toEqual(['mine']);
     expect(f.mock.calls[0][0]).toContain('IncludeItemTypes=Playlist');
     expect(f.mock.calls[0][0]).toContain('Fields=CanDelete');
+  });
+
+  it('getPublicPlaylists returns only playlists the user does NOT own', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    stub({
+      Items: [
+        { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
+        { Id: 'theirs', Name: 'Community', Type: 'Playlist', CanDelete: false },
+        { Id: 'server', Name: 'Server PL', Type: 'Playlist' },
+      ],
+      TotalRecordCount: 3,
+    });
+    const items = await getPublicPlaylists();
+    expect(items.map((p) => p.Id)).toEqual(['theirs', 'server']);
   });
 
   it('getPlaylistItems reads a playlist’s tracks', async () => {

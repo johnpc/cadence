@@ -137,3 +137,23 @@
   margin-bottom: var(--cad-space-2);
   padding: 0;
 }
+
+.playlist__clone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-1);
+  padding: var(--cad-space-2) var(--cad-space-4);
+  border: 1px solid var(--cad-hairline);
+  border-radius: var(--cad-radius-pill);
+  background: none;
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.playlist__clone:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

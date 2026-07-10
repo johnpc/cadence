@@ -11,10 +11,14 @@ vi.mock('../../lib/jellyfinItems', () => ({
   getItem: vi.fn().mockResolvedValue(null),
 }));
 vi.mock('../../lib/jellyfinArtists', () => ({ getFavoriteArtists: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../lib/jellyfinPlaylists', () => ({
+  getPublicPlaylists: vi.fn().mockResolvedValue([]),
+}));
 vi.mock('../player/usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
 import { getLatestAlbums, getSuggestedSongs, getRecentlyPlayed } from '../../lib/jellyfinDiscover';
 import { getFavoriteAlbums } from '../../lib/jellyfinItems';
 import { getFavoriteArtists } from '../../lib/jellyfinArtists';
+import { getPublicPlaylists } from '../../lib/jellyfinPlaylists';
 import { Home } from './Home';
 import { renderWithProviders } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -54,6 +58,17 @@ describe('Home', () => {
     renderWithProviders(<Home />);
     await waitFor(() => expect(screen.getByText('From your library')).toBeInTheDocument());
     expect(screen.getByText('Saved Album')).toBeInTheDocument();
+  });
+
+  it('shows a From the community shelf of other users’ public playlists', async () => {
+    vi.mocked(getLatestAlbums).mockResolvedValue([]);
+    vi.mocked(getSuggestedSongs).mockResolvedValue([]);
+    vi.mocked(getPublicPlaylists).mockResolvedValue([
+      { Id: 'pub1', Name: 'Emily’s Mix', Type: 'Playlist' },
+    ]);
+    renderWithProviders(<Home />);
+    await waitFor(() => expect(screen.getByText('From the community')).toBeInTheDocument());
+    expect(screen.getByText('Emily’s Mix')).toBeInTheDocument();
   });
 
   it('shows a Your artists shelf when the user follows artists', async () => {
