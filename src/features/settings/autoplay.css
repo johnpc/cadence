@@ -12,3 +12,30 @@
 .autoplay__title {
   margin-bottom: 2px;
 }
+
+/* A generic segmented pill row (reused by Audio quality; mirrors the sleep
+   timer's look without coupling to it). */
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cad-space-2);
+  margin-top: var(--cad-space-2);
+}
+
+.segmented__option {
+  border: 1px solid var(--cad-hairline);
+  background: var(--cad-surface);
+  color: var(--cad-text-secondary);
+  border-radius: var(--cad-radius-pill);
+  padding: var(--cad-space-2) var(--cad-space-4);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.segmented__option--active {
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  border-color: var(--cad-accent);
+}
