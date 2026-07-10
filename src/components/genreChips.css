@@ -15,4 +15,12 @@
   background: var(--cad-surface);
   border-radius: 999px;
   padding: 4px 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.genre-chips__chip:hover {
+  background: var(--cad-elevated);
+  color: var(--cad-text);
 }
