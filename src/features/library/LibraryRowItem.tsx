@@ -11,12 +11,18 @@ import './libraryList.css';
  * subtitle. Links to its page, and
  * warms that page's queries on hover/focus/press so the tap paints instantly
  * (the big lever on "clicking a playlist is slow"). */
-export function LibraryRowItem({ row }: { row: LibraryRow }) {
+export function LibraryRowItem({
+  row,
+  view = 'list',
+}: {
+  row: LibraryRow;
+  view?: 'list' | 'grid';
+}) {
   const prefetch = usePrefetchItem();
   const warm = row.item ? () => prefetch(row.item as NonNullable<typeof row.item>) : undefined;
   return (
     <Link
-      className="library-row"
+      className={view === 'grid' ? 'library-row library-row--grid' : 'library-row'}
       to={row.to}
       data-testid="library-row"
       onMouseEnter={warm}

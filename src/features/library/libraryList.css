@@ -17,7 +17,7 @@
   min-width: 0;
 }
 
-.library-list__sort {
+.library-list__tool {
   flex-shrink: 0;
   border: none;
   background: none;
@@ -29,8 +29,39 @@
   cursor: pointer;
 }
 
-.library-list__sort--on {
+.library-list__tool--on {
   color: var(--cad-accent);
+}
+
+/* Grid view: a responsive grid of cover tiles (Spotify's Library grid). */
+.library-list--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--cad-space-4);
+  padding-top: var(--cad-space-2);
+}
+
+.library-row--grid {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--cad-space-2);
+  text-align: left;
+}
+
+/* In grid mode the art/tile fills the column width as a square. TrackArt sizes
+   itself inline from its `size` prop, so override to be fluid here. */
+.library-row--grid .library-row__liked,
+.library-row--grid .library-row__downloads {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  font-size: 48px;
+}
+
+.library-row--grid .track-art {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1;
 }
 
 .library-row {
