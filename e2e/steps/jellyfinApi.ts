@@ -62,3 +62,14 @@ export async function setPlaylistPublic(s: Session, id: string, isPublic: boolea
 export async function deletePlaylist(s: Session, id: string): Promise<void> {
   await api(`/Items/${id}`, { method: 'DELETE', token: s.token });
 }
+
+/** Delete ALL of the user's playlists with the given exact name — sweeps stale
+ * fixtures a crashed run may have orphaned. Best-effort per item. */
+export async function deletePlaylistsByName(s: Session, name: string): Promise<void> {
+  const r = await api<{ Items: { Id: string; Name: string }[] }>(
+    `/Items?IncludeItemTypes=Playlist&Recursive=true&userId=${s.userId}`,
+    { token: s.token },
+  );
+  const mine = r.Items.filter((p) => p.Name === name);
+  await Promise.all(mine.map((p) => deletePlaylist(s, p.Id).catch(() => undefined)));
+}
