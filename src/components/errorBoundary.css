@@ -31,3 +31,12 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+/* Content-level variant: fills the routed content area (not the whole screen),
+   so the tab bar + mini-player stay visible and usable behind a page crash. */
+.error-boundary--content {
+  position: static;
+  inset: auto;
+  min-height: 60vh;
+  background: transparent;
+}

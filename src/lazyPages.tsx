@@ -1,17 +1,26 @@
 import { lazy, Suspense, type ComponentType } from 'react';
+import { useLocation } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 /** Wrap a named page export in React.lazy (our pages are named, not default,
- * exports) and its own Suspense boundary, so route usage stays a plain
- * `<LazyPage />`. Detail/secondary pages are code-split — the initial load
- * ships only the three tab roots + player; each resolves its chunk on first
- * navigation (Ionic's page transition covers the brief gap). */
+ * exports) plus a Suspense boundary AND a content-level ErrorBoundary, so route
+ * usage stays a plain `<LazyPage />`. Detail/secondary pages are code-split —
+ * the initial load ships only the three tab roots + player; each resolves its
+ * chunk on first navigation (Ionic's page transition covers the brief gap).
+ *
+ * The ErrorBoundary is keyed by pathname: if a detail page throws, only the
+ * content area shows a recoverable "Try again" panel — the tab bar and
+ * mini-player keep working — and navigating elsewhere clears it automatically. */
 function lazyPage(load: () => Promise<Record<string, ComponentType>>, name: string): ComponentType {
   const Loaded = lazy(() => load().then((m) => ({ default: m[name] })));
   return function LazyPage() {
+    const { pathname } = useLocation();
     return (
-      <Suspense fallback={null}>
-        <Loaded />
-      </Suspense>
+      <ErrorBoundary variant="content" resetKey={pathname}>
+        <Suspense fallback={null}>
+          <Loaded />
+        </Suspense>
+      </ErrorBoundary>
     );
   };
 }
