@@ -39,6 +39,7 @@ export function QueueRow({
         className="queueview__play"
         data-testid="queue-row-play"
         onClick={() => onJump(index)}
+        aria-label={`Play ${track.Name}`}
       >
         <TrackArt item={track} size={40} />
         <span className="queueview__meta">

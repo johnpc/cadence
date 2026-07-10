@@ -63,6 +63,7 @@ export function ArtistDetail() {
                 className="artist__album"
                 data-testid="artist-album"
                 onClick={() => history.push(`/album/${album.Id}`)}
+                aria-label={`Open ${album.Name}`}
               >
                 <TrackArt item={album} size={150} />
                 <span className="artist__album-name">{album.Name}</span>
