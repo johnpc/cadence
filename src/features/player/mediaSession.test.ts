@@ -52,6 +52,20 @@ describe('mediaSession', () => {
     expect(navigator.mediaSession.metadata).toBeTruthy();
   });
 
+  it('publishes artwork at several sizes so the OS picks the sharpest', () => {
+    setNowPlaying(track);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = navigator.mediaSession.metadata as any;
+    expect(data.title).toBe('Song');
+    expect(data.artwork.map((a: { sizes: string }) => a.sizes)).toEqual([
+      '96x96',
+      '192x192',
+      '384x384',
+      '512x512',
+    ]);
+    expect(data.artwork.every((a: { src: string }) => a.src.length > 0)).toBe(true);
+  });
+
   it('clears metadata when nothing is playing', () => {
     setNowPlaying(null);
     expect(navigator.mediaSession.metadata).toBeNull();
