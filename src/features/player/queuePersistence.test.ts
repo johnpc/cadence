@@ -1,11 +1,17 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { loadQueue, saveQueue } from './queuePersistence';
+import { loadQueue, saveQueue, clearPersistedQueue } from './queuePersistence';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const t = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 describe('queuePersistence', () => {
   afterEach(() => localStorage.clear());
+
+  it('clearPersistedQueue drops the stored queue (empties on next load)', () => {
+    saveQueue({ tracks: [t('a'), t('b')], index: 0 });
+    clearPersistedQueue();
+    expect(loadQueue().tracks).toEqual([]);
+  });
 
   it('round-trips a queue', () => {
     saveQueue({ tracks: [t('a'), t('b'), t('c')], index: 1 });

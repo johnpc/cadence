@@ -27,6 +27,16 @@ export function loadQueue(): QueueState {
   }
 }
 
+/** Drop the persisted queue outright (used on sign-out so the next user doesn't
+ * inherit the previous one's playback). */
+export function clearPersistedQueue(): void {
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    // Storage unavailable — nothing to clear.
+  }
+}
+
 /** Persist the queue (capped) so it can be restored next launch. Keeps the
  * pre-shuffle order (also capped) so shuffle-off works across reloads. */
 export function saveQueue(state: QueueState): void {

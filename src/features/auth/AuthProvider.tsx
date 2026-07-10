@@ -5,6 +5,8 @@ import { resolveSession } from './resolveSession';
 import { ensureDeviceId } from '../../lib/deviceId';
 import { hydrateServerUrl } from '../../lib/serverUrlStore';
 import { onSessionExpired } from '../../lib/sessionExpiry';
+import { queryClient } from '../../lib/queryClient';
+import { clearPersistedQueue } from '../player/queuePersistence';
 import type { AuthState } from './types';
 
 /** Provides Jellyfin session state + auth actions to the tree via AuthContext. */
@@ -54,6 +56,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await authClient.signOut();
+    // Don't leak the previous user's data into the next session on a shared /
+    // multi-user server: drop the cached Jellyfin responses (library, playlists,
+    // likes) and the persisted play queue before flipping to signed-out.
+    queryClient.clear();
+    clearPersistedQueue();
     setState({ status: 'unauthenticated', username: null });
   }, []);
 
