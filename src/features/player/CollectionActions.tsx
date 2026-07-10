@@ -58,7 +58,8 @@ export function CollectionActions({
         data-testid="queue-all"
         onClick={() => {
           addToQueue(tracks);
-          toast(`Added ${tracks.length} to queue`);
+          const n = tracks.length;
+          toast(`Added ${n} ${n === 1 ? 'song' : 'songs'} to queue`);
         }}
         aria-label="Add to queue"
       >

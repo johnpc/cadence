@@ -25,9 +25,16 @@ export function usePlaybackHandlers(
   }, [qh, audioRef]);
 
   const onError = useCallback(() => {
+    // Only react to errors during ACTUAL playback. On cold launch the restored
+    // track's src is set while paused (and before the auth token may have
+    // hydrated), which can fire a spurious `error` — surfacing a scary toast and
+    // skipping a track the user never tried to play. If we're paused, ignore it;
+    // the next real play attempt will re-load a valid src.
+    const audio = audioRef.current;
+    if (audio && audio.paused) return;
     toast("Couldn't play that track — skipping.");
     qh.next();
-  }, [qh, toast]);
+  }, [qh, audioRef, toast]);
 
   return { onEnded, onError };
 }

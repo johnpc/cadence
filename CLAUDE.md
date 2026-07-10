@@ -177,11 +177,15 @@ npm run gen:icons      # regenerate app icons from assets/icon*.png (add --nativ
 
 Non-obvious things that have cost real time — check here before rediscovering them.
 
-- **Jellyfin playlist ownership: filter on `CanDelete`.** `GET /Items?IncludeItemTypes=Playlist`
-  returns EVERY playlist on the server (all users' + shared) with **no `OwnerUserId`** on the response.
-  `CanDelete` is `true` only for playlists the current user owns — that's the ownership signal. "Your
-  Library" shows own-only (`CanDelete === true`); others' surface as a "From the community" Home shelf
-  you can clone. Request `Fields=CanDelete` (getItem includes it too, for the detail page).
+- **Jellyfin playlist ownership: confirm via `GET /Playlists/{id}/Users`, not `CanDelete` alone.**
+  `GET /Items?IncludeItemTypes=Playlist` returns EVERY playlist on the server (all users' + shared) with
+  **no `OwnerUserId`** on the response (even in full JSON, v10.11.10). `CanDelete` looks like an
+  ownership signal but **an ADMIN can delete anything**, so it's `true` for every playlist for an admin —
+  filtering on it alone dumps the whole server into an admin's library. The reliable signal is the
+  owner-only share list `GET /Playlists/{id}/Users`: **200 for the owner, 403 for everyone else
+  (including admins)**. `partitionByOwnership` (jellyfinPlaylistLists) uses `CanDelete === false` as a
+  cheap definite "not mine", then confirms the rest in parallel via the share endpoint. "Your Library"
+  shows owned; others surface as a "From the community" Home shelf you can clone.
 - **Jellyfin writes need a FRESH token via `X-Emby-Authorization`** (with `Token="..."`). A token that's
   only done GETs — or a slightly stale one — returns **401 on POST** (`/Playlists`, `FavoriteItems`).
   The app's `jellyfinFetch` sends both `X-Emby-Authorization` (client+token) and `Authorization`; match
