@@ -1,0 +1,20 @@
+[
+  {
+    "name": "app entry (index)",
+    "path": ["dist/assets/index-*.js", "!dist/assets/index-legacy-*.js"],
+    "limit": "30 kB",
+    "gzip": true
+  },
+  {
+    "name": "vendor bundle",
+    "path": ["dist/assets/vendor-*.js", "!dist/assets/vendor-legacy-*.js"],
+    "limit": "340 kB",
+    "gzip": true
+  },
+  {
+    "name": "lazy route chunk (playlist detail)",
+    "path": ["dist/assets/PlaylistDetail-*.js", "!dist/assets/PlaylistDetail-legacy-*.js"],
+    "limit": "4 kB",
+    "gzip": true
+  }
+]
