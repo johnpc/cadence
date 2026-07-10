@@ -24,6 +24,7 @@ export function VolumeSlider({
         value={volume}
         onChange={(e) => setVolume(Number(e.target.value))}
         aria-label="Volume"
+        aria-valuetext={`${Math.round(volume * 100)}%`}
         data-testid="full-player-volume"
       />
       <IonIcon icon={volumeHigh} aria-hidden="true" />
