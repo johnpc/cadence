@@ -48,12 +48,16 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
  * a fresh QueryClient, a router, and a (stubbable) PlayerContext. */
 export function renderWithProviders(
   ui: ReactElement,
-  { player, progress }: { player?: PlayerContextValue; progress?: PlayerProgress } = {},
+  {
+    player,
+    progress,
+    route,
+  }: { player?: PlayerContextValue; progress?: PlayerProgress; route?: string } = {},
 ) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={route ? [route] : undefined}>
         <PlayerContext.Provider value={player ?? stubPlayer()}>
           <PlayerProgressContext.Provider value={progress ?? { position: 0, duration: 0 }}>
             {children}

@@ -64,6 +64,13 @@ describe('Library', () => {
     expect(screen.getByText('Liked Songs')).toBeInTheDocument();
   });
 
+  it('opens the artists section directly from a ?filter=artists deep link', async () => {
+    vi.mocked(getFavoriteArtists).mockResolvedValue([artist]);
+    renderWithProviders(<Library />, { route: '/library?filter=artists' });
+    // Lands on Artists (not the default Playlists) — the followed artist shows.
+    await waitFor(() => expect(screen.getByText('Radiohead')).toBeInTheDocument());
+  });
+
   it('switches to albums and artists via the filter pills', async () => {
     vi.mocked(getFavoriteAlbums).mockResolvedValue([album]);
     vi.mocked(getFavoriteArtists).mockResolvedValue([artist]);

@@ -1,7 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { buildLibraryRows, filterRowsByText } from './libraryRows';
+import { buildLibraryRows, filterRowsByText, filterFromSearch } from './libraryRows';
 import { sortRows } from './librarySort';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+describe('filterFromSearch', () => {
+  it('reads a valid ?filter= value', () => {
+    expect(filterFromSearch('?filter=artists')).toBe('artists');
+    expect(filterFromSearch('?filter=albums')).toBe('albums');
+    expect(filterFromSearch('?filter=playlists')).toBe('playlists');
+  });
+
+  it('defaults to playlists for missing/unknown values', () => {
+    expect(filterFromSearch('')).toBe('playlists');
+    expect(filterFromSearch('?filter=bogus')).toBe('playlists');
+    expect(filterFromSearch('?other=x')).toBe('playlists');
+  });
+});
 
 const pl: JellyfinItem[] = [{ Id: 'p1', Name: 'Road Trip', Type: 'Playlist' }];
 const al: JellyfinItem[] = [
