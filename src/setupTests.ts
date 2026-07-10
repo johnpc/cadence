@@ -1,6 +1,7 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom/extend-expect';
+// jest-dom adds custom matchers for asserting on DOM nodes. The /vitest
+// entrypoint (jest-dom v6+) augments vitest's `expect`, not jest's — required
+// under TS7's stricter module resolution for toBeInTheDocument et al. to type.
+import '@testing-library/jest-dom/vitest';
 import { configure } from '@testing-library/react';
 
 // Raise the default async timeout so waitFor assertions don't flake under the
