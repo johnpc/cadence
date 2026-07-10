@@ -7,7 +7,15 @@ import type { usePlayerQueue } from './usePlayerQueue';
 type QueueHook = ReturnType<typeof usePlayerQueue>;
 
 function stubQueue(over: Partial<QueueHook> = {}): QueueHook {
-  return { advance: vi.fn(), next: vi.fn(), ...over } as unknown as QueueHook;
+  // A 2-track queue positioned at the first track (so there IS a next) by
+  // default; the end-of-queue test overrides `queue`.
+  return {
+    advance: vi.fn(),
+    next: vi.fn(),
+    repeat: 'off',
+    queue: { tracks: [{ Id: 'a' }, { Id: 'b' }], index: 0 },
+    ...over,
+  } as unknown as QueueHook;
 }
 
 describe('usePlaybackHandlers', () => {
@@ -29,6 +37,17 @@ describe('usePlaybackHandlers', () => {
     result.current.onError();
     expect(toast).toHaveBeenCalledWith("Couldn't play that track — skipping.");
     expect(qh.next).toHaveBeenCalled();
+  });
+
+  it('onError at the LAST track reports failure without a dead-end "skipping" toast', () => {
+    const qh = stubQueue({ queue: { tracks: [{ Id: 'a' }], index: 0 } as never });
+    const toast = vi.fn();
+    const ref = createRef<HTMLAudioElement>();
+    (ref as { current: HTMLAudioElement }).current = { paused: false } as HTMLAudioElement;
+    const { result } = renderHook(() => usePlaybackHandlers(qh, ref, toast));
+    result.current.onError();
+    expect(toast).toHaveBeenCalledWith("Couldn't play that track.");
+    expect(qh.next).not.toHaveBeenCalled();
   });
 
   it('onError is IGNORED when paused (spurious cold-launch error, not a real failure)', () => {
