@@ -16,7 +16,16 @@ import { configuredServerUrl } from './runtimeConfig';
 
 const KEY = 'cadence.server-url';
 
-const trim = (url: string): string => url.trim().replace(/\/+$/, '');
+/** Normalise a server URL: trim whitespace + trailing slashes, and prepend
+ * https:// when the user typed a bare host (e.g. "jellyfin.jpc.io"). Without a
+ * scheme the browser treats the value as a relative path and every request
+ * silently hits the app's own origin instead of the Jellyfin server. An empty
+ * string stays empty (means "no server configured"). */
+const trim = (url: string): string => {
+  const t = url.trim().replace(/\/+$/, '');
+  if (!t) return '';
+  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+};
 
 /** The build-time default (the maintainer's server), or '' for a generic image. */
 const BUILD_DEFAULT_URL = trim(import.meta.env.VITE_JELLYFIN_URL || '');
