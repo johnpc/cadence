@@ -41,7 +41,8 @@
   text-decoration: none;
 }
 
-.library-row__liked {
+.library-row__liked,
+.library-row__downloads {
   flex-shrink: 0;
   width: 52px;
   height: 52px;
@@ -52,6 +53,10 @@
   font-size: 24px;
   color: var(--cad-on-accent);
   background: linear-gradient(135deg, var(--cad-accent), #4b7bec);
+}
+
+.library-row__downloads {
+  background: linear-gradient(135deg, var(--cad-accent), #17a589);
 }
 
 .library-row__meta {

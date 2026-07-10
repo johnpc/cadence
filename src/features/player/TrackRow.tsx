@@ -4,6 +4,7 @@ import { trackDuration } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { TrackTitle } from './TrackTitle';
 import { LikeButton } from '../library/LikeButton';
+import { DownloadButton } from '../downloads/DownloadButton';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
 import { TrackReorder } from './TrackReorder';
 import { TrackRemoveButton } from './TrackRemoveButton';
@@ -77,6 +78,7 @@ export function TrackRow({
         </span>
       )}
       {reorder && <TrackReorder {...reorder} />}
+      <DownloadButton track={track} />
       <LikeButton track={track} />
       {onRemove ? <TrackRemoveButton onRemove={onRemove} /> : <AddToPlaylistButton track={track} />}
     </div>

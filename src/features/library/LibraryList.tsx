@@ -9,6 +9,7 @@ import { LibraryRowItem } from './LibraryRowItem';
 import { CreatePlaylist } from '../playlists/CreatePlaylist';
 import { usePlaylists } from '../playlists/playlistsApi';
 import { useLikedSongs, useSavedAlbums, useFollowedArtists } from './libraryApi';
+import { useDownloads } from '../downloads/useDownloads';
 import { getRecentPlays } from './recentPlays';
 import { filterFromSearch, type LibraryFilter } from './libraryRows';
 import { composeLibraryRows, type LibrarySort } from './librarySort';
@@ -33,6 +34,7 @@ export function LibraryList() {
   const albums = useSavedAlbums();
   const artists = useFollowedArtists();
   const liked = useLikedSongs();
+  const downloads = useDownloads();
 
   const active = filter === 'albums' ? albums : filter === 'artists' ? artists : playlists;
   const rows = composeLibraryRows(
@@ -42,6 +44,7 @@ export function LibraryList() {
       albums: albums.albums,
       artists: artists.artists,
       likedCount: liked.songs.length,
+      downloadsCount: downloads.tracks.length,
     },
     query,
     sort,

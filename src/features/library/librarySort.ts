@@ -19,6 +19,7 @@ export function composeLibraryRows(
     albums: JellyfinItem[];
     artists: JellyfinItem[];
     likedCount: number;
+    downloadsCount: number;
   },
   query: string,
   sort: LibrarySort,
@@ -27,16 +28,17 @@ export function composeLibraryRows(
   return sortRows(filterRowsByText(buildLibraryRows(filter, data), query), sort, plays);
 }
 
-/** Sort rows by the chosen order, always keeping the pinned Liked Songs row
- * first. 'recents' orders by last-played time (most recent first; never-played
- * items keep their server order, below the played ones — a stable sort). */
+/** Sort rows by the chosen order, always keeping the pinned pseudo-playlists
+ * (Liked Songs, Downloads) first. 'recents' orders by last-played time (most
+ * recent first; never-played items keep their server order, below the played
+ * ones — a stable sort). */
 export function sortRows(
   rows: LibraryRow[],
   sort: LibrarySort,
   plays: Record<string, number> = {},
 ): LibraryRow[] {
-  const pinned = rows.filter((r) => r.liked);
-  const rest = rows.filter((r) => !r.liked);
+  const pinned = rows.filter((r) => r.pinned);
+  const rest = rows.filter((r) => !r.pinned);
   const sorted =
     sort === 'alpha'
       ? [...rest].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))

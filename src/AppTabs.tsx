@@ -48,6 +48,9 @@ export function AppTabs() {
           <Route exact path="/liked">
             <L.LikedSongsPage />
           </Route>
+          <Route exact path="/downloads">
+            <L.DownloadsPage />
+          </Route>
           <Route exact path="/settings">
             <L.Settings />
           </Route>

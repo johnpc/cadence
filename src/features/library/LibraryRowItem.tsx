@@ -1,5 +1,5 @@
 import { IonIcon } from '@ionic/react';
-import { heart } from 'ionicons/icons';
+import { heart, arrowDownCircle } from 'ionicons/icons';
 import { Link } from 'react-router-dom';
 import { TrackArt } from '../player/TrackArt';
 import { usePrefetchItem } from '../home/usePrefetchItem';
@@ -7,7 +7,8 @@ import type { LibraryRow } from './libraryRows';
 import './libraryList.css';
 
 /** One row in the unified library list — art (round for artists, or a heart
- * tile for Liked Songs), name, and a small subtitle. Links to its page, and
+ * tile for Liked Songs, a download tile for Downloads), name, and a small
+ * subtitle. Links to its page, and
  * warms that page's queries on hover/focus/press so the tap paints instantly
  * (the big lever on "clicking a playlist is slow"). */
 export function LibraryRowItem({ row }: { row: LibraryRow }) {
@@ -25,6 +26,10 @@ export function LibraryRowItem({ row }: { row: LibraryRow }) {
       {row.liked ? (
         <span className="library-row__liked" aria-hidden="true">
           <IonIcon icon={heart} />
+        </span>
+      ) : row.downloads ? (
+        <span className="library-row__downloads" aria-hidden="true">
+          <IonIcon icon={arrowDownCircle} />
         </span>
       ) : (
         <TrackArt item={row.item} size={52} round={row.round} />
