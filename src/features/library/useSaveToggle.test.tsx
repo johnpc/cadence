@@ -6,11 +6,13 @@ import type { ReactNode } from 'react';
 vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
 import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
 import { useSaveToggle } from './useSaveToggle';
+import { ToastContext } from '../toast/ToastContext';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
+const toast = vi.fn();
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    {children}
+    <ToastContext.Provider value={toast}>{children}</ToastContext.Provider>
   </QueryClientProvider>
 );
 
@@ -47,11 +49,12 @@ describe('useSaveToggle', () => {
     await waitFor(() => expect(removeFavorite).toHaveBeenCalledWith('al1'));
   });
 
-  it('rolls back on error', async () => {
+  it('rolls back AND toasts on error', async () => {
     vi.mocked(addFavorite).mockRejectedValue(new Error('nope'));
     const { result } = renderHook(() => useSaveToggle(album(false)), { wrapper });
     act(() => result.current.toggle());
     await waitFor(() => expect(result.current.saved).toBe(false));
+    expect(toast).toHaveBeenCalledWith("Couldn't add to your library");
   });
 
   it('is disabled semantics for a null item (no crash)', () => {
