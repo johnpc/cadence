@@ -2,7 +2,6 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { initTheme } from './features/theme/initTheme';
-import { registerServiceWorker } from './lib/registerServiceWorker';
 import { initInstallPrompt } from './lib/installPrompt';
 
 // Apply the stored palette before first paint so there's no theme flash.
@@ -19,5 +18,5 @@ root.render(
   </React.StrictMode>,
 );
 
-// Make the app installable as a PWA.
-registerServiceWorker();
+// The service worker (app-shell precache + offline + auto-update) is registered
+// by vite-plugin-pwa's injected script — see VitePWA config in vite.config.ts.

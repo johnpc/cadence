@@ -2,6 +2,7 @@
 
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vite';
 
@@ -10,7 +11,29 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 // https://vitejs.dev/config/
 export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
-  plugins: [react(), legacy()],
+  plugins: [
+    react(),
+    legacy(),
+    // Precache the FULL build (entry + vendor + every lazy route chunk + CSS)
+    // via Workbox so the PWA opens instantly on repeat visits and boots OFFLINE
+    // — the passthrough SW cached nothing, so the app was blank with no network.
+    // Only same-origin static assets are precached; the cross-origin Jellyfin
+    // API + audio streams are never touched. autoUpdate: a new deploy's SW takes
+    // over and reloads once. We keep our own manifest.json (don't let the plugin
+    // generate one).
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'script',
+      manifest: false,
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,png,svg,woff,woff2}'],
+        navigateFallback: '/index.html',
+        // Never serve the SPA shell for the runtime config or cross-origin calls.
+        navigateFallbackDenylist: [/^\/config\.js$/],
+        cleanupOutdatedCaches: true,
+      },
+    }),
+  ],
   build: {
     // The vendor chunk (Ionic + React) is legitimately ~1.4MB and cached
     // separately from app code; don't warn on it.
