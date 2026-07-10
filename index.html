@@ -11,6 +11,10 @@
     <base href="/" />
 
     <meta name="color-scheme" content="light dark" />
+    <!-- Tint the browser/OS chrome (mobile address bar, PWA title bar) to match
+         the app's near-black canvas (--cad-bg) so it never flashes white before
+         the manifest is parsed. Matches manifest.json's theme_color. -->
+    <meta name="theme-color" content="#121212" />
     <!-- Allow pinch-zoom (accessibility): no maximum-scale / user-scalable=no,
          which would block users who need to zoom. viewport-fit=cover is kept for
          iOS notch/safe-area insets. -->
@@ -24,6 +28,9 @@
 
     <!-- add to homescreen for ios -->
     <meta name="mobile-web-app-capable" content="yes" />
+    <!-- iOS reads the apple-prefixed flag to launch the installed PWA in
+         standalone (no Safari chrome); keep both for cross-browser coverage. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Cadence" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
