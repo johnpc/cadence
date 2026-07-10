@@ -6,13 +6,17 @@ on:
   pull_request:
     branches: [main]
 
-# The acceptance suite reads/writes against the SHARED live Jellyfin server, so
-# serialize runs: one clear→read cycle must finish before the next starts, or a
-# concurrent run's writes would corrupt another's reads. Don't cancel in
-# progress for the same reason.
+# The acceptance suite reads/writes the SHARED live Jellyfin server over ONE
+# cloudflared tunnel, so CI must serialize GLOBALLY — not per-PR. A per-PR/-branch
+# group let several runs (rival PRs + each main push during a merge burst) hit
+# Jellyfin at once and stampede it (throttled auth / stalled first-paint that
+# reads as widespread flaky timeouts). A single constant group means at most one
+# run touches Jellyfin at a time, repo-wide. cancel-in-progress only for PR
+# events: a new commit on a PR supersedes its older run, but a main (push) run is
+# never cancelled — it queues so every merged commit is verified end to end.
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.ref_name }}
-  cancel-in-progress: false
+  group: ci-global
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   quality:
@@ -81,10 +85,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # Cap parallelism: all areas hit ONE self-hosted Jellyfin server. Running
-      # all ~10 at once stampedes it (auth throttling / stalled reads that read
-      # as flakes). 3 keeps the server responsive without slowing CI much.
-      max-parallel: 3
+      # Serialize the acceptance areas: all ~10 hit ONE self-hosted Jellyfin over
+      # a single cloudflared tunnel. Even 3 in parallel stampedes it — auth
+      # throttling / stalled first-paint reads that surface as widespread flaky
+      # timeouts (main went red across 5+ areas at once this way, while every
+      # scenario passes when run alone). 1 trades wall-clock for a green,
+      # trustworthy signal; raise it only if the server/tunnel gains headroom.
+      max-parallel: 1
       matrix:
         area:
           - name: smoke

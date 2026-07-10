@@ -205,12 +205,16 @@ Non-obvious things that have cost real time — check here before rediscovering 
   but CI's quality job doesn't — tests that read it must `vi.stubEnv('VITE_JELLYFIN_URL', '')` (or set
   the value they need) so they pass in both. This bit `serverUrlStore`/`SignIn` when the URL default
   went empty.
-- **e2e flakiness levers (in priority order):** (1) the test user must OWN fixtures the scenarios
-  need — `scripts/seed-e2e-user.sh` guarantees an owned playlist + followed artist (a CI step). (2) All
-  ~10 acceptance areas hit ONE cold-prone cloudflared-tunneled Jellyfin; use the shared `DATA_WAIT`
-  (`e2e/steps/timeouts.ts`, 45s CI) for every server-backed wait, never a hardcoded 15s. (3) A single
-  fixed e2e DeviceId seeded via `page.addInitScript` (BEFORE app boot) so runs reuse one session
-  instead of minting thousands. Warmup step absorbs the tunnel cold-start before tests.
+- **e2e flakiness levers (in priority order):** (0) **`max-parallel: 1` on the acceptance matrix** —
+  all ~10 areas hit ONE cloudflared-tunneled Jellyfin, and running even 3 concurrently stampedes it
+  (auth throttling / stalled first-paint that reads as widespread `search-input`/`navigate` timeouts;
+  main went red across 5+ areas at once with `max-parallel: 3`, while every scenario passes alone).
+  Serialize the areas — the tunnel is the bottleneck, not the runners. (1) the test user must OWN
+  fixtures the scenarios need — `scripts/seed-e2e-user.sh` guarantees an owned playlist + followed
+  artist (a CI step). (2) use the shared `DATA_WAIT` (`e2e/steps/timeouts.ts`, 45s CI) for every
+  server-backed wait, never a hardcoded 15s. (3) A single fixed e2e DeviceId seeded via
+  `page.addInitScript` (BEFORE app boot) so runs reuse one session instead of minting thousands.
+  Warmup step absorbs the tunnel cold-start before tests.
 - **Deploy: the active stack compose is separate from the repo.** `/opt/stacks/cadence/compose.yaml`
   (inside Dockge's dind) is hand-maintained — editing `deploy/compose.yaml` in the repo does NOT update
   it. After a deploy-config change, edit the active compose too. VERIFY every deploy:
