@@ -11,6 +11,7 @@ export interface Shortcut {
 export const SHORTCUTS: Shortcut[] = [
   { keys: ['Space'], label: 'Play / pause' },
   { keys: ['←', '→'], label: 'Previous / next track' },
+  { keys: ['Shift', '←', '→'], label: 'Seek back / forward 5s' },
   { keys: ['↑', '↓'], label: 'Volume up / down' },
   { keys: ['M'], label: 'Mute' },
   { keys: ['S'], label: 'Shuffle' },
