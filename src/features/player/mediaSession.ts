@@ -4,9 +4,9 @@
  * Works in the PWA and in the iOS WKWebView (with the .playback audio session
  * set in AppDelegate). No-ops where the API is unavailable.
  */
-import { imageUrl } from '../../lib/jellyfinStream';
 import { isIos } from '../../lib/platform';
 import { artistLine } from './playerFormat';
+import { artworkFor } from './mediaArtwork';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 export interface MediaSessionHandlers {
@@ -25,12 +25,11 @@ export function setNowPlaying(track: JellyfinItem | null): void {
     navigator.mediaSession.metadata = null;
     return;
   }
-  const art = imageUrl(track, 512);
   navigator.mediaSession.metadata = new MediaMetadata({
     title: track.Name,
     artist: artistLine(track),
     album: track.Album ?? '',
-    artwork: art ? [{ src: art, sizes: '512x512', type: 'image/jpeg' }] : [],
+    artwork: artworkFor(track),
   });
 }
 
