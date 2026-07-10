@@ -178,6 +178,9 @@ jobs:
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          # Second user — cross-user playlist-visibility scenario (playlists area).
+          TEST_USERNAME_2: ${{ secrets.TEST_USERNAME_2 }}
+          TEST_PASSWORD_2: ${{ secrets.TEST_PASSWORD_2 }}
         with:
           timeout_minutes: 15
           max_attempts: 2
