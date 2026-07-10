@@ -32,6 +32,12 @@ export function usePlaybackHandlers(
       sleep.onReached.current?.();
       return;
     }
+    // Reached the end with nothing to follow (repeat off + no next; if Autoplay
+    // were on, endless-play radio would already have appended by now) — playback
+    // is about to stop, so say so rather than leaving it looking frozen.
+    if (qh.repeat === 'off' && !q.hasNext(qh.queue)) {
+      toast("You've reached the end of the queue.");
+    }
     qh.advance(() => {
       const audio = audioRef.current;
       if (audio) {
@@ -39,7 +45,7 @@ export function usePlaybackHandlers(
         void audio.play().catch(() => undefined);
       }
     });
-  }, [qh, audioRef, sleep]);
+  }, [qh, audioRef, sleep, toast]);
 
   const onError = useCallback(() => {
     // Only react to errors during ACTUAL playback. On cold launch the restored

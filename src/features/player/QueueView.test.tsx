@@ -41,6 +41,14 @@ describe('QueueView', () => {
     expect(screen.queryByTestId('queue-playing-from')).not.toBeInTheDocument();
   });
 
+  it('shows an empty-queue message when nothing is queued', () => {
+    renderWithProviders(<QueueView open onClose={vi.fn()} />, {
+      player: stubPlayer({ queue: [], queueIndex: 0, current: null }),
+    });
+    expect(screen.getByTestId('queue-empty')).toBeInTheDocument();
+    expect(screen.queryByTestId('queue-row')).not.toBeInTheDocument();
+  });
+
   it('lists the queue and marks the current track', () => {
     renderWithProviders(<QueueView open onClose={vi.fn()} />, {
       player: stubPlayer({ queue, queueIndex: 1 }),

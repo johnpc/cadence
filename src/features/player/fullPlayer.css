@@ -72,10 +72,19 @@
 
 .fullplayer__title {
   margin: 0 0 var(--cad-space-1);
+  /* Clamp very long titles (e.g. classical suites) to two lines instead of
+     letting them push the controls off-screen. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .fullplayer__artist {
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fullplayer__artist-link {

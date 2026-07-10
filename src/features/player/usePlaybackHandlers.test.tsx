@@ -28,6 +28,36 @@ describe('usePlaybackHandlers', () => {
     expect(qh.advance).toHaveBeenCalled();
   });
 
+  it('onEnded toasts at the end of the queue (repeat off, no next)', () => {
+    const qh = stubQueue({ queue: { tracks: [{ Id: 'a' }], index: 0 } as never });
+    const toast = vi.fn();
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, createRef<HTMLAudioElement>(), toast),
+    );
+    result.current.onEnded();
+    expect(toast).toHaveBeenCalledWith("You've reached the end of the queue.");
+  });
+
+  it('onEnded does NOT toast when there is a next track', () => {
+    const qh = stubQueue(); // index 0 of 2 → has next
+    const toast = vi.fn();
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, createRef<HTMLAudioElement>(), toast),
+    );
+    result.current.onEnded();
+    expect(toast).not.toHaveBeenCalled();
+  });
+
+  it('onEnded does NOT toast at the end when repeat is on (queue loops)', () => {
+    const qh = stubQueue({ repeat: 'all', queue: { tracks: [{ Id: 'a' }], index: 0 } as never });
+    const toast = vi.fn();
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, createRef<HTMLAudioElement>(), toast),
+    );
+    result.current.onEnded();
+    expect(toast).not.toHaveBeenCalled();
+  });
+
   it('onEnded honours an armed "end of track" sleep timer: pause + disarm, no advance', () => {
     const qh = stubQueue();
     const reached = vi.fn();

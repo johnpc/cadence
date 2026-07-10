@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { IonIcon, IonSpinner } from '@ionic/react';
 import { play, pause, playSkipForward } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
+import { useCast } from '../cast/useCast';
 import { usePlayerProgress } from './PlayerProgressContext';
 import { useScrubber } from './useScrubber';
-import { artistLine, formatTime } from './playerFormat';
-import { TrackArt } from './TrackArt';
+import { formatTime } from './playerFormat';
+import { NowPlayingMeta } from './NowPlayingMeta';
 import { FullPlayer } from './FullPlayer';
 import { NowPlayingExtras } from './NowPlayingExtras';
 import { LikeButton } from '../library/LikeButton';
@@ -14,6 +15,7 @@ import './nowPlayingBar.css';
 /** Persistent mini-player above the tab bar. Tap to open the full player. */
 export function NowPlayingBar() {
   const { current, isPlaying, waiting, canNext, next, toggle, seek } = usePlayer();
+  const { connected: casting, deviceName } = useCast();
   const { position, duration } = usePlayerProgress();
   const scrub = useScrubber(position, seek);
   const [open, setOpen] = useState(false);
@@ -32,19 +34,12 @@ export function NowPlayingBar() {
   return (
     <>
       <div className="npbar" data-testid="now-playing-bar">
-        <button
-          className="npbar__open"
-          onClick={() => setOpen(true)}
-          data-testid="now-playing-open"
-        >
-          <TrackArt item={current} size={40} />
-          <span className="npbar__meta">
-            <span className="npbar__title" data-testid="now-playing-title">
-              {current.Name}
-            </span>
-            <span className="npbar__artist">{artistLine(current)}</span>
-          </span>
-        </button>
+        <NowPlayingMeta
+          track={current}
+          casting={casting}
+          deviceName={deviceName}
+          onOpen={() => setOpen(true)}
+        />
         <LikeButton track={current} size={22} />
         <NowPlayingExtras />
         <button

@@ -144,3 +144,8 @@
   flex: 0 0 auto;
   cursor: grab;
 }
+
+.queueview__empty {
+  padding: var(--cad-space-6) var(--cad-space-4);
+  text-align: center;
+}
