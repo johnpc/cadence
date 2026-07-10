@@ -22,7 +22,7 @@ const al: JellyfinItem[] = [
   { Id: 'a1', Name: 'OK Computer', Type: 'MusicAlbum', AlbumArtist: 'Radiohead' },
 ];
 const ar: JellyfinItem[] = [{ Id: 'ar1', Name: 'Radiohead', Type: 'MusicArtist' }];
-const data = { playlists: pl, albums: al, artists: ar, likedCount: 3 };
+const data = { playlists: pl, albums: al, artists: ar, likedCount: 3, downloadsCount: 0 };
 
 describe('buildLibraryRows', () => {
   it('pins Liked Songs first under playlists, then the playlists', () => {
@@ -49,6 +49,16 @@ describe('buildLibraryRows', () => {
   it('uses the singular for a single liked song', () => {
     const rows = buildLibraryRows('playlists', { ...data, likedCount: 1 });
     expect(rows[0].subtitle).toBe('Playlist • 1 song');
+  });
+
+  it('pins Downloads (after Liked Songs) only when there are downloads', () => {
+    expect(buildLibraryRows('playlists', data).some((r) => r.downloads)).toBe(false);
+    const withDl = buildLibraryRows('playlists', { ...data, downloadsCount: 2 });
+    expect(withDl[0].liked).toBe(true);
+    expect(withDl[1].downloads).toBe(true);
+    expect(withDl[1].to).toBe('/downloads');
+    expect(withDl[1].subtitle).toBe('Playlist • 2 songs');
+    expect(withDl[2].name).toBe('Road Trip');
   });
 });
 
@@ -78,6 +88,7 @@ describe('sortRows', () => {
     ],
     artists: [],
     likedCount: 0,
+    downloadsCount: 0,
   });
 
   it('keeps server order under recents when nothing has been played', () => {
@@ -102,8 +113,23 @@ describe('sortRows', () => {
       albums: [],
       artists: [],
       likedCount: 2,
+      downloadsCount: 0,
     });
     expect(sortRows(playlistRows, 'alpha')[0].liked).toBe(true);
     expect(sortRows(playlistRows, 'recents', { p: 999 })[0].liked).toBe(true);
+  });
+
+  it('keeps both pinned rows (Liked Songs, Downloads) first in both orders', () => {
+    const rows = buildLibraryRows('playlists', {
+      playlists: [{ Id: 'p', Name: 'Aaa First Alpha', Type: 'Playlist' }],
+      albums: [],
+      artists: [],
+      likedCount: 2,
+      downloadsCount: 1,
+    });
+    const alpha = sortRows(rows, 'alpha');
+    expect([alpha[0].liked, alpha[1].downloads]).toEqual([true, true]);
+    const recents = sortRows(rows, 'recents', { p: 999 });
+    expect([recents[0].liked, recents[1].downloads]).toEqual([true, true]);
   });
 });

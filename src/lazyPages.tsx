@@ -30,6 +30,10 @@ export const LikedSongsPage = lazyPage(
   'LikedSongsPage',
 );
 export const Settings = lazyPage(() => import('./features/settings/Settings'), 'Settings');
+export const DownloadsPage = lazyPage(
+  () => import('./features/downloads/DownloadsPage'),
+  'DownloadsPage',
+);
 export const PlaylistDetail = lazyPage(
   () => import('./features/playlists/PlaylistDetail'),
   'PlaylistDetail',

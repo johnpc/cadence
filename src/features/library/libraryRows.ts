@@ -1,4 +1,5 @@
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { pinnedRows } from './pinnedRows';
 
 /** Which section of the library is shown. */
 export type LibraryFilter = 'playlists' | 'albums' | 'artists';
@@ -23,6 +24,11 @@ export interface LibraryRow {
   item: JellyfinItem | null;
   /** True for the pinned Liked Songs pseudo-playlist (renders a heart tile). */
   liked?: boolean;
+  /** True for the pinned Downloads pseudo-playlist (renders a download tile). */
+  downloads?: boolean;
+  /** True for any pinned pseudo-playlist (Liked Songs / Downloads) kept at the
+   * top of the list regardless of sort. */
+  pinned?: boolean;
 }
 
 /** Build the rows for the active filter. Under "playlists", Liked Songs is
@@ -34,6 +40,7 @@ export function buildLibraryRows(
     albums: JellyfinItem[];
     artists: JellyfinItem[];
     likedCount: number;
+    downloadsCount: number;
   },
 ): LibraryRow[] {
   if (filter === 'albums') {
@@ -56,17 +63,8 @@ export function buildLibraryRows(
       item: a,
     }));
   }
-  const liked: LibraryRow = {
-    id: 'liked-songs',
-    name: 'Liked Songs',
-    subtitle: `Playlist • ${data.likedCount} ${data.likedCount === 1 ? 'song' : 'songs'}`,
-    to: '/liked',
-    round: false,
-    item: null,
-    liked: true,
-  };
   return [
-    liked,
+    ...pinnedRows(data.likedCount, data.downloadsCount),
     ...data.playlists.map((p) => ({
       id: p.Id,
       name: p.Name,
