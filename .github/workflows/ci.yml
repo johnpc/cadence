@@ -132,6 +132,17 @@ jobs:
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: bash scripts/warmup-jellyfin.sh
 
+      # Ensure the cadence-test user owns a playlist + follows an artist — the
+      # library/home scenarios need that owned content, which the
+      # playlist-ownership fix (own-only Your Library) otherwise leaves empty on
+      # a fresh user. Idempotent; never fails the job.
+      - name: Seed cadence-test owned content
+        env:
+          VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+        run: bash scripts/seed-e2e-user.sh
+
       # Auto-retry the whole area once on failure. Playwright already retries
       # individual scenarios (retries: 2), but when a scenario exhausts all its
       # attempts inside one bad ~60s Jellyfin window (auth throttle / stalled

@@ -1,4 +1,5 @@
 import { createBdd } from 'playwright-bdd';
+import { DATA_WAIT } from './timeouts';
 import { expect } from '@playwright/test';
 import { navigate, libraryList } from './app-shell.steps';
 
@@ -7,7 +8,7 @@ const { When, Then } = createBdd();
 When('I open the Library tab', async ({ page }) => {
   await navigate(page, 'Your Library');
   // Wait for the (sidebar/desktop) library list to render before acting on it.
-  await expect(libraryList(page)).toBeVisible({ timeout: 15_000 });
+  await expect(libraryList(page)).toBeVisible({ timeout: DATA_WAIT });
 });
 
 When('I filter the library to {string}', async ({ page }, filter: string) => {
@@ -20,17 +21,17 @@ When('I filter the library to {string}', async ({ page }, filter: string) => {
 When('I open Liked Songs', async ({ page }) => {
   // Liked Songs is the pinned first row of the Playlists filter.
   const row = libraryList(page).getByText('Liked Songs');
-  await expect(row).toBeVisible({ timeout: 15_000 });
+  await expect(row).toBeVisible({ timeout: DATA_WAIT });
   await row.click({ force: true });
   // Wait for the Liked Songs page to render before the next step acts on it.
-  await expect(page.getByTestId('liked-songs')).toBeAttached({ timeout: 15_000 });
+  await expect(page.getByTestId('liked-songs')).toBeAttached({ timeout: DATA_WAIT });
 });
 
 When('I shuffle-play the liked songs', async ({ page }) => {
   // Wait for the tracks to actually load — shuffle-play with an empty list is a
   // no-op, so clicking before the query resolves silently fails to start audio.
   const rows = page.getByTestId('liked-songs').getByTestId('track-row');
-  await expect(rows.first()).toBeAttached({ timeout: 15_000 });
+  await expect(rows.first()).toBeAttached({ timeout: DATA_WAIT });
   // Retry the click until playback actually starts — the Ionic route transition
   // can swallow a click aimed at the still-animating page.
   const shuffle = page.getByTestId('liked-songs').getByTestId('shuffle-all');
@@ -47,7 +48,7 @@ When('I like a track from search', async ({ page }) => {
   await navigate(page, 'Search');
   await page.getByTestId('search-input').locator('input').fill('love');
   const heart = page.getByTestId('search-results').getByTestId('like-button').first();
-  await expect(heart).toBeVisible({ timeout: 15_000 });
+  await expect(heart).toBeVisible({ timeout: DATA_WAIT });
   if ((await heart.getAttribute('aria-pressed')) !== 'true') {
     await heart.click();
     await expect(heart).toHaveAttribute('aria-pressed', 'true');
@@ -55,12 +56,12 @@ When('I like a track from search', async ({ page }) => {
 });
 
 Then('I see the Liked Songs row', async ({ page }) => {
-  await expect(libraryList(page).getByText('Liked Songs')).toBeVisible({ timeout: 15_000 });
+  await expect(libraryList(page).getByText('Liked Songs')).toBeVisible({ timeout: DATA_WAIT });
 });
 
 Then('the liked songs list is not empty', async ({ page }) => {
   const rows = page.getByTestId('liked-songs').getByTestId('track-row');
-  await expect(rows.first()).toBeAttached({ timeout: 15_000 });
+  await expect(rows.first()).toBeAttached({ timeout: DATA_WAIT });
   expect(await rows.count()).toBeGreaterThan(0);
 });
 

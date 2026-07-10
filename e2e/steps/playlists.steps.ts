@@ -1,4 +1,5 @@
 import { createBdd } from 'playwright-bdd';
+import { DATA_WAIT } from './timeouts';
 import { expect } from '@playwright/test';
 import { libraryList } from './app-shell.steps';
 
@@ -8,9 +9,9 @@ When('I open the first playlist', async ({ page }) => {
   // Your Library lists Liked Songs first (pinned), then real playlists — open
   // the first row that isn't Liked Songs.
   const rows = libraryList(page).getByTestId('library-row');
-  await expect(rows.first()).toBeVisible({ timeout: 15_000 });
+  await expect(rows.first()).toBeVisible({ timeout: DATA_WAIT });
   const row = rows.filter({ hasNotText: 'Liked Songs' }).first();
-  await expect(row).toBeVisible({ timeout: 15_000 });
+  await expect(row).toBeVisible({ timeout: DATA_WAIT });
   await row.click({ force: true });
 });
 
@@ -18,7 +19,7 @@ Then('I see the playlist tracks', async ({ page }) => {
   // A large playlist's items read from the shared Jellyfin server can take
   // several seconds (more under CI contention) — give it real headroom.
   const rows = page.getByTestId('playlist-detail').getByTestId('track-row');
-  await expect(rows.first()).toBeAttached({ timeout: 30_000 });
+  await expect(rows.first()).toBeAttached({ timeout: DATA_WAIT });
   expect(await rows.count()).toBeGreaterThan(0);
 });
 
@@ -32,7 +33,7 @@ Then('the playlist play button becomes a pause button', async ({ page }) => {
   await expect(page.getByTestId('playlist-detail').getByTestId('play-all')).toHaveAttribute(
     'aria-label',
     'Pause',
-    { timeout: 15_000 },
+    { timeout: DATA_WAIT },
   );
 });
 
@@ -43,8 +44,8 @@ When('I press the playlist play button', async ({ page }) => {
 Then('I see recommended songs to add', async ({ page }) => {
   // Recommendations come from Jellyfin's instant-mix radio seeded on the
   // playlist — real tracks, fetched after the playlist's own items resolve.
-  await expect(page.getByTestId('playlist-recs')).toBeAttached({ timeout: 30_000 });
-  await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: 30_000 });
+  await expect(page.getByTestId('playlist-recs')).toBeAttached({ timeout: DATA_WAIT });
+  await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: DATA_WAIT });
 });
 
 // The dismissed rec's track id — we assert on the id (via data-track-id), not
@@ -54,7 +55,7 @@ let dismissedId = '';
 
 When('I dismiss the first recommendation', async ({ page }) => {
   const first = page.getByTestId('playlist-rec').first();
-  await expect(first).toBeAttached({ timeout: 15_000 });
+  await expect(first).toBeAttached({ timeout: DATA_WAIT });
   dismissedId = (await first.getAttribute('data-track-id')) ?? '';
   // A real (non-force) click: force-clicking the small dismiss button can land
   // on an overlapping element without firing its handler.
@@ -67,7 +68,7 @@ Then('the full player shows it is playing from a playlist', async ({ page }) => 
   // Spotify-style "Playing from playlist · <name>" caption at the top of the
   // full player, driven by the collection the queue was started from.
   const ctx = page.getByTestId('full-player').getByTestId('playing-from');
-  await expect(ctx).toBeVisible({ timeout: 15_000 });
+  await expect(ctx).toBeVisible({ timeout: DATA_WAIT });
   await expect(ctx).toContainText('Playing from playlist');
 });
 
@@ -76,7 +77,7 @@ Then('a different recommendation takes its place', async ({ page }) => {
   // stays functional with at least one recommendation.
   await expect(
     page.locator(`[data-testid="playlist-rec"][data-track-id="${dismissedId}"]`),
-  ).toHaveCount(0, { timeout: 15_000 });
+  ).toHaveCount(0, { timeout: DATA_WAIT });
   await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: 20_000 });
 });
 
@@ -111,6 +112,6 @@ Then('I see the rename prompt prefilled with the playlist name', async ({ page }
   // current name, ready to edit. (Driving IonAlert's value in-test is
   // unreliable — the rename mutation itself is covered by unit tests.)
   const input = page.locator('ion-alert:has-text("Rename playlist") input');
-  await expect(input).toBeVisible({ timeout: 15_000 });
+  await expect(input).toBeVisible({ timeout: DATA_WAIT });
   await expect(input).toHaveValue(originalPlaylistName);
 });

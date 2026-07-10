@@ -1,4 +1,5 @@
 import { createBdd } from 'playwright-bdd';
+import { DATA_WAIT } from './timeouts';
 import { expect } from '@playwright/test';
 import { navigate, searchUntilResults } from './app-shell.steps';
 
@@ -16,7 +17,7 @@ When('I tap a track from search', async ({ page }) => {
 Then('the Now-Playing bar shows a track', async ({ page }) => {
   // Assert attachment, not viewport visibility: on nested routes (e.g. /liked)
   // Ionic keeps the tab-slot mini-player attached but flags it "not visible".
-  await expect(page.getByTestId('now-playing-bar')).toBeAttached({ timeout: 15_000 });
+  await expect(page.getByTestId('now-playing-bar')).toBeAttached({ timeout: DATA_WAIT });
   await expect(page.getByTestId('now-playing-title')).not.toBeEmpty();
 });
 
@@ -50,7 +51,7 @@ When('I press the spacebar', async ({ page }) => {
 Then('playback is paused', async ({ page }) => {
   // The mini-player toggle flips to the Play icon (aria-label) when paused.
   await expect(page.getByTestId('now-playing-toggle')).toHaveAttribute('aria-label', 'Play', {
-    timeout: 15_000,
+    timeout: DATA_WAIT,
   });
 });
 
@@ -65,14 +66,14 @@ Then('the full player shows the next-up track', async ({ page }) => {
   // With a multi-track queue playing, the full player shows a "Next: <song>"
   // hint above the queue. It carries the upcoming track's name.
   const hint = page.getByTestId('full-player-next-up');
-  await expect(hint).toBeVisible({ timeout: 15_000 });
+  await expect(hint).toBeVisible({ timeout: DATA_WAIT });
   await expect(hint).toContainText('Next');
 });
 
 Then('shuffle is on', async ({ page }) => {
   // The shuffle control gains the "--on" state class when active.
   const shuffle = page.getByTestId('full-player-shuffle');
-  await expect(shuffle).toHaveClass(/fullplayer__ctl--on/, { timeout: 15_000 });
+  await expect(shuffle).toHaveClass(/fullplayer__ctl--on/, { timeout: DATA_WAIT });
 });
 
 When('I open lyrics', async ({ page }) => {
@@ -82,10 +83,10 @@ When('I open lyrics', async ({ page }) => {
 });
 
 Then('the lyrics sheet is shown', async ({ page }) => {
-  await expect(page.getByTestId('lyrics-sheet')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('lyrics-sheet')).toBeVisible({ timeout: DATA_WAIT });
   // Either lyric lines or a titled empty state resolves — never a hung spinner.
   await expect(page.getByTestId('lyrics-lines').or(page.getByTestId('load-empty'))).toBeAttached({
-    timeout: 15_000,
+    timeout: DATA_WAIT,
   });
 });
 
@@ -93,29 +94,29 @@ When('I open the queue', async ({ page }) => {
   const btn = page.getByTestId('full-player-queue');
   await btn.scrollIntoViewIfNeeded();
   await btn.click({ force: true });
-  await expect(page.getByTestId('queue-view')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('queue-view')).toBeVisible({ timeout: DATA_WAIT });
 });
 
 Then('I can save the queue as a playlist', async ({ page }) => {
   // The "Save as playlist" action prompts for a name (a real playlist create
   // would mutate the shared server, so we assert the prompt opens, not submit).
   const save = page.getByTestId('queue-save');
-  await expect(save).toBeVisible({ timeout: 15_000 });
+  await expect(save).toBeVisible({ timeout: DATA_WAIT });
   await save.click({ force: true });
   // The name prompt (an IonAlert) opens. Other alerts may be mounted-but-hidden,
   // so match the one showing our header rather than the bare element.
   await expect(page.locator('ion-alert:has-text("Save queue as playlist")')).toBeVisible({
-    timeout: 15_000,
+    timeout: DATA_WAIT,
   });
 });
 
 When('I tap the artist in the full player', async ({ page }) => {
   // The artist line under the now-playing title links to the artist page.
   const link = page.getByTestId('full-player-artists').getByRole('link').first();
-  await expect(link).toBeVisible({ timeout: 15_000 });
+  await expect(link).toBeVisible({ timeout: DATA_WAIT });
   await link.click({ force: true });
 });
 
 Then('I see the artist page', async ({ page }) => {
-  await expect(page.getByTestId('artist-radio')).toBeAttached({ timeout: 30_000 });
+  await expect(page.getByTestId('artist-radio')).toBeAttached({ timeout: DATA_WAIT });
 });
