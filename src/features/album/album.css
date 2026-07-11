@@ -13,6 +13,21 @@
   gap: var(--cad-space-2);
 }
 
+.album__more {
+  border: none;
+  background: none;
+  color: var(--cad-text-secondary);
+  font-size: 24px;
+  padding: var(--cad-space-1);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.album__more:hover {
+  color: var(--cad-text);
+}
+
 .album__title {
   margin: var(--cad-space-3) 0 0;
 }

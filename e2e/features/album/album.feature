@@ -24,6 +24,13 @@ Feature: Album detail
     Then I see the album tracks
     And I see albums that fans also like
 
+  Scenario: Starting an album radio from the album menu plays a mix
+    Given I am signed in
+    When I open the first album on Home
+    Then I see the album tracks
+    When I start an album radio from the album menu
+    Then the Now-Playing bar shows a track
+
   Scenario: A multi-disc album shows Disc headers over its tracklist
     Given I am signed in
     When I open the Search tab
