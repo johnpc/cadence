@@ -23,6 +23,12 @@ When('I play the album', async ({ page }) => {
   await page.getByTestId('album-detail').getByTestId('play-all').click({ force: true });
 });
 
+When('I start an album radio from the album menu', async ({ page }) => {
+  await page.getByTestId('album-more').click();
+  // The action sheet renders its buttons by text (real Ionic overlay).
+  await page.getByRole('button', { name: 'Go to album radio' }).click();
+});
+
 Then('I see albums that fans also like', async ({ page }) => {
   // "Fans also like" is derived from the album's instant-mix radio. Most albums
   // yield sibling albums, but a sparse mix can legitimately produce none (the
