@@ -31,22 +31,48 @@ export function usePlayerValue(
   current: JellyfinItem | null,
   t: Transport,
 ): PlayerContextValue {
+  // Destructure so the memo depends on each transport field individually (a
+  // fresh `t` object every render would otherwise defeat the memo, and the
+  // exhaustive-deps lint can't see through the object).
+  const {
+    isPlaying,
+    waiting,
+    toggle,
+    seek,
+    sleepMode,
+    armSleep,
+    volume,
+    setVolume,
+    rate,
+    setRate,
+  } = t;
   return useMemo(
-    () => buildPlayerValue(qh, current, t),
-    // Spread the transport fields so the memo tracks each one individually.
+    () =>
+      buildPlayerValue(qh, current, {
+        isPlaying,
+        waiting,
+        toggle,
+        seek,
+        sleepMode,
+        armSleep,
+        volume,
+        setVolume,
+        rate,
+        setRate,
+      }),
     [
       qh,
       current,
-      t.isPlaying,
-      t.waiting,
-      t.toggle,
-      t.seek,
-      t.sleepMode,
-      t.armSleep,
-      t.volume,
-      t.setVolume,
-      t.rate,
-      t.setRate,
+      isPlaying,
+      waiting,
+      toggle,
+      seek,
+      sleepMode,
+      armSleep,
+      volume,
+      setVolume,
+      rate,
+      setRate,
     ],
   );
 }

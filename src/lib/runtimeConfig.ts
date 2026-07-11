@@ -12,6 +12,11 @@ interface RuntimeConfig {
    * so a self-hoster can pin their server without rebuilding the image. The
    * user can still override it; a saved choice takes precedence. */
   serverUrl?: string;
+  /** Optional Google Cast receiver application id. When set, casting uses this
+   * custom receiver (which renders the visualizer/lyrics/queue on the TV)
+   * instead of the default media receiver. Unset → default receiver (audio
+   * only). Registered in the Google Cast console; see receiver/README. */
+  castReceiverAppId?: string;
 }
 
 declare global {
@@ -43,4 +48,15 @@ export function signupUrl(): string | null {
  * slashes are left for serverUrlStore to normalise. */
 export function configuredServerUrl(): string | null {
   return safeHttpUrl(window.__CADENCE_CONFIG__?.serverUrl);
+}
+
+/** The configured custom Cast receiver app id, or null when unset/invalid.
+ * Google Cast app ids are short alphanumeric tokens (e.g. "A1B2C3D4"); validate
+ * the shape so an injected value can't smuggle anything unexpected into the
+ * plugin's initialize call. */
+export function castReceiverAppId(): string | null {
+  const raw = window.__CADENCE_CONFIG__?.castReceiverAppId;
+  if (typeof raw !== 'string') return null;
+  const t = raw.trim();
+  return /^[A-Za-z0-9]{4,16}$/.test(t) ? t : null;
 }

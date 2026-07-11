@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { Chromecast } from '@hauxir2/capacitor-chromecast';
 import { audioStreamUrl, imageUrl } from '../../lib/jellyfinStream';
+import { castReceiverAppId } from '../../lib/runtimeConfig';
 import { setCastState, getCastState } from './castStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -21,7 +22,14 @@ export function isCastAvailable(): boolean {
 
 async function ensureInitialized(): Promise<void> {
   if (initialized) return;
-  await Chromecast.initialize({ autoJoinPolicy: 'origin_scoped' });
+  // When a custom receiver app id is configured, initialize with it so casting
+  // launches OUR receiver (visualizer/lyrics/queue on the TV); otherwise the
+  // plugin uses the default media receiver (audio only) — unchanged behaviour.
+  const appId = castReceiverAppId();
+  await Chromecast.initialize({
+    autoJoinPolicy: 'origin_scoped',
+    ...(appId ? { appId } : {}),
+  });
   Chromecast.addListener('SESSION_ENDED', () =>
     setCastState({ connected: false, deviceName: '', playing: false }),
   );
