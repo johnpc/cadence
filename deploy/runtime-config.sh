@@ -8,6 +8,8 @@
 #   SIGNUP_URL   — show a "Sign up" link on the sign-in screen.
 #   JELLYFIN_URL — default Jellyfin server URL (pre-fills the Server field; the
 #                  user can still override, and a saved choice wins).
+#   CAST_RECEIVER_APP_ID — custom Google Cast receiver app id; enables the
+#                  visualizer/lyrics/queue-on-TV receiver (see receiver/README).
 set -eu
 
 CONFIG_PATH="/usr/share/nginx/html/config.js"
@@ -27,6 +29,7 @@ add_field() {
 
 add_field signupUrl "${SIGNUP_URL:-}"
 add_field serverUrl "${JELLYFIN_URL:-}"
+add_field castReceiverAppId "${CAST_RECEIVER_APP_ID:-}"
 
 cat > "$CONFIG_PATH" <<EOF
 window.__CADENCE_CONFIG__ = {${FIELDS}};

@@ -10,6 +10,7 @@ import { NowPlayingMeta } from './NowPlayingMeta';
 import { FullPlayer } from './FullPlayer';
 import { NowPlayingExtras } from './NowPlayingExtras';
 import { LikeButton } from '../library/LikeButton';
+import { useCastSync } from '../cast/useCastSync';
 import './nowPlayingBar.css';
 
 /** Persistent mini-player above the tab bar. Tap to open the full player. */
@@ -19,6 +20,8 @@ export function NowPlayingBar() {
   const { position, duration } = usePlayerProgress();
   const scrub = useScrubber(position, seek);
   const [open, setOpen] = useState(false);
+  // While casting to a custom receiver, mirror now-playing + queue to the TV.
+  useCastSync();
 
   // Flag the document while a track is loaded so scroll views can reserve
   // bottom space and their last row isn't hidden behind the fixed mini-player.

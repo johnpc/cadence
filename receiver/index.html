@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cadence — Cast receiver</title>
+    <!-- Google Cast Application Framework (CAF) receiver SDK. -->
+    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <link rel="stylesheet" href="./receiver.css" />
+  </head>
+  <body>
+    <!-- Ambient art backdrop (blurred cover), a foreground now-playing panel
+         with a canvas visualizer, and a live "Up next" queue column. Populated
+         from the app's custom-namespace messages (see castMessages.ts). -->
+    <div id="bg" class="bg"></div>
+    <main class="stage">
+      <section class="now">
+        <img id="art" class="art" alt="" />
+        <canvas id="viz" class="viz" width="900" height="160"></canvas>
+        <h1 id="title" class="title">Cadence</h1>
+        <p id="artist" class="artist"></p>
+        <p id="idle" class="idle">Ready to play</p>
+      </section>
+      <aside class="queue">
+        <h2 class="queue__head">Up next</h2>
+        <ol id="queue" class="queue__list"></ol>
+      </aside>
+    </main>
+    <script src="./receiver.js"></script>
+  </body>
+</html>

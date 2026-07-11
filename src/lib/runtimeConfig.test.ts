@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { configuredServerUrl, signupUrl } from './runtimeConfig';
+import { castReceiverAppId, configuredServerUrl, signupUrl } from './runtimeConfig';
 
 afterEach(() => {
   delete window.__CADENCE_CONFIG__;
@@ -53,5 +53,27 @@ describe('configuredServerUrl', () => {
   it('rejects non-http(s) values', () => {
     window.__CADENCE_CONFIG__ = { serverUrl: 'ftp://nope' };
     expect(configuredServerUrl()).toBeNull();
+  });
+});
+
+describe('castReceiverAppId', () => {
+  it('returns null when unset', () => {
+    expect(castReceiverAppId()).toBeNull();
+    window.__CADENCE_CONFIG__ = {};
+    expect(castReceiverAppId()).toBeNull();
+  });
+
+  it('returns a valid alphanumeric app id, trimmed', () => {
+    window.__CADENCE_CONFIG__ = { castReceiverAppId: '  A1B2C3D4  ' };
+    expect(castReceiverAppId()).toBe('A1B2C3D4');
+  });
+
+  it('rejects malformed ids (wrong chars or length)', () => {
+    window.__CADENCE_CONFIG__ = { castReceiverAppId: 'has space' };
+    expect(castReceiverAppId()).toBeNull();
+    window.__CADENCE_CONFIG__ = { castReceiverAppId: 'ab' }; // too short
+    expect(castReceiverAppId()).toBeNull();
+    window.__CADENCE_CONFIG__ = { castReceiverAppId: 'javascript:alert(1)' };
+    expect(castReceiverAppId()).toBeNull();
   });
 });
