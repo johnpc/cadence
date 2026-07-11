@@ -190,7 +190,12 @@ jobs:
           timeout_minutes: 15
           max_attempts: 2
           retry_wait_seconds: 30
-          command: npx bddgen && npx playwright test ${{ matrix.area.paths }}
+          # Re-warm the tunnel/auth INSIDE the retry command so attempt 2 (after
+          # the 30s wait, by which point the tunnel may have gone cold again)
+          # doesn't start Playwright's sign-in against a cold server — the exact
+          # window that made whole areas fail both attempts. Warmup never fails
+          # the run; the tests remain the gate.
+          command: bash scripts/warmup-jellyfin.sh && npx bddgen && npx playwright test ${{ matrix.area.paths }}
 
       - name: Upload Playwright report
         if: always()
