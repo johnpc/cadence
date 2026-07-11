@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { createEvent, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -89,6 +89,20 @@ describe('NowPlayingBar', () => {
   it('opens the full player when the bar is tapped', async () => {
     renderBar(ctx({ current: song }));
     await userEvent.click(screen.getByTestId('now-playing-open'));
+    expect(await screen.findByTestId('full-player')).toBeInTheDocument();
+  });
+
+  it('opens the full player when the mini-bar meta is swiped up', async () => {
+    renderBar(ctx({ current: song }));
+    const meta = screen.getByTestId('now-playing-open');
+    const down = createEvent.pointerDown(meta);
+    Object.defineProperty(down, 'clientX', { value: 100 });
+    Object.defineProperty(down, 'clientY', { value: 200 });
+    fireEvent(meta, down);
+    const up = createEvent.pointerUp(meta);
+    Object.defineProperty(up, 'clientX', { value: 103 });
+    Object.defineProperty(up, 'clientY', { value: 100 });
+    fireEvent(meta, up);
     expect(await screen.findByTestId('full-player')).toBeInTheDocument();
   });
 

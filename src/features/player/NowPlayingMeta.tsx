@@ -2,11 +2,12 @@ import { IonIcon } from '@ionic/react';
 import { tv } from 'ionicons/icons';
 import { TrackArt } from './TrackArt';
 import { artistLine } from './playerFormat';
+import { useSwipeUp } from './useSwipeUp';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** The mini-player's tappable art + title + subtitle. The subtitle shows the
- * artist, or a "casting to <device>" pill when a cast session is active. Tapping
- * opens the full player. */
+ * artist, or a "casting to <device>" pill when a cast session is active. Tap —
+ * or swipe up — to open the full player. */
 export function NowPlayingMeta({
   track,
   casting,
@@ -18,8 +19,9 @@ export function NowPlayingMeta({
   deviceName: string;
   onOpen: () => void;
 }) {
+  const swipeUp = useSwipeUp(onOpen);
   return (
-    <button className="npbar__open" onClick={onOpen} data-testid="now-playing-open">
+    <button className="npbar__open" onClick={onOpen} data-testid="now-playing-open" {...swipeUp}>
       <TrackArt item={track} size={40} />
       <span className="npbar__meta">
         <span className="npbar__title" data-testid="now-playing-title">
