@@ -19,6 +19,7 @@ import { usePlayerValue } from './usePlayerValue';
 import { useTrackLoader } from './useTrackLoader';
 import { useToast } from '../toast/useToast';
 import { useEffectiveProgress } from '../cast/useEffectiveProgress';
+import { useSmartPrev } from './useSmartPrev';
 import * as q from './queue';
 
 /** Holds the play queue + the one audio element, exposing player controls. */
@@ -44,6 +45,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const { toggle, seek, seekBy, pause } = usePlaybackControls(ref, qh.queue.tracks.length > 0);
 
+  // Smart "previous": restart mid-track, else go to the prior track.
+  const qc = { ...qh, prev: useSmartPrev(ref, seek, qh.prev) };
+
   // Report playback to Jellyfin (play counts + Recently Played). Reads position
   // live from the audio element so it doesn't re-fire on every tick.
   usePlaybackReporting(currentId, () => ref.current?.currentTime ?? 0);
@@ -67,9 +71,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   });
 
   const audioControls = { toggle, seek, seekBy, nudgeVolume, toggleMute };
-  usePlayerIntegrations(current, isPlaying, qh, audioControls, position, duration);
+  usePlayerIntegrations(current, isPlaying, qc, audioControls, position, duration);
 
-  const value = usePlayerValue(qh, current, {
+  const value = usePlayerValue(qc, current, {
     isPlaying,
     waiting,
     toggle,

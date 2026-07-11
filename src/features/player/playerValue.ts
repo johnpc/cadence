@@ -30,10 +30,12 @@ export function buildPlayerValue(
     waiting: transport.waiting,
     shuffle: qh.shuffle,
     repeat: qh.repeat,
-    // With repeat-all, next/prev wrap around the ends, so the controls stay
-    // enabled on the last/first track (as long as there's more than one track).
+    // With repeat-all, next wraps around the end, so it stays enabled on the
+    // last track (as long as there's more than one track).
     canNext: q.hasNext(qh.queue) || (qh.repeat === 'all' && qh.queue.tracks.length > 1),
-    canPrev: q.hasPrev(qh.queue) || (qh.repeat === 'all' && qh.queue.tracks.length > 1),
+    // Prev is enabled whenever a track is loaded: even on the first track it
+    // usefully restarts the current one (smart-prev), matching Spotify.
+    canPrev: !!current,
     queue: qh.queue.tracks,
     queueIndex: qh.queue.index,
     playQueue: qh.playQueue,
