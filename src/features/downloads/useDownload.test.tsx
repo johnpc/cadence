@@ -3,10 +3,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ReactNode } from 'react';
 
+// A working listener set so tests can emit a downloads-change and assert repaint.
+const dlListeners = new Set<() => void>();
+const emitDownloadsChange = () => dlListeners.forEach((l) => l());
 vi.mock('./downloadStore', () => ({
   downloadTrack: vi.fn(),
   removeDownload: vi.fn(),
   isDownloaded: vi.fn(() => false),
+  onDownloadsChange: (l: () => void) => {
+    dlListeners.add(l);
+    return () => dlListeners.delete(l);
+  },
 }));
 vi.mock('../../lib/haptics', () => ({ tap: vi.fn() }));
 import { downloadTrack, removeDownload, isDownloaded } from './downloadStore';
@@ -25,6 +32,7 @@ const track = { Id: 't1', Name: 'x' } as JellyfinItem;
 describe('useDownload', () => {
   afterEach(() => {
     vi.resetAllMocks();
+    dlListeners.clear();
   });
 
   it('seeds from the store state', () => {
@@ -66,5 +74,26 @@ describe('useDownload', () => {
     act(() => result.current.toggle()); // second tap mid-flight
     await waitFor(() => expect(result.current.state).toBe('downloaded'));
     expect(downloadTrack).toHaveBeenCalledOnce();
+  });
+
+  it('repaints when the track is downloaded elsewhere (e.g. Download all)', () => {
+    const { result } = renderHook(() => useDownload(track), { wrapper });
+    expect(result.current.state).toBe('none');
+    // A collection download adds this track to the index, then emits.
+    vi.mocked(isDownloaded).mockReturnValue(true);
+    act(() => emitDownloadsChange());
+    expect(result.current.state).toBe('downloaded');
+  });
+
+  it('re-seeds when the track prop changes under a mounted hook', () => {
+    vi.mocked(isDownloaded).mockReturnValue(true);
+    const { result, rerender } = renderHook(({ t }) => useDownload(t), {
+      wrapper,
+      initialProps: { t: track },
+    });
+    expect(result.current.state).toBe('downloaded');
+    vi.mocked(isDownloaded).mockReturnValue(false);
+    rerender({ t: { Id: 't2', Name: 'y' } as JellyfinItem });
+    expect(result.current.state).toBe('none');
   });
 });

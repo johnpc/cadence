@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { downloadTrack, removeDownload, isDownloaded } from './downloadStore';
+import { downloadTrack, removeDownload, isDownloaded, onDownloadsChange } from './downloadStore';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -18,6 +18,17 @@ export function useDownload(track: JellyfinItem) {
   const [state, setState] = useState<DownloadState>(() =>
     isDownloaded(track.Id) ? 'downloaded' : 'none',
   );
+
+  // Stay in sync with the store: re-seed when the track changes, and repaint
+  // when the download is added/removed elsewhere (e.g. a "Download all" on the
+  // album that includes this track, or the Downloads screen removing it) — but
+  // never clobber an in-flight 'downloading' optimistic state.
+  useEffect(() => {
+    const sync = () =>
+      setState((s) => (s === 'downloading' ? s : isDownloaded(track.Id) ? 'downloaded' : 'none'));
+    sync();
+    return onDownloadsChange(sync);
+  }, [track.Id]);
 
   const save = useMutation({
     mutationFn: () => downloadTrack(track),
