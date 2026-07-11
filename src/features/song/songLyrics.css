@@ -1,0 +1,28 @@
+.song-lyrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-1);
+}
+
+.song-lyrics__line {
+  font-family: var(--cad-font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--cad-text-secondary);
+  margin: 0;
+}
+
+/* Synced lines are tappable (play from that timestamp) — style as inline text,
+   not a button chrome. */
+.song-lyrics__line--seek {
+  border: none;
+  background: none;
+  padding: 0;
+  text-align: left;
+  color: var(--cad-text);
+  cursor: pointer;
+}
+
+.song-lyrics__line--seek:hover {
+  color: var(--cad-accent);
+}
