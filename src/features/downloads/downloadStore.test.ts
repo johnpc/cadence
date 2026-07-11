@@ -29,6 +29,7 @@ import {
   removeDownload,
   isDownloaded,
   onDownloadsChange,
+  removeAllDownloads,
 } from './downloadStore';
 import { readIndex } from './downloadIndex';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -93,6 +94,19 @@ describe('downloadStore', () => {
     expect(remove).toHaveBeenCalledWith('a');
     expect(isDownloaded('a')).toBe(false);
     expect(await localAudioUrl('a')).toBeNull();
+  });
+
+  it('removeAllDownloads clears every blob + the whole index, emitting once', async () => {
+    await downloadTrack(track('a'));
+    await downloadTrack(track('b'));
+    const seen: string[] = [];
+    const off = onDownloadsChange(() => seen.push('x'));
+    await removeAllDownloads();
+    off();
+    expect(remove).toHaveBeenCalledWith('a');
+    expect(remove).toHaveBeenCalledWith('b');
+    expect(readIndex()).toEqual([]);
+    expect(seen).toEqual(['x']); // a single emit, not one per track
   });
 
   it('notifies subscribers on download and remove, and stops after unsubscribe', async () => {

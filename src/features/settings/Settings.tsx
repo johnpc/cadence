@@ -12,6 +12,7 @@ import { Autoplay } from './Autoplay';
 import { AudioQuality } from './AudioQuality';
 import { PlaybackSpeed } from './PlaybackSpeed';
 import { SleepTimer } from './SleepTimer';
+import { DownloadsManager } from './DownloadsManager';
 import { InstallButton } from './InstallButton';
 import { SignOutButton } from './SignOutButton';
 import { ClearCacheButton } from './ClearCacheButton';
@@ -42,6 +43,7 @@ export function Settings() {
           <AudioQuality />
           <PlaybackSpeed />
           <SleepTimer />
+          <DownloadsManager />
           <InstallButton />
           <section className="settings__storage">
             <h2 className="settings__title cad-kicker">Storage</h2>

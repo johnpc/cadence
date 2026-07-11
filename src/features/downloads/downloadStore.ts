@@ -56,6 +56,16 @@ export async function removeDownload(id: string): Promise<void> {
   emit();
 }
 
+/** Delete EVERY downloaded track (bytes + index). Removes blobs first (each is
+ * best-effort inside the backend), then clears the index and emits once so the
+ * UI updates a single time rather than per track. */
+export async function removeAllDownloads(): Promise<void> {
+  const ids = readIndex().map((t) => t.Id);
+  await Promise.all(ids.map((id) => store.removeBlob(id)));
+  for (const id of ids) removeFromIndex(id);
+  emit();
+}
+
 /** Whether a track id is in the downloaded index (sync, cheap). */
 export function isDownloaded(id: string): boolean {
   return readIndex().some((t) => t.Id === id);
