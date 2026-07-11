@@ -19,8 +19,29 @@
   z-index: 1;
 }
 
+/* The top zone: a grabber handle + the close chevron. Swipe it down to dismiss
+   the sheet (touch-action: none so the gesture owns the vertical axis here). */
+.fullplayer__grab {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  touch-action: none;
+}
+
+.fullplayer__grab-handle {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--cad-text-secondary);
+  opacity: 0.4;
+}
+
 .fullplayer__close {
-  align-self: flex-start;
   border: none;
   background: none;
   color: var(--cad-text);

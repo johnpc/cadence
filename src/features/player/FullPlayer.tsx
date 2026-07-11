@@ -1,11 +1,10 @@
 import { IonModal, IonIcon } from '@ionic/react';
-import { chevronDown, listOutline, documentTextOutline } from 'ionicons/icons';
+import { chevronDown } from 'ionicons/icons';
 import { useState } from 'react';
 import { AmbientBackground } from './AmbientBackground';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
-import { NowPlayingMenu } from './NowPlayingMenu';
-import { CastButton } from '../cast/CastButton';
+import { FullPlayerFooter } from './FullPlayerFooter';
 import { CastingBanner } from '../cast/CastingBanner';
 import { SleepIndicator } from './SleepIndicator';
 import { NextUpHint } from './NextUpHint';
@@ -17,6 +16,7 @@ import { usePlayer } from './usePlayer';
 import { usePlayerProgress } from './PlayerProgressContext';
 import { useScrubber } from './useScrubber';
 import { useSwipe } from './useSwipe';
+import { useDismissSwipe } from './useDismissSwipe';
 import { formatTime } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import './fullPlayer.css';
@@ -34,13 +34,17 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
     () => p.canNext && p.next(),
     () => p.canPrev && p.prev(),
   );
+  const dismiss = useDismissSwipe(onClose);
   return (
     <IonModal isOpen={open} onDidDismiss={onClose}>
       <div className="fullplayer" data-testid="full-player">
         <AmbientBackground item={p.current} />
-        <button className="fullplayer__close" onClick={onClose} aria-label="Close player">
-          <IonIcon icon={chevronDown} />
-        </button>
+        <div className="fullplayer__grab" data-testid="full-player-grab" {...dismiss}>
+          <span className="fullplayer__grab-handle" aria-hidden="true" />
+          <button className="fullplayer__close" onClick={onClose} aria-label="Close player">
+            <IonIcon icon={chevronDown} />
+          </button>
+        </div>
         <PlayingFrom trackId={p.current?.Id} onNavigate={onClose} />
         <CastingBanner />
         <SleepIndicator />
@@ -68,24 +72,12 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         </div>
         <PlayerControls />
         <VolumeSlider volume={p.volume} setVolume={p.setVolume} />
-        <div className="fullplayer__footer">
-          <button
-            className="fullplayer__foot-btn"
-            onClick={() => setLyricsOpen(true)}
-            data-testid="full-player-lyrics"
-          >
-            <IonIcon icon={documentTextOutline} /> Lyrics
-          </button>
-          <button
-            className="fullplayer__foot-btn"
-            onClick={() => setQueueOpen(true)}
-            data-testid="full-player-queue"
-          >
-            <IonIcon icon={listOutline} /> Up next
-          </button>
-          <CastButton />
-          {p.current && <NowPlayingMenu track={p.current} onNavigate={onClose} />}
-        </div>
+        <FullPlayerFooter
+          current={p.current}
+          onOpenLyrics={() => setLyricsOpen(true)}
+          onOpenQueue={() => setQueueOpen(true)}
+          onClose={onClose}
+        />
         <NextUpHint onOpenQueue={() => setQueueOpen(true)} />
         <QueueView open={queueOpen} onClose={() => setQueueOpen(false)} />
         <LyricsSheet open={lyricsOpen} onClose={() => setLyricsOpen(false)} />
