@@ -1,6 +1,7 @@
 import { IonRouterOutlet, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
 import { home, search, library } from 'ionicons/icons';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
+import { NowPlayingAnnouncer } from './features/player/NowPlayingAnnouncer';
 import { DesktopSidebar } from './features/library/DesktopSidebar';
 import { OfflineBanner } from './features/shell/OfflineBanner';
 import { KeyboardShortcutsHelp } from './features/shell/KeyboardShortcutsHelp';
@@ -25,6 +26,7 @@ export function AppTabs() {
   return (
     <>
       <OfflineBanner />
+      <NowPlayingAnnouncer />
       <KeyboardShortcutsHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
       <DesktopSidebar />
       <IonTabs>
