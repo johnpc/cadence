@@ -154,14 +154,25 @@ When('I open the rename prompt', async ({ page }) => {
     (
       await page.getByTestId('playlist-detail').getByTestId('playlist-title').textContent()
     )?.trim() ?? '';
-  await page.getByTestId('rename-playlist').click({ force: true });
+  // NOT force: a forced click can fire before the header toolbar settles and
+  // land on empty space, so the alert never opens and the input wait times out
+  // (the recurring rename flake). Wait for the button to be hittable, then a
+  // real click; confirm the alert actually opened before moving on.
+  const btn = page.getByTestId('rename-playlist');
+  await expect(btn).toBeVisible({ timeout: DATA_WAIT });
+  await btn.click();
+  await expect(page.locator('ion-alert:has-text("Rename playlist")')).toBeVisible({
+    timeout: DATA_WAIT,
+  });
 });
 
 Then('I see the rename prompt prefilled with the playlist name', async ({ page }) => {
   // The prompt (an IonAlert) opens with its text input prefilled with the
   // current name, ready to edit. (Driving IonAlert's value in-test is
   // unreliable — the rename mutation itself is covered by unit tests.)
-  const input = page.locator('ion-alert:has-text("Rename playlist") input');
+  const alert = page.locator('ion-alert:has-text("Rename playlist")');
+  await expect(alert).toBeVisible({ timeout: DATA_WAIT });
+  const input = alert.locator('input');
   await expect(input).toBeVisible({ timeout: DATA_WAIT });
   await expect(input).toHaveValue(originalPlaylistName);
 });
