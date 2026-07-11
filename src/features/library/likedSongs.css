@@ -1,7 +1,43 @@
+/* Spotify-style Liked Songs hero: a purple-gradient banner with a heart tile. */
+.liked-hero {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--cad-space-4);
+  margin: calc(-1 * var(--cad-space-4)) calc(-1 * var(--cad-space-4)) var(--cad-space-4);
+  padding: var(--cad-space-6) var(--cad-space-4) var(--cad-space-4);
+  background: linear-gradient(150deg, #4300a0 0%, #8338ec 55%, transparent 100%);
+}
+
+.liked-hero__tile {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: var(--cad-radius-thumb, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #8338ec 0%, #d0bcff 100%);
+  color: #fff;
+  font-size: 56px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.liked-hero__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-1);
+  min-width: 0;
+}
+
+.liked-hero__title {
+  margin: 0;
+  font-size: clamp(28px, 8vw, 48px);
+}
+
 .liked__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--cad-space-3);
   margin-bottom: var(--cad-space-3);
 }

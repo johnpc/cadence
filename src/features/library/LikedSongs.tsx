@@ -6,6 +6,7 @@ import { CollectionActions } from '../player/CollectionActions';
 import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import { collectionSummary } from '../player/playerFormat';
 import { LikedSongsControls } from './LikedSongsControls';
+import { LikedSongsHero } from './LikedSongsHero';
 import { sortLikedSongs, type LikedSort } from './sortLikedSongs';
 import { filterTracks } from '../playlists/filterTracks';
 import { useProgressiveList } from '../../lib/useProgressiveList';
@@ -38,13 +39,8 @@ export function LikedSongs() {
       skeleton={<TrackListSkeleton />}
     >
       <div data-testid="liked-songs">
+        <LikedSongsHero summary={collectionSummary(songs)} />
         <div className="liked__header">
-          <div className="liked__titles">
-            <h1 className="cad-headline">Liked Songs</h1>
-            <p className="cad-meta" data-testid="liked-summary">
-              {collectionSummary(songs)}
-            </p>
-          </div>
           <CollectionActions
             tracks={shown}
             context={{ kind: 'your library', label: 'Liked Songs', path: '/liked' }}
