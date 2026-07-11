@@ -45,18 +45,20 @@ const renderPlayer = (value: PlayerContextValue) =>
   });
 
 // jsdom's PointerEvent ignores clientX/Y from fireEvent init; define them on the
-// event before dispatch so the swipe handler sees a real horizontal delta.
-function swipeArt(fromX: number, toX: number) {
-  const art = screen.getByTestId('full-player-art');
-  const down = createEvent.pointerDown(art);
-  Object.defineProperty(down, 'clientX', { value: fromX });
-  Object.defineProperty(down, 'clientY', { value: 200 });
-  fireEvent(art, down);
-  const up = createEvent.pointerUp(art);
-  Object.defineProperty(up, 'clientX', { value: toX });
-  Object.defineProperty(up, 'clientY', { value: 205 });
-  fireEvent(art, up);
+// event before dispatch so the gesture handlers see a real delta.
+function drag(testid: string, from: [number, number], to: [number, number]) {
+  const el = screen.getByTestId(testid);
+  const down = createEvent.pointerDown(el);
+  Object.defineProperty(down, 'clientX', { value: from[0] });
+  Object.defineProperty(down, 'clientY', { value: from[1] });
+  fireEvent(el, down);
+  const up = createEvent.pointerUp(el);
+  Object.defineProperty(up, 'clientX', { value: to[0] });
+  Object.defineProperty(up, 'clientY', { value: to[1] });
+  fireEvent(el, up);
 }
+
+const swipeArt = (fromX: number, toX: number) => drag('full-player-art', [fromX, 200], [toX, 205]);
 
 describe('FullPlayer', () => {
   it('shows the current track and transport controls', async () => {
@@ -130,5 +132,15 @@ describe('FullPlayer', () => {
     renderPlayer(ctx({ next, canNext: false }));
     swipeArt(200, 100);
     expect(next).not.toHaveBeenCalled();
+  });
+
+  it('closes when the top grabber is swiped down', async () => {
+    const onClose = vi.fn();
+    renderWithProviders(<FullPlayer open onClose={onClose} />, {
+      player: ctx(),
+      progress: { position: 30, duration: 200 },
+    });
+    drag('full-player-grab', [150, 60], [155, 200]);
+    expect(onClose).toHaveBeenCalledOnce();
   });
 });
