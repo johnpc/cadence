@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, fireEvent, createEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -43,6 +43,20 @@ const renderPlayer = (value: PlayerContextValue) =>
     player: value,
     progress: { position: 30, duration: 200 },
   });
+
+// jsdom's PointerEvent ignores clientX/Y from fireEvent init; define them on the
+// event before dispatch so the swipe handler sees a real horizontal delta.
+function swipeArt(fromX: number, toX: number) {
+  const art = screen.getByTestId('full-player-art');
+  const down = createEvent.pointerDown(art);
+  Object.defineProperty(down, 'clientX', { value: fromX });
+  Object.defineProperty(down, 'clientY', { value: 200 });
+  fireEvent(art, down);
+  const up = createEvent.pointerUp(art);
+  Object.defineProperty(up, 'clientX', { value: toX });
+  Object.defineProperty(up, 'clientY', { value: 205 });
+  fireEvent(art, up);
+}
 
 describe('FullPlayer', () => {
   it('shows the current track and transport controls', async () => {
@@ -95,5 +109,26 @@ describe('FullPlayer', () => {
     renderPlayer(ctx());
     await userEvent.click(screen.getByTestId('full-player-lyrics'));
     expect(await screen.findByTestId('lyrics-sheet')).toBeInTheDocument();
+  });
+
+  it('skips to the next track when the art is swiped left', async () => {
+    const next = vi.fn();
+    renderPlayer(ctx({ next }));
+    swipeArt(200, 100);
+    expect(next).toHaveBeenCalledOnce();
+  });
+
+  it('goes to the previous track when the art is swiped right', async () => {
+    const prev = vi.fn();
+    renderPlayer(ctx({ prev }));
+    swipeArt(100, 200);
+    expect(prev).toHaveBeenCalledOnce();
+  });
+
+  it('does not skip past the end of the queue on swipe', async () => {
+    const next = vi.fn();
+    renderPlayer(ctx({ next, canNext: false }));
+    swipeArt(200, 100);
+    expect(next).not.toHaveBeenCalled();
   });
 });

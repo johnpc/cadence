@@ -28,6 +28,12 @@
   cursor: pointer;
 }
 
+/* Swipe target around the cover art (left/right to skip). Keep the browser's
+   own horizontal panning off it so our gesture owns the axis. */
+.fullplayer__art {
+  touch-action: pan-y;
+}
+
 .fullplayer__context {
   display: flex;
   flex-direction: column;
