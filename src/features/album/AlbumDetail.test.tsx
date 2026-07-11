@@ -9,6 +9,8 @@ vi.mock('../../lib/jellyfinItems', () => ({
   getItemTracks: vi.fn(),
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
+  getInstantMix: vi.fn().mockResolvedValue([]),
+  getItemsByIds: vi.fn().mockResolvedValue([]),
 }));
 vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylists: vi.fn().mockResolvedValue([]) }));
 vi.mock('../../lib/jellyfinArtists', () => ({ getArtistAlbums: vi.fn().mockResolvedValue([]) }));

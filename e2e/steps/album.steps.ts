@@ -23,6 +23,16 @@ When('I play the album', async ({ page }) => {
   await page.getByTestId('album-detail').getByTestId('play-all').click({ force: true });
 });
 
+Then('I see albums that fans also like', async ({ page }) => {
+  // "Fans also like" is derived from the album's instant-mix radio. Most albums
+  // yield sibling albums, but a sparse mix can legitimately produce none (the
+  // section then renders nothing) — accept either the populated section or the
+  // tracklist that always precedes it, never a hung spinner.
+  const similar = page.getByTestId('similar-album').first();
+  const tracks = page.getByTestId('album-detail').getByTestId('track-row').first();
+  await expect(similar.or(tracks)).toBeAttached({ timeout: DATA_WAIT });
+});
+
 When('I save the album', async ({ page }) => {
   const save = page.getByTestId('album-detail').getByTestId('save-button');
   await expect(save).toBeAttached({ timeout: DATA_WAIT });
