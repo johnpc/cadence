@@ -17,6 +17,8 @@ const titleEl = el('title');
 const artistEl = el('artist');
 const idleEl = el('idle');
 const queueEl = el('queue');
+const lyricsEl = el('lyrics');
+const vizEl = el('viz');
 
 /** Render the now-playing panel from a {title, artist, artUrl, isPlaying} msg. */
 function renderNowPlaying(m) {
@@ -49,11 +51,44 @@ function renderQueue(m) {
   });
 }
 
+/** Render karaoke lyrics from a {lines, activeIndex} message. When there are no
+ * lines, hide the lyric list and show the visualizer instead. Scrolls the active
+ * line into view and highlights it. */
+function renderLyrics(m) {
+  const lines = Array.isArray(m.lines) ? m.lines : [];
+  const hasLyrics = lines.length > 0;
+  lyricsEl.hidden = !hasLyrics;
+  vizEl.hidden = hasLyrics; // lyrics take the visualizer's place when present
+  if (!hasLyrics) {
+    lyricsEl.innerHTML = '';
+    return;
+  }
+  // Rebuild only when the line set changed (cheap: compare count + first text).
+  const sig = lines.length + '|' + (lines[0] ? lines[0].text : '');
+  if (lyricsEl.dataset.sig !== sig) {
+    lyricsEl.dataset.sig = sig;
+    lyricsEl.innerHTML = '';
+    lines.forEach((l) => {
+      const li = document.createElement('li');
+      li.className = 'lyrics__line';
+      li.textContent = l.text || '';
+      lyricsEl.append(li);
+    });
+  }
+  const items = lyricsEl.children;
+  for (let i = 0; i < items.length; i++) {
+    items[i].classList.toggle('lyrics__line--active', i === m.activeIndex);
+  }
+  const activeEl = items[m.activeIndex];
+  if (activeEl) activeEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+
 function handleMessage(data) {
   try {
     const m = typeof data === 'string' ? JSON.parse(data) : data;
     if (m && m.type === 'nowPlaying') renderNowPlaying(m);
     else if (m && m.type === 'queue') renderQueue(m);
+    else if (m && m.type === 'lyrics') renderLyrics(m);
   } catch (_e) {
     /* ignore malformed messages — never break the receiver */
   }

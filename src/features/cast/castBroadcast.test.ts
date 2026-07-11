@@ -4,7 +4,7 @@ const { sendMessage } = vi.hoisted(() => ({ sendMessage: vi.fn().mockResolvedVal
 vi.mock('@hauxir2/capacitor-chromecast', () => ({ Chromecast: { sendMessage } }));
 vi.mock('../../lib/jellyfinStream', () => ({ imageUrl: () => 'https://jf.test/art.jpg' }));
 
-import { sendNowPlaying, sendQueue } from './castBroadcast';
+import { sendNowPlaying, sendQueue, sendLyrics } from './castBroadcast';
 import { setCastState } from './castStore';
 import { CAST_NAMESPACE } from './castMessages';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -40,6 +40,16 @@ describe('castBroadcast', () => {
     expect(JSON.parse(sendMessage.mock.calls[0][0].message)).toMatchObject({
       type: 'queue',
       index: 0,
+    });
+  });
+
+  it('sends lyrics when connected + custom receiver set', async () => {
+    connect(true);
+    setAppId('A1B2C3D4');
+    await sendLyrics([{ text: 'la', start: 0 }], 0);
+    expect(JSON.parse(sendMessage.mock.calls[0][0].message)).toMatchObject({
+      type: 'lyrics',
+      activeIndex: 0,
     });
   });
 
