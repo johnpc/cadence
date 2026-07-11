@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
 import { tap } from '../../lib/haptics';
@@ -16,6 +16,13 @@ export function useSaveToggle(item: JellyfinItem | null) {
   const queryClient = useQueryClient();
   const toast = useToast();
   const [saved, setSaved] = useState(!!item?.UserData?.IsFavorite);
+
+  // Re-seed when the item resolves or changes: SaveButton mounts with item=null
+  // (loading) and the album/artist data arrives later via react-query — without
+  // this, a saved album/artist shows an UNSAVED heart until you leave and return.
+  useEffect(() => {
+    setSaved(!!item?.UserData?.IsFavorite);
+  }, [item?.Id, item?.UserData?.IsFavorite]);
 
   // "Follow/Unfollow" reads right for an artist; "library" for albums.
   const isArtist = item?.Type === 'MusicArtist';
