@@ -10,7 +10,8 @@ import { LyricsSheet } from './LyricsSheet';
  * queue, lyrics, and a volume/mute control. Hidden on mobile via CSS — phones
  * open the full player for these. Hosts its own queue + lyrics modals. */
 export function NowPlayingExtras() {
-  const { volume, setVolume } = usePlayer();
+  const { volume, setVolume, queue, queueIndex } = usePlayer();
+  const upcoming = Math.max(0, queue.length - queueIndex - 1);
   const [queueOpen, setQueueOpen] = useState(false);
   const [lyricsOpen, setLyricsOpen] = useState(false);
   const [premute, setPremute] = useState(1);
@@ -34,12 +35,17 @@ export function NowPlayingExtras() {
         <IonIcon icon={documentTextOutline} />
       </button>
       <button
-        className="npbar__extra"
+        className="npbar__extra npbar__extra--badged"
         onClick={() => setQueueOpen(true)}
         data-testid="npbar-queue"
-        aria-label="Queue"
+        aria-label={upcoming > 0 ? `Queue, ${upcoming} up next` : 'Queue'}
       >
         <IonIcon icon={listOutline} />
+        {upcoming > 0 && (
+          <span className="npbar__badge" data-testid="npbar-queue-count">
+            {upcoming > 99 ? '99+' : upcoming}
+          </span>
+        )}
       </button>
       <button
         className="npbar__extra"

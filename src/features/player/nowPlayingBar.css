@@ -129,6 +129,27 @@
   color: var(--cad-text);
 }
 
+/* Queue button carries a count badge (upcoming tracks). */
+.npbar__extra--badged {
+  position: relative;
+}
+
+.npbar__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
 .npbar__volume {
   width: 90px;
   accent-color: var(--cad-accent);
