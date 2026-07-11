@@ -51,7 +51,9 @@ describe('LikedSongs', () => {
   it('shows a song-count summary', async () => {
     vi.mocked(getFavoriteSongs).mockResolvedValue(songs);
     renderWithProviders(<LikedSongs />);
-    await waitFor(() => expect(screen.getByTestId('liked-summary')).toHaveTextContent('2 songs'));
+    await waitFor(() =>
+      expect(screen.getByTestId('collection-hero-summary')).toHaveTextContent('2 songs'),
+    );
   });
 
   it('plays all liked songs from the top', async () => {

@@ -1,0 +1,58 @@
+/* Spotify-style hero for cover-art-less collections (Liked Songs, Downloads):
+   an icon tile on a themed gradient banner. */
+.coll-hero {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--cad-space-4);
+  margin: calc(-1 * var(--cad-space-4)) calc(-1 * var(--cad-space-4)) var(--cad-space-4);
+  padding: var(--cad-space-6) var(--cad-space-4) var(--cad-space-4);
+}
+
+.coll-hero--liked {
+  background: linear-gradient(150deg, #4300a0 0%, #8338ec 55%, transparent 100%);
+}
+
+.coll-hero--downloads {
+  background: linear-gradient(150deg, #0a6e5c 0%, #14b8a6 55%, transparent 100%);
+}
+
+.coll-hero__tile {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: var(--cad-radius-thumb, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 56px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.coll-hero--liked .coll-hero__tile {
+  background: linear-gradient(135deg, #8338ec 0%, #d0bcff 100%);
+}
+
+.coll-hero--downloads .coll-hero__tile {
+  background: linear-gradient(135deg, #14b8a6 0%, #99f6e4 100%);
+}
+
+.coll-hero__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-1);
+  min-width: 0;
+}
+
+.coll-hero__title {
+  margin: 0;
+  font-size: clamp(28px, 8vw, 48px);
+}
+
+/* The play/shuffle/queue actions row beneath a collection hero. */
+.coll-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  margin-bottom: var(--cad-space-3);
+}

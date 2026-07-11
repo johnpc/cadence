@@ -6,7 +6,8 @@ import { CollectionActions } from '../player/CollectionActions';
 import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import { collectionSummary } from '../player/playerFormat';
 import { LikedSongsControls } from './LikedSongsControls';
-import { LikedSongsHero } from './LikedSongsHero';
+import { CollectionHero } from './CollectionHero';
+import { heart } from 'ionicons/icons';
 import { sortLikedSongs, type LikedSort } from './sortLikedSongs';
 import { filterTracks } from '../playlists/filterTracks';
 import { useProgressiveList } from '../../lib/useProgressiveList';
@@ -39,7 +40,12 @@ export function LikedSongs() {
       skeleton={<TrackListSkeleton />}
     >
       <div data-testid="liked-songs">
-        <LikedSongsHero summary={collectionSummary(songs)} />
+        <CollectionHero
+          icon={heart}
+          title="Liked Songs"
+          summary={collectionSummary(songs)}
+          variant="liked"
+        />
         <div className="liked__header">
           <CollectionActions
             tracks={shown}
