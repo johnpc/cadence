@@ -19,3 +19,11 @@
 .offline-banner ion-icon {
   font-size: 16px;
 }
+
+/* The "downloads" link inherits the banner's dark-on-warning colour, underlined
+   so it reads as tappable against the solid background. */
+.offline-banner__link {
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 700;
+}
