@@ -9,6 +9,14 @@ Feature: Artist detail
     And I open the first artist result
     Then I see the artist's albums
 
+  Scenario: "See all" opens the artist's full track list and plays it
+    Given I am signed in
+    When I open an artist that has popular tracks
+    And I tap See all on the popular tracks
+    Then I see the artist's full track list
+    When I play the artist track list
+    Then the Now-Playing bar shows a track
+
   Scenario: An artist page groups the discography into labelled sections
     Given I am signed in
     When I open the Search tab

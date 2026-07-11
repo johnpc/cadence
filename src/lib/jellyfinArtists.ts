@@ -65,3 +65,22 @@ export async function getArtistTopTracks(artistId: string, limit = 5): Promise<J
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
   return res.Items;
 }
+
+/** Every track by an artist, A–Z — the "See all" list behind the Popular
+ * section's short preview. Sorted by name (a full alphabetical catalogue reads
+ * better than play-count for browsing). */
+export async function getArtistTracks(artistId: string, limit = 500): Promise<JellyfinItem[]> {
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({
+    ArtistIds: artistId,
+    IncludeItemTypes: 'Audio',
+    Recursive: 'true',
+    SortBy: 'SortName',
+    SortOrder: 'Ascending',
+    Limit: String(limit),
+    Fields: 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks',
+    userId,
+  });
+  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
+  return res.Items;
+}

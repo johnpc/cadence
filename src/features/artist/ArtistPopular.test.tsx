@@ -20,4 +20,9 @@ describe('ArtistPopular', () => {
     expect(screen.getByText('Hit A')).toBeInTheDocument();
     expect(screen.getByText('Hit B')).toBeInTheDocument();
   });
+
+  it('links "See all" to the artist\'s full track list', () => {
+    renderWithProviders(<ArtistPopular tracks={tracks} artistId="ar1" />);
+    expect(screen.getByTestId('artist-see-all')).toHaveAttribute('href', '/artist/ar1/tracks');
+  });
 });
