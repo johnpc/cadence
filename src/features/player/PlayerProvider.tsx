@@ -1,4 +1,4 @@
-import { useMemo, useRef, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { PlayerContext } from './PlayerContext';
 import { PlayerProgressContext } from './PlayerProgressContext';
 import { useAudioElement } from './useAudioElement';
@@ -18,6 +18,7 @@ import { useDocumentTitle } from './useDocumentTitle';
 import { usePlayerValue } from './usePlayerValue';
 import { useTrackLoader } from './useTrackLoader';
 import { useToast } from '../toast/useToast';
+import { useEffectiveProgress } from '../cast/useEffectiveProgress';
 import * as q from './queue';
 
 /** Holds the play queue + the one audio element, exposing player controls. */
@@ -82,8 +83,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   });
 
   // Progress ticks several times a second — its own context so only the
-  // scrubbers (NowPlayingBar, FullPlayer) re-render on each tick.
-  const progress = useMemo(() => ({ position, duration }), [position, duration]);
+  // scrubbers (NowPlayingBar, FullPlayer) re-render on each tick. While casting,
+  // it reflects the receiver's position (the local audio is paused then).
+  const progress = useEffectiveProgress(position, duration);
 
   return (
     <PlayerContext.Provider value={value}>

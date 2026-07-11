@@ -3,7 +3,15 @@ import { Chromecast } from '@hauxir2/capacitor-chromecast';
 import { audioStreamUrl, imageUrl } from '../../lib/jellyfinStream';
 import { castReceiverAppId } from '../../lib/runtimeConfig';
 import { setCastState, getCastState } from './castStore';
+import { setCastProgress } from './castProgress';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+/** Shape of the MEDIA_UPDATE event payload we read for the receiver's position.
+ * (Only the fields we use; the plugin's MediaObject has more.) */
+interface MediaUpdate {
+  currentTime?: number;
+  media?: { duration?: number };
+}
 
 /**
  * Thin wrapper over the Chromecast plugin. Casts a Jellyfin track's audio to a
@@ -30,9 +38,14 @@ async function ensureInitialized(): Promise<void> {
     autoJoinPolicy: 'origin_scoped',
     ...(appId ? { appId } : {}),
   });
-  Chromecast.addListener('SESSION_ENDED', () =>
-    setCastState({ connected: false, deviceName: '', playing: false }),
-  );
+  Chromecast.addListener('SESSION_ENDED', () => {
+    setCastState({ connected: false, deviceName: '', playing: false });
+    setCastProgress({ position: 0, duration: 0 });
+  });
+  // Mirror the receiver's playback position so the app's scrubber tracks the TV.
+  Chromecast.addListener('MEDIA_UPDATE', (e: MediaUpdate) => {
+    setCastProgress({ position: e?.currentTime ?? 0, duration: e?.media?.duration ?? 0 });
+  });
   initialized = true;
 }
 
