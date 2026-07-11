@@ -13,6 +13,7 @@ import { TrackListSkeleton } from '../../components/Skeleton';
 import { AlbumTracks } from './AlbumTracks';
 import { AlbumHeader } from './AlbumHeader';
 import { MoreByArtist } from './MoreByArtist';
+import { SimilarAlbums } from './SimilarAlbums';
 import { useAlbum, useAlbumTracks } from './albumApi';
 import './album.css';
 
@@ -58,6 +59,7 @@ export function AlbumDetail() {
             artistName={album?.ArtistItems?.[0]?.Name ?? album?.AlbumArtist ?? 'this artist'}
             excludeId={id}
           />
+          <SimilarAlbums albumId={id} />
         </div>
       </IonContent>
     </IonPage>

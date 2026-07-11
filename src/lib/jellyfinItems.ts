@@ -47,42 +47,33 @@ export async function getInstantMix(itemId: string, limit = 50): Promise<Jellyfi
   return res.Items;
 }
 
-/** The user's liked songs (Jellyfin favorites), most-recent first. The limit is
- * high enough to cover a full Liked Songs collection (a 200-cap would silently
- * hide songs past #200); the Liked Songs list is virtualized so a big result
- * still renders fast. */
-export async function getFavoriteSongs(limit = 1000): Promise<JellyfinItem[]> {
+/** The user's favorites of one type, most-recent first. Limits are high enough
+ * to cover a full collection (a 200-cap would silently hide items past #200). */
+async function getFavorites(itemType: string, fields: string, limit: number) {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
-    IncludeItemTypes: 'Audio',
+    IncludeItemTypes: itemType,
     Recursive: 'true',
     Filters: 'IsFavorite',
     SortBy: 'DateCreated',
     SortOrder: 'Descending',
     Limit: String(limit),
-    Fields: audioFields,
+    Fields: fields,
     userId,
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
   return res.Items;
 }
 
-/** The user's saved albums (Jellyfin favorites), most-recent first. Limit high
- * enough to cover a full collection (a 200-cap would silently hide albums). */
+/** The user's liked songs (the Liked Songs list is virtualized, so a big result
+ * still renders fast). */
+export async function getFavoriteSongs(limit = 1000): Promise<JellyfinItem[]> {
+  return getFavorites('Audio', audioFields, limit);
+}
+
+/** The user's saved albums, most-recent first. */
 export async function getFavoriteAlbums(limit = 500): Promise<JellyfinItem[]> {
-  const userId = getSession()?.userId ?? '';
-  const params = new URLSearchParams({
-    IncludeItemTypes: 'MusicAlbum',
-    Recursive: 'true',
-    Filters: 'IsFavorite',
-    SortBy: 'DateCreated',
-    SortOrder: 'Descending',
-    Limit: String(limit),
-    Fields: 'AlbumArtist,Artists',
-    userId,
-  });
-  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
-  return dedupeByName(res.Items);
+  return dedupeByName(await getFavorites('MusicAlbum', 'AlbumArtist,Artists', limit));
 }
 
 /** Add a track to the user's liked songs. */
@@ -95,4 +86,14 @@ export async function addFavorite(itemId: string): Promise<void> {
 export async function removeFavorite(itemId: string): Promise<void> {
   const userId = getSession()?.userId ?? '';
   await request(`/Users/${userId}/FavoriteItems/${itemId}`, { method: 'DELETE' });
+}
+
+/** Hydrate item ids into full items, preserving the caller's order (e.g. ranked similar-album ids). */
+export async function getItemsByIds(ids: string[]): Promise<JellyfinItem[]> {
+  if (ids.length === 0) return [];
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({ Ids: ids.join(','), Fields: 'AlbumArtist,Artists', userId });
+  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
+  const byId = new Map(res.Items.map((i) => [i.Id, i]));
+  return ids.map((id) => byId.get(id)).filter((i): i is JellyfinItem => i !== undefined);
 }

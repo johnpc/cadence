@@ -18,6 +18,12 @@ Feature: Album detail
     And I filter the library to "albums"
     Then the saved albums list is not empty
 
+  Scenario: An album page suggests albums that fans also like
+    Given I am signed in
+    When I open the first album on Home
+    Then I see the album tracks
+    And I see albums that fans also like
+
   Scenario: A multi-disc album shows Disc headers over its tracklist
     Given I am signed in
     When I open the Search tab

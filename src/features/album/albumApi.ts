@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { getItem, getItemTracks } from '../../lib/jellyfinItems';
+import { getItem, getItemTracks, getInstantMix, getItemsByIds } from '../../lib/jellyfinItems';
 import { getArtistAlbums } from '../../lib/jellyfinArtists';
+import { rankSimilarAlbumIds } from './rankSimilar';
+import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** The album's header metadata (name, artist, art). */
 export function useAlbum(albumId: string) {
@@ -31,4 +33,21 @@ export function useMoreByArtist(artistId: string | undefined, excludeId: string)
     staleTime: 60_000,
   });
   return { albums: (q.data ?? []).filter((a) => a.Id !== excludeId) };
+}
+
+/** Albums whose tracks show up in this album's instant-mix radio — "Fans also
+ * like". Empty (section hidden) when the mix is thin or all one album. */
+async function fetchSimilarAlbums(albumId: string): Promise<JellyfinItem[]> {
+  const mix = await getInstantMix(albumId, 60);
+  const ids = rankSimilarAlbumIds(mix, albumId);
+  return getItemsByIds(ids);
+}
+
+export function useSimilarAlbums(albumId: string) {
+  const q = useQuery({
+    queryKey: ['similar-albums', albumId],
+    queryFn: () => fetchSimilarAlbums(albumId),
+    staleTime: 60_000,
+  });
+  return { albums: q.data ?? [] };
 }

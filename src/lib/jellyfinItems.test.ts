@@ -5,6 +5,7 @@ import {
   getFavoriteSongs,
   getInstantMix,
   getItem,
+  getItemsByIds,
   getItemTracks,
   removeFavorite,
 } from './jellyfinItems';
@@ -57,6 +58,34 @@ describe('jellyfinItems', () => {
     const [url] = f.mock.calls[0];
     expect(url).toContain('/Items/seed1/InstantMix');
     expect(url).toContain('Limit=20');
+  });
+
+  it('getItemsByIds hydrates ids and preserves the requested order', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    // Server returns them out of order; helper must restore the id order.
+    const f = stubItems([
+      { Id: 'b', Name: 'B', Type: 'MusicAlbum' },
+      { Id: 'a', Name: 'A', Type: 'MusicAlbum' },
+    ]);
+    const items = await getItemsByIds(['a', 'b']);
+    expect(items.map((i) => i.Id)).toEqual(['a', 'b']);
+    const [url] = f.mock.calls[0];
+    expect(url).toContain('Ids=a%2Cb');
+  });
+
+  it('getItemsByIds skips the request for an empty id list', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stubItems([]);
+    const items = await getItemsByIds([]);
+    expect(items).toEqual([]);
+    expect(f).not.toHaveBeenCalled();
+  });
+
+  it('getItemsByIds drops ids the server did not return', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    stubItems([{ Id: 'a', Name: 'A', Type: 'MusicAlbum' }]);
+    const items = await getItemsByIds(['a', 'missing']);
+    expect(items.map((i) => i.Id)).toEqual(['a']);
   });
 
   it('getFavoriteSongs requests liked audio, newest first', async () => {
