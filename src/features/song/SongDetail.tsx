@@ -13,6 +13,7 @@ import { usePlayer } from '../player/usePlayer';
 import { usePlayItem } from '../player/usePlayItem';
 import { SongHeader } from './SongHeader';
 import { SongAbout } from './SongAbout';
+import { SongLyrics } from './SongLyrics';
 import { SongDetailSkeleton } from './SongDetailSkeleton';
 import { useSong, useSongPlaylists, useSongAlbum, useSongArtist } from './songApi';
 import './song.css';
@@ -56,6 +57,7 @@ export function SongDetail() {
                 onRadio={() => void playItem(song)}
               />
               <SongAbout album={album} artist={artist} />
+              <SongLyrics song={song} />
               {playlists.length > 0 && (
                 <section data-testid="song-playlists">
                   <h2 className="cad-kicker song__section">Appears in</h2>
