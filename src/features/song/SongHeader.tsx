@@ -1,5 +1,5 @@
 import { IonIcon } from '@ionic/react';
-import { radio } from 'ionicons/icons';
+import { play, radio } from 'ionicons/icons';
 import { TrackArt } from '../player/TrackArt';
 import { GradientHeader } from '../color/GradientHeader';
 import { GenreChips } from '../../components/GenreChips';
@@ -33,7 +33,7 @@ export function SongHeader({
         <div className="song__actions">
           <LikeButton track={song} size={26} />
           <button className="song__play" data-testid="song-play" aria-label="Play" onClick={onPlay}>
-            ▶
+            <IonIcon icon={play} aria-hidden="true" />
           </button>
           <button
             className="song__radio"
