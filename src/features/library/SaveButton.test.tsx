@@ -36,6 +36,15 @@ describe('SaveButton', () => {
     expect(screen.getByTestId('save-button')).toBeDisabled();
   });
 
+  it('reflects saved state that resolves AFTER mount (item starts null while loading)', () => {
+    // Album/artist pages mount SaveButton with item=null, then the data arrives
+    // via react-query — the heart must pick up the resolved IsFavorite.
+    const savedAlbum: JellyfinItem = { ...album, UserData: { IsFavorite: true } };
+    const { rerender } = renderWithProviders(<SaveButton item={null} />);
+    rerender(<SaveButton item={savedAlbum} />);
+    expect(screen.getByTestId('save-button')).toHaveAttribute('aria-pressed', 'true');
+  });
+
   it('toasts on SUCCESS: "Saved to library" for an album, "Following" for an artist', async () => {
     vi.mocked(addFavorite).mockResolvedValue();
     const toast = vi.fn();
