@@ -57,6 +57,7 @@ function Probe() {
       <button onClick={() => p.playQueue([track('a'), track('b')], 0)}>play</button>
       <button onClick={p.toggle}>toggle</button>
       <button onClick={p.next}>next</button>
+      <button onClick={p.prev}>prev</button>
       <button onClick={() => p.seek(42)}>seek</button>
       <button onClick={p.toggleShuffle}>shuffle</button>
       <span data-testid="shuffle">{String(p.shuffle)}</span>
@@ -120,6 +121,37 @@ describe('PlayerProvider', () => {
     await userEvent.click(screen.getByText('play'));
     act(() => audio.fire('error'));
     expect(screen.getByTestId('current')).toHaveTextContent('Song b');
+  });
+
+  it('prev restarts the current track when more than a few seconds in', async () => {
+    render(
+      <PlayerProvider>
+        <Probe />
+      </PlayerProvider>,
+    );
+    await userEvent.click(screen.getByText('play'));
+    // advance to the 2nd track so "previous" would have somewhere to go
+    await userEvent.click(screen.getByText('next'));
+    expect(screen.getByTestId('current')).toHaveTextContent('Song b');
+    audio.currentTime = 30; // deep into the track
+    await userEvent.click(screen.getByText('prev'));
+    // restarts in place rather than going back to Song a
+    expect(screen.getByTestId('current')).toHaveTextContent('Song b');
+    expect(audio.currentTime).toBe(0);
+  });
+
+  it('prev goes to the previous track near the start', async () => {
+    render(
+      <PlayerProvider>
+        <Probe />
+      </PlayerProvider>,
+    );
+    await userEvent.click(screen.getByText('play'));
+    await userEvent.click(screen.getByText('next'));
+    expect(screen.getByTestId('current')).toHaveTextContent('Song b');
+    audio.currentTime = 1; // just started
+    await userEvent.click(screen.getByText('prev'));
+    expect(screen.getByTestId('current')).toHaveTextContent('Song a');
   });
 
   it('toggles pause/resume', async () => {
