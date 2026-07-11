@@ -13,6 +13,7 @@ import { AudioQuality } from './AudioQuality';
 import { PlaybackSpeed } from './PlaybackSpeed';
 import { SleepTimer } from './SleepTimer';
 import { DownloadsManager } from './DownloadsManager';
+import { Feedback } from './Feedback';
 import { InstallButton } from './InstallButton';
 import { SignOutButton } from './SignOutButton';
 import { ClearCacheButton } from './ClearCacheButton';
@@ -52,6 +53,7 @@ export function Settings() {
             </p>
             <ClearCacheButton />
           </section>
+          <Feedback />
           <section className="settings__account">
             <h2 className="settings__title cad-kicker">Account</h2>
             <p className="cad-body" data-testid="settings-username">
