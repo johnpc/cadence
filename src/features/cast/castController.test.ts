@@ -91,4 +91,15 @@ describe('castController', () => {
     (call![1] as () => void)();
     expect(store.getCastState().connected).toBe(false);
   });
+
+  it('mirrors the receiver position from MEDIA_UPDATE into castProgress', async () => {
+    vi.resetModules();
+    const ctrl = await import('./castController');
+    const prog = await import('./castProgress');
+    await ctrl.castTrack(track);
+    const call = plugin.addListener.mock.calls.find(([e]) => e === 'MEDIA_UPDATE');
+    expect(call).toBeTruthy();
+    (call![1] as (e: unknown) => void)({ currentTime: 42, media: { duration: 200 } });
+    expect(prog.getCastProgress()).toEqual({ position: 42, duration: 200 });
+  });
 });
