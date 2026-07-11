@@ -1,6 +1,8 @@
+import { arrowDownCircle } from 'ionicons/icons';
 import { LoadState } from '../../components/LoadState';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
+import { CollectionHero } from '../library/CollectionHero';
 import { collectionSummary } from '../player/playerFormat';
 import { useDownloads } from './useDownloads';
 
@@ -17,13 +19,13 @@ export function Downloads() {
       emptyMessage="Tap the download icon on any song to save it for offline listening."
     >
       <div data-testid="downloads">
-        <div className="liked__header">
-          <div className="liked__titles">
-            <h1 className="cad-headline">Downloads</h1>
-            <p className="cad-meta" data-testid="downloads-summary">
-              {collectionSummary(tracks)}
-            </p>
-          </div>
+        <CollectionHero
+          icon={arrowDownCircle}
+          title="Downloads"
+          summary={collectionSummary(tracks)}
+          variant="downloads"
+        />
+        <div className="coll-actions">
           <CollectionActions tracks={tracks} context={context} />
         </div>
         {tracks.map((track, index) => (
