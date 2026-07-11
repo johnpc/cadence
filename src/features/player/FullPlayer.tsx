@@ -16,6 +16,7 @@ import { FullPlayerTitle } from './FullPlayerTitle';
 import { usePlayer } from './usePlayer';
 import { usePlayerProgress } from './PlayerProgressContext';
 import { useScrubber } from './useScrubber';
+import { useSwipe } from './useSwipe';
 import { formatTime } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import './fullPlayer.css';
@@ -27,6 +28,12 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
   const scrub = useScrubber(position, p.seek);
   const [queueOpen, setQueueOpen] = useState(false);
   const [lyricsOpen, setLyricsOpen] = useState(false);
+  // Swipe the art left/right to skip — a signature now-playing gesture. Guarded
+  // by canNext/canPrev so a swipe at the queue's edge is a no-op.
+  const swipe = useSwipe(
+    () => p.canNext && p.next(),
+    () => p.canPrev && p.prev(),
+  );
   return (
     <IonModal isOpen={open} onDidDismiss={onClose}>
       <div className="fullplayer" data-testid="full-player">
@@ -37,7 +44,9 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         <PlayingFrom trackId={p.current?.Id} onNavigate={onClose} />
         <CastingBanner />
         <SleepIndicator />
-        <TrackArt item={p.current} size={280} />
+        <div className="fullplayer__art" data-testid="full-player-art" {...swipe}>
+          <TrackArt item={p.current} size={280} />
+        </div>
         <FullPlayerTitle track={p.current} onNavigate={onClose} />
         <div className="fullplayer__scrubber">
           <input
