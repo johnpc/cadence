@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
 import { tap } from '../../lib/haptics';
@@ -16,6 +16,13 @@ export function useLikeToggle(track: JellyfinItem) {
   const queryClient = useQueryClient();
   const toast = useToast();
   const [liked, setLiked] = useState(!!track.UserData?.IsFavorite);
+
+  // Re-seed when the track changes: the mini-player and full-player keep one
+  // LikeButton mounted across track changes, so without this the heart would
+  // keep showing the FIRST track's liked state for every song after it.
+  useEffect(() => {
+    setLiked(!!track.UserData?.IsFavorite);
+  }, [track.Id, track.UserData?.IsFavorite]);
 
   const mutation = useMutation({
     mutationFn: (next: boolean) => (next ? addFavorite(track.Id) : removeFavorite(track.Id)),
