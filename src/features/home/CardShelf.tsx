@@ -20,6 +20,7 @@ export function CardShelf({
   onPrefetch,
   round = false,
   seeAllHref,
+  hideWhenEmpty = false,
 }: {
   title: string;
   items: JellyfinItem[];
@@ -29,7 +30,11 @@ export function CardShelf({
   onPrefetch?: (item: JellyfinItem) => void;
   round?: boolean;
   seeAllHref?: string;
+  /** Hide the whole shelf once it has loaded empty (Spotify-style — no bare
+   * "nothing here" box on Home). The loading skeleton + error/retry still show. */
+  hideWhenEmpty?: boolean;
 }) {
+  if (hideWhenEmpty && !state.isLoading && !state.isError && items.length === 0) return null;
   return (
     <Shelf
       title={title}

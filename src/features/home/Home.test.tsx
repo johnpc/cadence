@@ -92,14 +92,15 @@ describe('Home', () => {
     expect(seeAll).toHaveAttribute('href', '/history');
   });
 
-  it('shows a per-shelf empty state when some shelves have data but others are empty', async () => {
-    // Suggested has a song, so the library IS accessible — the empty "Recently
-    // added" shelf shows its own empty state rather than the no-access notice.
+  it('hides an empty shelf (rather than showing a bare empty box) when others have data', async () => {
+    // Suggested has a song, so the library IS accessible. The empty "Recently
+    // added" shelf is HIDDEN (Spotify-style) instead of showing a bare empty
+    // box — but the no-access notice does NOT appear because other shelves fill.
     vi.mocked(getLatestAlbums).mockResolvedValue([]);
     vi.mocked(getSuggestedSongs).mockResolvedValue([song]);
     renderWithProviders(<Home />);
     await waitFor(() => expect(screen.getByText('Suggested Song')).toBeInTheDocument());
-    expect(screen.getAllByTestId('load-empty').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Recently added')).not.toBeInTheDocument();
     expect(screen.queryByTestId('home-no-access')).not.toBeInTheDocument();
   });
 
