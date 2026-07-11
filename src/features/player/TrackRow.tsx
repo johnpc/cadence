@@ -3,19 +3,17 @@ import { setPlayContext } from './playContext';
 import { trackDuration } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { TrackTitle } from './TrackTitle';
-import { LikeButton } from '../library/LikeButton';
-import { DownloadButton } from '../downloads/DownloadButton';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
-import { TrackReorder } from './TrackReorder';
-import { TrackRemoveButton } from './TrackRemoveButton';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './trackRow.css';
 
 /**
- * A tappable track row: art + title + artist + like + add-to-playlist. Tapping
- * the row plays the whole `queue` starting at this track. The currently-playing
- * track is marked with the accent colour + an equalizer glyph. Reused across
- * Home, Search, Library, and playlists.
+ * A tappable track row: art + title + artist + duration + a single "…" menu that
+ * holds every per-track action (like, download, queue, playlist, radio,
+ * navigate, and — in an editable playlist — reorder + remove). Keeping actions
+ * in the menu leaves room for the title/artist on narrow screens. Tapping the
+ * row plays the whole `queue` starting at this track; the current track is
+ * marked with the accent colour + an equalizer glyph. Reused everywhere.
  */
 export function TrackRow({
   track,
@@ -77,10 +75,7 @@ export function TrackRow({
           {trackDuration(track.RunTimeTicks)}
         </span>
       )}
-      {reorder && <TrackReorder {...reorder} />}
-      <DownloadButton track={track} />
-      <LikeButton track={track} />
-      {onRemove ? <TrackRemoveButton onRemove={onRemove} /> : <AddToPlaylistButton track={track} />}
+      <AddToPlaylistButton track={track} edit={{ onRemove, reorder }} />
     </div>
   );
 }

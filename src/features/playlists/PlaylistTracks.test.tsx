@@ -43,8 +43,31 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   movePlaylistItem: vi.fn(),
 }));
 vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
+// Row actions now live in the "…" menu (an ActionSheet jsdom can't open). Stub
+// TrackRow to expose the props PlaylistTracks controls (reorder + remove) as
+// data attributes, so this test keeps covering that conditional logic.
+vi.mock('../player/TrackRow', () => ({
+  TrackRow: ({
+    track,
+    reorder,
+    onRemove,
+  }: {
+    track: JellyfinItem;
+    reorder?: unknown;
+    onRemove?: unknown;
+  }) => (
+    <div
+      data-testid="track-row"
+      data-reorderable={reorder ? 'true' : 'false'}
+      data-removable={onRemove ? 'true' : 'false'}
+    >
+      {track.Name}
+    </div>
+  ),
+}));
 import { PlaylistTracks } from './PlaylistTracks';
 import { PlayerContext } from '../player/PlayerContext';
+import { ToastContext } from '../toast/ToastContext';
 import { stubPlayer } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -63,11 +86,13 @@ function renderTracks(tracks: JellyfinItem[]) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={client}>
-      <PlayerContext.Provider value={stubPlayer()}>
-        <MemoryRouter>
-          <PlaylistTracks playlistId="p1" tracks={tracks} />
-        </MemoryRouter>
-      </PlayerContext.Provider>
+      <ToastContext.Provider value={vi.fn()}>
+        <PlayerContext.Provider value={stubPlayer()}>
+          <MemoryRouter>
+            <PlaylistTracks playlistId="p1" tracks={tracks} />
+          </MemoryRouter>
+        </PlayerContext.Provider>
+      </ToastContext.Provider>
     </QueryClientProvider>,
   );
 }
@@ -107,10 +132,10 @@ describe('PlaylistTracks', () => {
 
   it('offers reorder in custom order but hides it once sorted by title', () => {
     renderTracks(makeTracks(12));
-    // Custom order (default): reorder controls present.
-    expect(screen.getAllByTestId('track-row-up').length).toBeGreaterThan(0);
+    // Custom order (default): rows are reorderable (reorder prop passed).
+    expect(screen.getAllByTestId('track-row')[0]).toHaveAttribute('data-reorderable', 'true');
     chooseSort('title');
-    // Sorting a re-sorted view would break index mapping, so reorder is hidden.
-    expect(screen.queryByTestId('track-row-up')).not.toBeInTheDocument();
+    // Sorting a re-sorted view would break index mapping, so reorder is off.
+    expect(screen.getAllByTestId('track-row')[0]).toHaveAttribute('data-reorderable', 'false');
   });
 });

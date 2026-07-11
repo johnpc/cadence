@@ -74,34 +74,22 @@ it('does not mark a non-playing track', () => {
   expect(screen.getByTestId('track-row').className).not.toContain('track-row--current');
 });
 
-it('shows a remove button (not the track menu) when onRemove is set', async () => {
-  const onRemove = vi.fn();
-  renderWithProviders(<TrackRow track={tracks[0]} queue={tracks} index={0} onRemove={onRemove} />);
-  expect(screen.queryByTestId('add-to-playlist')).not.toBeInTheDocument();
-  await userEvent.click(screen.getByTestId('track-row-remove'));
-  expect(onRemove).toHaveBeenCalledOnce();
+it('always renders a single "…" menu as the only trailing control', () => {
+  // All row actions (like, download, remove, reorder) live in the menu now, so
+  // the row itself has just the one trailing button — no matter the props.
+  renderWithProviders(<TrackRow track={tracks[0]} queue={tracks} index={0} onRemove={vi.fn()} />);
+  expect(screen.getByTestId('add-to-playlist')).toBeInTheDocument();
+  // The old inline controls are gone from the row.
+  expect(screen.queryByTestId('track-row-remove')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('track-row-up')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('like-button')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('download-button')).not.toBeInTheDocument();
 });
 
 it('shows the track duration when the run time is known', () => {
   const withTime: JellyfinItem = { ...tracks[0], RunTimeTicks: 75 * 10_000_000 };
   renderWithProviders(<TrackRow track={withTime} queue={[withTime]} index={0} />);
   expect(screen.getByTestId('track-duration')).toHaveTextContent('1:15');
-});
-
-it('shows reorder controls when the reorder prop is set', async () => {
-  const onMoveUp = vi.fn();
-  const onMoveDown = vi.fn();
-  renderWithProviders(
-    <TrackRow
-      track={tracks[1]}
-      queue={tracks}
-      index={1}
-      reorder={{ isFirst: false, isLast: true, onMoveUp, onMoveDown }}
-    />,
-  );
-  expect(screen.getByTestId('track-row-down')).toBeDisabled();
-  await userEvent.click(screen.getByTestId('track-row-up'));
-  expect(onMoveUp).toHaveBeenCalledOnce();
 });
 
 it('shows the track number instead of art when showNumber is set', () => {

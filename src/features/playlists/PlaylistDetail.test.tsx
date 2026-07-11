@@ -4,6 +4,31 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Row actions live in the "…" menu (an IonActionSheet). Render its buttons
+// inline so the remove-from-playlist path is clickable in jsdom.
+vi.mock('@ionic/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@ionic/react')>();
+  return {
+    ...actual,
+    IonActionSheet: ({
+      isOpen,
+      buttons,
+    }: {
+      isOpen: boolean;
+      buttons: { text: string; handler?: () => void }[];
+    }) =>
+      isOpen ? (
+        <div>
+          {buttons.map((b) => (
+            <button key={b.text} onClick={b.handler}>
+              {b.text}
+            </button>
+          ))}
+        </div>
+      ) : null,
+  };
+});
+
 vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylistItems: vi.fn(),
   getPlaylists: vi.fn().mockResolvedValue([]),
@@ -114,7 +139,9 @@ describe('PlaylistDetail', () => {
     const { removeFromPlaylist } = await import('../../lib/jellyfinPlaylists');
     vi.mocked(removeFromPlaylist).mockResolvedValue();
     renderDetail();
-    await userEvent.click(await screen.findByTestId('track-row-remove'));
+    // Open the row's "…" menu, then tap "Remove from this playlist".
+    await userEvent.click((await screen.findAllByTestId('add-to-playlist'))[0]);
+    await userEvent.click(await screen.findByText('Remove from this playlist'));
     expect(removeFromPlaylist).toHaveBeenCalledWith('p1', 'e1');
   });
 
@@ -129,6 +156,8 @@ describe('PlaylistDetail', () => {
     renderDetail();
     expect(await screen.findByTestId('clone-playlist')).toBeInTheDocument();
     expect(screen.queryByTestId('delete-playlist')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('track-row-remove')).not.toBeInTheDocument();
+    // The row menu has no "Remove from this playlist" for a playlist you can't edit.
+    await userEvent.click((await screen.findAllByTestId('add-to-playlist'))[0]);
+    expect(screen.queryByText('Remove from this playlist')).not.toBeInTheDocument();
   });
 });
