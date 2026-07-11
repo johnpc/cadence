@@ -1,52 +1,26 @@
 import { useState } from 'react';
 import { IonActionSheet, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
-import { useHistory } from 'react-router-dom';
-import { usePlaylists, useAddToPlaylist } from './playlistsApi';
+import { usePlaylists } from './playlistsApi';
 import { addToPlaylistWithToast } from './addWithToast';
-import { trackMenuButtons, addToPlaylistButtons } from './trackMenuButtons';
+import { addToPlaylistButtons } from './trackMenuButtons';
+import { useTrackMenuActions, type RowEdit } from './useTrackMenuActions';
 import { NewPlaylistAlert } from './NewPlaylistAlert';
-import { usePlayer } from '../player/usePlayer';
-import { usePlayItem } from '../player/usePlayItem';
 import { useToast } from '../toast/useToast';
-import { copyShareLink } from '../share/shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './addToPlaylist.css';
 
-/** A "…" track menu: play next, add to queue, "Add to playlist…" (opens a
- * dedicated picker), go to album/artist, copy link. */
-export function AddToPlaylistButton({ track }: { track: JellyfinItem }) {
+/** The per-track "…" menu — the single trailing control on every track row. It
+ * holds ALL row actions (like, download, play next, add to queue, add to
+ * playlist, radio, go to album/artist, copy link, and — in an editable playlist
+ * — reorder + remove), so the row itself stays art + title + "…". */
+export function AddToPlaylistButton({ track, edit }: { track: JellyfinItem; edit?: RowEdit }) {
   const [open, setOpen] = useState(false);
   const [pickOpen, setPickOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
   const { playlists } = usePlaylists();
-  const add = useAddToPlaylist();
-  const { playNext, addToQueue } = usePlayer();
-  const playItem = usePlayItem();
   const toast = useToast();
-  const history = useHistory();
-
-  const buttons = trackMenuButtons(track, {
-    playNext: () => {
-      playNext(track);
-      toast('Playing next');
-    },
-    addToQueue: () => {
-      addToQueue(track);
-      toast('Added to queue');
-    },
-    addToPlaylist: () => setPickOpen(true),
-    startRadio: () => {
-      void playItem(track);
-      toast('Starting radio');
-    },
-    goToAlbum: () => history.push(`/album/${track.AlbumId}`),
-    goToArtist: () => history.push(`/artist/${track.ArtistItems?.[0]?.Id}`),
-    copyLink: () =>
-      void copyShareLink(track, window.location.origin).then((ok) =>
-        toast(ok ? 'Link copied' : 'Could not copy link'),
-      ),
-  });
+  const { buttons, add } = useTrackMenuActions(track, () => setPickOpen(true), edit);
 
   const pickButtons = addToPlaylistButtons(playlists, {
     newPlaylist: () => setNewOpen(true),

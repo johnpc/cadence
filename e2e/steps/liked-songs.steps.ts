@@ -43,15 +43,19 @@ When('I shuffle-play the liked songs', async ({ page }) => {
 });
 
 When('I like a track from search', async ({ page }) => {
-  // Home is shelves; like a track from Search (which lists tracks). Ensure it
-  // ends LIKED (idempotent — clicking an already-liked heart unlikes it).
+  // Home is shelves; like a track from Search (which lists tracks). Track
+  // actions live in the row's "…" menu now — open it and tap the like item.
+  // Idempotent: if already liked, the menu shows "Remove…" instead, so leave it.
   await navigate(page, 'Search');
   await page.getByTestId('search-input').locator('input').fill('love');
-  const heart = page.getByTestId('search-results').getByTestId('like-button').first();
-  await expect(heart).toBeVisible({ timeout: DATA_WAIT });
-  if ((await heart.getAttribute('aria-pressed')) !== 'true') {
-    await heart.click();
-    await expect(heart).toHaveAttribute('aria-pressed', 'true');
+  const firstRow = page.getByTestId('search-results').getByTestId('track-row').first();
+  await expect(firstRow).toBeVisible({ timeout: DATA_WAIT });
+  await firstRow.getByTestId('add-to-playlist').click();
+  const likeItem = page.getByRole('button', { name: 'Add to Liked Songs' });
+  if (await likeItem.isVisible().catch(() => false)) {
+    await likeItem.click();
+  } else {
+    await page.keyboard.press('Escape');
   }
 });
 
