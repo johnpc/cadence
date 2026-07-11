@@ -24,4 +24,15 @@ describe('LikeButton', () => {
     await waitFor(() => expect(btn).toHaveAttribute('aria-pressed', 'true'));
     expect(addFavorite).toHaveBeenCalledWith('t1');
   });
+
+  it('re-seeds the heart when the track changes under a mounted button', () => {
+    // The mini-player + full player keep ONE LikeButton mounted across track
+    // changes — the heart must follow the new track's liked state.
+    const likedTrack: JellyfinItem = { ...track, Id: 'a', UserData: { IsFavorite: true } };
+    const unlikedTrack: JellyfinItem = { ...track, Id: 'b', UserData: { IsFavorite: false } };
+    const { rerender } = renderWithProviders(<LikeButton track={likedTrack} />);
+    expect(screen.getByTestId('like-button')).toHaveAttribute('aria-pressed', 'true');
+    rerender(<LikeButton track={unlikedTrack} />);
+    expect(screen.getByTestId('like-button')).toHaveAttribute('aria-pressed', 'false');
+  });
 });
