@@ -1,9 +1,35 @@
 import { createBdd } from 'playwright-bdd';
 import { DATA_WAIT } from './timeouts';
 import { expect } from '@playwright/test';
-import { libraryList, searchUntilResults } from './app-shell.steps';
+import { libraryList, navigate, searchUntilResults } from './app-shell.steps';
 
 const { When, Then } = createBdd();
+
+When('I open an artist that has popular tracks', async ({ page }) => {
+  // Open the first artist result. Popular renders for any artist with ≥1 track
+  // (top-tracks sorts 0-play songs by name), which the top "love" artist has.
+  await navigate(page, 'Search');
+  await searchUntilResults(page, 'love', 'search-artists', 'result-row');
+  const row = page.getByTestId('search-artists').getByTestId('result-row').first();
+  await expect(row).toBeVisible({ timeout: DATA_WAIT });
+  await row.click();
+  await expect(page.getByTestId('artist-see-all')).toBeVisible({ timeout: DATA_WAIT });
+});
+
+When('I tap See all on the popular tracks', async ({ page }) => {
+  const seeAll = page.getByTestId('artist-see-all');
+  await expect(seeAll).toBeVisible({ timeout: DATA_WAIT });
+  await seeAll.click();
+});
+
+Then("I see the artist's full track list", async ({ page }) => {
+  const rows = page.getByTestId('artist-tracks').getByTestId('track-row');
+  await expect(rows.first()).toBeAttached({ timeout: DATA_WAIT });
+});
+
+When('I play the artist track list', async ({ page }) => {
+  await page.getByTestId('artist-tracks').getByTestId('play-all').click();
+});
 
 When('I open the first artist result', async ({ page }) => {
   // Re-fire the (already-typed) search if the artist section is slow to fill,

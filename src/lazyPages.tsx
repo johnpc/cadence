@@ -44,6 +44,10 @@ export const ArtistDetail = lazyPage(
   'ArtistDetail',
 );
 export const SongDetail = lazyPage(() => import('./features/song/SongDetail'), 'SongDetail');
+export const ArtistTracksPage = lazyPage(
+  () => import('./features/artist/ArtistTracksPage'),
+  'ArtistTracksPage',
+);
 export const GenreDetail = lazyPage(() => import('./features/genre/GenreDetail'), 'GenreDetail');
 export const History = lazyPage(() => import('./features/home/History'), 'History');
 export const NotFound = lazyPage(() => import('./features/shell/NotFound'), 'NotFound');

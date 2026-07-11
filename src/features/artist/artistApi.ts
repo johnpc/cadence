@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { getItem, getInstantMix } from '../../lib/jellyfinItems';
-import { getArtistAlbums, getArtistTopTracks, getArtistsByIds } from '../../lib/jellyfinArtists';
+import {
+  getArtistAlbums,
+  getArtistTopTracks,
+  getArtistTracks,
+  getArtistsByIds,
+} from '../../lib/jellyfinArtists';
 import { rankRelatedArtistIds } from './rankRelated';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -32,6 +37,16 @@ export function useArtistTopTracks(artistId: string) {
     staleTime: 60_000,
   });
   return { tracks: q.data ?? [] };
+}
+
+/** All of an artist's tracks (A–Z) for the "See all" page. */
+export function useArtistTracks(artistId: string) {
+  const q = useQuery({
+    queryKey: ['artist-tracks', artistId],
+    queryFn: () => getArtistTracks(artistId),
+    staleTime: 60_000,
+  });
+  return { tracks: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
 /** "Fans also like" — artists that recur across this artist's instant-mix radio,

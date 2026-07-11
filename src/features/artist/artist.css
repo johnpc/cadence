@@ -43,6 +43,25 @@
   margin: 0 0 var(--cad-space-3);
 }
 
+/* "Popular" heading row with a trailing "See all" link. */
+.artist__section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.artist__see-all {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cad-text-secondary);
+  text-decoration: none;
+}
+
+.artist__see-all:hover {
+  color: var(--cad-text);
+}
+
 .artist__albums {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

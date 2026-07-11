@@ -41,7 +41,7 @@ export function ArtistDetail() {
           topTracks={topTracks}
           onRadio={() => artist && void playItem(artist)}
         />
-        <ArtistPopular tracks={topTracks} artistName={artist?.Name} />
+        <ArtistPopular tracks={topTracks} artistId={id} artistName={artist?.Name} />
         <ArtistAlbums
           albums={albums}
           isLoading={isLoading}

@@ -84,6 +84,8 @@ export default defineConfig({
         'src/AppLoading.tsx',
         // Render-only route code-splitting glue (React.lazy wrappers).
         'src/lazyPages.tsx',
+        // Render-only route table (a list of <Route> elements, no logic).
+        'src/appRouteList.tsx',
       ],
       thresholds: {
         statements: 80,
