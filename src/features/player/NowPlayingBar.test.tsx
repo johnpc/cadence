@@ -127,6 +127,17 @@ describe('NowPlayingBar', () => {
     expect(setVolume).toHaveBeenCalledWith(0);
   });
 
+  it('badges the queue button with the number of upcoming tracks', () => {
+    const q = [song, song, song, song]; // 4 tracks, playing index 1 → 2 upcoming
+    renderBar(ctx({ current: song, queue: q, queueIndex: 1 }));
+    expect(screen.getByTestId('npbar-queue-count')).toHaveTextContent('2');
+  });
+
+  it('shows no queue badge when nothing is up next', () => {
+    renderBar(ctx({ current: song, queue: [song], queueIndex: 0 }));
+    expect(screen.queryByTestId('npbar-queue-count')).not.toBeInTheDocument();
+  });
+
   it('unmutes back to the previous volume', async () => {
     const setVolume = vi.fn();
     renderBar(ctx({ current: song, volume: 0, setVolume }));
