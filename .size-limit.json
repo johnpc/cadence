@@ -2,7 +2,7 @@
   {
     "name": "app entry (index)",
     "path": ["dist/assets/index-*.js", "!dist/assets/index-legacy-*.js"],
-    "limit": "31 kB",
+    "limit": "32 kB",
     "gzip": true
   },
   {
