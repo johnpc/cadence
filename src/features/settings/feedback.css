@@ -1,0 +1,29 @@
+.feedback__row {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  width: 100%;
+  padding: var(--cad-space-3) 0;
+  border: none;
+  background: none;
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-size: 15px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.feedback__row ion-icon {
+  font-size: 20px;
+  color: var(--cad-text-secondary);
+  flex-shrink: 0;
+}
+
+.feedback__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.feedback__chevron {
+  font-size: 16px;
+}
