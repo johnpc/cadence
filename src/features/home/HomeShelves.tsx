@@ -37,6 +37,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
         onOpen={openAlbum}
         onPlay={(item) => void playItem(item)}
         onPrefetch={prefetch}
+        hideWhenEmpty
       />
       <DailyMixShelf artists={artists.artists} />
       {recent.songs.length > 0 && (
@@ -78,6 +79,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
         state={suggested}
         onOpen={openSong}
         onPlay={(_i, index) => playQueue(suggested.songs, index)}
+        hideWhenEmpty
       />
       {community.playlists.length > 0 && (
         <CardShelf
