@@ -57,5 +57,6 @@ Because none of this is CI-testable (no Cast device in CI), verify on-device:
 - The visualizer is a self-driving animation gated on play state — the receiver
   can't read the sender's audio buffer, so it's a lively approximation, not an
   FFT. A real spectrum would require decoding the stream on the receiver.
-- **Lyrics** on the TV: the app already fetches synced lyrics; a follow-up can
-  add a `lyrics` message type to `castMessages.ts` and a lyrics view here.
+- **Lyrics** on the TV: shipped — the app broadcasts the current track's lyrics
+  (karaoke-highlighting the active line) on the same namespace, and the receiver
+  shows them in place of the visualizer when a track has lyrics.

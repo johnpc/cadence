@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('../../lib/jellyfinStream', () => ({
   imageUrl: (item: { Id: string }) => `https://jf.test/art/${item.Id}`,
 }));
-import { CAST_NAMESPACE, nowPlayingMessage, queueMessage } from './castMessages';
+import { CAST_NAMESPACE, nowPlayingMessage, queueMessage, lyricsMessage } from './castMessages';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const track = (Id: string, Name: string, artists: string[] = []): JellyfinItem =>
@@ -38,5 +38,23 @@ describe('castMessages', () => {
   it('caps the queue at 50 tracks so the message stays small', () => {
     const many = Array.from({ length: 80 }, (_, i) => track(`t${i}`, `Track ${i}`));
     expect(queueMessage(many, 0).tracks).toHaveLength(50);
+  });
+
+  it('builds a lyrics message with lines + active index (timing preserved)', () => {
+    const msg = lyricsMessage(
+      [
+        { text: 'one', start: 0 },
+        { text: 'two', start: 5 },
+      ],
+      1,
+    );
+    expect(msg).toEqual({
+      type: 'lyrics',
+      activeIndex: 1,
+      lines: [
+        { text: 'one', start: 0 },
+        { text: 'two', start: 5 },
+      ],
+    });
   });
 });

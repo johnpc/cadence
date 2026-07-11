@@ -1,8 +1,9 @@
 import { Chromecast } from '@hauxir2/capacitor-chromecast';
 import { castReceiverAppId } from '../../lib/runtimeConfig';
 import { getCastState } from './castStore';
-import { CAST_NAMESPACE, nowPlayingMessage, queueMessage } from './castMessages';
+import { CAST_NAMESPACE, nowPlayingMessage, queueMessage, lyricsMessage } from './castMessages';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { LyricLine } from '../../lib/jellyfinLyrics';
 
 /**
  * Push app state to the custom Cast receiver over the custom namespace, so it
@@ -31,4 +32,9 @@ export function sendNowPlaying(track: JellyfinItem, isPlaying: boolean): Promise
 /** Send the live queue (upcoming order + current index) to the receiver. */
 export function sendQueue(tracks: JellyfinItem[], index: number): Promise<void> {
   return send(queueMessage(tracks, index));
+}
+
+/** Send the lyrics (lines + active line index) to the receiver. */
+export function sendLyrics(lines: LyricLine[], activeIndex: number): Promise<void> {
+  return send(lyricsMessage(lines, activeIndex));
 }
