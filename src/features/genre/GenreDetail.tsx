@@ -12,6 +12,7 @@ import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
+import { collectionSummary } from '../player/playerFormat';
 import { useGenreTracks } from './genreApi';
 import { findGenre } from './genres';
 import './genre.css';
@@ -37,6 +38,11 @@ export function GenreDetail() {
         <div data-testid="genre-detail">
           <div className="genre-hero" style={{ backgroundColor: color }}>
             <h1 className="genre-hero__title cad-headline">{genre}</h1>
+            {tracks.length > 0 && (
+              <p className="genre-hero__summary cad-meta" data-testid="genre-summary">
+                {collectionSummary(tracks)}
+              </p>
+            )}
           </div>
           <LoadState
             isLoading={isLoading}

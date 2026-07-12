@@ -49,6 +49,12 @@ describe('GenreDetail', () => {
     await waitFor(() => expect(getGenreTracks).toHaveBeenCalledWith('Hip-Hop'));
   });
 
+  it('shows a track-count summary in the hero once tracks load', async () => {
+    vi.mocked(getGenreTracks).mockResolvedValue(tracks);
+    renderGenre();
+    await waitFor(() => expect(screen.getByTestId('genre-summary')).toHaveTextContent('2 songs'));
+  });
+
   it('shows an empty state when the genre has no tracks', async () => {
     vi.mocked(getGenreTracks).mockResolvedValue([]);
     renderGenre();
