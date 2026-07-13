@@ -93,7 +93,14 @@ When('I press the playlist play button', async ({ page }) => {
 
 Then('I see recommended songs to add', async ({ page }) => {
   // Recommendations come from Jellyfin's instant-mix radio seeded on the
-  // playlist — real tracks, fetched after the playlist's own items resolve.
+  // playlist — real tracks. The section is deferred until it scrolls into view
+  // (perf: the mix is a slow call, so it doesn't block the playlist on mount),
+  // so scroll the sentinel/section into view to trigger the fetch, like a user.
+  await page
+    .getByTestId('playlist-recs-sentinel')
+    .or(page.getByTestId('playlist-recs'))
+    .first()
+    .scrollIntoViewIfNeeded();
   await expect(page.getByTestId('playlist-recs')).toBeAttached({ timeout: DATA_WAIT });
   await expect(page.getByTestId('playlist-rec').first()).toBeAttached({ timeout: DATA_WAIT });
 });

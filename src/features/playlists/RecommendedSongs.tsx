@@ -4,10 +4,14 @@ import { Link } from 'react-router-dom';
 import { TrackArt } from '../player/TrackArt';
 import { artistLine } from '../player/playerFormat';
 import { usePlaylistRecs } from './usePlaylistRecs';
+import { useInView } from '../../lib/useInView';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** "Recommended songs to add" — instant-mix picks seeded on the playlist, each
- * with an Add button and a Dismiss action that swaps in the next candidate. */
+ * with an Add button and a Dismiss action that swaps in the next candidate. The
+ * candidate pool is a slow InstantMix, so it's deferred until this below-the-fold
+ * section scrolls near view (useInView) rather than firing when the playlist
+ * loads. Renders a sentinel until then. */
 export function RecommendedSongs({
   playlistId,
   tracks,
@@ -15,8 +19,13 @@ export function RecommendedSongs({
   playlistId: string;
   tracks: JellyfinItem[];
 }) {
-  const { recommendations, addRec, dismissRecommendation } = usePlaylistRecs(playlistId, tracks);
-  if (recommendations.length === 0) return null;
+  const { ref, inView } = useInView();
+  const { recommendations, addRec, dismissRecommendation } = usePlaylistRecs(
+    playlistId,
+    tracks,
+    inView,
+  );
+  if (recommendations.length === 0) return <div ref={ref} data-testid="playlist-recs-sentinel" />;
   return (
     <section className="playlist-recs" data-testid="playlist-recs">
       <h2 className="cad-kicker playlist-recs__title">Recommended songs to add</h2>
