@@ -3,6 +3,7 @@ import {
   castReceiverAppId,
   configuredMarlinUrl,
   configuredServerUrl,
+  marlinProxyEnabled,
   signupUrl,
 } from './runtimeConfig';
 
@@ -21,6 +22,20 @@ describe('configuredMarlinUrl', () => {
   it('rejects a non-http(s) value', () => {
     window.__CADENCE_CONFIG__ = { marlinUrl: 'javascript:alert(1)' };
     expect(configuredMarlinUrl()).toBeNull();
+  });
+});
+
+describe('marlinProxyEnabled', () => {
+  it('is false with no config (native app / proxy off)', () => {
+    expect(marlinProxyEnabled()).toBe(false);
+  });
+  it('is true only when the deploy set marlinProxy: true', () => {
+    window.__CADENCE_CONFIG__ = { marlinProxy: true };
+    expect(marlinProxyEnabled()).toBe(true);
+  });
+  it('is false for any non-true value (guards against truthy strings)', () => {
+    window.__CADENCE_CONFIG__ = { marlinProxy: undefined };
+    expect(marlinProxyEnabled()).toBe(false);
   });
 });
 

@@ -10,6 +10,7 @@
 import { request } from '../../lib/jellyfinFetch';
 import { getSession } from '../../lib/sessionStore';
 import { marlinConfigured } from '../../lib/marlinStore';
+import { marlinProxyEnabled } from '../../lib/runtimeConfig';
 import { marlinSearchSource } from './marlinSource';
 import type { ItemsResponse, JellyfinItem } from '../../lib/jellyfinTypes';
 import type { SearchSource } from './searchTypes';
@@ -73,7 +74,9 @@ export const jellyfinSearchSource: SearchSource = async (query, limit = 40) => {
  * error, so a search never hard-fails if the indexer/index is down. Decided per
  * call so configuring it takes effect without a reload. */
 export const searchSource: SearchSource = async (query, limit) => {
-  if (marlinConfigured()) {
+  // Marlin is active when the deploy enabled the same-origin proxy OR the user
+  // configured a direct URL in Settings.
+  if (marlinProxyEnabled() || marlinConfigured()) {
     try {
       return await marlinSearchSource(query, limit);
     } catch {

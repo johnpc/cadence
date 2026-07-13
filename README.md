@@ -103,6 +103,12 @@ cleanly when they're not.
   to music and falls back to native search if the indexer is unreachable or an index isn't built yet.
   A per-deploy default URL can also be set at build time via `VITE_MARLIN_URL` (the token still comes
   from Settings).
+  - **Recommended for self-hosters — the same-origin proxy (no token in the browser, no public
+    indexer).** Instead of exposing marlin and entering a token per device, set `MARLIN_URL` +
+    `MARLIN_TOKEN` on the Cadence container (see `deploy/compose.yaml`). The serving nginx then proxies
+    same-origin `/api/search` to the indexer and **injects the token server-side**, so the browser
+    sends no token and marlin needs no public hostname (it's reached over the LAN from the container).
+    Cadence auto-detects this (`marlinProxy`) and uses it with no per-device setup.
 - **Real "Popular" tracks — [jellyfin-plugin-popular-tracks](https://github.com/johnpc/jellyfin-plugin-popular-tracks).**
   On a self-hosted server nobody scrobbles, so Jellyfin's `PlayCount` is ~0 and an artist's **Popular**
   row is effectively random. This plugin transparently re-orders that one query by real **Last.fm**

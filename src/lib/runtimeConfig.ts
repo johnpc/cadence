@@ -22,6 +22,12 @@ interface RuntimeConfig {
    * Jellyfin search until the user configures a URL themselves. The token is
    * NOT here — it's entered/stored on-device (see marlinStore). */
   marlinUrl?: string;
+  /** When true, the serving nginx proxies `/api/search` to the marlin indexer
+   * and injects the auth token SERVER-SIDE (see deploy/runtime-config.sh). The
+   * client then searches the same-origin `/api/search` with NO token in the
+   * browser and no direct indexer exposure — the preferred setup. Web/PWA only
+   * (native has no nginx; config.js is absent there, so this stays false). */
+  marlinProxy?: boolean;
 }
 
 declare global {
@@ -70,4 +76,11 @@ export function castReceiverAppId(): string | null {
  * Only a default — the user's Settings choice (marlinStore) takes precedence. */
 export function configuredMarlinUrl(): string | null {
   return safeHttpUrl(window.__CADENCE_CONFIG__?.marlinUrl);
+}
+
+/** True when the deploy has enabled the same-origin `/api/search` marlin proxy
+ * (token injected server-side by nginx). The client then uses `/api/search`
+ * with no token in the browser. Absent config.js (native app) → false. */
+export function marlinProxyEnabled(): boolean {
+  return window.__CADENCE_CONFIG__?.marlinProxy === true;
 }
