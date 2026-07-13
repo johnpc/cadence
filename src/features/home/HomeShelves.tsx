@@ -6,6 +6,7 @@ export { useHomeShelves } from './useHomeShelves';
 import { usePlayer } from '../player/usePlayer';
 import { usePlayItem } from '../player/usePlayItem';
 import { usePrefetchItem } from './usePrefetchItem';
+import { useIdlePrefetch } from './useIdlePrefetch';
 import { detailPath } from './itemPath';
 
 export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShelves> }) {
@@ -14,6 +15,8 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
   const playItem = usePlayItem();
   const prefetch = usePrefetchItem();
   const history = useHistory();
+  // Idle-warm the most-likely first tap (see useIdlePrefetch).
+  useIdlePrefetch(jumpBackIn.items[0] ?? albums.albums[0], prefetch);
   const openAlbum = (item: { Id: string }) => history.push(`/album/${item.Id}`);
   const openArtist = (item: { Id: string }) => history.push(`/artist/${item.Id}`);
   const openSong = (item: { Id: string }) => history.push(`/song/${item.Id}`);
