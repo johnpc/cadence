@@ -7,8 +7,10 @@ import './home.css';
 
 /** A card for a Home shelf. Tapping the card body `onOpen`s the item's detail
  * page; the green play FAB `onPlay`s it immediately without leaving the shelf
- * (Spotify-style). Hovering/focusing calls `onPrefetch` (if given) to warm the
- * detail page's queries so the click paints instantly. `round` = circular. */
+ * (Spotify-style). Hover/focus AND pointer-down (touch — the moment a tap starts,
+ * before navigation) call `onPrefetch` to warm the detail page's queries so it
+ * paints instantly; on mobile there's no hover, so pointer-down is what makes a
+ * tapped card feel instant. `round` = circular. */
 export function AlbumCard({
   item,
   onOpen,
@@ -29,6 +31,7 @@ export function AlbumCard({
       data-testid="album-card"
       onMouseEnter={prefetch}
       onFocus={prefetch}
+      onPointerDown={prefetch}
     >
       <button
         type="button"

@@ -15,6 +15,14 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 const artistAlbumsCache = createItemListCache('cadence.artist-albums');
 export const ARTIST_ALBUMS_CACHE_KEY = artistAlbumsCache.storageKey;
 
+/** Fetch an artist's albums and persist them (query fn + prefetch). */
+export function fetchAndCacheArtistAlbums(artistId: string): Promise<JellyfinItem[]> {
+  return artistAlbumsCache.fetchAndCache(artistId, getArtistAlbums);
+}
+export function getCachedArtistAlbums(artistId: string): JellyfinItem[] | undefined {
+  return artistAlbumsCache.get(artistId);
+}
+
 /** The artist's header metadata (name, image). */
 export function useArtist(artistId: string) {
   const q = useQuery({
@@ -28,10 +36,10 @@ export function useArtist(artistId: string) {
 /** The artist's albums. Seeded from a disk cache so a revisited artist paints
  * its discography instantly, then refetches in the background. */
 export function useArtistAlbums(artistId: string) {
-  const cached = artistAlbumsCache.get(artistId);
+  const cached = getCachedArtistAlbums(artistId);
   const q = useQuery({
     queryKey: ['artist-albums', artistId],
-    queryFn: () => artistAlbumsCache.fetchAndCache(artistId, getArtistAlbums),
+    queryFn: () => fetchAndCacheArtistAlbums(artistId),
     staleTime: 5 * 60_000,
     initialData: cached,
     initialDataUpdatedAt: cached ? 0 : undefined,

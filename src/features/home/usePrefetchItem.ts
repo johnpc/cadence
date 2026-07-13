@@ -1,54 +1,47 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { getItem, getItemTracks } from '../../lib/jellyfinItems';
-import { getArtistAlbums } from '../../lib/jellyfinArtists';
-import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
+import { getItem } from '../../lib/jellyfinItems';
+import { fetchAndCacheArtistAlbums } from '../artist/artistApi';
+import { fetchAndCacheAlbumTracks } from '../album/albumApi';
+import { fetchAndCachePlaylistItems } from '../playlists/playlistItemsCache';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** Warm a detail page's queries when the user hovers its card, so the page
- * paints from cache on click (Spotify-style instant navigation). Mirrors the
- * query keys used by album/artist detail hooks; a no-op for song/other types
- * (their detail data is cheap or already cached). Deduped + staleTime-guarded
- * by react-query, so repeated hovers cost nothing. */
+/** Warm a detail page's queries when the user hovers OR starts tapping its card,
+ * so the page paints from cache on navigation (Spotify-style instant nav). Uses
+ * the SAME cache-persisting fetchers + query keys as the detail hooks, so a warm
+ * hit also lands on disk and survives reload. A no-op for song/other types
+ * (cheap or already cached). Deduped + staleTime-guarded by react-query, so
+ * repeated hovers/taps cost nothing. */
 export function usePrefetchItem() {
   const qc = useQueryClient();
   return useCallback(
     (item: JellyfinItem) => {
-      const opts = { staleTime: 60_000 };
-      if (item.Type === 'MusicAlbum') {
+      const opts = { staleTime: 5 * 60_000 };
+      const header = (key: string) =>
         void qc.prefetchQuery({
-          queryKey: ['album', item.Id],
+          queryKey: [key, item.Id],
           queryFn: () => getItem(item.Id),
           ...opts,
         });
+      if (item.Type === 'MusicAlbum') {
+        header('album');
         void qc.prefetchQuery({
           queryKey: ['album-tracks', item.Id],
-          queryFn: () => getItemTracks(item.Id),
+          queryFn: () => fetchAndCacheAlbumTracks(item.Id),
           ...opts,
         });
       } else if (item.Type === 'MusicArtist') {
-        void qc.prefetchQuery({
-          queryKey: ['artist', item.Id],
-          queryFn: () => getItem(item.Id),
-          ...opts,
-        });
+        header('artist');
         void qc.prefetchQuery({
           queryKey: ['artist-albums', item.Id],
-          queryFn: () => getArtistAlbums(item.Id),
+          queryFn: () => fetchAndCacheArtistAlbums(item.Id),
           ...opts,
         });
       } else if (item.Type === 'Playlist') {
-        // Playlist detail loads its header (['playlist', id]) + tracks
-        // (['playlist-items', id]) — warm both so a tap paints from cache
-        // instead of the long cold fetch John saw.
-        void qc.prefetchQuery({
-          queryKey: ['playlist', item.Id],
-          queryFn: () => getItem(item.Id),
-          ...opts,
-        });
+        header('playlist');
         void qc.prefetchQuery({
           queryKey: ['playlist-items', item.Id],
-          queryFn: () => getPlaylistItems(item.Id),
+          queryFn: () => fetchAndCachePlaylistItems(item.Id),
           ...opts,
         });
       }

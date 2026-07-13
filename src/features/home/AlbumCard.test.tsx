@@ -38,4 +38,12 @@ describe('AlbumCard', () => {
     await userEvent.hover(screen.getByTestId('album-card'));
     expect(onPrefetch).toHaveBeenCalledWith(album);
   });
+
+  it('prefetches on pointer-down too (mobile has no hover)', async () => {
+    const { fireEvent } = await import('@testing-library/react');
+    const onPrefetch = vi.fn();
+    render(<AlbumCard item={album} onOpen={vi.fn()} onPlay={vi.fn()} onPrefetch={onPrefetch} />);
+    fireEvent.pointerDown(screen.getByTestId('album-card'));
+    expect(onPrefetch).toHaveBeenCalledWith(album);
+  });
 });
