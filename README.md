@@ -89,6 +89,30 @@ docker run -d -p 8095:80 \
 
 Unset → the field is empty / no link.
 
+### Optional plugins & sidecars (better search & recommendations)
+
+Cadence works great against a stock Jellyfin, but a few **optional** server-side add-ons make it
+faster and higher-quality. All are opt-in — Cadence detects/uses them when present and falls back
+cleanly when they're not.
+
+- **Faster search — [Meilisearch](https://www.meilisearch.com/) via
+  [marlin-search](https://github.com/fredrikburmester/marlin-search).** Jellyfin's native search fans
+  out into several requests per query; a marlin-search indexer answers in **one**, with much better
+  ranking. Run marlin against your Jellyfin, then in Cadence go to **Settings → Faster search** and
+  enter the indexer's **URL + token** (stored on your device — never in the build). Cadence scopes it
+  to music and falls back to native search if the indexer is unreachable or an index isn't built yet.
+  A per-deploy default URL can also be set at build time via `VITE_MARLIN_URL` (the token still comes
+  from Settings).
+- **Real "Popular" tracks — [jellyfin-plugin-popular-tracks](https://github.com/johnpc/jellyfin-plugin-popular-tracks).**
+  On a self-hosted server nobody scrobbles, so Jellyfin's `PlayCount` is ~0 and an artist's **Popular**
+  row is effectively random. This plugin transparently re-orders that one query by real **Last.fm**
+  popularity. **No Cadence setting needed** — install + configure the plugin (Last.fm API key) on
+  Jellyfin and the artist Popular row just gets the right order (e.g. Radiohead → _Creep_ first).
+
+> Planned/under consideration for further speedups: a caching or aggregation sidecar in front of
+> Jellyfin (individual Jellyfin reads over a remote tunnel are the main latency floor) — e.g. a plugin
+> exposing page-shaped/aggregated endpoints, or an edge cache for cover art and instant-mix radio.
+
 Notes:
 
 - The image is multi-arch (`linux/amd64` + `linux/arm64`), so it runs on x86 boxes, a Raspberry Pi,

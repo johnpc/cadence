@@ -4,6 +4,7 @@
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
 import { dedupeByName } from './dedupeByName';
+import { dedupeByTitle } from './dedupeByTitle';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
 /** All albums credited to an artist, newest first. */
@@ -52,18 +53,24 @@ export async function getArtistsByIds(ids: string[]): Promise<JellyfinItem[]> {
 /** An artist's most-played tracks ("Popular"). */
 export async function getArtistTopTracks(artistId: string, limit = 5): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
+  // Over-fetch so we can collapse cross-album duplicates (a song + its live /
+  // remaster / single copies) and still fill `limit` distinct tracks. The
+  // PlayCount ordering is the popularity signal (the popular-tracks plugin
+  // re-orders it by real Last.fm ranking server-side).
   const params = new URLSearchParams({
     ArtistIds: artistId,
     IncludeItemTypes: 'Audio',
     Recursive: 'true',
     SortBy: 'PlayCount,SortName',
     SortOrder: 'Descending',
-    Limit: String(limit),
+    Limit: String(Math.max(limit * 4, 20)),
     Fields: 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks',
     userId,
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
-  return res.Items;
+  // Dedupe by title (preferring the studio version over live/alt) so "Popular"
+  // never shows the same song twice, then trim to the requested count.
+  return dedupeByTitle(res.Items).slice(0, limit);
 }
 
 /** Every track by an artist, A–Z — the "See all" list behind the Popular
