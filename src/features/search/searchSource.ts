@@ -9,11 +9,13 @@
  */
 import { request } from '../../lib/jellyfinFetch';
 import { getSession } from '../../lib/sessionStore';
-import { getItemsByIds } from '../../lib/jellyfinItems';
-import { getMarlinUrl, getMarlinToken, marlinConfigured } from '../../lib/marlinStore';
+import { marlinConfigured } from '../../lib/marlinStore';
+import { marlinSearchSource } from './marlinSource';
 import type { ItemsResponse, JellyfinItem } from '../../lib/jellyfinTypes';
+import type { SearchSource } from './searchTypes';
 
-export type SearchSource = (query: string, limit?: number) => Promise<JellyfinItem[]>;
+export type { SearchSource } from './searchTypes';
+export { marlinSearchSource } from './marlinSource';
 
 async function searchItems(query: string, limit: number): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
@@ -64,21 +66,6 @@ export const jellyfinSearchSource: SearchSource = async (query, limit = 40) => {
     searchPlaylists(query, 10),
   ]);
   return [...items, ...artists, ...playlists];
-};
-
-/** Marlin/Meilisearch search: ONE call to the configured indexer's `/search?q=`
- * (the user's own URL + token from marlinStore) returns ranked Jellyfin item
- * ids; we hydrate them in a single `/Items?Ids=` call. Two requests vs. the
- * native source's ~3, and Meilisearch ranking beats Jellyfin's substring match.
- * `getItemsByIds` preserves marlin's relevance order and each hydrated item
- * keeps its own Type, so grouping still works. */
-export const marlinSearchSource: SearchSource = async (query, limit = 40) => {
-  const res = await fetch(`${getMarlinUrl()}/search?q=${encodeURIComponent(query)}`, {
-    headers: { Authorization: getMarlinToken() },
-  });
-  if (!res.ok) throw new Error(`marlin search failed: ${res.status}`);
-  const { ids } = (await res.json()) as { ids?: string[] };
-  return getItemsByIds((ids ?? []).slice(0, limit));
 };
 
 /** The active source: marlin ONLY when the user has configured a URL (Settings
