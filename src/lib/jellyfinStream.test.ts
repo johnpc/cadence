@@ -41,12 +41,22 @@ describe('jellyfinStream', () => {
       Type: 'Audio',
       ImageTags: { Primary: 'tag' },
     };
-    expect(imageUrl(item)).toContain('/Items/i1/Images/Primary');
+    const url = imageUrl(item)!;
+    expect(url).toContain('/Items/i1/Images/Primary');
+    // Tag present → Jellyfin serves it immutable (1yr cache), so scroll-backs
+    // don't re-request; quality trims bytes.
+    expect(url).toContain('tag=tag');
+    expect(url).toContain('quality=90');
   });
 
-  it('falls back to the album image for a track without its own', () => {
+  it('falls back to the album image for a track without its own (no tag — unknown)', () => {
     const item: JellyfinItem = { Id: 'i1', Name: 'x', Type: 'Audio', AlbumId: 'alb1' };
-    expect(imageUrl(item)).toContain('/Items/alb1/Images/Primary');
+    const url = imageUrl(item)!;
+    expect(url).toContain('/Items/alb1/Images/Primary');
+    // We don't have the album's Primary tag here, so none is sent (the item's
+    // own tag would be wrong for the album's image).
+    expect(url).not.toContain('tag=');
+    expect(url).toContain('quality=90');
   });
 
   it('returns null when there is no art at all', () => {
