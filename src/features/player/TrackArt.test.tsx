@@ -45,4 +45,13 @@ describe('TrackArt', () => {
     expect(container.querySelector('img')).not.toBeInTheDocument();
     expect(container.querySelector('ion-icon')).toBeInTheDocument();
   });
+
+  it('is memoized: a parent re-render with the same props reuses the img element', () => {
+    setSession({ token: 't', userId: 'u' });
+    const item: JellyfinItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
+    const { container, rerender } = render(<TrackArt item={item} size={44} />);
+    const first = container.querySelector('img');
+    rerender(<TrackArt item={item} size={44} />); // same props → memo skips render
+    expect(container.querySelector('img')).toBe(first); // same DOM node, not recreated
+  });
 });
