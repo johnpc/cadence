@@ -219,4 +219,28 @@ describe('searchSource (active selector)', () => {
     expect(f.mock.calls.some((c) => (c[0] as string).includes('/Artists'))).toBe(true);
     expect(results.some((r) => r.Id === 's')).toBe(true);
   });
+
+  it('falls back to native search when the marlin fetch aborts (hung indexer)', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    marlin.configured = true;
+    marlin.url = 'https://search.example.com';
+    const f = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes('/search?')) {
+        // Simulate the timeout firing: reject with an AbortError like a real
+        // aborted fetch, so the selector's catch must fall back.
+        void init?.signal;
+        return Promise.reject(new DOMException('aborted', 'AbortError'));
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ Items: [{ Id: 's', Name: 'S', Type: 'Audio' }] }),
+      } as Response);
+    });
+    vi.stubGlobal('fetch', f);
+    const results = await searchSource('x', 10);
+    // Aborted marlin call → native fan-out ran and returned results.
+    expect(f.mock.calls.some((c) => (c[0] as string).includes('/Artists'))).toBe(true);
+    expect(results.some((r) => r.Id === 's')).toBe(true);
+  });
 });
