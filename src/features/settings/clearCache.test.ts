@@ -10,6 +10,7 @@ function stubClient() {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  localStorage.clear();
 });
 
 describe('clearCache', () => {
@@ -18,6 +19,20 @@ describe('clearCache', () => {
     await clearCache(client);
     expect(client.clear).toHaveBeenCalledOnce();
     expect(client.refetchQueries).toHaveBeenCalledOnce();
+  });
+
+  it('flushes the persisted playlist-items disk cache', async () => {
+    localStorage.setItem('cadence.playlist-items', JSON.stringify({ p1: { at: 1, tracks: [] } }));
+    await clearCache(stubClient());
+    expect(localStorage.getItem('cadence.playlist-items')).toBeNull();
+  });
+
+  it('leaves session/settings keys untouched (never signs the user out)', async () => {
+    localStorage.setItem('cadence.server-url', 'https://jf.example.com');
+    localStorage.setItem('cadence.playlist-items', '{}');
+    await clearCache(stubClient());
+    expect(localStorage.getItem('cadence.server-url')).toBe('https://jf.example.com');
+    expect(localStorage.getItem('cadence.playlist-items')).toBeNull();
   });
 
   it('deletes every Cache Storage bucket when available', async () => {

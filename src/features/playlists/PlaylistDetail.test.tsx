@@ -86,6 +86,9 @@ describe('PlaylistDetail', () => {
   });
   afterEach(() => {
     vi.resetAllMocks();
+    // usePlaylistItems persists to localStorage; clear it so one test's tracks
+    // don't seed the next test's query via initialData.
+    localStorage.clear();
   });
 
   it('renders the playlist tracks', async () => {

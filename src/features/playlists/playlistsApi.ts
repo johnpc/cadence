@@ -1,16 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  addToPlaylist,
-  deletePlaylist,
-  getPlaylistItems,
-  getPlaylists,
-  movePlaylistItem,
-  removeFromPlaylist,
-  renamePlaylist,
-} from '../../lib/jellyfinPlaylists';
+import { useQuery } from '@tanstack/react-query';
+import { getPlaylists } from '../../lib/jellyfinPlaylists';
 import { getItem } from '../../lib/jellyfinItems';
+import { getCachedPlaylistItems, fetchAndCachePlaylistItems } from './playlistItemsCache';
+import { PLAYLISTS_KEY } from './playlistsKeys';
 
-export const PLAYLISTS_KEY = ['playlists'];
+// Mutations live in playlistMutations.ts; re-exported so existing imports from
+// './playlistsApi' keep working.
+export { PLAYLISTS_KEY } from './playlistsKeys';
+export {
+  useAddToPlaylist,
+  useRemoveFromPlaylist,
+  useMovePlaylistItem,
+  useDeletePlaylist,
+  useRenamePlaylist,
+} from './playlistMutations';
 
 /** One playlist's header metadata (name, cover art). */
 export function usePlaylist(playlistId: string) {
@@ -33,64 +36,17 @@ export function usePlaylists() {
   };
 }
 
-/** The tracks in one playlist. staleTime matches the hover/press prefetch
- * (usePrefetchItem, 60s) so a warmed cache paints without an immediate refetch. */
+/** The tracks in one playlist. Seeds from a localStorage cache so a
+ * previously-opened playlist paints INSTANTLY on cold load, then refetches in the
+ * background and re-persists (playlists are costly to fetch but change rarely). */
 export function usePlaylistItems(playlistId: string) {
+  const cached = getCachedPlaylistItems(playlistId);
   const q = useQuery({
     queryKey: ['playlist-items', playlistId],
-    queryFn: () => getPlaylistItems(playlistId),
-    staleTime: 60_000,
+    queryFn: () => fetchAndCachePlaylistItems(playlistId),
+    staleTime: 5 * 60_000,
+    initialData: cached,
+    initialDataUpdatedAt: cached ? 0 : undefined, // stale → still background-refetches
   });
   return { tracks: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
-}
-
-/** Add a track to a playlist; refreshes that playlist's items. */
-export function useAddToPlaylist() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ playlistId, itemId }: { playlistId: string; itemId: string }) =>
-      addToPlaylist(playlistId, itemId),
-    onSuccess: (_r, { playlistId }) =>
-      queryClient.invalidateQueries({ queryKey: ['playlist-items', playlistId] }),
-  });
-}
-
-/** Remove an entry from a playlist; refreshes that playlist's items. */
-export function useRemoveFromPlaylist(playlistId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (entryId: string) => removeFromPlaylist(playlistId, entryId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['playlist-items', playlistId] }),
-  });
-}
-
-/** Move an entry within a playlist; refreshes that playlist's items. */
-export function useMovePlaylistItem(playlistId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ entryId, index }: { entryId: string; index: number }) =>
-      movePlaylistItem(playlistId, entryId, index),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['playlist-items', playlistId] }),
-  });
-}
-
-/** Delete a playlist; refreshes the playlists list. */
-export function useDeletePlaylist() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (playlistId: string) => deletePlaylist(playlistId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: PLAYLISTS_KEY }),
-  });
-}
-
-/** Rename a playlist; refreshes its header + the playlists list. */
-export function useRenamePlaylist(playlistId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (name: string) => renamePlaylist(playlistId, name),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['playlist', playlistId] });
-      queryClient.invalidateQueries({ queryKey: PLAYLISTS_KEY });
-    },
-  });
 }
