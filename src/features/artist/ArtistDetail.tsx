@@ -13,7 +13,7 @@ import { ArtistAlbums } from './ArtistAlbums';
 import { ArtistPopular } from './ArtistPopular';
 import { RelatedArtists } from './RelatedArtists';
 import { usePlayItem } from '../player/usePlayItem';
-import { useArtist, useArtistAlbums, useArtistTopTracks, useRelatedArtists } from './artistApi';
+import { useArtist, useArtistAlbums, useArtistTopTracks } from './artistApi';
 import './artist.css';
 
 /** One artist: header (art + name + radio), popular tracks, and their albums. */
@@ -22,7 +22,6 @@ export function ArtistDetail() {
   const { artist } = useArtist(id);
   const { albums, isLoading, isError, refetch } = useArtistAlbums(id);
   const { tracks: topTracks } = useArtistTopTracks(id);
-  const { related } = useRelatedArtists(id);
   const playItem = usePlayItem();
 
   return (
@@ -48,7 +47,7 @@ export function ArtistDetail() {
           isError={isError}
           onRetry={() => void refetch()}
         />
-        <RelatedArtists artists={related} />
+        <RelatedArtists artistId={id} />
         {artist?.Overview && (
           <section data-testid="artist-about">
             <h2 className="cad-kicker artist__section">About</h2>

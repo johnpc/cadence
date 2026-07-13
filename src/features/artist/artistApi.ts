@@ -53,14 +53,21 @@ export function useArtistTracks(artistId: string) {
  * ranked by co-occurrence then hydrated to cards. The Jellyfin /Similar endpoint
  * is polluted with playlist entries on this server, so we derive from the mix. */
 async function relatedArtists(artistId: string): Promise<JellyfinItem[]> {
-  const mix = await getInstantMix(artistId, 60);
+  // Small mix: InstantMix latency scales steeply with Limit (live-measured
+  // ~9s@10 vs ~21-37s@60), and 20 tracks yield plenty of distinct artists to
+  // rank. Same trade as the album similar-albums fetch.
+  const mix = await getInstantMix(artistId, 20);
   return getArtistsByIds(rankRelatedArtistIds(mix, artistId));
 }
 
-export function useRelatedArtists(artistId: string) {
+/** Related artists ("Fans also like"). `enabled` lets the caller defer this slow
+ * (InstantMix-backed) below-the-fold query until it scrolls into view, so it
+ * doesn't block the artist page's albums/popular tracks on mount. */
+export function useRelatedArtists(artistId: string, enabled = true) {
   const q = useQuery({
     queryKey: ['artist-related', artistId],
     queryFn: () => relatedArtists(artistId),
+    enabled,
     staleTime: 5 * 60_000,
   });
   return { related: q.data ?? [] };
