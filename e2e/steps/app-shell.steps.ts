@@ -63,12 +63,17 @@ export async function searchUntilResults(
   }
 }
 
-// A single fixed DeviceId for ALL e2e runs. ensureDeviceId reads it from the
-// Capacitor-Preferences localStorage key, so every test reuses ONE Jellyfin
-// session instead of minting a fresh device per scenario/retry/run — which
-// otherwise piles up thousands of sessions and slows Jellyfin auth to a crawl
-// (the real cause of the CI "sign-in flake").
-const E2E_DEVICE_ID = 'cadence-e2e-fixed-device';
+// A fixed DeviceId per e2e run. ensureDeviceId reads it from the
+// Capacitor-Preferences localStorage key, so every scenario/retry in a run reuses
+// ONE Jellyfin session instead of minting a fresh device each time — which
+// otherwise piles up thousands of sessions and slows Jellyfin auth to a crawl.
+// CRUCIAL for parallel CI: Jellyfin keys a playback session per (user, DeviceId),
+// and every acceptance area signs in as the SAME cadence-test user. A single
+// shared DeviceId across concurrent matrix shards made them collide on ONE
+// server-side session and clobber each other's state (areas passed alone, failed
+// together — the real root cause of the "stampede flake"). So CI sets a distinct
+// E2E_DEVICE_ID per area (see ci.yml); the default is only for local single runs.
+const E2E_DEVICE_ID = process.env.E2E_DEVICE_ID || 'cadence-e2e-fixed-device';
 const DEVICE_KEY = 'CapacitorStorage.cadence.device-id';
 
 // Seed the fixed DeviceId via an init script — it runs BEFORE any app code on
