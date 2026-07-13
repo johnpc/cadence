@@ -9,8 +9,13 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 /** Drives the playlist's "Recommended songs to add" section: fetches a candidate
  * pool, hides tracks already in the playlist / dismissed / just-added, and
  * exposes add + dismiss actions. Dismissing reveals the next unused candidate. */
-export function usePlaylistRecs(playlistId: string, existing: JellyfinItem[]) {
-  const { candidates, isLoading } = usePlaylistRecommendations(playlistId, existing.length > 0);
+export function usePlaylistRecs(playlistId: string, existing: JellyfinItem[], enabled = true) {
+  // The candidate pool is an InstantMix (slow, below the fold) — only fetch once
+  // there are tracks to seed from AND the caller says it's in view.
+  const { candidates, isLoading } = usePlaylistRecommendations(
+    playlistId,
+    enabled && existing.length > 0,
+  );
   const add = useAddToPlaylist();
   const toast = useToast();
   const [hidden, setHidden] = useState<string[]>(() => getDismissedRecs(playlistId));
