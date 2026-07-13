@@ -1,0 +1,9 @@
+.settings__search-backend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-2);
+}
+
+.search-backend__hint {
+  margin: 0;
+}

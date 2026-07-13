@@ -4,6 +4,7 @@ import * as authClient from './authClient';
 import { resolveSession } from './resolveSession';
 import { ensureDeviceId } from '../../lib/deviceId';
 import { hydrateServerUrl } from '../../lib/serverUrlStore';
+import { hydrateMarlin } from '../../lib/marlinStore';
 import { onSessionExpired } from '../../lib/sessionExpiry';
 import { queryClient } from '../../lib/queryClient';
 import { clearPersistedQueue } from '../player/queuePersistence';
@@ -20,6 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // the user signed into (not the build default) and carry a stable DeviceId.
   const refresh = useCallback(async () => {
     await hydrateServerUrl();
+    await hydrateMarlin(); // optional search backend; no-op when unconfigured
     await ensureDeviceId();
     setState(await resolveSession());
   }, []);
