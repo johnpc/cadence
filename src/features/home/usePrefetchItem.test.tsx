@@ -50,4 +50,16 @@ describe('usePrefetchItem', () => {
     prefetch({ Id: 's', Name: 'S', Type: 'Audio' } as JellyfinItem);
     expect(spy).not.toHaveBeenCalled();
   });
+
+  it('seeds the header query with the in-hand item so it paints instantly', () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    vi.spyOn(client, 'prefetchQuery').mockResolvedValue(undefined);
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(QueryClientProvider, { client }, children);
+    const { result } = renderHook(() => usePrefetchItem(), { wrapper });
+    const album = { Id: 'al', Name: 'Seeded Album', Type: 'MusicAlbum' } as JellyfinItem;
+    result.current(album);
+    // The header cache holds the tapped item immediately — no wait on getItem.
+    expect(client.getQueryData(['album', 'al'])).toEqual(album);
+  });
 });

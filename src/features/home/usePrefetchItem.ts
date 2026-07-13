@@ -17,12 +17,18 @@ export function usePrefetchItem() {
   return useCallback(
     (item: JellyfinItem) => {
       const opts = { staleTime: 5 * 60_000 };
-      const header = (key: string) =>
+      // Seed the header query with the item we ALREADY hold (name, art, artist)
+      // so the detail header paints INSTANTLY on tap — no blank 3-5s while
+      // getItem cold-fetches — then refetch in the background to enrich
+      // (Overview/Genres the shelf item may lack). This is the big perceived win.
+      const header = (key: string) => {
+        qc.setQueryData([key, item.Id], (prev: JellyfinItem | undefined) => prev ?? item);
         void qc.prefetchQuery({
           queryKey: [key, item.Id],
           queryFn: () => getItem(item.Id),
-          ...opts,
+          staleTime: 0,
         });
+      };
       if (item.Type === 'MusicAlbum') {
         header('album');
         void qc.prefetchQuery({
