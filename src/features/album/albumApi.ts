@@ -43,11 +43,15 @@ async function fetchSimilarAlbums(albumId: string): Promise<JellyfinItem[]> {
   return getItemsByIds(ids);
 }
 
-export function useSimilarAlbums(albumId: string) {
+export function useSimilarAlbums(albumId: string, enabled = true) {
   const q = useQuery({
     queryKey: ['similar-albums', albumId],
     queryFn: () => fetchSimilarAlbums(albumId),
     staleTime: 60_000,
+    // Deferred until the section nears the viewport: InstantMix is the app's
+    // slowest call (~13s), and "Fans also like" is below the fold — firing it on
+    // mount just contends with the album's own tracklist load.
+    enabled,
   });
   return { albums: q.data ?? [] };
 }

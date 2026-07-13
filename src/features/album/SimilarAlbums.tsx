@@ -1,14 +1,18 @@
 import { useHistory } from 'react-router-dom';
 import { TrackArt } from '../player/TrackArt';
 import { useSimilarAlbums } from './albumApi';
+import { useInView } from '../../lib/useInView';
 import './moreByArtist.css';
 
 /** "Fans also like" — albums surfaced by this album's instant-mix radio,
- * spanning other artists. Renders nothing when the mix yields no siblings. */
+ * spanning other artists. The radio call is the app's slowest (~13s), so it's
+ * deferred until this section nears the viewport (useInView) rather than fired
+ * on mount. Renders a tiny sentinel until then; nothing once the mix is empty. */
 export function SimilarAlbums({ albumId }: { albumId: string }) {
   const history = useHistory();
-  const { albums } = useSimilarAlbums(albumId);
-  if (albums.length === 0) return null;
+  const { ref, inView } = useInView();
+  const { albums } = useSimilarAlbums(albumId, inView);
+  if (albums.length === 0) return <div ref={ref} data-testid="similar-albums-sentinel" />;
   return (
     <section data-testid="similar-albums">
       <h2 className="cad-kicker album__section">Fans also like</h2>
