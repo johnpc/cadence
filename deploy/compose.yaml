@@ -15,6 +15,12 @@
 # (or in a .env beside this file / Dockge's env field). It's injected at
 # container start into config.js by deploy/runtime-config.sh, so changing it
 # needs only a restart, not a rebuild — and the address never lives in source.
+#
+# Optional faster search: set MARLIN_URL + MARLIN_TOKEN (the indexer's
+# EXPRESS_AUTH_TOKEN) to have nginx proxy same-origin /api/search to marlin and
+# inject the token server-side — the token never reaches the browser and marlin
+# needs no public hostname. Unset → Jellyfin native search. Keep real values in a
+# .env beside this file (gitignored), never committed.
 services:
   cadence:
     build:
@@ -23,6 +29,8 @@ services:
     container_name: cadence
     environment:
       JELLYFIN_URL: ${JELLYFIN_URL:-}
+      MARLIN_URL: ${MARLIN_URL:-}
+      MARLIN_TOKEN: ${MARLIN_TOKEN:-}
     ports:
       - '8095:80'
     restart: unless-stopped

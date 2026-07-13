@@ -130,6 +130,32 @@ describe('marlinSearchSource', () => {
     const results = await marlinSearchSource('love', 40);
     expect(results.map((r) => r.Id)).toEqual(['song']);
   });
+
+  it('uses the same-origin /api/search proxy with NO token when marlinProxy is on', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    window.__CADENCE_CONFIG__ = { marlinProxy: true };
+    const f = vi.fn().mockImplementation((url: string) => {
+      const items = url.includes('/api/search')
+        ? undefined
+        : [{ Id: 'a', Name: 'A', Type: 'Audio' }];
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({ ids: ['a'] }),
+        text: async () => JSON.stringify({ Items: items }),
+      } as Response);
+    });
+    vi.stubGlobal('fetch', f);
+
+    const results = await marlinSearchSource('love', 40);
+    const call = f.mock.calls.find((c) => (c[0] as string).includes('/api/search'));
+    expect(call?.[0]).toContain('/api/search?');
+    expect((call?.[0] as string).startsWith('/api/search')).toBe(true); // same-origin, no host
+    // No Authorization header — the proxy injects the token server-side.
+    expect((call?.[1] as RequestInit | undefined)?.headers).toBeUndefined();
+    expect(results.map((r) => r.Id)).toEqual(['a']);
+    delete window.__CADENCE_CONFIG__;
+  });
 });
 
 describe('searchSource (active selector)', () => {
@@ -151,6 +177,28 @@ describe('searchSource (active selector)', () => {
     // Native fan-out hits /Artists; marlin would hit /search.
     expect(f.mock.calls.some((c) => (c[0] as string).includes('/Artists'))).toBe(true);
     expect(f.mock.calls.some((c) => (c[0] as string).includes('/search?q='))).toBe(false);
+  });
+
+  it('activates marlin via the same-origin proxy even without a Settings URL', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    marlin.configured = false; // no user Settings URL…
+    window.__CADENCE_CONFIG__ = { marlinProxy: true }; // …but the deploy enabled the proxy
+    const f = vi.fn().mockImplementation((url: string) => {
+      const items = url.includes('/api/search')
+        ? undefined
+        : [{ Id: 'a', Name: 'A', Type: 'Audio' }];
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({ ids: ['a'] }),
+        text: async () => JSON.stringify({ Items: items }),
+      } as Response);
+    });
+    vi.stubGlobal('fetch', f);
+    await searchSource('x', 10);
+    expect(f.mock.calls.some((c) => (c[0] as string).includes('/api/search'))).toBe(true);
+    expect(f.mock.calls.some((c) => (c[0] as string).includes('/Artists'))).toBe(false);
+    delete window.__CADENCE_CONFIG__;
   });
 
   it('falls back to native search when the configured marlin call fails', async () => {
