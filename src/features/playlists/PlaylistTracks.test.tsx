@@ -82,14 +82,14 @@ function makeTracks(n: number): JellyfinItem[] {
   }));
 }
 
-function renderTracks(tracks: JellyfinItem[]) {
+function renderTracks(tracks: JellyfinItem[], editable = true) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={client}>
       <ToastContext.Provider value={vi.fn()}>
         <PlayerContext.Provider value={stubPlayer()}>
           <MemoryRouter>
-            <PlaylistTracks playlistId="p1" tracks={tracks} />
+            <PlaylistTracks playlistId="p1" tracks={tracks} editable={editable} />
           </MemoryRouter>
         </PlayerContext.Provider>
       </ToastContext.Provider>
@@ -137,5 +137,23 @@ describe('PlaylistTracks', () => {
     chooseSort('title');
     // Sorting a re-sorted view would break index mapping, so reorder is off.
     expect(screen.getAllByTestId('track-row')[0]).toHaveAttribute('data-reorderable', 'false');
+  });
+
+  it('hides remove + reorder for a playlist you do not own (editable=false)', () => {
+    renderTracks(makeTracks(12), false);
+    const first = screen.getAllByTestId('track-row')[0];
+    expect(first).toHaveAttribute('data-removable', 'false');
+    expect(first).toHaveAttribute('data-reorderable', 'false');
+  });
+
+  it('renders a track that has no PlaylistItemId (falls back to its Id key)', () => {
+    const tracks: JellyfinItem[] = [
+      { Id: 'only', Name: 'Loose Track', Type: 'Audio', Artists: ['X'] },
+    ];
+    renderTracks(tracks);
+    // No entry id → not removable, but the row still renders (Id-keyed).
+    const row = screen.getByTestId('track-row');
+    expect(row).toHaveTextContent('Loose Track');
+    expect(row).toHaveAttribute('data-removable', 'false');
   });
 });
