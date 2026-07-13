@@ -36,9 +36,14 @@ export function useMoreByArtist(artistId: string | undefined, excludeId: string)
 }
 
 /** Albums whose tracks show up in this album's instant-mix radio — "Fans also
- * like". Empty (section hidden) when the mix is thin or all one album. */
+ * like". Empty (section hidden) when the mix is thin or all one album.
+ *
+ * The mix limit is deliberately small: InstantMix latency scales steeply with
+ * Limit (live-measured ~9s at 10, ~10.6s at 20, ~37s at 60!), and 20 tracks
+ * already yield plenty of distinct albums to rank an 8-item shelf. So we trade a
+ * slightly smaller candidate pool for a ~3.5× faster call. */
 async function fetchSimilarAlbums(albumId: string): Promise<JellyfinItem[]> {
-  const mix = await getInstantMix(albumId, 60);
+  const mix = await getInstantMix(albumId, 20);
   const ids = rankSimilarAlbumIds(mix, albumId);
   return getItemsByIds(ids);
 }
