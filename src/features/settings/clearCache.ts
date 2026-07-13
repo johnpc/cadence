@@ -3,6 +3,7 @@ import { PLAYLIST_ITEMS_CACHE_KEY } from '../playlists/playlistItemsCache';
 import { ALBUM_TRACKS_CACHE_KEY } from '../album/albumApi';
 import { ARTIST_ALBUMS_CACHE_KEY } from '../artist/artistApi';
 import { HOME_SHELVES_CACHE_KEY } from '../home/homeShelfCache';
+import { LIBRARY_LISTS_CACHE_KEY } from '../library/libraryListCache';
 
 /** localStorage keys that are CACHES (safe to wipe), NOT settings/session. The
  * session token, server URL, device id, theme, volume, and user preferences are
@@ -14,6 +15,7 @@ const CACHE_LS_KEYS = [
   ALBUM_TRACKS_CACHE_KEY,
   ARTIST_ALBUMS_CACHE_KEY,
   HOME_SHELVES_CACHE_KEY,
+  LIBRARY_LISTS_CACHE_KEY,
 ];
 
 /** Wipe Cadence's caches without touching the session or user data (likes,
