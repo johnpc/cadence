@@ -53,6 +53,9 @@ function renderAlbum(player: PlayerContextValue = stubPlayer()) {
 describe('AlbumDetail', () => {
   afterEach(() => {
     vi.resetAllMocks();
+    // useAlbumTracks persists to localStorage; clear it so one test's tracks
+    // don't seed the next test's query via initialData.
+    localStorage.clear();
   });
 
   it('shows the album header and its tracks', async () => {

@@ -6,8 +6,14 @@ import {
   getArtistTracks,
   getArtistsByIds,
 } from '../../lib/jellyfinArtists';
+import { createItemListCache } from '../../lib/itemListCache';
 import { rankRelatedArtistIds } from './rankRelated';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+/** Disk cache of an artist's albums — changes rarely, so a revisited artist
+ * paints its discography instantly (see itemListCache). */
+const artistAlbumsCache = createItemListCache('cadence.artist-albums');
+export const ARTIST_ALBUMS_CACHE_KEY = artistAlbumsCache.storageKey;
 
 /** The artist's header metadata (name, image). */
 export function useArtist(artistId: string) {
@@ -19,12 +25,16 @@ export function useArtist(artistId: string) {
   return { artist: q.data ?? null, isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
-/** The artist's albums. */
+/** The artist's albums. Seeded from a disk cache so a revisited artist paints
+ * its discography instantly, then refetches in the background. */
 export function useArtistAlbums(artistId: string) {
+  const cached = artistAlbumsCache.get(artistId);
   const q = useQuery({
     queryKey: ['artist-albums', artistId],
-    queryFn: () => getArtistAlbums(artistId),
-    staleTime: 60_000,
+    queryFn: () => artistAlbumsCache.fetchAndCache(artistId, getArtistAlbums),
+    staleTime: 5 * 60_000,
+    initialData: cached,
+    initialDataUpdatedAt: cached ? 0 : undefined,
   });
   return { albums: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }

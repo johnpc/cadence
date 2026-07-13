@@ -54,6 +54,9 @@ describe('ArtistDetail', () => {
   });
   afterEach(() => {
     vi.resetAllMocks();
+    // useArtistAlbums persists to localStorage; clear it so one test's albums
+    // don't seed the next test's query via initialData.
+    localStorage.clear();
   });
 
   it('shows the artist name and their albums', async () => {

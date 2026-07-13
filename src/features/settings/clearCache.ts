@@ -1,10 +1,14 @@
 import type { QueryClient } from '@tanstack/react-query';
+import { PLAYLIST_ITEMS_CACHE_KEY } from '../playlists/playlistItemsCache';
+import { ALBUM_TRACKS_CACHE_KEY } from '../album/albumApi';
+import { ARTIST_ALBUMS_CACHE_KEY } from '../artist/artistApi';
 
 /** localStorage keys that are CACHES (safe to wipe), NOT settings/session. The
  * session token, server URL, device id, theme, volume, and user preferences are
  * deliberately left alone so clearing the cache never signs the user out or
- * resets their choices. Add any future disk cache here. */
-const CACHE_LS_KEYS = ['cadence.playlist-items'];
+ * resets their choices. Sourced from each cache's own exported key so this can't
+ * drift out of sync. */
+const CACHE_LS_KEYS = [PLAYLIST_ITEMS_CACHE_KEY, ALBUM_TRACKS_CACHE_KEY, ARTIST_ALBUMS_CACHE_KEY];
 
 /** Wipe Cadence's caches without touching the session or user data (likes,
  * playlists, theme live on the Jellyfin server or in Preferences — untouched).
