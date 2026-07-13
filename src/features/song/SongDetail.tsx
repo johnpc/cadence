@@ -7,15 +7,16 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { usePlayer } from '../player/usePlayer';
 import { usePlayItem } from '../player/usePlayItem';
 import { SongHeader } from './SongHeader';
 import { SongAbout } from './SongAbout';
 import { SongLyrics } from './SongLyrics';
+import { SongPlaylists } from './SongPlaylists';
 import { SongDetailSkeleton } from './SongDetailSkeleton';
-import { useSong, useSongPlaylists, useSongAlbum, useSongArtist } from './songApi';
+import { useSong, useSongAlbum, useSongArtist } from './songApi';
 import './song.css';
 
 /** A track's own page: art, title, links to its artist(s) + album, play/like/
@@ -23,7 +24,6 @@ import './song.css';
 export function SongDetail() {
   const { id } = useParams<{ id: string }>();
   const { song, isLoading, isError, refetch } = useSong(id);
-  const { playlists } = useSongPlaylists(id);
   const { album } = useSongAlbum(song?.AlbumId);
   const { artist } = useSongArtist(song?.ArtistItems?.[0]?.Id);
   const { playQueue } = usePlayer();
@@ -58,16 +58,7 @@ export function SongDetail() {
               />
               <SongAbout album={album} artist={artist} />
               <SongLyrics song={song} />
-              {playlists.length > 0 && (
-                <section data-testid="song-playlists">
-                  <h2 className="cad-kicker song__section">Appears in</h2>
-                  {playlists.map((pl) => (
-                    <Link key={pl.Id} className="song__playlist" to={`/playlist/${pl.Id}`}>
-                      {pl.Name}
-                    </Link>
-                  ))}
-                </section>
-              )}
+              <SongPlaylists songId={id} />
             </div>
           )}
         </LoadState>

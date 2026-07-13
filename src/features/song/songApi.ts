@@ -27,11 +27,15 @@ async function playlistsContaining(songId: string): Promise<JellyfinItem[]> {
   return checks.filter((p): p is JellyfinItem => p !== null);
 }
 
-/** The playlists a song appears in (lazy; scans playlist contents). */
-export function useSongPlaylists(songId: string) {
+/** The playlists a song appears in. EXPENSIVE — it lists the user's playlists
+ * (ownership fan-out) then fetches up to 40 playlists' full track lists to scan
+ * them. `enabled` lets the caller defer it until the below-the-fold "Appears in"
+ * section scrolls into view, so it never blocks the song page on mount. */
+export function useSongPlaylists(songId: string, enabled = true) {
   const q = useQuery({
     queryKey: ['song-playlists', songId],
     queryFn: () => playlistsContaining(songId),
+    enabled,
     staleTime: 60_000,
   });
   return { playlists: q.data ?? [] };
