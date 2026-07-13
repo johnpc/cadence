@@ -1,14 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { getItem, getInstantMix } from '../../lib/jellyfinItems';
-import {
-  getArtistAlbums,
-  getArtistTopTracks,
-  getArtistTracks,
-  getArtistsByIds,
-} from '../../lib/jellyfinArtists';
+import { getItem } from '../../lib/jellyfinItems';
+import { getArtistAlbums, getArtistTopTracks, getArtistTracks } from '../../lib/jellyfinArtists';
 import { createItemListCache } from '../../lib/itemListCache';
-import { rankRelatedArtistIds } from './rankRelated';
+import { getCachedRelatedArtists, fetchAndCacheRelatedArtists } from './relatedArtistsCache';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+export { RELATED_ARTISTS_CACHE_KEY } from './relatedArtistsCache';
 
 /** Disk cache of an artist's albums — changes rarely, so a revisited artist
  * paints its discography instantly (see itemListCache). */
@@ -67,26 +64,18 @@ export function useArtistTracks(artistId: string) {
   return { tracks: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
-/** "Fans also like" — artists that recur across this artist's instant-mix radio,
- * ranked by co-occurrence then hydrated to cards. The Jellyfin /Similar endpoint
- * is polluted with playlist entries on this server, so we derive from the mix. */
-async function relatedArtists(artistId: string): Promise<JellyfinItem[]> {
-  // Small mix: InstantMix latency scales steeply with Limit (live-measured
-  // ~9s@10 vs ~21-37s@60), and 20 tracks yield plenty of distinct artists to
-  // rank. Same trade as the album similar-albums fetch.
-  const mix = await getInstantMix(artistId, 20);
-  return getArtistsByIds(rankRelatedArtistIds(mix, artistId));
-}
-
-/** Related artists ("Fans also like"). `enabled` lets the caller defer this slow
- * (InstantMix-backed) below-the-fold query until it scrolls into view, so it
- * doesn't block the artist page's albums/popular tracks on mount. */
+/** Related artists ("Fans also like"). `enabled` defers this slow InstantMix-
+ * backed query until it scrolls into view; seeded from disk so a revisit paints
+ * instantly instead of re-waiting on the mix (see relatedArtistsCache). */
 export function useRelatedArtists(artistId: string, enabled = true) {
+  const cached = getCachedRelatedArtists(artistId);
   const q = useQuery({
     queryKey: ['artist-related', artistId],
-    queryFn: () => relatedArtists(artistId),
+    queryFn: () => fetchAndCacheRelatedArtists(artistId),
     enabled,
     staleTime: 5 * 60_000,
+    initialData: cached,
+    initialDataUpdatedAt: cached ? 0 : undefined,
   });
   return { related: q.data ?? [] };
 }
