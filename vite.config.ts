@@ -31,6 +31,24 @@ export default defineConfig({
         // Never serve the SPA shell for the runtime config or cross-origin calls.
         navigateFallbackDenylist: [/^\/config\.js$/],
         cleanupOutdatedCaches: true,
+        // Durable, bounded cover-art cache at the SW layer. Jellyfin cover art is
+        // immutable (URLs carry an image `tag`) and CORS `*`, so CacheFirst is
+        // safe: once fetched, an <img> is served from the SW with ZERO network —
+        // it survives the browser HTTP cache being evicted (which happens fast in
+        // an installed PWA on mobile) and works fully offline. Bounded to 500
+        // covers / 60 days so it can't grow without limit. Only cross-origin
+        // /Images/ requests match; API JSON + audio streams are untouched.
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => /\/Items\/[^/]+\/Images\//.test(url.pathname),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'cadence-cover-art',
+              expiration: { maxEntries: 500, maxAgeSeconds: 60 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
     }),
   ],
