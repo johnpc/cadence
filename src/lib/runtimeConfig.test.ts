@@ -1,8 +1,27 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { castReceiverAppId, configuredServerUrl, signupUrl } from './runtimeConfig';
+import {
+  castReceiverAppId,
+  configuredMarlinUrl,
+  configuredServerUrl,
+  signupUrl,
+} from './runtimeConfig';
 
 afterEach(() => {
   delete window.__CADENCE_CONFIG__;
+});
+
+describe('configuredMarlinUrl', () => {
+  it('returns null when unset (off by default)', () => {
+    expect(configuredMarlinUrl()).toBeNull();
+  });
+  it('returns a valid https URL when set', () => {
+    window.__CADENCE_CONFIG__ = { marlinUrl: 'https://search.example.com' };
+    expect(configuredMarlinUrl()).toBe('https://search.example.com/');
+  });
+  it('rejects a non-http(s) value', () => {
+    window.__CADENCE_CONFIG__ = { marlinUrl: 'javascript:alert(1)' };
+    expect(configuredMarlinUrl()).toBeNull();
+  });
 });
 
 describe('signupUrl', () => {

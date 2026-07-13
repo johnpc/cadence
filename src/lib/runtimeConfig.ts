@@ -17,6 +17,11 @@ interface RuntimeConfig {
    * instead of the default media receiver. Unset → default receiver (audio
    * only). Registered in the Google Cast console; see receiver/README. */
   castReceiverAppId?: string;
+  /** Optional default marlin-search (Meilisearch) base URL for faster search.
+   * A per-deploy default the user can override in Settings; unset → native
+   * Jellyfin search until the user configures a URL themselves. The token is
+   * NOT here — it's entered/stored on-device (see marlinStore). */
+  marlinUrl?: string;
 }
 
 declare global {
@@ -59,4 +64,10 @@ export function castReceiverAppId(): string | null {
   if (typeof raw !== 'string') return null;
   const t = raw.trim();
   return /^[A-Za-z0-9]{4,16}$/.test(t) ? t : null;
+}
+
+/** The per-deploy default marlin-search base URL, or null when unset/invalid.
+ * Only a default — the user's Settings choice (marlinStore) takes precedence. */
+export function configuredMarlinUrl(): string | null {
+  return safeHttpUrl(window.__CADENCE_CONFIG__?.marlinUrl);
 }

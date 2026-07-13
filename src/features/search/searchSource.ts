@@ -9,9 +9,13 @@
  */
 import { request } from '../../lib/jellyfinFetch';
 import { getSession } from '../../lib/sessionStore';
+import { marlinConfigured } from '../../lib/marlinStore';
+import { marlinSearchSource } from './marlinSource';
 import type { ItemsResponse, JellyfinItem } from '../../lib/jellyfinTypes';
+import type { SearchSource } from './searchTypes';
 
-export type SearchSource = (query: string, limit?: number) => Promise<JellyfinItem[]>;
+export type { SearchSource } from './searchTypes';
+export { marlinSearchSource } from './marlinSource';
 
 async function searchItems(query: string, limit: number): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
@@ -64,5 +68,17 @@ export const jellyfinSearchSource: SearchSource = async (query, limit = 40) => {
   return [...items, ...artists, ...playlists];
 };
 
-/** The active source. Swap this line to change backends. */
-export const searchSource: SearchSource = jellyfinSearchSource;
+/** The active source: marlin ONLY when the user has configured a URL (Settings
+ * or an env default) — off by default. Marlin falls back to native search on any
+ * error, so a search never hard-fails if the indexer/index is down. Decided per
+ * call so configuring it takes effect without a reload. */
+export const searchSource: SearchSource = async (query, limit) => {
+  if (marlinConfigured()) {
+    try {
+      return await marlinSearchSource(query, limit);
+    } catch {
+      return jellyfinSearchSource(query, limit);
+    }
+  }
+  return jellyfinSearchSource(query, limit);
+};
