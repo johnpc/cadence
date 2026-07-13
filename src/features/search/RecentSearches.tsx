@@ -2,6 +2,7 @@ import { IonIcon } from '@ionic/react';
 import { closeOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { usePlayer } from '../player/usePlayer';
+import { usePrefetchItem } from '../home/usePrefetchItem';
 import { ResultRow } from './ResultRow';
 import type { RecentItem } from './recentSearchStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -18,6 +19,7 @@ export function RecentSearches({
 }) {
   const history = useHistory();
   const { playQueue } = usePlayer();
+  const prefetch = usePrefetchItem();
 
   if (recents.length === 0) {
     return (
@@ -28,6 +30,8 @@ export function RecentSearches({
   }
 
   const open = (item: RecentItem) => {
+    // Seed the detail header from the item we hold so it paints instantly.
+    prefetch(item as JellyfinItem);
     if (item.Type === 'MusicAlbum') history.push(`/album/${item.Id}`);
     else if (item.Type === 'MusicArtist') history.push(`/artist/${item.Id}`);
     else playQueue([item as JellyfinItem], 0);
