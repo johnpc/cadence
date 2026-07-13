@@ -183,6 +183,14 @@ jobs:
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          # A DISTINCT Jellyfin DeviceId PER AREA. Jellyfin keys a playback session
+          # per (user, DeviceId); all areas sign in as the same cadence-test user,
+          # so a single shared DeviceId meant concurrent matrix shards collided on
+          # ONE server-side session and clobbered each other's session state —
+          # areas passed alone but failed together (the real "flake"). Per-area ids
+          # give each shard its own session; stable within a run so retries still
+          # reuse it (no session pile-up). See app-shell.steps.ts.
+          E2E_DEVICE_ID: cadence-e2e-${{ matrix.area.name }}
           # Second user — cross-user playlist-visibility scenario (playlists area).
           TEST_USERNAME_2: ${{ secrets.TEST_USERNAME_2 }}
           TEST_PASSWORD_2: ${{ secrets.TEST_PASSWORD_2 }}
