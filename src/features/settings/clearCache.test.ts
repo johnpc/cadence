@@ -21,10 +21,14 @@ describe('clearCache', () => {
     expect(client.refetchQueries).toHaveBeenCalledOnce();
   });
 
-  it('flushes the persisted playlist-items disk cache', async () => {
-    localStorage.setItem('cadence.playlist-items', JSON.stringify({ p1: { at: 1, tracks: [] } }));
+  it('flushes all persisted disk caches (playlist / album / artist lists)', async () => {
+    localStorage.setItem('cadence.playlist-items', '{}');
+    localStorage.setItem('cadence.album-tracks', '{}');
+    localStorage.setItem('cadence.artist-albums', '{}');
     await clearCache(stubClient());
     expect(localStorage.getItem('cadence.playlist-items')).toBeNull();
+    expect(localStorage.getItem('cadence.album-tracks')).toBeNull();
+    expect(localStorage.getItem('cadence.artist-albums')).toBeNull();
   });
 
   it('leaves session/settings keys untouched (never signs the user out)', async () => {

@@ -1,8 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { getItem, getItemTracks, getInstantMix, getItemsByIds } from '../../lib/jellyfinItems';
 import { getArtistAlbums } from '../../lib/jellyfinArtists';
+import { createItemListCache } from '../../lib/itemListCache';
 import { rankSimilarAlbumIds } from './rankSimilar';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+/** Disk cache of album tracklists — albums are immutable, so a revisited album
+ * paints instantly from disk (see itemListCache). */
+const albumTracksCache = createItemListCache('cadence.album-tracks');
+export const ALBUM_TRACKS_CACHE_KEY = albumTracksCache.storageKey;
 
 /** The album's header metadata (name, artist, art). */
 export function useAlbum(albumId: string) {
@@ -14,12 +20,16 @@ export function useAlbum(albumId: string) {
   return { album: q.data ?? null, isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
-/** The album's tracks, in track order. */
+/** The album's tracks, in track order. Seeded from a disk cache so a revisited
+ * album paints instantly, then refetches in the background. */
 export function useAlbumTracks(albumId: string) {
+  const cached = albumTracksCache.get(albumId);
   const q = useQuery({
     queryKey: ['album-tracks', albumId],
-    queryFn: () => getItemTracks(albumId),
-    staleTime: 60_000,
+    queryFn: () => albumTracksCache.fetchAndCache(albumId, getItemTracks),
+    staleTime: 5 * 60_000,
+    initialData: cached,
+    initialDataUpdatedAt: cached ? 0 : undefined,
   });
   return { tracks: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
