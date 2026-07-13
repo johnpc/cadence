@@ -38,6 +38,9 @@ function renderSimilar() {
 describe('SimilarAlbums', () => {
   afterEach(() => {
     vi.resetAllMocks();
+    // Similar-albums now persist to a disk cache; clear it so one test's result
+    // can't seed the next via initialData (both use albumId="al1").
+    localStorage.clear();
   });
 
   it('shows albums from the radio mix and links to each', async () => {

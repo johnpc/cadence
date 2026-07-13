@@ -10,6 +10,13 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 const albumTracksCache = createItemListCache('cadence.album-tracks');
 export const ALBUM_TRACKS_CACHE_KEY = albumTracksCache.storageKey;
 
+/** Disk cache of "Fans also like" results. These are InstantMix-backed — the
+ * app's SLOWEST call (13-40s) — but change rarely per album, so persisting them
+ * turns a revisit's multi-second wait into an instant paint (then a background
+ * refresh). Keyed by album id. */
+const similarAlbumsCache = createItemListCache('cadence.similar-albums');
+export const SIMILAR_ALBUMS_CACHE_KEY = similarAlbumsCache.storageKey;
+
 /** Fetch an album's tracks and persist them (query fn + prefetch, so a hovered/
  * tapped album warms the same disk cache the detail page reads). */
 export function fetchAndCacheAlbumTracks(albumId: string): Promise<JellyfinItem[]> {
@@ -70,14 +77,18 @@ async function fetchSimilarAlbums(albumId: string): Promise<JellyfinItem[]> {
 }
 
 export function useSimilarAlbums(albumId: string, enabled = true) {
+  const cached = similarAlbumsCache.get(albumId);
   const q = useQuery({
     queryKey: ['similar-albums', albumId],
-    queryFn: () => fetchSimilarAlbums(albumId),
+    queryFn: () => similarAlbumsCache.fetchAndCache(albumId, fetchSimilarAlbums),
     staleTime: 60_000,
     // Deferred until the section nears the viewport: InstantMix is the app's
-    // slowest call (~13s), and "Fans also like" is below the fold — firing it on
-    // mount just contends with the album's own tracklist load.
+    // slowest call (~13-40s), and "Fans also like" is below the fold — firing it
+    // on mount just contends with the album's own tracklist load. Seeded from
+    // disk so a REVISIT paints instantly instead of re-waiting on InstantMix.
     enabled,
+    initialData: cached,
+    initialDataUpdatedAt: cached ? 0 : undefined,
   });
   return { albums: q.data ?? [] };
 }

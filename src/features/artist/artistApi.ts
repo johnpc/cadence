@@ -15,6 +15,12 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 const artistAlbumsCache = createItemListCache('cadence.artist-albums');
 export const ARTIST_ALBUMS_CACHE_KEY = artistAlbumsCache.storageKey;
 
+/** Disk cache of "Fans also like" (related artists). InstantMix-backed (the
+ * app's slowest call, 13-40s) but rarely-changing, so persisting it makes a
+ * revisit instant instead of re-waiting on InstantMix. Keyed by artist id. */
+const relatedArtistsCache = createItemListCache('cadence.related-artists');
+export const RELATED_ARTISTS_CACHE_KEY = relatedArtistsCache.storageKey;
+
 /** Fetch an artist's albums and persist them (query fn + prefetch). */
 export function fetchAndCacheArtistAlbums(artistId: string): Promise<JellyfinItem[]> {
   return artistAlbumsCache.fetchAndCache(artistId, getArtistAlbums);
@@ -71,22 +77,24 @@ export function useArtistTracks(artistId: string) {
  * ranked by co-occurrence then hydrated to cards. The Jellyfin /Similar endpoint
  * is polluted with playlist entries on this server, so we derive from the mix. */
 async function relatedArtists(artistId: string): Promise<JellyfinItem[]> {
-  // Small mix: InstantMix latency scales steeply with Limit (live-measured
-  // ~9s@10 vs ~21-37s@60), and 20 tracks yield plenty of distinct artists to
-  // rank. Same trade as the album similar-albums fetch.
+  // Limit 20: InstantMix latency scales steeply with Limit (~9s@10 vs ~21-37s@60)
+  // and 20 tracks yield plenty of distinct artists. Same trade as similar-albums.
   const mix = await getInstantMix(artistId, 20);
   return getArtistsByIds(rankRelatedArtistIds(mix, artistId));
 }
 
-/** Related artists ("Fans also like"). `enabled` lets the caller defer this slow
- * (InstantMix-backed) below-the-fold query until it scrolls into view, so it
- * doesn't block the artist page's albums/popular tracks on mount. */
+/** Related artists ("Fans also like"). `enabled` defers this slow InstantMix-
+ * backed query until it scrolls into view; seeded from disk so a revisit paints
+ * instantly instead of re-waiting on the mix. */
 export function useRelatedArtists(artistId: string, enabled = true) {
+  const cached = relatedArtistsCache.get(artistId);
   const q = useQuery({
     queryKey: ['artist-related', artistId],
-    queryFn: () => relatedArtists(artistId),
+    queryFn: () => relatedArtistsCache.fetchAndCache(artistId, relatedArtists),
     enabled,
     staleTime: 5 * 60_000,
+    initialData: cached,
+    initialDataUpdatedAt: cached ? 0 : undefined,
   });
   return { related: q.data ?? [] };
 }
