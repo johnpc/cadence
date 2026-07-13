@@ -24,12 +24,14 @@ export function useAlbumTracks(albumId: string) {
   return { tracks: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
-/** Other albums by the same artist (excluding `excludeId`) for "More by …". */
-export function useMoreByArtist(artistId: string | undefined, excludeId: string) {
+/** Other albums by the same artist (excluding `excludeId`) for "More by …".
+ * `enabled` lets the caller defer this below-the-fold query until it scrolls
+ * into view, so it doesn't contend with the album's own tracklist on mount. */
+export function useMoreByArtist(artistId: string | undefined, excludeId: string, enabled = true) {
   const q = useQuery({
     queryKey: ['artist-albums', artistId],
     queryFn: () => getArtistAlbums(artistId as string),
-    enabled: !!artistId,
+    enabled: !!artistId && enabled,
     staleTime: 60_000,
   });
   return { albums: (q.data ?? []).filter((a) => a.Id !== excludeId) };
