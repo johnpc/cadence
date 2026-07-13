@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { musicalNotes } from 'ionicons/icons';
 import { IonIcon } from '@ionic/react';
 import { imageUrl } from '../../lib/jellyfinStream';
@@ -7,8 +7,13 @@ import './trackArt.css';
 
 /** Cover art for a track/album/artist, with a note-icon placeholder fallback
  * (used both when the item has no art and when the image fails to load).
- * `round` renders a circle — used for artists; albums/tracks stay square. */
-export function TrackArt({
+ * `round` renders a circle — used for artists; albums/tracks stay square.
+ *
+ * Memoized: TrackArt renders in every row/card across the app, and all its
+ * props are primitive/stable (item ref, size, round), so React.memo skips the
+ * <img> subtree when an unrelated parent re-render happens (play/pause toggle,
+ * filter keystroke, track advance) — a broad, cheap render win. */
+function TrackArtImpl({
   item,
   size = 48,
   round = false,
@@ -46,3 +51,5 @@ export function TrackArt({
     </div>
   );
 }
+
+export const TrackArt = memo(TrackArtImpl);
