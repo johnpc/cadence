@@ -10,6 +10,15 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 const albumTracksCache = createItemListCache('cadence.album-tracks');
 export const ALBUM_TRACKS_CACHE_KEY = albumTracksCache.storageKey;
 
+/** Fetch an album's tracks and persist them (query fn + prefetch, so a hovered/
+ * tapped album warms the same disk cache the detail page reads). */
+export function fetchAndCacheAlbumTracks(albumId: string): Promise<JellyfinItem[]> {
+  return albumTracksCache.fetchAndCache(albumId, getItemTracks);
+}
+export function getCachedAlbumTracks(albumId: string): JellyfinItem[] | undefined {
+  return albumTracksCache.get(albumId);
+}
+
 /** The album's header metadata (name, artist, art). */
 export function useAlbum(albumId: string) {
   const q = useQuery({
@@ -23,10 +32,10 @@ export function useAlbum(albumId: string) {
 /** The album's tracks, in track order. Seeded from a disk cache so a revisited
  * album paints instantly, then refetches in the background. */
 export function useAlbumTracks(albumId: string) {
-  const cached = albumTracksCache.get(albumId);
+  const cached = getCachedAlbumTracks(albumId);
   const q = useQuery({
     queryKey: ['album-tracks', albumId],
-    queryFn: () => albumTracksCache.fetchAndCache(albumId, getItemTracks),
+    queryFn: () => fetchAndCacheAlbumTracks(albumId),
     staleTime: 5 * 60_000,
     initialData: cached,
     initialDataUpdatedAt: cached ? 0 : undefined,
