@@ -1,6 +1,7 @@
 import { useHistory } from 'react-router-dom';
 import { TrackRow } from '../player/TrackRow';
 import { artistLine } from '../player/playerFormat';
+import { usePrefetchItem } from '../home/usePrefetchItem';
 import { ResultRow } from './ResultRow';
 import { TopResult } from './TopResult';
 import { previewGroups, topResult, type SearchGroups } from './searchGroups';
@@ -22,24 +23,23 @@ export function SearchResults({
   onPick: (item: RecentItem) => void;
 }) {
   const history = useHistory();
+  const prefetch = usePrefetchItem();
   const isAll = filter === 'all';
   const show = (kind: SearchFilter) => isAll || filter === kind;
   const hero = isAll ? topResult(groups, query) : null;
   // On "All", show a short preview per type (the filter chips reveal the rest);
   // a single-type filter shows that type in full.
   const shown = previewGroups(groups, isAll);
-  const goAlbum = (a: JellyfinItem) => {
-    onPick(a);
-    history.push(`/album/${a.Id}`);
+  // prefetch() seeds the detail header synchronously from the result we already
+  // hold, so the target page paints its header instantly instead of blank.
+  const go = (item: JellyfinItem, path: string) => {
+    onPick(item);
+    prefetch(item);
+    history.push(path);
   };
-  const goArtist = (a: JellyfinItem) => {
-    onPick(a);
-    history.push(`/artist/${a.Id}`);
-  };
-  const goPlaylist = (p: JellyfinItem) => {
-    onPick(p);
-    history.push(`/playlist/${p.Id}`);
-  };
+  const goAlbum = (a: JellyfinItem) => go(a, `/album/${a.Id}`);
+  const goArtist = (a: JellyfinItem) => go(a, `/artist/${a.Id}`);
+  const goPlaylist = (p: JellyfinItem) => go(p, `/playlist/${p.Id}`);
   return (
     <div data-testid="search-results">
       {hero && <TopResult item={hero} onPick={onPick} />}
