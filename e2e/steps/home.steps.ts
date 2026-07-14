@@ -19,8 +19,9 @@ Then('I see a {string} shelf', async ({ page }, title: string) => {
 });
 
 Then('I see a {string} mix', async ({ page }, label: string) => {
-  // The "Made for you" shelf appears once the user follows ≥1 artist. Its
-  // heading and at least one mix card resolve — never a hung spinner.
+  // The "Made for you" shelf appears from followed artists OR from the artists
+  // in what you've played — so it surfaces even before any follow. Its heading
+  // and at least one mix card resolve — never a hung spinner.
   await expect(page.getByText(label)).toBeVisible({ timeout: DATA_WAIT });
   await expect(page.getByTestId('daily-mix').first()).toBeAttached({ timeout: DATA_WAIT });
 });

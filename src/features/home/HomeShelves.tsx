@@ -42,7 +42,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
         onPrefetch={prefetch}
         hideWhenEmpty
       />
-      <DailyMixShelf artists={artists.artists} />
+      <DailyMixShelf artists={artists.artists} recentTracks={recent.songs} />
       {recent.songs.length > 0 && (
         <CardShelf
           title="Recently played"

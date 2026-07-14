@@ -34,6 +34,12 @@ Feature: Home recommendations
     And I open the full play history
     Then I see the play history list
 
+  Scenario: Playing a track surfaces a "Made for you" mix without following anyone
+    Given I am signed in
+    When I tap a track from search
+    And I open the Home tab
+    Then I see a "Made for you" mix
+
   Scenario: Playing a collection surfaces a "Jump back in" shelf on Home
     Given I am signed in
     When I open the Library tab
