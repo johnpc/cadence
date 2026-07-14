@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useRef } from 'react';
 import { useTrackLoader } from './useTrackLoader';
@@ -7,7 +7,10 @@ vi.mock('../../lib/jellyfinStream', () => ({
   audioStreamUrl: (id: string) => `https://jf.test/Audio/${id}/universal`,
 }));
 vi.mock('../downloads/downloadStore', () => ({ localAudioUrl: vi.fn(), isDownloaded: vi.fn() }));
-vi.mock('../cast/castStore', () => ({ getCastState: vi.fn(() => ({ connected: false })) }));
+vi.mock('../cast/castStore', () => ({
+  getCastState: vi.fn(() => ({ connected: false })),
+  onCastStateChange: vi.fn(() => () => {}),
+}));
 vi.mock('../cast/castController', () => ({ castTrack: vi.fn().mockResolvedValue(undefined) }));
 import { localAudioUrl, isDownloaded } from '../downloads/downloadStore';
 import { getCastState } from '../cast/castStore';
@@ -75,6 +78,32 @@ describe('useTrackLoader', () => {
     expect(audio.pause).toHaveBeenCalled();
     expect(audio.src).toBe(''); // local element never gets a src while casting
     expect(localAudioUrl).not.toHaveBeenCalled();
+  });
+
+  it('hands playback back to the phone (resumes) when casting ends', async () => {
+    // Reactive cast mock: getCastState reads a mutable flag; onCastStateChange
+    // registers a listener we fire to simulate SESSION_ENDED.
+    let connected = true;
+    let notify = () => {};
+    vi.mocked(getCastState).mockImplementation(
+      () => ({ connected }) as ReturnType<typeof getCastState>,
+    );
+    const { onCastStateChange } = await import('../cast/castStore');
+    vi.mocked(onCastStateChange).mockImplementation((cb: () => void) => {
+      notify = cb;
+      return () => {};
+    });
+    vi.mocked(isDownloaded).mockReturnValue(false);
+    const audio = fakeAudio();
+    renderHook(() => useLoader(track('t1'), audio));
+    // While casting: local element silent, track on the receiver.
+    expect(castTrack).toHaveBeenCalled();
+    expect(audio.src).toBe('');
+    // Casting ends → the effect re-runs and resumes locally.
+    connected = false;
+    act(() => notify());
+    await waitFor(() => expect(audio.src).toBe('https://jf.test/Audio/t1/universal'));
+    expect(audio.play).toHaveBeenCalled();
   });
 
   it('does nothing without a current track', () => {

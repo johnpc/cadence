@@ -1,7 +1,8 @@
 import { useEffect, useRef, type RefObject } from 'react';
+import { useSyncExternalStore } from 'react';
 import { audioStreamUrl } from '../../lib/jellyfinStream';
 import { isDownloaded, localAudioUrl } from '../downloads/downloadStore';
-import { getCastState } from '../cast/castStore';
+import { getCastState, onCastStateChange } from '../cast/castStore';
 import { castTrack } from '../cast/castController';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -11,11 +12,13 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * paused — like Spotify, and browsers block autoplay anyway.
  *
  * When casting to a TV the receiver plays instead — the local element stays
- * silent and the track is loaded on the receiver. Otherwise it prefers a
- * locally-downloaded copy (offline) over the network stream; the common case (a
- * non-downloaded track) stays fully SYNCHRONOUS. Only a downloaded track takes
- * the async path to resolve its blob URL; `active` guards against a track change
- * landing after that slower resolve.
+ * silent and the track is loaded on the receiver. When casting ENDS, the effect
+ * re-runs (it depends on the cast-connected flag) and hands playback back to the
+ * phone — resuming the current track locally rather than leaving silence.
+ * Otherwise it prefers a locally-downloaded copy (offline) over the network
+ * stream; the common case (a non-downloaded track) stays fully SYNCHRONOUS. Only
+ * a downloaded track takes the async path to resolve its blob URL; `active`
+ * guards against a track change landing after that slower resolve.
  */
 export function useTrackLoader(
   ref: RefObject<HTMLAudioElement | null>,
@@ -23,6 +26,9 @@ export function useTrackLoader(
 ): void {
   const currentId = current?.Id;
   const skipAutoPlay = useRef(!!currentId);
+  // Re-run when casting connects/disconnects so playback hands off to/from the TV.
+  const casting = useSyncExternalStore(onCastStateChange, () => getCastState().connected);
+  const wasCasting = useRef(casting);
   useEffect(() => {
     const audio = ref.current;
     if (!audio || !currentId || !current) return;
@@ -30,11 +36,18 @@ export function useTrackLoader(
     // Casting to a TV: the receiver plays the audio, so keep the local element
     // silent and load the track on the receiver instead (track changes from
     // next/prev/jumpTo flow through here, so they retarget the TV too).
-    if (getCastState().connected) {
+    if (casting) {
+      wasCasting.current = true;
       audio.pause();
       skipAutoPlay.current = false;
       void castTrack(current).catch(() => undefined);
       return;
+    }
+    // Casting just ended → resume the current track locally (don't leave silence);
+    // a plain track/mount change keeps the normal restore-paused behaviour.
+    if (wasCasting.current) {
+      wasCasting.current = false;
+      skipAutoPlay.current = false;
     }
     const start = (src: string) => {
       if (!active || ref.current !== audio) return; // track changed mid-resolve
@@ -53,5 +66,5 @@ export function useTrackLoader(
     return () => {
       active = false;
     };
-  }, [currentId, current, ref]);
+  }, [currentId, current, ref, casting]);
 }
