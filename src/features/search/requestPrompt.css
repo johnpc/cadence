@@ -1,0 +1,12 @@
+.request-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cad-space-2);
+  padding: var(--cad-space-6) var(--cad-space-4);
+  text-align: center;
+}
+
+.request-prompt__text {
+  margin: 0;
+}

@@ -8,6 +8,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
+import { useLocation } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { RequestRow } from './RequestRow';
 import { useMusicRequests } from './useMusicRequests';
@@ -16,10 +17,12 @@ import './requests.css';
 /** "Request music" — search MusicBrainz (via Lidarr) for artists not in the
  * library and request them; Lidarr downloads them into the shared library, after
  * which they appear in normal search/Home. Admin-gated + only routed when the
- * Lidarr proxy is configured (see AppRoutes). */
+ * Lidarr proxy is configured (see AppRoutes). A `?q=` param (from Search's
+ * "request this" bridge) pre-fills the search. */
 export function Requests() {
+  const initialQuery = new URLSearchParams(useLocation().search).get('q') ?? '';
   const { query, setQuery, results, isSearching, isError, status, request, inLibrary } =
-    useMusicRequests();
+    useMusicRequests(initialQuery);
   const typed = query.trim().length > 1;
   return (
     <IonPage>
