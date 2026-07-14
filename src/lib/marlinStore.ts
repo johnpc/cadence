@@ -1,13 +1,9 @@
 /**
  * Optional marlin-search (Meilisearch) config for faster search — a base URL +
- * auth token, chosen in Settings and persisted per-device. OFF by default:
- * search stays on Jellyfin's native endpoint until a URL is configured (here or
- * via the per-deploy VITE_MARLIN_URL / runtime marlinUrl default).
- *
- * The token is the USER's own token for THEIR own indexer, stored on-device via
- * Preferences (exactly like the Jellyfin session token) — it is never baked into
- * the committed build or shipped in public client JS. No server address/port is
- * hardcoded anywhere; it comes only from Settings or an env-provided default.
+ * auth token, persisted per-device. OFF by default (native Jellyfin search until
+ * configured). A server-managed URL (runtime config.js / the CadenceConfig
+ * plugin) SUPERSEDES the user's choice — see getMarlinUrl / marlinManagedByServer.
+ * The token is stored on-device via Preferences, never baked into the build.
  */
 import { Preferences } from '@capacitor/preferences';
 import { configuredMarlinUrl } from './runtimeConfig';
@@ -24,22 +20,17 @@ const trim = (url: string): string => {
 /** Build-time default (optional): a maintainer image can ship a default URL. */
 const BUILD_DEFAULT_URL = trim(import.meta.env.VITE_MARLIN_URL || '');
 
-/** Default marlin URL when the user hasn't set one: runtime config wins over the
- * build constant; '' (native search) when neither is set. */
-function defaultUrl(): string {
-  const runtime = configuredMarlinUrl();
-  return runtime ? trim(runtime) : BUILD_DEFAULT_URL;
-}
-
 let cachedUrl: string | null = null;
 let cachedToken: string | null = null;
 
+/** The user's own choice (localStorage) else the build default — the fallback
+ * when the server isn't managing the URL (that's applied in getMarlinUrl). */
 function readUrl(): string {
   try {
     const stored = localStorage.getItem(URL_KEY);
-    return stored !== null ? trim(stored) : defaultUrl();
+    return stored !== null ? trim(stored) : BUILD_DEFAULT_URL;
   } catch {
-    return defaultUrl();
+    return BUILD_DEFAULT_URL;
   }
 }
 
@@ -66,7 +57,18 @@ export async function hydrateMarlin(): Promise<void> {
   }
 }
 
+/** True when the server (runtime config.js or the CadenceConfig plugin) has set
+ * the marlin URL. When so it SUPERSEDES the user's Settings choice and the
+ * Settings field is shown read-only — the admin has made this decision. */
+export function marlinManagedByServer(): boolean {
+  return configuredMarlinUrl() !== null;
+}
+
 export function getMarlinUrl(): string {
+  // A server-managed URL wins over the user's stored value. Read it live (not
+  // just at hydrate) since the plugin fetch fills it in after startup.
+  const managed = configuredMarlinUrl();
+  if (managed) return trim(managed);
   if (cachedUrl === null) cachedUrl = readUrl();
   return cachedUrl;
 }
