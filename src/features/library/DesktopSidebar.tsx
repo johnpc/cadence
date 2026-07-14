@@ -1,4 +1,4 @@
-import { IonIcon, useIonRouter } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
 import {
   home,
   search,
@@ -7,7 +7,7 @@ import {
   chevronBack,
   chevronForward,
 } from 'ionicons/icons';
-import { useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { LibraryList } from './LibraryList';
 import { useSidebarCollapsed } from './useSidebarCollapsed';
 import { lidarrProxyEnabled } from '../../lib/runtimeConfig';
@@ -34,8 +34,6 @@ const REQUESTS_NAV = {
 export function DesktopSidebar() {
   const { collapsed, toggle } = useSidebarCollapsed();
   const nav = lidarrProxyEnabled() ? [...NAV, REQUESTS_NAV] : NAV;
-  const { pathname } = useLocation();
-  const router = useIonRouter();
   return (
     <aside
       className={collapsed ? 'sidebar sidebar--collapsed' : 'sidebar'}
@@ -53,25 +51,17 @@ export function DesktopSidebar() {
       </button>
       <nav className="sidebar__nav">
         {nav.map((n) => (
-          // Navigate PROGRAMMATICALLY via useIonRouter (root direction) rather
-          // than a declarative IonRouterLink. A routerLink click intercepted
-          // while the IonRouterOutlet is still settling — e.g. the just-mounted
-          // shell right after sign-in — was silently dropped, leaving the app on
-          // the previous tab (~30% of the time, no contention needed).
-          // router.push imperatively drives the outlet, so the nav always lands.
-          <button
+          <NavLink
             key={n.to}
-            type="button"
-            className={
-              pathname.startsWith(n.to) ? 'sidebar__link sidebar__link--on' : 'sidebar__link'
-            }
+            className="sidebar__link"
+            activeClassName="sidebar__link--on"
+            to={n.to}
             data-testid={n.testid}
             title={n.label}
-            onClick={() => router.push(n.to, 'root', 'replace')}
           >
             <IonIcon icon={n.icon} aria-hidden="true" />
             <span className="sidebar__label">{n.label}</span>
-          </button>
+          </NavLink>
         ))}
       </nav>
       <div className="sidebar__library">
