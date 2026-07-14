@@ -51,3 +51,21 @@ export async function getRecentlyPlayed(limit = 20): Promise<JellyfinItem[]> {
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
   return res.Items;
 }
+
+/** Your most-played tracks ("On repeat" shelf) — per-user PlayCount, highest
+ * first. Uses the per-user /Users/{id}/Items so PlayCount is the caller's own
+ * count (not a server-wide total). Only played tracks qualify (IsPlayed). */
+export async function getOnRepeat(limit = 20): Promise<JellyfinItem[]> {
+  const userId = getSession()?.userId ?? '';
+  const params = new URLSearchParams({
+    IncludeItemTypes: 'Audio',
+    Recursive: 'true',
+    Filters: 'IsPlayed',
+    SortBy: 'PlayCount',
+    SortOrder: 'Descending',
+    Limit: String(limit),
+    Fields: songFields,
+  });
+  const res = await request<ItemsResponse>(`/Users/${userId}/Items?${params.toString()}`);
+  return res.Items;
+}

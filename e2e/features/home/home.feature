@@ -40,6 +40,12 @@ Feature: Home recommendations
     And I open the Home tab
     Then I see a "Made for you" mix
 
+  Scenario: Home surfaces an "On repeat" shelf of your most-played tracks
+    Given I am signed in
+    When I tap a track from search
+    And I open the Home tab
+    Then I see an "On repeat" shelf
+
   Scenario: Playing a collection surfaces a "Jump back in" shelf on Home
     Given I am signed in
     When I open the Library tab

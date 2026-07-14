@@ -5,6 +5,7 @@ vi.mock('../../lib/jellyfinDiscover', () => ({
   getLatestAlbums: vi.fn(),
   getSuggestedSongs: vi.fn(),
   getRecentlyPlayed: vi.fn().mockResolvedValue([]),
+  getOnRepeat: vi.fn().mockResolvedValue([]),
 }));
 vi.mock('../../lib/jellyfinItems', () => ({
   getFavoriteAlbums: vi.fn().mockResolvedValue([]),
@@ -15,7 +16,12 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPublicPlaylists: vi.fn().mockResolvedValue([]),
 }));
 vi.mock('../player/usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
-import { getLatestAlbums, getSuggestedSongs, getRecentlyPlayed } from '../../lib/jellyfinDiscover';
+import {
+  getLatestAlbums,
+  getSuggestedSongs,
+  getRecentlyPlayed,
+  getOnRepeat,
+} from '../../lib/jellyfinDiscover';
 import { getFavoriteAlbums } from '../../lib/jellyfinItems';
 import { getFavoriteArtists } from '../../lib/jellyfinArtists';
 import { getPublicPlaylists } from '../../lib/jellyfinPlaylists';
@@ -47,6 +53,16 @@ describe('Home', () => {
     expect(screen.getByText('Suggested for you')).toBeInTheDocument();
     await waitFor(() => expect(screen.getByText('Fresh Album')).toBeInTheDocument());
     expect(screen.getByText('Suggested Song')).toBeInTheDocument();
+  });
+
+  it('shows an On repeat shelf from your most-played tracks', async () => {
+    const onRepeat: JellyfinItem = { Id: 'r', Name: 'Looped Song', Type: 'Audio', Artists: ['C'] };
+    vi.mocked(getLatestAlbums).mockResolvedValue([]);
+    vi.mocked(getSuggestedSongs).mockResolvedValue([]);
+    vi.mocked(getOnRepeat).mockResolvedValue([onRepeat]);
+    renderWithProviders(<Home />);
+    await waitFor(() => expect(screen.getByText('On repeat')).toBeInTheDocument());
+    expect(screen.getByText('Looped Song')).toBeInTheDocument();
   });
 
   it('shows a From your library shelf when albums are saved', async () => {

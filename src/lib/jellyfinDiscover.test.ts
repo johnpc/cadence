@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getLatestAlbums, getSuggestedSongs, getRecentlyPlayed } from './jellyfinDiscover';
+import {
+  getLatestAlbums,
+  getSuggestedSongs,
+  getRecentlyPlayed,
+  getOnRepeat,
+} from './jellyfinDiscover';
 import { setSession } from './sessionStore';
 
 function stub(body: unknown) {
@@ -46,5 +51,18 @@ describe('jellyfinDiscover', () => {
     const [url] = f.mock.calls[0];
     expect(url).toContain('Filters=IsPlayed');
     expect(url).toContain('SortBy=DatePlayed');
+  });
+
+  it('getOnRepeat requests played audio by per-user PlayCount from the user endpoint', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = stub({ Items: [{ Id: 's', Name: 'x', Type: 'Audio' }], TotalRecordCount: 1 });
+    const songs = await getOnRepeat(5);
+    expect(songs).toHaveLength(1);
+    const [url] = f.mock.calls[0];
+    // Per-user endpoint so PlayCount is the caller's own, sorted highest-first.
+    expect(url).toContain('/Users/uid/Items');
+    expect(url).toContain('Filters=IsPlayed');
+    expect(url).toContain('SortBy=PlayCount');
+    expect(url).toContain('SortOrder=Descending');
   });
 });
