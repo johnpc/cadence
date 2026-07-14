@@ -10,16 +10,13 @@ import { usePlaybackHandlers } from './usePlaybackHandlers';
 import { useVolume } from './useVolume';
 import { usePlaybackRate } from './usePlaybackRate';
 import { usePlaybackControls } from './usePlaybackControls';
-import { usePlaybackReporting } from './usePlaybackReporting';
-import { useEndlessPlay } from './useEndlessPlay';
-import { useNextTrackPrefetch } from './useNextTrackPrefetch';
-import { useAutoplay } from '../settings/useAutoplay';
-import { useDocumentTitle } from './useDocumentTitle';
+import { usePlayerSideEffects } from './usePlayerSideEffects';
 import { usePlayerValue } from './usePlayerValue';
 import { useTrackLoader } from './useTrackLoader';
 import { useToast } from '../toast/useToast';
 import { useEffectiveProgress } from '../cast/useEffectiveProgress';
 import { useSmartPrev } from './useSmartPrev';
+import { useAudioInterruptionResume } from './useAudioInterruptionResume';
 import * as q from './queue';
 
 /** Holds the play queue + the one audio element, exposing player controls. */
@@ -43,25 +40,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // Load the current track and play on change (restored tracks stay paused).
   useTrackLoader(ref, current ?? undefined);
 
-  const { toggle, seek, seekBy, pause } = usePlaybackControls(ref, qh.queue.tracks.length > 0);
+  const hasQueue = qh.queue.tracks.length > 0;
+  const { toggle, seek, seekBy, pause, resume } = usePlaybackControls(ref, hasQueue);
+  // Recover from an OS audio interruption (Siri / call) if still meant to play.
+  useAudioInterruptionResume(isPlaying, resume);
 
   // Smart "previous": restart mid-track, else go to the prior track.
   const qc = { ...qh, prev: useSmartPrev(ref, seek, qh.prev) };
 
-  // Report playback to Jellyfin (play counts + Recently Played). Reads position
-  // live from the audio element so it doesn't re-fire on every tick.
-  usePlaybackReporting(currentId, () => ref.current?.currentTime ?? 0);
-
-  // Endless play: append instant-mix radio when the queue ends (unless the user
-  // turned Autoplay off, or repeat is on — then the queue loops instead).
-  const { autoplay } = useAutoplay();
-  useEndlessPlay(qh.queue.tracks, qh.queue.index, autoplay && qh.repeat === 'off', qh.addToQueue);
-
-  // Warm the next track (web audio path only) so transitions are near-gapless.
-  useNextTrackPrefetch(qh.queue, qh.repeat === 'all', isPlaying);
-
-  // Reflect the playing track in the browser tab title.
-  useDocumentTitle(current);
+  // Fire-and-forget integrations: play reporting, endless radio, next-track
+  // prefetch, tab title (see usePlayerSideEffects).
+  usePlayerSideEffects(qh, current, currentId, ref, isPlaying);
 
   // Sleep timer: pause when it elapses (timed) or when the track ends ('track').
   const { sleepMode, armSleep } = useSleepTimer(pause, sleepEnd.active);

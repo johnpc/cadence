@@ -18,7 +18,55 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             print("Failed to set audio session category: \(error)")
         }
+        // iOS pauses the WKWebView's <audio> on an interruption (Siri, a phone
+        // call) but never auto-resumes it — the user would have to tap play
+        // again. Observe the interruption notification and, when it ENDS with the
+        // system's "should resume" hint, tell the web player to resume via a JS
+        // event (see useAudioInterruptionResume).
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAudioInterruption(_:)),
+            name: AVAudioSession.interruptionNotification,
+            object: nil
+        )
         return true
+    }
+
+    // On interruption END, reactivate the audio session and — only when iOS
+    // signals `.shouldResume` — dispatch a JS event so the web player resumes the
+    // track it was on. We resume via the web layer (not the raw element) so the
+    // player's state stays consistent. `.began` needs no handling: iOS has
+    // already paused the element and MediaSession reflects it.
+    @objc func handleAudioInterruption(_ notification: Notification) {
+        guard
+            let info = notification.userInfo,
+            let raw = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+            AVAudioSession.InterruptionType(rawValue: raw) == .ended
+        else { return }
+        let shouldResume: Bool
+        if let optsRaw = info[AVAudioSessionInterruptionOptionKey] as? UInt {
+            shouldResume = AVAudioSession.InterruptionOptions(rawValue: optsRaw).contains(.shouldResume)
+        } else {
+            shouldResume = false
+        }
+        guard shouldResume else { return }
+        try? AVAudioSession.sharedInstance().setActive(true)
+        nudgeWebPlayerToResume()
+    }
+
+    // Tell the web player to re-assert playback (it only acts if it still intends
+    // to be playing — see useAudioInterruptionResume). Used both on interruption
+    // end and on foreground: Siri's interruption-ended notification is unreliable
+    // in a WKWebView, so returning to the app is a safety net that re-establishes
+    // audio output iOS silently dropped.
+    func nudgeWebPlayerToResume() {
+        DispatchQueue.main.async {
+            let vc = self.window?.rootViewController as? CAPBridgeViewController
+            vc?.webView?.evaluateJavaScript(
+                "window.dispatchEvent(new Event('cadence:audiointerruptionended'))",
+                completionHandler: nil
+            )
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
@@ -35,7 +83,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
     }
 
+    func applicationDidBecomeActiveResume() {
+        // Safety net for interruptions whose `.ended` notification never arrives
+        // (common with Siri in a WKWebView): re-assert playback on foreground.
+        // The web side ignores this unless it still intends to be playing.
+        try? AVAudioSession.sharedInstance().setActive(true)
+        nudgeWebPlayerToResume()
+    }
+
     func applicationDidBecomeActive(_ application: UIApplication) {
+        applicationDidBecomeActiveResume()
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
 
