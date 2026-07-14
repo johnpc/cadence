@@ -1,5 +1,8 @@
-/* The mini-player floats just above the bottom tab bar. The tab bar is ~56px
-   tall plus the home-bar safe-area inset, so offset the mini-player by that. */
+/* The mini-player sits flush on top of the bottom tab bar. Ionic's tab bar is
+   50px tall on iOS and 56px on MD (Android/web), PLUS the home-bar safe-area
+   inset it adds as its own padding-bottom. Offsetting by the wrong height left a
+   visible gap between the mini-player and the tab bar on iPhone (tab bar is 50,
+   we used 56). Match the platform height so the two are flush. */
 .apptabs__npbar {
   position: fixed;
   left: 0;
@@ -7,4 +10,9 @@
   bottom: calc(56px + env(safe-area-inset-bottom, 0px));
   z-index: 5;
   pointer-events: auto;
+}
+
+/* iOS tab bar is 50px, not 56 — offset by that so there's no floating gap. */
+.ios .apptabs__npbar {
+  bottom: calc(50px + env(safe-area-inset-bottom, 0px));
 }
