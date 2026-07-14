@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinDiscover', () => ({
@@ -8,7 +8,10 @@ vi.mock('../../lib/jellyfinDiscover', () => ({
   getSuggestedSongs: vi.fn(),
   getRecentlyPlayed: vi.fn(),
 }));
+vi.mock('../../lib/jellyfinItems', () => ({ getItem: vi.fn() }));
 import { getRecentlyPlayed } from '../../lib/jellyfinDiscover';
+import { getItem } from '../../lib/jellyfinItems';
+import { touchRecentPlay } from '../library/recentPlays';
 import { History } from './History';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
@@ -26,6 +29,10 @@ function renderHistory() {
       <PlayerContext.Provider value={stubPlayer()}>
         <MemoryRouter initialEntries={['/history']}>
           <History />
+          <Route
+            path="*"
+            render={({ location }) => <span data-testid="loc">{location.pathname}</span>}
+          />
         </MemoryRouter>
       </PlayerContext.Provider>
     </QueryClientProvider>,
@@ -34,6 +41,7 @@ function renderHistory() {
 
 afterEach(() => {
   vi.resetAllMocks();
+  localStorage.clear();
 });
 
 describe('History', () => {
@@ -49,5 +57,21 @@ describe('History', () => {
     vi.mocked(getRecentlyPlayed).mockResolvedValue([]);
     renderHistory();
     await waitFor(() => expect(screen.getByTestId('load-empty')).toBeInTheDocument());
+  });
+
+  it('also shows recently-played collections (playlists/artists) and opens them', async () => {
+    vi.mocked(getRecentlyPlayed).mockResolvedValue(songs);
+    // Seed the local recent-plays store with a played playlist; useJumpBackIn
+    // hydrates it via getItem into the collections shelf.
+    touchRecentPlay('pl1', 1000);
+    vi.mocked(getItem).mockResolvedValue({ Id: 'pl1', Name: 'My Mix', Type: 'Playlist' });
+    renderHistory();
+    expect(await screen.findByText('My Mix')).toBeInTheDocument();
+    // The songs section still renders alongside it.
+    expect(screen.getByTestId('history-songs-title')).toBeInTheDocument();
+    // Tapping the collection card opens its detail page (covers the open handler).
+    const { default: userEvent } = await import('@testing-library/user-event');
+    await userEvent.click(screen.getByTestId('album-card-open'));
+    expect(screen.getByTestId('loc')).toHaveTextContent('/playlist/pl1');
   });
 });
