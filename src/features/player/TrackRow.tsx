@@ -1,5 +1,6 @@
 import { usePlayer } from './usePlayer';
-import { setPlayContext } from './playContext';
+import { setPlayContext, collectionIdFromContext } from './playContext';
+import { touchRecentPlay } from '../library/recentPlays';
 import { trackDuration } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { TrackTitle } from './TrackTitle';
@@ -46,7 +47,13 @@ export function TrackRow({
   const onRowPlay = () => {
     if (isCurrent) return toggle();
     onPlay?.();
-    if (context) setPlayContext({ ...context, tracks: queue });
+    if (context) {
+      setPlayContext({ ...context, tracks: queue });
+      // Playing a track from within a collection bubbles THAT collection up Your
+      // Library's recents (same as tapping the collection's own play button).
+      const collectionId = collectionIdFromContext(context);
+      if (collectionId) touchRecentPlay(collectionId, Date.now());
+    }
     playQueue(queue, index);
   };
   return (
