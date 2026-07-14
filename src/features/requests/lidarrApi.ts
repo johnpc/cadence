@@ -69,6 +69,22 @@ export async function requestArtist(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`lidarr add failed: ${res.status}`);
-  return (await res.json()) as LidarrArtist;
+  if (res.ok) return (await res.json()) as LidarrArtist;
+  // Lidarr 400s a duplicate with an ArtistExistsValidator error — that's not a
+  // failure, the artist is already in the library. Surface it as such so the row
+  // shows "already requested" instead of a scary error (a stale library-ids
+  // cache can let a duplicate request slip through the inLibrary guard).
+  if (res.status === 400 && (await res.text()).includes('ArtistExistsValidator')) {
+    throw new AlreadyAddedError();
+  }
+  throw new Error(`lidarr add failed: ${res.status}`);
+}
+
+/** Thrown by requestArtist when Lidarr reports the artist is already added —
+ * a benign outcome the caller treats as "already requested", not an error. */
+export class AlreadyAddedError extends Error {
+  constructor() {
+    super('artist already added');
+    this.name = 'AlreadyAddedError';
+  }
 }

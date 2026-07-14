@@ -1,14 +1,23 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { searchArtists, getAddDefaults, requestArtist, getLibraryArtistIds } from './lidarrApi';
+import {
+  searchArtists,
+  getAddDefaults,
+  requestArtist,
+  getLibraryArtistIds,
+  AlreadyAddedError,
+} from './lidarrApi';
 import type { LidarrArtist } from './lidarrTypes';
 
-function stub(bodyByUrl: (url: string) => { ok?: boolean; status?: number; json: unknown }) {
+function stub(
+  bodyByUrl: (url: string) => { ok?: boolean; status?: number; json?: unknown; text?: string },
+) {
   const f = vi.fn((url: string, _init?: RequestInit) => {
     const r = bodyByUrl(url);
     return Promise.resolve({
       ok: r.ok ?? true,
       status: r.status ?? 200,
       json: async () => r.json,
+      text: async () => r.text ?? '',
     } as Response);
   });
   vi.stubGlobal('fetch', f);
@@ -89,10 +98,21 @@ describe('lidarrApi', () => {
     });
   });
 
-  it('requestArtist throws on a non-ok response (e.g. already added)', async () => {
-    stub(() => ({ ok: false, status: 400, json: {} }));
+  it('requestArtist throws a generic error on an unexpected non-ok response', async () => {
+    stub(() => ({ ok: false, status: 500, json: {} }));
     await expect(
       requestArtist(artist, { rootFolderPath: '/m', qualityProfileId: 1, metadataProfileId: 1 }),
-    ).rejects.toThrow(/add failed: 400/);
+    ).rejects.toThrow(/add failed: 500/);
+  });
+
+  it('requestArtist throws AlreadyAddedError on the duplicate-add 400', async () => {
+    stub(() => ({
+      ok: false,
+      status: 400,
+      text: '[{"errorCode":"ArtistExistsValidator","errorMessage":"already been added"}]',
+    }));
+    await expect(
+      requestArtist(artist, { rootFolderPath: '/m', qualityProfileId: 1, metadataProfileId: 1 }),
+    ).rejects.toBeInstanceOf(AlreadyAddedError);
   });
 });
