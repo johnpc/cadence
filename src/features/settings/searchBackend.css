@@ -7,3 +7,9 @@
 .search-backend__hint {
   margin: 0;
 }
+
+.search-backend__managed {
+  margin: 0;
+  font-style: italic;
+  color: var(--cad-text-secondary);
+}

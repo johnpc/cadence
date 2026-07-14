@@ -1,11 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-const store = { url: '', token: '', setMarlin: vi.fn() };
+const store = { url: '', token: '', managed: false, setMarlin: vi.fn() };
 vi.mock('../../lib/marlinStore', () => ({
   getMarlinUrl: () => store.url,
   getMarlinToken: () => store.token,
   setMarlin: (u: string, t: string) => store.setMarlin(u, t),
+  marlinManagedByServer: () => store.managed,
 }));
 
 // IonInput → a plain input so we can drive onIonInput via native input events.
@@ -41,6 +42,7 @@ import { SearchBackend } from './SearchBackend';
 afterEach(() => {
   store.url = '';
   store.token = '';
+  store.managed = false;
   vi.clearAllMocks();
 });
 
@@ -67,5 +69,26 @@ describe('SearchBackend', () => {
     store.url = 'https://seeded.example.com';
     render(<SearchBackend />);
     expect(screen.getByTestId('marlin-url')).toHaveValue('https://seeded.example.com');
+  });
+
+  it('locks the fields (read-only) with an admin note when the server manages the URL', () => {
+    store.managed = true;
+    store.url = 'https://admin-set.example.com';
+    render(<SearchBackend />);
+    // URL shown but disabled; token field + Save button hidden; admin note shown.
+    const urlField = screen.getByTestId('marlin-url');
+    expect(urlField).toHaveValue('https://admin-set.example.com');
+    expect(urlField).toBeDisabled();
+    expect(screen.queryByTestId('marlin-token')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('marlin-save')).not.toBeInTheDocument();
+    expect(screen.getByTestId('marlin-managed-note')).toBeInTheDocument();
+  });
+
+  it('shows a friendly label when managed via the proxy (no explicit URL)', () => {
+    store.managed = true;
+    store.url = ''; // proxy path has no URL to show
+    render(<SearchBackend />);
+    expect(screen.getByTestId('marlin-url')).toHaveValue('Managed by your server');
+    expect(screen.getByTestId('marlin-url')).toBeDisabled();
   });
 });

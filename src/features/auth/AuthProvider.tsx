@@ -5,6 +5,7 @@ import { resolveSession } from './resolveSession';
 import { ensureDeviceId } from '../../lib/deviceId';
 import { hydrateServerUrl } from '../../lib/serverUrlStore';
 import { hydrateMarlin } from '../../lib/marlinStore';
+import { hydratePluginConfig } from '../../lib/pluginConfigStore';
 import { onSessionExpired } from '../../lib/sessionExpiry';
 import { queryClient } from '../../lib/queryClient';
 import { clearPersistedQueue } from '../player/queuePersistence';
@@ -23,7 +24,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await hydrateServerUrl();
     await hydrateMarlin(); // optional search backend; no-op when unconfigured
     await ensureDeviceId();
-    setState(await resolveSession());
+    const resolved = await resolveSession();
+    setState(resolved);
+    // Once signed in, ask the server's CadenceConfig plugin (if installed) for
+    // the client config — marlin/signup/cast URLs + the Lidarr proxy flag. This
+    // is what makes those features work on native iOS (no nginx config.js there).
+    if (resolved.status === 'authenticated') await hydratePluginConfig();
   }, []);
 
   useEffect(() => {

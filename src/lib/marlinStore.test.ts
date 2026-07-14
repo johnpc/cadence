@@ -71,4 +71,28 @@ describe('marlinStore', () => {
     expect(getMarlinUrl()).toBe('https://durable.example.com');
     expect(getMarlinToken()).toBe('dtok');
   });
+
+  it('a server-managed URL SUPERSEDES the user’s stored choice', async () => {
+    // User previously set their own URL...
+    const first = await fresh();
+    first.setMarlin('https://user-choice.example.com', 'usertok');
+    // ...then the server (plugin/config.js) provides one — it wins.
+    window.__CADENCE_CONFIG__ = { marlinUrl: 'https://server-managed.example.com' };
+    const { getMarlinUrl, marlinManagedByServer } = await fresh();
+    // rehydrate the user value into the fresh module's Preferences-backed cache
+    prefs.set('cadence.marlin-url', 'https://user-choice.example.com');
+    expect(getMarlinUrl()).toBe('https://server-managed.example.com');
+    expect(marlinManagedByServer()).toBe(true);
+  });
+
+  it('marlinManagedByServer is false when no server URL is configured', async () => {
+    const { marlinManagedByServer } = await fresh();
+    expect(marlinManagedByServer()).toBe(false);
+  });
+
+  it('marlinManagedByServer is true when the same-origin proxy is enabled (web, no URL)', async () => {
+    window.__CADENCE_CONFIG__ = { marlinProxy: true };
+    const { marlinManagedByServer } = await fresh();
+    expect(marlinManagedByServer()).toBe(true);
+  });
 });
