@@ -1,0 +1,6 @@
+/* The "Songs" heading that separates the recently-played collections shelf from
+ * the track history below it. Matches the detail-page section spacing. */
+.history__songs {
+  display: block;
+  margin: var(--cad-space-6) 0 var(--cad-space-3);
+}
