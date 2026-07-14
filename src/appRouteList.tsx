@@ -50,6 +50,9 @@ export function appRouteList() {
     <Route exact path="/history" key="history">
       <L.History />
     </Route>,
+    <Route exact path="/requests" key="requests">
+      <L.Requests />
+    </Route>,
     <Route exact path="/" key="root">
       <Redirect to="/home" />
     </Route>,

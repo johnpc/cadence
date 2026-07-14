@@ -13,6 +13,9 @@ export interface AuthResult {
 export interface JellyfinUser {
   Id: string;
   Name: string;
+  /** The user's permissions; `Policy.IsAdministrator` gates admin-only features
+   * like requesting music (which writes to the shared library). */
+  Policy?: { IsAdministrator?: boolean };
 }
 
 /** The session Cadence persists + threads into every request. */

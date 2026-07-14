@@ -11,6 +11,8 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([]),
   createPlaylist: vi.fn(),
 }));
+vi.mock('../auth/useIsAdmin', () => ({ useIsAdmin: vi.fn(() => false) }));
+import { useIsAdmin } from '../auth/useIsAdmin';
 import { getFavoriteSongs, getFavoriteAlbums } from '../../lib/jellyfinItems';
 import { getFavoriteArtists } from '../../lib/jellyfinArtists';
 import { getPlaylists } from '../../lib/jellyfinPlaylists';
@@ -48,6 +50,19 @@ describe('Library', () => {
   it('shows a settings link', () => {
     renderWithProviders(<Library />);
     expect(screen.getByTestId('library-settings')).toBeInTheDocument();
+  });
+
+  it('hides the Request-music button by default (proxy off / not admin)', () => {
+    renderWithProviders(<Library />);
+    expect(screen.queryByTestId('library-requests')).not.toBeInTheDocument();
+  });
+
+  it('shows the Request-music button only for an admin when the Lidarr proxy is on', () => {
+    vi.mocked(useIsAdmin).mockReturnValue(true);
+    window.__CADENCE_CONFIG__ = { lidarrProxy: true };
+    renderWithProviders(<Library />);
+    expect(screen.getByTestId('library-requests')).toBeInTheDocument();
+    delete window.__CADENCE_CONFIG__;
   });
 
   it('exposes a page heading for screen-reader navigation', () => {

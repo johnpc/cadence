@@ -1,0 +1,36 @@
+.requests__hint {
+  margin: 0 0 var(--cad-space-4);
+}
+
+.request-row {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-2) 0;
+}
+
+.request-row__art {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--cad-radius-sm);
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.request-row__art--empty {
+  background: var(--cad-surface-2);
+}
+
+.request-row__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.request-row__done {
+  color: var(--cad-text-secondary);
+  font-size: 13px;
+  flex: 0 0 auto;
+}
