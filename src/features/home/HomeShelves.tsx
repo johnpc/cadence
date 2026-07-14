@@ -1,17 +1,16 @@
 import { useHistory } from 'react-router-dom';
 import { CardShelf } from './CardShelf';
 import { DailyMixShelf } from './DailyMixShelf';
+import { SongShelves } from './SongShelves';
 import { useHomeShelves } from './useHomeShelves';
 export { useHomeShelves } from './useHomeShelves';
-import { usePlayer } from '../player/usePlayer';
 import { usePlayItem } from '../player/usePlayItem';
 import { usePrefetchItem } from './usePrefetchItem';
 import { useIdlePrefetch } from './useIdlePrefetch';
 import { detailPath } from './itemPath';
 
 export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShelves> }) {
-  const { albums, suggested, saved, recent, artists, jumpBackIn, community } = shelves;
-  const { playQueue } = usePlayer();
+  const { albums, saved, recent, artists, jumpBackIn, community } = shelves;
   const playItem = usePlayItem();
   const prefetch = usePrefetchItem();
   const history = useHistory();
@@ -19,7 +18,6 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
   useIdlePrefetch(jumpBackIn.items[0] ?? albums.albums[0], prefetch);
   const openAlbum = (item: { Id: string }) => history.push(`/album/${item.Id}`);
   const openArtist = (item: { Id: string }) => history.push(`/artist/${item.Id}`);
-  const openSong = (item: { Id: string }) => history.push(`/song/${item.Id}`);
   const openPlaylist = (item: { Id: string }) => history.push(`/playlist/${item.Id}`);
   return (
     <div data-testid="home-shelves">
@@ -43,16 +41,7 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
         hideWhenEmpty
       />
       <DailyMixShelf artists={artists.artists} recentTracks={recent.songs} />
-      {recent.songs.length > 0 && (
-        <CardShelf
-          title="Recently played"
-          items={recent.songs}
-          state={recent}
-          seeAllHref="/history"
-          onOpen={openSong}
-          onPlay={(_i, index) => playQueue(recent.songs, index)}
-        />
-      )}
+      <SongShelves shelves={shelves} />
       {artists.artists.length > 0 && (
         <CardShelf
           title="Your artists"
@@ -76,14 +65,6 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
           onPrefetch={prefetch}
         />
       )}
-      <CardShelf
-        title="Suggested for you"
-        items={suggested.songs}
-        state={suggested}
-        onOpen={openSong}
-        onPlay={(_i, index) => playQueue(suggested.songs, index)}
-        hideWhenEmpty
-      />
       {community.playlists.length > 0 && (
         <CardShelf
           title="From the community"

@@ -2,6 +2,7 @@ import {
   useLatestAlbums,
   useSuggestedSongs,
   useRecentlyPlayed,
+  useOnRepeat,
   usePublicPlaylists,
 } from './homeApi';
 import { useJumpBackIn } from './useJumpBackIn';
@@ -14,8 +15,9 @@ export function useHomeShelves() {
   const suggested = useSuggestedSongs();
   const saved = useSavedAlbums();
   const recent = useRecentlyPlayed();
+  const onRepeat = useOnRepeat();
   const artists = useFollowedArtists();
   const jumpBackIn = useJumpBackIn();
   const community = usePublicPlaylists();
-  return { albums, suggested, saved, recent, artists, jumpBackIn, community };
+  return { albums, suggested, saved, recent, onRepeat, artists, jumpBackIn, community };
 }

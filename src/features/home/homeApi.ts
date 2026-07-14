@@ -1,5 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { getLatestAlbums, getSuggestedSongs, getRecentlyPlayed } from '../../lib/jellyfinDiscover';
+import {
+  getLatestAlbums,
+  getSuggestedSongs,
+  getRecentlyPlayed,
+  getOnRepeat,
+} from '../../lib/jellyfinDiscover';
 import { getPublicPlaylists } from '../../lib/jellyfinPlaylists';
 import { getCachedShelf, fetchAndCacheShelf } from './homeShelfCache';
 
@@ -62,6 +67,17 @@ export function useRecentlyPlayed(limit = 20) {
         : getRecentlyPlayed(limit),
     staleTime: 30_000,
     ...(limit === 20 ? seeded('recently-played') : {}),
+  });
+  return { songs: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
+}
+
+/** Your most-played tracks ("On repeat" shelf). Seeded from disk like the others. */
+export function useOnRepeat() {
+  const q = useQuery({
+    queryKey: ['home', 'on-repeat'],
+    queryFn: () => fetchAndCacheShelf('on-repeat', () => getOnRepeat(20)),
+    staleTime: 5 * 60_000,
+    ...seeded('on-repeat'),
   });
   return { songs: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }

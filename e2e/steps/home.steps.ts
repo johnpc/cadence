@@ -10,12 +10,20 @@ When('I open the Home tab', async ({ page }) => {
   await expect(page.getByTestId('home-shelves')).toBeAttached({ timeout: DATA_WAIT });
 });
 
-Then('I see a {string} shelf', async ({ page }, title: string) => {
-  // A recently-played collection surfaces a "Jump back in" shelf, with at least
-  // one card. Scope to the shelves container so the title match is unambiguous.
+async function assertShelf(page: import('@playwright/test').Page, title: string) {
+  // A shelf with the given title and at least one card. Scope to the shelves
+  // container so the title match is unambiguous.
   const shelves = page.getByTestId('home-shelves');
   await expect(shelves.getByText(title, { exact: true })).toBeVisible({ timeout: DATA_WAIT });
   await expect(shelves.getByTestId('album-card').first()).toBeAttached({ timeout: DATA_WAIT });
+}
+
+Then('I see a {string} shelf', async ({ page }, title: string) => {
+  await assertShelf(page, title);
+});
+
+Then('I see an {string} shelf', async ({ page }, title: string) => {
+  await assertShelf(page, title);
 });
 
 Then('I see a {string} mix', async ({ page }, label: string) => {
