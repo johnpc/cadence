@@ -20,7 +20,9 @@ function wrapper({ children }: { children: ReactNode }) {
   return createElement(QueryClientProvider, { client }, children);
 }
 
-afterEach(() => vi.resetAllMocks());
+afterEach(() => {
+  vi.resetAllMocks();
+});
 
 describe('useMusicRequests', () => {
   it('searches (debounced) and exposes results', async () => {

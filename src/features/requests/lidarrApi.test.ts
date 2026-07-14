@@ -3,7 +3,7 @@ import { searchArtists, getAddDefaults, requestArtist } from './lidarrApi';
 import type { LidarrArtist } from './lidarrTypes';
 
 function stub(bodyByUrl: (url: string) => { ok?: boolean; status?: number; json: unknown }) {
-  const f = vi.fn((url: string) => {
+  const f = vi.fn((url: string, _init?: RequestInit) => {
     const r = bodyByUrl(url);
     return Promise.resolve({
       ok: r.ok ?? true,
@@ -15,7 +15,9 @@ function stub(bodyByUrl: (url: string) => { ok?: boolean; status?: number; json:
   return f;
 }
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 const artist: LidarrArtist = { artistName: 'Radiohead', foreignArtistId: 'mb-1' };
 

@@ -21,7 +21,9 @@ function typeSearch(value: string) {
   });
 }
 
-afterEach(() => vi.resetAllMocks());
+afterEach(() => {
+  vi.resetAllMocks();
+});
 
 describe('Requests', () => {
   it('searches and lists artist results to request', async () => {
