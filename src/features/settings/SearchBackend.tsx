@@ -8,6 +8,9 @@ import './searchBackend.css';
  * on this device (never shipped in the build). */
 export function SearchBackend() {
   const { url, token, saved, managed, onUrl, onToken, save } = useMarlinSettings();
+  // When the server manages search via the same-origin proxy there's no URL to
+  // show (it's a relative path) — surface a friendly label instead of a blank.
+  const displayUrl = managed && !url ? 'Managed by your server' : url;
   return (
     <section className="settings__search-backend">
       <h2 className="settings__title cad-kicker">Faster search</h2>
@@ -20,7 +23,7 @@ export function SearchBackend() {
         label="Search server URL"
         labelPlacement="stacked"
         placeholder="https://search.example.com"
-        value={url}
+        value={displayUrl}
         onIonInput={(e) => onUrl(e.detail.value ?? '')}
         data-testid="marlin-url"
         type="url"

@@ -89,4 +89,10 @@ describe('marlinStore', () => {
     const { marlinManagedByServer } = await fresh();
     expect(marlinManagedByServer()).toBe(false);
   });
+
+  it('marlinManagedByServer is true when the same-origin proxy is enabled (web, no URL)', async () => {
+    window.__CADENCE_CONFIG__ = { marlinProxy: true };
+    const { marlinManagedByServer } = await fresh();
+    expect(marlinManagedByServer()).toBe(true);
+  });
 });

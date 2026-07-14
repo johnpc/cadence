@@ -6,7 +6,7 @@
  * The token is stored on-device via Preferences, never baked into the build.
  */
 import { Preferences } from '@capacitor/preferences';
-import { configuredMarlinUrl } from './runtimeConfig';
+import { configuredMarlinUrl, marlinProxyEnabled } from './runtimeConfig';
 
 const URL_KEY = 'cadence.marlin-url';
 const TOKEN_KEY = 'cadence.marlin-token';
@@ -57,11 +57,11 @@ export async function hydrateMarlin(): Promise<void> {
   }
 }
 
-/** True when the server (runtime config.js or the CadenceConfig plugin) has set
- * the marlin URL. When so it SUPERSEDES the user's Settings choice and the
- * Settings field is shown read-only — the admin has made this decision. */
+/** True when the server dictates search — a managed marlin URL (config.js /
+ * plugin) OR the same-origin proxy (web nginx). Then it supersedes the user's
+ * Settings choice and the field is read-only. */
 export function marlinManagedByServer(): boolean {
-  return configuredMarlinUrl() !== null;
+  return configuredMarlinUrl() !== null || marlinProxyEnabled();
 }
 
 export function getMarlinUrl(): string {

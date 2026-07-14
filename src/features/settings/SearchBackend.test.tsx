@@ -83,4 +83,12 @@ describe('SearchBackend', () => {
     expect(screen.queryByTestId('marlin-save')).not.toBeInTheDocument();
     expect(screen.getByTestId('marlin-managed-note')).toBeInTheDocument();
   });
+
+  it('shows a friendly label when managed via the proxy (no explicit URL)', () => {
+    store.managed = true;
+    store.url = ''; // proxy path has no URL to show
+    render(<SearchBackend />);
+    expect(screen.getByTestId('marlin-url')).toHaveValue('Managed by your server');
+    expect(screen.getByTestId('marlin-url')).toBeDisabled();
+  });
 });
