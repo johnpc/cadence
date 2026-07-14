@@ -47,5 +47,17 @@ export function usePlaybackControls(ref: RefObject<HTMLAudioElement | null>, has
 
   const pause = useCallback(() => ref.current?.pause(), [ref]);
 
-  return { toggle, seek, seekBy, pause };
+  // Recover from an OS audio interruption (Siri, a phone call). iOS stops output
+  // at the AUDIO-SESSION level, not the element level, so `audio.paused` often
+  // stays FALSE and no 'pause' event fires — the UI still shows "playing" but no
+  // sound comes out. So we DON'T guard on `.paused` (that check would no-op the
+  // exact broken state); we just call play() unconditionally, which is a safe
+  // no-op if genuinely playing and re-establishes output otherwise. Skipped only
+  // when there's no queue or we're casting (the TV owns playback then).
+  const resume = useCallback(() => {
+    if (!hasQueue || getCastState().connected) return;
+    void ref.current?.play().catch(() => undefined);
+  }, [ref, hasQueue]);
+
+  return { toggle, seek, seekBy, pause, resume };
 }

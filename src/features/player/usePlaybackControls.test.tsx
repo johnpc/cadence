@@ -61,4 +61,28 @@ describe('usePlaybackControls', () => {
     result.current.seekBy(5); // would be 103
     expect(audio.currentTime).toBe(100);
   });
+
+  it('resume plays even when the element still reports NOT paused (the real interruption state)', () => {
+    // After a Siri/call interruption iOS stops output at the session level, so
+    // audio.paused stays false yet no sound plays — resume must call play()
+    // anyway (guarding on .paused would no-op the exact broken case).
+    const audio = fakeAudio(false);
+    const { result } = renderHook(() => usePlaybackControls({ current: audio }, true));
+    result.current.resume();
+    expect(audio.play).toHaveBeenCalled();
+  });
+
+  it('resume also plays when the element does report paused', () => {
+    const audio = fakeAudio(true);
+    const { result } = renderHook(() => usePlaybackControls({ current: audio }, true));
+    result.current.resume();
+    expect(audio.play).toHaveBeenCalled();
+  });
+
+  it('resume is a no-op with an empty queue', () => {
+    const audio = fakeAudio(true);
+    const { result } = renderHook(() => usePlaybackControls({ current: audio }, false));
+    result.current.resume();
+    expect(audio.play).not.toHaveBeenCalled();
+  });
 });
