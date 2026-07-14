@@ -7,9 +7,10 @@ vi.mock('./lidarrApi', () => ({
   searchArtists: vi.fn(),
   getAddDefaults: vi.fn(),
   requestArtist: vi.fn(),
+  getLibraryArtistIds: vi.fn().mockResolvedValue(new Set<string>()),
 }));
 vi.mock('../toast/useToast', () => ({ useToast: () => vi.fn() }));
-import { searchArtists, getAddDefaults, requestArtist } from './lidarrApi';
+import { searchArtists, getAddDefaults, requestArtist, getLibraryArtistIds } from './lidarrApi';
 import { useMusicRequests } from './useMusicRequests';
 import type { LidarrArtist } from './lidarrTypes';
 
@@ -31,6 +32,13 @@ describe('useMusicRequests', () => {
     act(() => result.current.setQuery('radiohead'));
     await waitFor(() => expect(result.current.results).toHaveLength(1));
     expect(searchArtists).toHaveBeenCalledWith('radiohead');
+  });
+
+  it('inLibrary reflects the artists already in Lidarr', async () => {
+    vi.mocked(getLibraryArtistIds).mockResolvedValue(new Set(['mb-1']));
+    const { result } = renderHook(() => useMusicRequests(), { wrapper });
+    await waitFor(() => expect(result.current.inLibrary('mb-1')).toBe(true));
+    expect(result.current.inLibrary('other')).toBe(false);
   });
 
   it('marks a request "requested" on success', async () => {

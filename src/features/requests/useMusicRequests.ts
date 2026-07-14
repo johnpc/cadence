@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounced } from '../../lib/useDebounced';
 import { useToast } from '../toast/useToast';
-import { searchArtists, getAddDefaults, requestArtist } from './lidarrApi';
+import { searchArtists, getAddDefaults, requestArtist, getLibraryArtistIds } from './lidarrApi';
 import type { LidarrArtist } from './lidarrTypes';
 
 /** Per-artist request status, keyed by MusicBrainz id, for the Requests screen. */
@@ -23,6 +23,15 @@ export function useMusicRequests() {
     enabled: debounced.trim().length > 1,
     staleTime: 5 * 60_000,
   });
+
+  // The artists already in the library, so a result you own shows "In library"
+  // instead of a Request button that would 400 on a duplicate add.
+  const library = useQuery({
+    queryKey: ['music-requests', 'library-ids'],
+    queryFn: getLibraryArtistIds,
+    staleTime: 5 * 60_000,
+  });
+  const inLibrary = useCallback((id: string) => library.data?.has(id) ?? false, [library.data]);
 
   const request = useCallback(
     async (artist: LidarrArtist) => {
@@ -48,5 +57,6 @@ export function useMusicRequests() {
     isError: search.isError,
     status,
     request,
+    inLibrary,
   };
 }

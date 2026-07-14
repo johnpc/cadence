@@ -18,7 +18,8 @@ import './requests.css';
  * which they appear in normal search/Home. Admin-gated + only routed when the
  * Lidarr proxy is configured (see AppRoutes). */
 export function Requests() {
-  const { query, setQuery, results, isSearching, isError, status, request } = useMusicRequests();
+  const { query, setQuery, results, isSearching, isError, status, request, inLibrary } =
+    useMusicRequests();
   const typed = query.trim().length > 1;
   return (
     <IonPage>
@@ -58,6 +59,7 @@ export function Requests() {
                   key={artist.foreignArtistId}
                   artist={artist}
                   status={status[artist.foreignArtistId] ?? 'idle'}
+                  inLibrary={inLibrary(artist.foreignArtistId)}
                   onRequest={request}
                 />
               ))}

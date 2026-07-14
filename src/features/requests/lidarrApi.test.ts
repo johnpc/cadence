@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { searchArtists, getAddDefaults, requestArtist } from './lidarrApi';
+import { searchArtists, getAddDefaults, requestArtist, getLibraryArtistIds } from './lidarrApi';
 import type { LidarrArtist } from './lidarrTypes';
 
 function stub(bodyByUrl: (url: string) => { ok?: boolean; status?: number; json: unknown }) {
@@ -39,6 +39,20 @@ describe('lidarrApi', () => {
     const f = stub(() => ({ json: [] }));
     expect(await searchArtists('   ')).toEqual([]);
     expect(f).not.toHaveBeenCalled();
+  });
+
+  it('getLibraryArtistIds returns the set of MusicBrainz ids already in Lidarr', async () => {
+    stub(() => ({
+      json: [
+        { artistName: 'A', foreignArtistId: 'mb-a' },
+        { artistName: 'B', foreignArtistId: 'mb-b' },
+        { artistName: 'No Id', foreignArtistId: '' },
+      ],
+    }));
+    const ids = await getLibraryArtistIds();
+    expect(ids.has('mb-a')).toBe(true);
+    expect(ids.has('mb-b')).toBe(true);
+    expect(ids.has('')).toBe(false);
   });
 
   it('getAddDefaults picks the first root folder + profiles', async () => {
