@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { notifyNativePlaybackStarted } from '../../lib/nativeAudioSession';
 
 /**
  * Owns one long-lived HTMLAudioElement (survives route/modal changes — a JSX
@@ -33,7 +34,12 @@ export function useAudioElement(onEnded: () => void, onError: () => void = () =>
     }
     const onTime = () => setPosition(audio.currentTime);
     const onMeta = () => setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
-    const onPlay = () => setIsPlaying(true);
+    const onPlay = () => {
+      setIsPlaying(true);
+      // Re-assert the native iOS audio session on each real play so background /
+      // lock-screen playback survives (no-op on web/Android).
+      notifyNativePlaybackStarted();
+    };
     const onPause = () => setIsPlaying(false);
     const onEnd = () => endedRef.current();
     const onErr = () => errorRef.current();
