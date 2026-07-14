@@ -89,20 +89,12 @@ jobs:
     name: Acceptance Tests (${{ matrix.area.name }})
     runs-on: ubuntu-latest
     strategy:
-      # Let every area run even if one fails — fail-fast:true cancelled the whole
-      # matrix on a single area's bad window, so a lone stall read as broad red and
-      # hid which areas were actually healthy. Each area is its own check; a real
-      # failure still shows on its own line.
+      # Let every area run even if one fails — a lone failure shouldn't cancel the
+      # rest and hide which areas are healthy. Each area is its own check.
       fail-fast: false
-      # SERIALIZE the areas: all hit ONE cadence-test user on ONE Jellyfin over ONE
-      # cloudflared tunnel. Running 4 at once contended on that single user's
-      # session/writes and produced ~1-min auth/read STALLS — so a RANDOM area
-      # exhausted its retries each run (the area that failed differed run to run,
-      # the signature of load contention, not a code bug; every area passes alone).
-      # max-parallel:1 gives each area a calm, isolated window. Slower wall-clock,
-      # but consistently green — which is the point. (This restores the earlier
-      # hard-won setting; the "concurrency is fine" note that raised it was wrong.)
-      max-parallel: 1
+      # NO parallelism limit — areas run fully in parallel. Concurrency problems
+      # are fixed at the source (reliable navigation via Ionic routerLink instead
+      # of raw NavLink; robust step waits) rather than by throttling the matrix.
       matrix:
         area:
           - name: smoke
