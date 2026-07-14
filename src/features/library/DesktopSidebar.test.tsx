@@ -28,6 +28,7 @@ describe('DesktopSidebar', () => {
     vi.resetAllMocks();
     localStorage.clear();
     document.body.classList.remove('app-sidebar-collapsed');
+    delete window.__CADENCE_CONFIG__;
   });
 
   it('shows primary nav links to Home, Search, and Your Library', () => {
@@ -35,6 +36,17 @@ describe('DesktopSidebar', () => {
     expect(screen.getByRole('link', { name: /Home/ })).toHaveAttribute('href', '/home');
     expect(screen.getByRole('link', { name: /Search/ })).toHaveAttribute('href', '/search');
     expect(screen.getByRole('link', { name: /Your Library/ })).toHaveAttribute('href', '/library');
+  });
+
+  it('hides the Requests link when the Lidarr proxy is not enabled', () => {
+    renderWithProviders(<DesktopSidebar />);
+    expect(screen.queryByTestId('nav-requests')).not.toBeInTheDocument();
+  });
+
+  it('shows a Requests link (matching the mobile tab) when the Lidarr proxy is on', () => {
+    window.__CADENCE_CONFIG__ = { lidarrProxy: true };
+    renderWithProviders(<DesktopSidebar />);
+    expect(screen.getByTestId('nav-requests')).toHaveAttribute('href', '/requests');
   });
 
   it('embeds the library list', async () => {
