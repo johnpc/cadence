@@ -106,6 +106,12 @@ Given('I am signed in', async ({ page }) => {
     undefined,
     { timeout: 60_000 },
   );
+  // The session key is written a beat BEFORE the router replaces /signin with
+  // the destination — so waiting on the key alone lets the next step race the
+  // route transition (and a cold data fetch) with too small a budget, which
+  // flaked intermittently. Wait for the sign-in form to actually go away so
+  // downstream assertions start from the signed-in app, not mid-navigation.
+  await expect(page.getByTestId('signin-submit')).toHaveCount(0, { timeout: DATA_WAIT });
 });
 
 Then('I see the sign-in screen', async ({ page }) => {

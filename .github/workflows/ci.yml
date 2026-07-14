@@ -6,16 +6,21 @@ on:
   pull_request:
     branches: [main]
 
-# The acceptance suite reads/writes the SHARED live Jellyfin server over ONE
-# cloudflared tunnel, so CI must serialize GLOBALLY — not per-PR. A per-PR/-branch
-# group let several runs (rival PRs + each main push during a merge burst) hit
-# Jellyfin at once and stampede it (throttled auth / stalled first-paint that
-# reads as widespread flaky timeouts). A single constant group means at most one
-# run touches Jellyfin at a time, repo-wide. cancel-in-progress only for PR
-# events: a new commit on a PR supersedes its older run, but a main (push) run is
-# never cancelled — it queues so every merged commit is verified end to end.
+# Concurrency: main-push runs and PR runs get SEPARATE groups so a PR run can
+# never cancel an in-progress main run. That mattered because the iOS deploy is
+# gated on a SUCCESSFUL main CI (workflow_run) — when a single shared group let a
+# PR push cancel the main run, main CI showed "cancelled", so the deploy never
+# fired. Now:
+#   - push to main → group "ci-main", never cancelled (every merged commit is
+#     verified end to end, and reaches `success` so iOS Deploy triggers).
+#   - a PR → group "ci-pr-<ref>", cancel-in-progress so a new commit on that PR
+#     supersedes its own older run.
+# Trade-off: a PR run and a main run can briefly overlap on the shared Jellyfin
+# (only during a merge), which the suite tolerates (workers:1 + retries keep each
+# run gentle); the old strict repo-wide serialization was cancelling main, which
+# was the worse failure.
 concurrency:
-  group: ci-global
+  group: ci-${{ github.event_name == 'push' && 'main' || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
