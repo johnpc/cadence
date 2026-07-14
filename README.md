@@ -95,6 +95,27 @@ Cadence works great against a stock Jellyfin, but a few **optional** server-side
 faster and higher-quality. All are opt-in — Cadence detects/uses them when present and falls back
 cleanly when they're not.
 
+| Add-on                                                                                | What you get                                                                                                                                                                                                              | Without it                                                                                                                                             |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **[CadenceConfig plugin](https://github.com/johnpc/jellyfin-plugin-cadence-config)**  | Configure Cadence once, in the Jellyfin dashboard, for **every** user (web + native iOS): search/sign-up/cast URLs are pushed to clients at sign-in, and "request music" is proxied with the Lidarr key kept server-side. | Each user configures URLs by hand in Settings; "request music" + the search URL only work on the web build (native iOS has no nginx to inject config). |
+| **[marlin-search](https://github.com/fredrikburmester/marlin-search)** (Meilisearch)  | Search answers in **one** fast, well-ranked request, scoped to music.                                                                                                                                                     | Jellyfin's native search — several requests per query, weaker substring ranking.                                                                       |
+| **[CrowdMix plugin](https://github.com/johnpc/jellyfin-plugin-crowdmix)**             | Instant Mix / radio uses real listening-crowd similarity (Last.fm), re-ranked against your library — close to Spotify's "magic."                                                                                          | Jellyfin's native Instant Mix (audio/metadata heuristics), which feels more random.                                                                    |
+| **[popular-tracks plugin](https://github.com/johnpc/jellyfin-plugin-popular-tracks)** | An artist's **Popular** row is ordered by real Last.fm popularity (e.g. Radiohead → _Creep_ first).                                                                                                                       | Ordered by local `PlayCount` — ~0 on a server nobody scrobbles, so effectively random.                                                                 |
+
+Details for each below. The **CadenceConfig plugin is the recommended starting point** — it's the
+only add-on that makes the others work on the native iOS app, and it removes all per-device setup.
+
+- **One-stop client config + native support — [jellyfin-plugin-cadence-config](https://github.com/johnpc/jellyfin-plugin-cadence-config).**
+  A Jellyfin plugin that hands every Cadence client (web PWA **and** native iOS) its runtime config at
+  sign-in: the marlin search URL, sign-up URL, cast receiver id, and whether the Lidarr "request music"
+  proxy is available. It also proxies the request calls to Lidarr, **injecting the API key server-side**
+  so the write-capable credential never reaches a client. Configure it once in **Dashboard → Plugins →
+  CadenceConfig**; every user is auto-configured and no one touches Settings. When it sets a value, the
+  matching Settings field becomes read-only ("Set by the server administrator"). This is what makes
+  marlin search and requesting music work on the native app at all — native has no nginx to write the
+  runtime `config.js`. Install by adding the repo `https://raw.githubusercontent.com/johnpc/jellyfin-plugin-cadence-config/main/manifest.json`
+  to Jellyfin's plugin repositories.
+
 - **Faster search — [Meilisearch](https://www.meilisearch.com/) via
   [marlin-search](https://github.com/fredrikburmester/marlin-search).** Jellyfin's native search fans
   out into several requests per query; a marlin-search indexer answers in **one**, with much better
@@ -109,6 +130,13 @@ cleanly when they're not.
     same-origin `/api/search` to the indexer and **injects the token server-side**, so the browser
     sends no token and marlin needs no public hostname (it's reached over the LAN from the container).
     Cadence auto-detects this (`marlinProxy`) and uses it with no per-device setup.
+- **Better radio / Instant Mix — [jellyfin-plugin-crowdmix](https://github.com/johnpc/jellyfin-plugin-crowdmix).**
+  Jellyfin's native Instant Mix (which Cadence uses for "start radio" and endless play) leans on
+  audio/metadata heuristics and can feel random. CrowdMix replaces it with real **listening-crowd
+  similarity** from Last.fm ("people who played X also played Y"), re-ranked against tracks you own
+  and your play history — close to Spotify's radio "magic." **No Cadence setting needed** — install +
+  configure the plugin (Last.fm API key) on Jellyfin; it falls back to the native mix for obscure
+  seeds so radio never comes up empty.
 - **Real "Popular" tracks — [jellyfin-plugin-popular-tracks](https://github.com/johnpc/jellyfin-plugin-popular-tracks).**
   On a self-hosted server nobody scrobbles, so Jellyfin's `PlayCount` is ~0 and an artist's **Popular**
   row is effectively random. This plugin transparently re-orders that one query by real **Last.fm**
