@@ -55,3 +55,13 @@ export function contextFor(trackId: string | undefined): PlayContext | null {
   if (!current || !trackId || !current.trackIds.has(trackId)) return null;
   return current;
 }
+
+/** The source COLLECTION's id from a play-context path, for the collection kinds
+ * that have their own Library row / recency (playlist, album, artist). Returns
+ * null for pathless or non-collection contexts (e.g. genre radio, liked songs)
+ * so playing a track from within a collection can bubble THAT collection up Your
+ * Library's recents, matching the collection's own play button. */
+export function collectionIdFromContext(ctx: { path?: string } | undefined): string | null {
+  const m = ctx?.path?.match(/^\/(playlist|album|artist)\/([^/?#]+)/);
+  return m ? m[2] : null;
+}

@@ -1,10 +1,13 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { expect, it, vi } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import { TrackRow } from './TrackRow';
 import { getPlayContext, setPlayContext } from './playContext';
+import { getRecentPlays } from '../library/recentPlays';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+afterEach(() => localStorage.clear());
 
 const tracks: JellyfinItem[] = [
   { Id: 'a', Name: 'First', Type: 'Audio', Artists: ['X'] },
@@ -37,6 +40,40 @@ it('records the "Playing from" context when a row with a context is played', asy
   expect(ctx?.kind).toBe('album');
   expect(ctx?.label).toBe('Ren');
   expect([...(ctx?.trackIds ?? [])]).toEqual(['a', 'b']);
+  setPlayContext(null);
+});
+
+it('bubbles the source playlist up recents when a track is played from within it', async () => {
+  setPlayContext(null);
+  localStorage.clear();
+  renderWithProviders(
+    <TrackRow
+      track={tracks[1]}
+      queue={tracks}
+      index={1}
+      context={{ kind: 'playlist', label: 'Chill', path: '/playlist/pl9' }}
+    />,
+    { player: stubPlayer({ playQueue: vi.fn() }) },
+  );
+  await userEvent.click(screen.getByTestId('track-row-play'));
+  expect(getRecentPlays()['pl9']).toBeGreaterThan(0);
+  setPlayContext(null);
+});
+
+it('does not stamp recents for a pathless context (e.g. liked songs)', async () => {
+  setPlayContext(null);
+  localStorage.clear();
+  renderWithProviders(
+    <TrackRow
+      track={tracks[1]}
+      queue={tracks}
+      index={1}
+      context={{ kind: 'your library', label: 'Liked Songs' }}
+    />,
+    { player: stubPlayer({ playQueue: vi.fn() }) },
+  );
+  await userEvent.click(screen.getByTestId('track-row-play'));
+  expect(Object.keys(getRecentPlays())).toHaveLength(0);
   setPlayContext(null);
 });
 

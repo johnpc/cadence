@@ -1,10 +1,35 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { contextFor, getPlayContext, setPlayContext, subscribePlayContext } from './playContext';
+import {
+  collectionIdFromContext,
+  contextFor,
+  getPlayContext,
+  setPlayContext,
+  subscribePlayContext,
+} from './playContext';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const t = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 afterEach(() => setPlayContext(null));
+
+describe('collectionIdFromContext', () => {
+  it('extracts the id from playlist/album/artist context paths', () => {
+    expect(collectionIdFromContext({ path: '/playlist/p1' })).toBe('p1');
+    expect(collectionIdFromContext({ path: '/album/a1' })).toBe('a1');
+    expect(collectionIdFromContext({ path: '/artist/ar1' })).toBe('ar1');
+  });
+
+  it('ignores query/hash suffixes on the id', () => {
+    expect(collectionIdFromContext({ path: '/playlist/p1?x=1' })).toBe('p1');
+  });
+
+  it('returns null for non-collection or pathless contexts', () => {
+    expect(collectionIdFromContext({ path: '/genre/rock' })).toBeNull();
+    expect(collectionIdFromContext({ path: '/liked' })).toBeNull();
+    expect(collectionIdFromContext({})).toBeNull();
+    expect(collectionIdFromContext(undefined)).toBeNull();
+  });
+});
 
 describe('playContext', () => {
   it('stores a collection context and fingerprints its track ids', () => {
