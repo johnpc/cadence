@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { getPlaylists } from '../../lib/jellyfinPlaylists';
 import { getItem } from '../../lib/jellyfinItems';
 import { getCachedPlaylistItems, fetchAndCachePlaylistItems } from './playlistItemsCache';
+import { getCachedPlaylists, fetchAndCachePlaylists } from './playlistsListCache';
 import { PLAYLISTS_KEY } from './playlistsKeys';
 
 // Mutations live in playlistMutations.ts; re-exported so existing imports from
@@ -25,9 +25,18 @@ export function usePlaylist(playlistId: string) {
   return { playlist: q.data ?? null };
 }
 
-/** The user's playlists. */
+/** The user's playlists. Seeded from a disk cache so Your Library paints its
+ * playlists INSTANTLY on return instead of re-running the slow first-load
+ * ownership fan-out; then it background-refetches (see playlistsListCache). */
 export function usePlaylists() {
-  const q = useQuery({ queryKey: PLAYLISTS_KEY, queryFn: getPlaylists, staleTime: 30_000 });
+  const cached = getCachedPlaylists();
+  const q = useQuery({
+    queryKey: PLAYLISTS_KEY,
+    queryFn: fetchAndCachePlaylists,
+    staleTime: 30_000,
+    initialData: cached,
+    initialDataUpdatedAt: cached ? 0 : undefined,
+  });
   return {
     playlists: q.data ?? [],
     isLoading: q.isLoading,

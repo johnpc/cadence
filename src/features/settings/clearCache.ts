@@ -1,5 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { PLAYLIST_ITEMS_CACHE_KEY } from '../playlists/playlistItemsCache';
+import { PLAYLISTS_LIST_CACHE_KEY } from '../playlists/playlistsListCache';
 import { ALBUM_TRACKS_CACHE_KEY, SIMILAR_ALBUMS_CACHE_KEY } from '../album/albumApi';
 import { ARTIST_ALBUMS_CACHE_KEY, RELATED_ARTISTS_CACHE_KEY } from '../artist/artistApi';
 import { HOME_SHELVES_CACHE_KEY } from '../home/homeShelfCache';
@@ -12,6 +13,7 @@ import { LIBRARY_LISTS_CACHE_KEY } from '../library/libraryListCache';
  * drift out of sync. */
 const CACHE_LS_KEYS = [
   PLAYLIST_ITEMS_CACHE_KEY,
+  PLAYLISTS_LIST_CACHE_KEY,
   ALBUM_TRACKS_CACHE_KEY,
   SIMILAR_ALBUMS_CACHE_KEY,
   ARTIST_ALBUMS_CACHE_KEY,
