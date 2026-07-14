@@ -9,10 +9,13 @@ import './requests.css';
 export function RequestRow({
   artist,
   status,
+  inLibrary = false,
   onRequest,
 }: {
   artist: LidarrArtist;
   status: RequestStatus;
+  /** Already in the library — show "In library" instead of a Request button. */
+  inLibrary?: boolean;
   onRequest: (a: LidarrArtist) => void;
 }) {
   return (
@@ -23,7 +26,11 @@ export function RequestRow({
         <div className="request-row__art request-row__art--empty" aria-hidden="true" />
       )}
       <span className="request-row__name">{artist.artistName}</span>
-      {status === 'requested' ? (
+      {inLibrary ? (
+        <span className="request-row__done" data-testid="request-in-library">
+          In library
+        </span>
+      ) : status === 'requested' ? (
         <span className="request-row__done" data-testid="request-done">
           Requested
         </span>

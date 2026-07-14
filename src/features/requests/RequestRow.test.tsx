@@ -36,6 +36,12 @@ describe('RequestRow', () => {
     expect(screen.queryByTestId('request-button')).not.toBeInTheDocument();
   });
 
+  it('shows "In library" (no request button) when already owned', () => {
+    render(<RequestRow artist={artist} status="idle" inLibrary onRequest={vi.fn()} />);
+    expect(screen.getByTestId('request-in-library')).toHaveTextContent('In library');
+    expect(screen.queryByTestId('request-button')).not.toBeInTheDocument();
+  });
+
   it('renders a placeholder when the artist has no poster', () => {
     const { container } = render(
       <RequestRow

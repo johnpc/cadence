@@ -25,6 +25,14 @@ export async function searchArtists(term: string): Promise<LidarrArtist[]> {
   return rows.map((r) => r.artist).filter((a): a is LidarrArtist => !!a && !!a.foreignArtistId);
 }
 
+/** MusicBrainz ids of the artists already in Lidarr — so the Requests screen can
+ * mark a search result "In your library" instead of offering a doomed re-request
+ * (Lidarr 400s on a duplicate add). */
+export async function getLibraryArtistIds(): Promise<Set<string>> {
+  const artists = await get<LidarrArtist[]>('/artist');
+  return new Set(artists.map((a) => a.foreignArtistId).filter(Boolean));
+}
+
 /** The add defaults: first root folder + first quality/metadata profile. Lidarr
  * requires all three to add an artist; the first of each is a sensible default. */
 export async function getAddDefaults(): Promise<LidarrAddDefaults> {
