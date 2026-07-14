@@ -7,6 +7,7 @@ vi.mock('./lidarrApi', () => ({
   requestArtist: vi.fn(),
   getLibraryArtistIds: vi.fn().mockResolvedValue(new Set<string>()),
 }));
+vi.mock('./lidarrQueue', () => ({ getDownloadQueue: vi.fn().mockResolvedValue([]) }));
 vi.mock('../toast/useToast', () => ({ useToast: () => vi.fn() }));
 import { searchArtists } from './lidarrApi';
 import { Requests } from './Requests';

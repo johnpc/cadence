@@ -11,6 +11,7 @@ import {
 import { useLocation } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { RequestRow } from './RequestRow';
+import { DownloadQueue } from './DownloadQueue';
 import { useMusicRequests } from './useMusicRequests';
 import './requests.css';
 
@@ -47,6 +48,7 @@ export function Requests() {
         <p className="cad-meta requests__hint">
           Can’t find something? Search for an artist and request it — it’ll be added to the library.
         </p>
+        <DownloadQueue />
         <div data-testid="requests">
           {typed && (
             <LoadState

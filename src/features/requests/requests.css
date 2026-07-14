@@ -34,3 +34,46 @@
   font-size: 13px;
   flex: 0 0 auto;
 }
+
+.download-queue {
+  margin-bottom: var(--cad-space-6);
+}
+
+.download-queue__title {
+  margin: 0 0 var(--cad-space-3);
+}
+
+.download-queue__row {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-1) 0;
+}
+
+.download-queue__name {
+  flex: 1 1 40%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.download-queue__bar {
+  flex: 1 1 40%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--cad-surface-2);
+  overflow: hidden;
+}
+
+.download-queue__fill {
+  height: 100%;
+  background: var(--cad-accent);
+  transition: width 0.4s ease;
+}
+
+.download-queue__pct {
+  flex: 0 0 auto;
+  min-width: 3ch;
+  text-align: right;
+}

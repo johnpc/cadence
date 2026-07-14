@@ -32,3 +32,23 @@ export interface LidarrAddDefaults {
   qualityProfileId: number;
   metadataProfileId: number;
 }
+
+/** A row from Lidarr's download queue — an in-progress grab. `size`/`sizeleft`
+ * give a percentage; `title` is the release name; `status` +
+ * `trackedDownloadState` describe where it is (downloading, importing, …). */
+export interface LidarrQueueItem {
+  id: number;
+  title?: string;
+  status?: string;
+  trackedDownloadState?: string;
+  size?: number;
+  sizeleft?: number;
+  artistId?: number;
+}
+
+/** The queue as shown to the user: the release title + a 0–100 progress %. */
+export interface DownloadProgress {
+  id: number;
+  title: string;
+  percent: number;
+}
