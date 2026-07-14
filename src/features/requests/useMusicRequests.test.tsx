@@ -3,14 +3,22 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement, type ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('./lidarrApi', () => ({
+vi.mock('./lidarrApi', async (importActual) => ({
+  // Keep the real AlreadyAddedError class so `instanceof` checks work; mock the fns.
+  ...(await importActual<typeof import('./lidarrApi')>()),
   searchArtists: vi.fn(),
   getAddDefaults: vi.fn(),
   requestArtist: vi.fn(),
   getLibraryArtistIds: vi.fn().mockResolvedValue(new Set<string>()),
 }));
 vi.mock('../toast/useToast', () => ({ useToast: () => vi.fn() }));
-import { searchArtists, getAddDefaults, requestArtist, getLibraryArtistIds } from './lidarrApi';
+import {
+  searchArtists,
+  getAddDefaults,
+  requestArtist,
+  getLibraryArtistIds,
+  AlreadyAddedError,
+} from './lidarrApi';
 import { useMusicRequests } from './useMusicRequests';
 import type { LidarrArtist } from './lidarrTypes';
 
@@ -54,6 +62,20 @@ describe('useMusicRequests', () => {
     });
     expect(result.current.status['mb-1']).toBe('requested');
     expect(requestArtist).toHaveBeenCalled();
+  });
+
+  it('marks an already-added artist "requested" (benign), not an error', async () => {
+    vi.mocked(getAddDefaults).mockResolvedValue({
+      rootFolderPath: '/m',
+      qualityProfileId: 1,
+      metadataProfileId: 1,
+    });
+    vi.mocked(requestArtist).mockRejectedValue(new AlreadyAddedError());
+    const { result } = renderHook(() => useMusicRequests(), { wrapper });
+    await act(async () => {
+      await result.current.request(artist);
+    });
+    expect(result.current.status['mb-1']).toBe('requested');
   });
 
   it('marks a request "error" on failure', async () => {

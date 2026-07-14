@@ -2,7 +2,13 @@ import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounced } from '../../lib/useDebounced';
 import { useToast } from '../toast/useToast';
-import { searchArtists, getAddDefaults, requestArtist, getLibraryArtistIds } from './lidarrApi';
+import {
+  searchArtists,
+  getAddDefaults,
+  requestArtist,
+  getLibraryArtistIds,
+  AlreadyAddedError,
+} from './lidarrApi';
 import type { LidarrArtist } from './lidarrTypes';
 
 /** Per-artist request status, keyed by MusicBrainz id, for the Requests screen. */
@@ -41,9 +47,16 @@ export function useMusicRequests(initialQuery = '') {
         await requestArtist(artist, await getAddDefaults());
         setStatus((s) => ({ ...s, [id]: 'requested' }));
         toast(`Requested ${artist.artistName} — downloading soon`);
-      } catch {
-        setStatus((s) => ({ ...s, [id]: 'error' }));
-        toast(`Couldn't request ${artist.artistName}`);
+      } catch (e) {
+        if (e instanceof AlreadyAddedError) {
+          // Already in the library (a stale cache let it slip past inLibrary) —
+          // benign; show it as requested, not an error.
+          setStatus((s) => ({ ...s, [id]: 'requested' }));
+          toast(`${artist.artistName} is already in your library`);
+        } else {
+          setStatus((s) => ({ ...s, [id]: 'error' }));
+          toast(`Couldn't request ${artist.artistName}`);
+        }
       }
     },
     [toast],
