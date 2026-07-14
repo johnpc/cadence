@@ -9,13 +9,17 @@ import type {
   LidarrAddDefaults,
 } from './lidarrTypes';
 
-const BASE = '/api/lidarr';
+/** Same-origin Lidarr proxy base (see deploy/runtime-config.sh). */
+export const LIDARR_BASE = '/api/lidarr';
 
-async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`);
+export async function lidarrGet<T>(path: string): Promise<T> {
+  const res = await fetch(`${LIDARR_BASE}${path}`);
   if (!res.ok) throw new Error(`lidarr ${path} failed: ${res.status}`);
   return (await res.json()) as T;
 }
+
+const BASE = LIDARR_BASE;
+const get = lidarrGet;
 
 /** Search MusicBrainz (via Lidarr) for artists/albums — things not yet in the
  * library. Returns only the artist matches (album requests come later). */
