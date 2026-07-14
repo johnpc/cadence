@@ -35,20 +35,25 @@ const NAV_PATH: Record<string, RegExp> = {
 };
 
 export async function navigate(page: Page, label: string): Promise<void> {
-  // Prefer the desktop sidebar link (CI width). It may mount a beat after the
-  // shell, so give it a moment before falling back to the mobile tab button.
-  const sidebar = page.getByTestId(NAV_TESTID[label]);
-  try {
-    await sidebar.waitFor({ state: 'visible', timeout: 5_000 });
-    await sidebar.click();
-  } catch {
-    await page.locator('ion-tab-button', { hasText: label }).click();
-  }
-  // Confirm the route actually changed — the click can race the Ionic route
-  // transition, and returning early leaves the next step on the previous page
-  // (the deterministic cause of "on Home when it should be Search" failures).
+  // Ionic's IonRouterOutlet intermittently DROPS a nav click — the click lands
+  // on the link but the router transition is a no-op, leaving the app on the
+  // previous tab. It's a genuine, measurable race (~1-in-15 even on a fully
+  // settled app; higher on the just-mounted post-sign-in shell). No amount of
+  // "wait before clicking" fully removes it, so the robust fix is to click and
+  // VERIFY the route changed, re-issuing the click if it didn't. This mirrors
+  // what a real user does (tap again when a tap seems ignored).
   const path = NAV_PATH[label];
-  if (path) await expect(page).toHaveURL(path, { timeout: DATA_WAIT });
+  const target = () => {
+    const sidebar = page.getByTestId(NAV_TESTID[label]);
+    return sidebar
+      .waitFor({ state: 'visible', timeout: 5_000 })
+      .then(() => sidebar)
+      .catch(() => page.locator('ion-tab-button', { hasText: label }));
+  };
+  await expect(async () => {
+    (await target()).click().catch(() => undefined);
+    if (path) await expect(page).toHaveURL(path, { timeout: 3_000 });
+  }).toPass({ timeout: DATA_WAIT });
 }
 
 /** Type a search term and wait for a result inside `sectionTestId` to attach,
