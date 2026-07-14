@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinStream', () => ({
   audioStreamUrl: (id: string) => `https://jf.test/Audio/${id}/universal`,
+  imageUrl: (item: { Id: string }) => `https://jf.test/Items/${item.Id}/Images/Primary`,
 }));
 
 // A fake in-memory blob backend so the store logic (fetch → put → index → emit,
@@ -25,6 +26,7 @@ vi.mock('./blobStore', () => ({
 
 import {
   localAudioUrl,
+  localArtUrl,
   downloadTrack,
   removeDownload,
   isDownloaded,
@@ -54,11 +56,14 @@ describe('downloadStore', () => {
     localStorage.clear();
   });
 
-  it('downloads: fetches the stream, stores the blob, and indexes the item', async () => {
+  it('downloads: fetches the stream + art, stores both blobs, and indexes the item', async () => {
     await downloadTrack(track('a'));
     expect(fetch).toHaveBeenCalledWith('https://jf.test/Audio/a/universal');
-    expect(put).toHaveBeenCalledOnce();
-    expect(put.mock.calls[0][0]).toBe('a'); // stored under the track id
+    expect(fetch).toHaveBeenCalledWith('https://jf.test/Items/a/Images/Primary');
+    // Audio stored under the bare id; cover art under the "art:" key.
+    const keys = put.mock.calls.map((c) => c[0]);
+    expect(keys).toContain('a');
+    expect(keys).toContain('art:a');
     expect(isDownloaded('a')).toBe(true);
     expect(readIndex().map((t) => t.Id)).toEqual(['a']);
   });
@@ -84,16 +89,39 @@ describe('downloadStore', () => {
       .mockResolvedValueOnce(new Response('audio-bytes', { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
     await downloadTrack(track('a'));
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    // 1 failed audio + 1 retried audio + 1 art fetch = 3.
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(isDownloaded('a')).toBe(true);
   });
 
-  it('remove deletes the blob and de-indexes it', async () => {
+  it('caches cover art for offline and localArtUrl returns it', async () => {
+    expect(await localArtUrl('a')).toBeNull();
+    await downloadTrack(track('a'));
+    expect(await localArtUrl('a')).toBe('blob:mock/art:a');
+  });
+
+  it('remove deletes the audio + art blobs and de-indexes it', async () => {
     await downloadTrack(track('a'));
     await removeDownload('a');
     expect(remove).toHaveBeenCalledWith('a');
+    expect(remove).toHaveBeenCalledWith('art:a'); // art blob cleaned up too
     expect(isDownloaded('a')).toBe(false);
     expect(await localAudioUrl('a')).toBeNull();
+    expect(await localArtUrl('a')).toBeNull();
+  });
+
+  it('a failed art fetch does not fail the download (art is best-effort)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((u: string) =>
+        u.includes('/Images/')
+          ? Promise.reject(new Error('offline'))
+          : Promise.resolve(new Response('audio-bytes', { status: 200 })),
+      ),
+    );
+    await downloadTrack(track('a'));
+    expect(isDownloaded('a')).toBe(true); // audio saved despite art failing
+    expect(await localArtUrl('a')).toBeNull();
   });
 
   it('removeAllDownloads clears every blob + the whole index, emitting once', async () => {

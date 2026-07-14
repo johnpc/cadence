@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import { musicalNotes } from 'ionicons/icons';
 import { IonIcon } from '@ionic/react';
 import { imageUrl } from '../../lib/jellyfinStream';
+import { useLocalArt } from '../downloads/useLocalArt';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './trackArt.css';
 
@@ -24,7 +25,9 @@ function TrackArtImpl({
 }) {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const src = item ? imageUrl(item, size * 2) : null;
+  // Prefer a downloaded track's cached art (works offline); else the network URL.
+  const localArt = useLocalArt(item);
+  const src = localArt ?? (item ? imageUrl(item, size * 2) : null);
   return (
     <div
       className={round ? 'track-art track-art--round' : 'track-art'}
