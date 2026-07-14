@@ -30,6 +30,10 @@ const artist: JellyfinItem = { Id: 'ar1', Name: 'Radiohead', Type: 'MusicArtist'
 
 describe('Library', () => {
   beforeEach(() => {
+    // Playlists/library lists now disk-cache; clear so one test's result can't
+    // seed the next via initialData (e.g. the loading-skeleton test needs an
+    // empty cache to actually see the skeleton).
+    localStorage.clear();
     vi.mocked(getFavoriteSongs).mockResolvedValue([]);
     vi.mocked(getFavoriteAlbums).mockResolvedValue([]);
     vi.mocked(getFavoriteArtists).mockResolvedValue([]);
@@ -38,6 +42,7 @@ describe('Library', () => {
   afterEach(() => {
     cleanup();
     vi.resetAllMocks();
+    localStorage.clear();
   });
 
   it('shows a settings link', () => {
