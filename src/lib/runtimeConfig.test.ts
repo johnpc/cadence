@@ -3,6 +3,7 @@ import {
   castReceiverAppId,
   configuredMarlinUrl,
   configuredServerUrl,
+  lidarrProxyEnabled,
   marlinProxyEnabled,
   signupUrl,
 } from './runtimeConfig';
@@ -36,6 +37,20 @@ describe('marlinProxyEnabled', () => {
   it('is false for any non-true value (guards against truthy strings)', () => {
     window.__CADENCE_CONFIG__ = { marlinProxy: undefined };
     expect(marlinProxyEnabled()).toBe(false);
+  });
+});
+
+describe('lidarrProxyEnabled', () => {
+  it('is false with no config (native app / proxy off)', () => {
+    expect(lidarrProxyEnabled()).toBe(false);
+  });
+  it('is true only when the deploy set lidarrProxy: true', () => {
+    window.__CADENCE_CONFIG__ = { lidarrProxy: true };
+    expect(lidarrProxyEnabled()).toBe(true);
+  });
+  it('is false for any non-true value', () => {
+    window.__CADENCE_CONFIG__ = { lidarrProxy: undefined };
+    expect(lidarrProxyEnabled()).toBe(false);
   });
 });
 

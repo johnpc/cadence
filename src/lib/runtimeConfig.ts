@@ -28,6 +28,11 @@ interface RuntimeConfig {
    * browser and no direct indexer exposure — the preferred setup. Web/PWA only
    * (native has no nginx; config.js is absent there, so this stays false). */
   marlinProxy?: boolean;
+  /** When true, the serving nginx proxies `/api/lidarr/*` to Lidarr (a curated
+   * allowlist), injecting the API key SERVER-SIDE (see deploy/runtime-config.sh).
+   * Enables the "request missing music" feature. The write-capable key never
+   * reaches the browser. Web/PWA only (config.js absent on native → false). */
+  lidarrProxy?: boolean;
 }
 
 declare global {
@@ -83,4 +88,11 @@ export function configuredMarlinUrl(): string | null {
  * with no token in the browser. Absent config.js (native app) → false. */
 export function marlinProxyEnabled(): boolean {
   return window.__CADENCE_CONFIG__?.marlinProxy === true;
+}
+
+/** True when the deploy has enabled the same-origin `/api/lidarr/*` proxy (API
+ * key injected server-side). Gates the "request missing music" feature — the
+ * Requests UI only shows when this is on. Absent config.js (native app) → false. */
+export function lidarrProxyEnabled(): boolean {
+  return window.__CADENCE_CONFIG__?.lidarrProxy === true;
 }
