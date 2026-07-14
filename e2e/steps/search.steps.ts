@@ -31,7 +31,13 @@ When('I tap the first song result', async ({ page }) => {
 });
 
 When('I filter results to {string}', async ({ page }, label: string) => {
-  await page.getByTestId(`filter-${label.toLowerCase()}`).click();
+  // The filter chips only mount once search RESULTS render (the search screen
+  // shows the idle/empty state otherwise). Typing a query doesn't await results,
+  // and a slow backend can leave the chip absent past the default action
+  // timeout — so wait for it to be visible before clicking rather than racing it.
+  const chip = page.getByTestId(`filter-${label.toLowerCase()}`);
+  await expect(chip).toBeVisible({ timeout: DATA_WAIT });
+  await chip.click();
 });
 
 Then('I do not see the Albums section', async ({ page }) => {

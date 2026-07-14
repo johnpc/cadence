@@ -75,12 +75,15 @@ describe('marlinSearchSource', () => {
     marlin.url = 'https://search.example.com';
     marlin.token = 'tok';
     const f = vi.fn().mockImplementation((url: string) => {
+      // marlin /search → ids; native playlist call → a playlist; else hydration.
       const items = url.includes('/search?')
         ? undefined
-        : [
-            { Id: 'b', Name: 'B', Type: 'Audio' },
-            { Id: 'a', Name: 'A', Type: 'MusicAlbum' },
-          ];
+        : url.includes('IncludeItemTypes=Playlist')
+          ? [{ Id: 'pl', Name: 'A Playlist', Type: 'Playlist' }]
+          : [
+              { Id: 'b', Name: 'B', Type: 'Audio' },
+              { Id: 'a', Name: 'A', Type: 'MusicAlbum' },
+            ];
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -100,9 +103,12 @@ describe('marlinSearchSource', () => {
     expect(searchUrl).toContain('includeItemTypes=Audio');
     expect(searchUrl).toContain('includeItemTypes=MusicAlbum');
     expect(searchUrl).toContain('includeItemTypes=MusicArtist');
+    // Playlists are NOT asked of marlin (it can't rank them) — fetched natively.
+    expect(searchUrl).not.toContain('includeItemTypes=Playlist');
     const call = f.mock.calls.find((c) => (c[0] as string).includes('/search?'));
     expect((call?.[1] as RequestInit).headers).toMatchObject({ Authorization: 'tok' });
-    expect(results.map((r) => r.Id)).toEqual(['a', 'b']); // relevance order preserved
+    // marlin music (relevance order preserved) + the natively-fetched playlist.
+    expect(results.map((r) => r.Id)).toEqual(['a', 'b', 'pl']);
   });
 
   it('drops any non-music item the indexer returns (defence in depth)', async () => {
@@ -110,14 +116,17 @@ describe('marlinSearchSource', () => {
     marlin.url = 'https://search.example.com';
     const f = vi.fn().mockImplementation((url: string) => {
       // An older indexer ignores includeItemTypes and returns a Movie + a Series
-      // alongside a song — only the song must survive.
+      // alongside a song — only the song must survive. The native playlist call
+      // finds nothing for this query.
       const items = url.includes('/search?')
         ? undefined
-        : [
-            { Id: 'mov', Name: 'Love Actually', Type: 'Movie' },
-            { Id: 'ser', Name: 'Love Island', Type: 'Series' },
-            { Id: 'song', Name: 'Love Song', Type: 'Audio' },
-          ];
+        : url.includes('IncludeItemTypes=Playlist')
+          ? []
+          : [
+              { Id: 'mov', Name: 'Love Actually', Type: 'Movie' },
+              { Id: 'ser', Name: 'Love Island', Type: 'Series' },
+              { Id: 'song', Name: 'Love Song', Type: 'Audio' },
+            ];
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -137,7 +146,9 @@ describe('marlinSearchSource', () => {
     const f = vi.fn().mockImplementation((url: string) => {
       const items = url.includes('/api/search')
         ? undefined
-        : [{ Id: 'a', Name: 'A', Type: 'Audio' }];
+        : url.includes('IncludeItemTypes=Playlist')
+          ? []
+          : [{ Id: 'a', Name: 'A', Type: 'Audio' }];
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -155,6 +166,56 @@ describe('marlinSearchSource', () => {
     expect((call?.[1] as RequestInit | undefined)?.headers).toBeUndefined();
     expect(results.map((r) => r.Id)).toEqual(['a']);
     delete window.__CADENCE_CONFIG__;
+  });
+
+  it('fetches playlists from native Jellyfin (marlin cannot rank them) and merges them', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    marlin.url = 'https://search.example.com';
+    const f = vi.fn().mockImplementation((url: string) => {
+      const items = url.includes('/search?')
+        ? undefined
+        : url.includes('IncludeItemTypes=Playlist')
+          ? [{ Id: 'pl', Name: 'Cadence Test Mix', Type: 'Playlist' }]
+          : [{ Id: 'song', Name: 'A Song', Type: 'Audio' }];
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({ ids: ['song'] }),
+        text: async () => JSON.stringify({ Items: items }),
+      } as Response);
+    });
+    vi.stubGlobal('fetch', f);
+
+    const results = await marlinSearchSource('Cadence', 40);
+    // The native playlist call fired (marlin's own query never includes Playlist).
+    const playlistCall = f.mock.calls.find((c) =>
+      (c[0] as string).includes('IncludeItemTypes=Playlist'),
+    );
+    expect(playlistCall).toBeTruthy();
+    expect(results.find((r) => r.Type === 'Playlist')?.Name).toBe('Cadence Test Mix');
+  });
+
+  it('still returns marlin music even if the native playlist fetch fails', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    marlin.url = 'https://search.example.com';
+    const f = vi.fn().mockImplementation((url: string) => {
+      if (url.includes('IncludeItemTypes=Playlist')) {
+        return Promise.reject(new Error('playlist fetch failed'));
+      }
+      const items = url.includes('/search?')
+        ? undefined
+        : [{ Id: 'song', Name: 'A Song', Type: 'Audio' }];
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({ ids: ['song'] }),
+        text: async () => JSON.stringify({ Items: items }),
+      } as Response);
+    });
+    vi.stubGlobal('fetch', f);
+
+    const results = await marlinSearchSource('love', 40);
+    expect(results.map((r) => r.Id)).toEqual(['song']); // music survived; no playlists
   });
 });
 

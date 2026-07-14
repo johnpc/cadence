@@ -11,13 +11,17 @@
 import { getItemsByIds } from '../../lib/jellyfinItems';
 import { getMarlinUrl, getMarlinToken } from '../../lib/marlinStore';
 import { marlinProxyEnabled } from '../../lib/runtimeConfig';
+import { searchPlaylists } from './searchSource';
 import type { SearchSource } from './searchTypes';
 
-/** The music item types Cadence searches — marlin indexes the WHOLE Jellyfin
- * library (Movies, Series, Episodes, …), so we must scope to music or a movie
- * whose title matches would pollute the results. */
-const MUSIC_TYPES = ['Audio', 'MusicAlbum', 'MusicArtist', 'Playlist'] as const;
-const MUSIC_TYPE_SET: ReadonlySet<string> = new Set(MUSIC_TYPES);
+/** The item types Cadence searches via marlin. Playlists are NOT here — older
+ * marlin indexes don't include them at all, so we always fetch playlists from
+ * native Jellyfin (one cheap call) and merge, making playlist search work
+ * regardless of the marlin index state. marlin indexes the WHOLE library
+ * (Movies, Series, …) so we still scope tightly to music. */
+const MARLIN_TYPES = ['Audio', 'MusicAlbum', 'MusicArtist'] as const;
+/** Types allowed in the final merged result (marlin music + native playlists). */
+const RESULT_TYPE_SET: ReadonlySet<string> = new Set([...MARLIN_TYPES, 'Playlist']);
 
 /** How long to wait on the indexer before giving up and letting the selector
  * fall back to native search. Short by design: marlin exists to be FAST, so a
@@ -57,11 +61,18 @@ async function boundedFetch(url: string, init?: RequestInit): Promise<Response> 
  * can't leak a Movie/Series into music results). */
 export const marlinSearchSource: SearchSource = async (query, limit = 40) => {
   const params = new URLSearchParams({ q: query });
-  for (const t of MUSIC_TYPES) params.append('includeItemTypes', t);
+  for (const t of MARLIN_TYPES) params.append('includeItemTypes', t);
   const { url, init } = searchRequest(params.toString());
-  const res = await boundedFetch(url, init);
+  // Marlin (music) + native playlists in parallel — marlin can't rank playlists,
+  // so they always come from Jellyfin regardless of the marlin index state. A
+  // playlist-fetch failure degrades to no playlists, never a failed search.
+  const [res, playlists] = await Promise.all([
+    boundedFetch(url, init),
+    searchPlaylists(query, 10).catch(() => []),
+  ]);
   if (!res.ok) throw new Error(`marlin search failed: ${res.status}`);
   const { ids } = (await res.json()) as { ids?: string[] };
   const hydrated = await getItemsByIds((ids ?? []).slice(0, limit));
-  return hydrated.filter((i) => i.Type && MUSIC_TYPE_SET.has(i.Type));
+  const music = hydrated.filter((i) => i.Type && RESULT_TYPE_SET.has(i.Type));
+  return [...music, ...playlists];
 };
