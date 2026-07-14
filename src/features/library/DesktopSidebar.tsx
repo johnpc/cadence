@@ -1,8 +1,16 @@
 import { IonIcon } from '@ionic/react';
-import { home, search, library, chevronBack, chevronForward } from 'ionicons/icons';
+import {
+  home,
+  search,
+  library,
+  addCircleOutline,
+  chevronBack,
+  chevronForward,
+} from 'ionicons/icons';
 import { NavLink } from 'react-router-dom';
 import { LibraryList } from './LibraryList';
 import { useSidebarCollapsed } from './useSidebarCollapsed';
+import { lidarrProxyEnabled } from '../../lib/runtimeConfig';
 import './desktopSidebar.css';
 
 const NAV = [
@@ -11,11 +19,21 @@ const NAV = [
   { to: '/library', icon: library, label: 'Your Library', testid: 'nav-library' },
 ];
 
+// "Requests" is only reachable when the deploy enables the Lidarr proxy — mirror
+// the mobile tab bar (AppTabs) so desktop users have the same entry point.
+const REQUESTS_NAV = {
+  to: '/requests',
+  icon: addCircleOutline,
+  label: 'Requests',
+  testid: 'nav-requests',
+};
+
 /** Spotify-style persistent left sidebar, shown only at desktop widths (CSS).
  * Top: primary nav + a collapse toggle. Below: the full Your Library list.
  * Collapsed, it becomes an icons-only rail so the main area gets more room. */
 export function DesktopSidebar() {
   const { collapsed, toggle } = useSidebarCollapsed();
+  const nav = lidarrProxyEnabled() ? [...NAV, REQUESTS_NAV] : NAV;
   return (
     <aside
       className={collapsed ? 'sidebar sidebar--collapsed' : 'sidebar'}
@@ -32,7 +50,7 @@ export function DesktopSidebar() {
         <IonIcon icon={collapsed ? chevronForward : chevronBack} aria-hidden="true" />
       </button>
       <nav className="sidebar__nav">
-        {NAV.map((n) => (
+        {nav.map((n) => (
           <NavLink
             key={n.to}
             className="sidebar__link"
