@@ -21,6 +21,11 @@
 # inject the token server-side — the token never reaches the browser and marlin
 # needs no public hostname. Unset → Jellyfin native search. Keep real values in a
 # .env beside this file (gitignored), never committed.
+#
+# Optional "request missing music" (Lidarr): set LIDARR_URL + LIDARR_API_KEY to
+# have nginx proxy same-origin /api/lidarr/* (a curated allowlist) to Lidarr,
+# injecting the API key server-side. The key is a WRITE credential — it never
+# reaches the browser and Lidarr needs no public hostname. Unset → feature off.
 services:
   cadence:
     build:
@@ -31,6 +36,8 @@ services:
       JELLYFIN_URL: ${JELLYFIN_URL:-}
       MARLIN_URL: ${MARLIN_URL:-}
       MARLIN_TOKEN: ${MARLIN_TOKEN:-}
+      LIDARR_URL: ${LIDARR_URL:-}
+      LIDARR_API_KEY: ${LIDARR_API_KEY:-}
     ports:
       - '8095:80'
     restart: unless-stopped

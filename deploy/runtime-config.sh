@@ -17,10 +17,20 @@
 #                  token NEVER reaches the browser. Off (native search) when unset.
 #   MARLIN_TOKEN — the indexer's EXPRESS_AUTH_TOKEN, injected by nginx (not shipped
 #                  to the client).
+#   LIDARR_URL   — Lidarr base URL (e.g. http://192.168.7.211:8686). When set (with
+#                  LIDARR_API_KEY), nginx proxies same-origin /api/lidarr/* to a
+#                  CURATED ALLOWLIST of Lidarr endpoints (search / add / status /
+#                  profiles), injecting the API key server-side. Enables the
+#                  "request missing music" (Lidarr) feature. Off when unset.
+#   LIDARR_API_KEY — Lidarr's API key. A WRITE credential (add/delete artists,
+#                  trigger downloads) — so it is injected by nginx and NEVER shipped
+#                  to the client, and only the allowlisted read/add paths are
+#                  reachable (no delete/config endpoints), even through the proxy.
 set -eu
 
 CONFIG_PATH="/usr/share/nginx/html/config.js"
 MARLIN_CONF="/etc/nginx/cadence/marlin.conf"
+LIDARR_CONF="/etc/nginx/cadence/lidarr.conf"
 
 # JSON-escape a value for safe embedding (backslash, quote).
 json_escape() {
@@ -61,8 +71,39 @@ else
   : > "$MARLIN_CONF"
 fi
 
+# Same-origin Lidarr proxy for "request missing music". CURATED ALLOWLIST only:
+# the injected key has full write access to the library manager, so we expose
+# just the read/add paths the feature needs and NOTHING that could delete the
+# library or change config. Each location rewrites /api/lidarr/X → LIDARR/api/v1/X
+# and injects X-Api-Key server-side. GET everywhere except the add endpoints.
+mkdir -p "$(dirname "$LIDARR_CONF")"
+if [ -n "${LIDARR_URL:-}" ] && [ -n "${LIDARR_API_KEY:-}" ]; then
+  LU="$(printf '%s' "$LIDARR_URL" | sed 's#/*$##')"
+  cat > "$LIDARR_CONF" <<EOF
+# Generated at container start by runtime-config.sh — do not edit.
+# Read-only lookups (search MusicBrainz, list profiles/root folders, poll status)
+# and the add endpoints (POST artist/album). Blanket passthrough is deliberately
+# avoided so delete/command/config endpoints stay unreachable. A regex location
+# enforces the allowlist; a `rewrite` maps /api/lidarr/X → /api/v1/X and the
+# proxy_pass upstream is STATIC (host only) so nginx needs no DNS resolver — the
+# request URI carries the path. \$proxy_host is set so Lidarr sees a valid Host.
+location ~ ^/api/lidarr/(search|qualityprofile|metadataprofile|rootfolder|queue|artist|album)(/.*)?\$ {
+  limit_except GET POST { deny all; }
+  rewrite ^/api/lidarr/(.*)\$ /api/v1/\$1 break;
+  proxy_pass ${LU};
+  proxy_set_header X-Api-Key "${LIDARR_API_KEY}";
+  proxy_set_header Host \$proxy_host;
+}
+EOF
+  [ -z "$FIELDS" ] || FIELDS="$FIELDS,"
+  FIELDS="$FIELDS\"lidarrProxy\":true"
+  echo "cadence: lidarr proxy ENABLED → ${LU}/api/v1 (key injected server-side, allowlisted paths)"
+else
+  : > "$LIDARR_CONF"
+fi
+
 cat > "$CONFIG_PATH" <<EOF
 window.__CADENCE_CONFIG__ = {${FIELDS}};
 EOF
 
-echo "cadence: wrote runtime config (SIGNUP_URL ${SIGNUP_URL:+set}${SIGNUP_URL:-unset}, JELLYFIN_URL ${JELLYFIN_URL:+set}${JELLYFIN_URL:-unset}, MARLIN ${MARLIN_URL:+set}${MARLIN_URL:-unset})"
+echo "cadence: wrote runtime config (SIGNUP_URL ${SIGNUP_URL:+set}${SIGNUP_URL:-unset}, JELLYFIN_URL ${JELLYFIN_URL:+set}${JELLYFIN_URL:-unset}, MARLIN ${MARLIN_URL:+set}${MARLIN_URL:-unset}, LIDARR ${LIDARR_URL:+set}${LIDARR_URL:-unset})"
