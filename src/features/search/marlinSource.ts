@@ -51,28 +51,34 @@ async function boundedFetch(url: string, init?: RequestInit): Promise<Response> 
   }
 }
 
-/** ONE call to the indexer's `/search?q=` returns ranked Jellyfin item ids;
- * hydrate them in a single `/Items?Ids=` call. Two requests vs. the native
- * source's ~3, and Meilisearch ranking beats Jellyfin's substring match.
- * `getItemsByIds` preserves marlin's relevance order.
- *
- * Scoped to music BOTH server-side (marlin's `includeItemTypes` filter) AND after
- * hydration (defence in depth — an older indexer that ignored the param still
- * can't leak a Movie/Series into music results). */
-export const marlinSearchSource: SearchSource = async (query, limit = 40) => {
+/** Marlin ids for ONE item type. Querying per-type (not all music types in one
+ * ranked list) is essential: a shared list ranks songs first and the limit then
+ * starves artists/albums entirely (a search like "love" is ~all songs). */
+async function marlinIdsFor(type: string, query: string, limit: number): Promise<string[]> {
   const params = new URLSearchParams({ q: query });
-  for (const t of MARLIN_TYPES) params.append('includeItemTypes', t);
+  params.append('includeItemTypes', type);
   const { url, init } = searchRequest(params.toString());
-  // Marlin (music) + native playlists in parallel — marlin can't rank playlists,
-  // so they always come from Jellyfin regardless of the marlin index state. A
-  // playlist-fetch failure degrades to no playlists, never a failed search.
-  const [res, playlists] = await Promise.all([
-    boundedFetch(url, init),
-    searchPlaylists(query, 10).catch(() => []),
-  ]);
+  const res = await boundedFetch(url, init);
   if (!res.ok) throw new Error(`marlin search failed: ${res.status}`);
   const { ids } = (await res.json()) as { ids?: string[] };
-  const hydrated = await getItemsByIds((ids ?? []).slice(0, limit));
+  return (ids ?? []).slice(0, limit);
+}
+
+/** Query marlin PER music type (so each gets its own slots) + native playlists,
+ * all in parallel, then hydrate. Meilisearch ranking beats Jellyfin's substring
+ * match; playlists come from native Jellyfin since marlin can't rank them. A
+ * playlist-fetch failure degrades to no playlists, never a failed search.
+ *
+ * Scoped to music by the per-type marlin queries AND by the post-hydration type
+ * filter (defence in depth — an older indexer can't leak a Movie into results). */
+export const marlinSearchSource: SearchSource = async (query, limit = 40) => {
+  const perType = Math.max(10, Math.floor(limit / MARLIN_TYPES.length));
+  const [idLists, playlists] = await Promise.all([
+    Promise.all(MARLIN_TYPES.map((t) => marlinIdsFor(t, query, perType))),
+    searchPlaylists(query, 10).catch(() => []),
+  ]);
+  const ids = idLists.flat();
+  const hydrated = await getItemsByIds(ids);
   const music = hydrated.filter((i) => i.Type && RESULT_TYPE_SET.has(i.Type));
   return [...music, ...playlists];
 };

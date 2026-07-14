@@ -25,6 +25,15 @@ export function libraryList(page: Page) {
   return sidebar.getByTestId('library-list');
 }
 
+/** Nav label → the route path its link points at, so navigation can be
+ * confirmed rather than assumed (a click that races the route transition
+ * otherwise leaves the next step running on the previous page). */
+const NAV_PATH: Record<string, RegExp> = {
+  Home: /\/home$/,
+  Search: /\/search$/,
+  'Your Library': /\/library/,
+};
+
 export async function navigate(page: Page, label: string): Promise<void> {
   // Prefer the desktop sidebar link (CI width). It may mount a beat after the
   // shell, so give it a moment before falling back to the mobile tab button.
@@ -35,6 +44,11 @@ export async function navigate(page: Page, label: string): Promise<void> {
   } catch {
     await page.locator('ion-tab-button', { hasText: label }).click();
   }
+  // Confirm the route actually changed — the click can race the Ionic route
+  // transition, and returning early leaves the next step on the previous page
+  // (the deterministic cause of "on Home when it should be Search" failures).
+  const path = NAV_PATH[label];
+  if (path) await expect(page).toHaveURL(path, { timeout: DATA_WAIT });
 }
 
 /** Type a search term and wait for a result inside `sectionTestId` to attach,

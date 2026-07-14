@@ -92,8 +92,11 @@ When('I open the {string} genre tile', async ({ page }, name: string) => {
   // tile BUTTON itself (filtering by its label), not the inner text node — a
   // force-click on the span doesn't reliably fire the button's navigation.
   const tile = page.getByTestId('genre-tile').filter({ hasText: name }).first();
-  await tile.scrollIntoViewIfNeeded();
+  // The genre grid is fetched async — wait for the tile to exist/attach BEFORE
+  // scrolling to it (scrollIntoViewIfNeeded on a not-yet-attached element throws
+  // "Element is not attached to the DOM", which flaked deterministically).
   await expect(tile).toBeVisible({ timeout: DATA_WAIT });
+  await tile.scrollIntoViewIfNeeded();
   await tile.click({ force: true });
 });
 
