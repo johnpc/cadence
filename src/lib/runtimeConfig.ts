@@ -1,44 +1,15 @@
 /**
- * Runtime configuration injected at container startup (window.__CADENCE_CONFIG__,
- * written by deploy/runtime-config.sh from env) — NOT baked into the build. Lets
- * a self-hoster set optional values like a sign-up URL without rebuilding the
- * image. Everything is optional; readers must tolerate a missing config.js.
+ * Readers for the runtime configuration (window.__CADENCE_CONFIG__) injected at
+ * container startup by deploy/runtime-config.sh or merged from the CadenceConfig
+ * Jellyfin plugin at sign-in. The config shape lives in runtimeConfigTypes.ts;
+ * everything is optional, so every reader tolerates a missing config.js.
  */
-interface RuntimeConfig {
-  /** Optional sign-up URL — when set, the sign-in screen shows a "Sign up" link
-   * (e.g. an invite/registration page for the server operator's Jellyfin). */
-  signupUrl?: string;
-  /** Optional default Jellyfin server URL — pre-fills the sign-in Server field
-   * so a self-hoster can pin their server without rebuilding the image. The
-   * user can still override it; a saved choice takes precedence. */
-  serverUrl?: string;
-  /** Optional Google Cast receiver application id. When set, casting uses this
-   * custom receiver (which renders the visualizer/lyrics/queue on the TV)
-   * instead of the default media receiver. Unset → default receiver (audio
-   * only). Registered in the Google Cast console; see receiver/README. */
-  castReceiverAppId?: string;
-  /** Optional default marlin-search (Meilisearch) base URL for faster search.
-   * A per-deploy default the user can override in Settings; unset → native
-   * Jellyfin search until the user configures a URL themselves. The token is
-   * NOT here — it's entered/stored on-device (see marlinStore). */
-  marlinUrl?: string;
-  /** When true, the serving nginx proxies `/api/search` to the marlin indexer
-   * and injects the auth token SERVER-SIDE (see deploy/runtime-config.sh). The
-   * client then searches the same-origin `/api/search` with NO token in the
-   * browser and no direct indexer exposure — the preferred setup. Web/PWA only
-   * (native has no nginx; config.js is absent there, so this stays false). */
-  marlinProxy?: boolean;
-  /** When true, the serving nginx proxies `/api/lidarr/*` to Lidarr (a curated
-   * allowlist), injecting the API key SERVER-SIDE (see deploy/runtime-config.sh).
-   * Enables the "request missing music" feature. The write-capable key never
-   * reaches the browser. Web/PWA only (config.js absent on native → false). */
-  lidarrProxy?: boolean;
-}
+import './runtimeConfigTypes';
 
-declare global {
-  interface Window {
-    __CADENCE_CONFIG__?: RuntimeConfig;
-  }
+/** A runtime-config boolean flag — true only for an explicit `true` (guards
+ * against truthy strings an injected config might carry). */
+function configFlag(key: 'marlinProxy' | 'lidarrProxy' | 'lidarrPluginProxy'): boolean {
+  return window.__CADENCE_CONFIG__?.[key] === true;
 }
 
 /** A safe http(s) URL from a runtime-config field, or null when unset/invalid.
@@ -83,16 +54,20 @@ export function configuredMarlinUrl(): string | null {
   return safeHttpUrl(window.__CADENCE_CONFIG__?.marlinUrl);
 }
 
-/** True when the deploy has enabled the same-origin `/api/search` marlin proxy
- * (token injected server-side by nginx). The client then uses `/api/search`
- * with no token in the browser. Absent config.js (native app) → false. */
+/** True when the deploy enabled the same-origin `/api/search` marlin proxy
+ * (token injected server-side by nginx). Absent config.js (native) → false. */
 export function marlinProxyEnabled(): boolean {
-  return window.__CADENCE_CONFIG__?.marlinProxy === true;
+  return configFlag('marlinProxy');
 }
 
-/** True when the deploy has enabled the same-origin `/api/lidarr/*` proxy (API
- * key injected server-side). Gates the "request missing music" feature — the
- * Requests UI only shows when this is on. Absent config.js (native app) → false. */
+/** True when the Lidarr proxy is available (nginx `/api/lidarr/*` OR the
+ * CadenceConfig plugin). Gates the "request missing music" UI. */
 export function lidarrProxyEnabled(): boolean {
-  return window.__CADENCE_CONFIG__?.lidarrProxy === true;
+  return configFlag('lidarrProxy');
+}
+
+/** True when the Lidarr proxy is the CadenceConfig Jellyfin plugin
+ * (`/Cadence/Lidarr/*`) not nginx — the native-iOS path. See lidarrTransport. */
+export function lidarrPluginProxyEnabled(): boolean {
+  return configFlag('lidarrPluginProxy');
 }

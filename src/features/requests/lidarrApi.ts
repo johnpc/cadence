@@ -1,7 +1,12 @@
-/** Client for the same-origin Lidarr proxy (/api/lidarr/*). The proxy injects
- * the write-capable API key server-side, so nothing here carries a credential.
- * Only the allowlisted endpoints are reachable (search / profiles / rootfolder /
+/** Client for the Lidarr proxy. Two transports, both injecting the write-capable
+ * API key SERVER-SIDE so nothing here carries a credential:
+ *  - the serving nginx's same-origin `/api/lidarr/*` (web/PWA), OR
+ *  - the CadenceConfig Jellyfin plugin's `/Cadence/Lidarr/*` (works on native
+ *    iOS, which has no nginx) — reached via jellyfinFetch so the Jellyfin auth
+ *    header rides along.
+ * Only allowlisted endpoints are reachable (search / profiles / rootfolder /
  * queue / artist). Used by the Requests screen to find + request missing music. */
+import { lidarrFetch, lidarrPost } from './lidarrTransport';
 import type {
   LidarrSearchResult,
   LidarrArtist,
@@ -9,16 +14,12 @@ import type {
   LidarrAddDefaults,
 } from './lidarrTypes';
 
-/** Same-origin Lidarr proxy base (see deploy/runtime-config.sh). */
-export const LIDARR_BASE = '/api/lidarr';
-
 export async function lidarrGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${LIDARR_BASE}${path}`);
+  const res = await lidarrFetch(path);
   if (!res.ok) throw new Error(`lidarr ${path} failed: ${res.status}`);
   return (await res.json()) as T;
 }
 
-const BASE = LIDARR_BASE;
 const get = lidarrGet;
 
 /** Search MusicBrainz (via Lidarr) for artists/albums — things not yet in the
@@ -68,11 +69,7 @@ export async function requestArtist(
     ...defaults,
     addOptions: { searchForMissingAlbums: true, monitor: 'all' },
   };
-  const res = await fetch(`${BASE}/artist`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  const res = await lidarrPost('/artist', body);
   if (res.ok) return (await res.json()) as LidarrArtist;
   // Lidarr 400s a duplicate with an ArtistExistsValidator error — that's not a
   // failure, the artist is already in the library. Surface it as such so the row
