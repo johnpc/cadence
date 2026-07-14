@@ -1,5 +1,6 @@
 import { IonRouterOutlet, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
-import { home, search, library } from 'ionicons/icons';
+import { home, search, library, addCircleOutline } from 'ionicons/icons';
+import { lidarrProxyEnabled } from './lib/runtimeConfig';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import { NowPlayingAnnouncer } from './features/player/NowPlayingAnnouncer';
 import { DesktopSidebar } from './features/library/DesktopSidebar';
@@ -23,6 +24,9 @@ export function AppTabs() {
   const { helpOpen, setHelpOpen } = useShellChrome();
   // Re-tapping the active tab scrolls that view to the top (iOS/Spotify).
   const retap = useScrollToTopOnRetap();
+  // The Requests tab only appears where the Lidarr proxy is deployed (web); it
+  // can't function without it (e.g. native has no config.js → hidden there).
+  const canRequest = lidarrProxyEnabled();
   return (
     <>
       <OfflineBanner />
@@ -47,6 +51,12 @@ export function AppTabs() {
             <IonIcon aria-hidden="true" icon={library} />
             <IonLabel>Your Library</IonLabel>
           </IonTabButton>
+          {canRequest && (
+            <IonTabButton tab="requests" href="/requests" onClick={retap('/requests')}>
+              <IonIcon aria-hidden="true" icon={addCircleOutline} />
+              <IonLabel>Requests</IonLabel>
+            </IonTabButton>
+          )}
         </IonTabBar>
       </IonTabs>
     </>

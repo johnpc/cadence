@@ -13,8 +13,8 @@ export interface AuthResult {
 export interface JellyfinUser {
   Id: string;
   Name: string;
-  /** The user's permissions; `Policy.IsAdministrator` gates admin-only features
-   * like requesting music (which writes to the shared library). */
+  /** The user's permissions (`IsAdministrator`), as Jellyfin returns them on
+   * `/Users/Me`. Modelled for completeness; no feature currently gates on it. */
   Policy?: { IsAdministrator?: boolean };
 }
 

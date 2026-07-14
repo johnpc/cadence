@@ -16,10 +16,11 @@ import { useMusicRequests } from './useMusicRequests';
 import './requests.css';
 
 /** "Request music" — search MusicBrainz (via Lidarr) for artists not in the
- * library and request them; Lidarr downloads them into the shared library, after
- * which they appear in normal search/Home. Admin-gated + only routed when the
- * Lidarr proxy is configured (see AppRoutes). A `?q=` param (from Search's
- * "request this" bridge) pre-fills the search. */
+ * library and request them; requesting an artist monitors their whole
+ * discography and downloads it into the shared library, after which it appears
+ * in normal search/Home. Open to any signed-in user; only routed when the Lidarr
+ * proxy is configured (see AppRoutes). A `?q=` param (from Search's "request
+ * this" bridge) pre-fills the search. */
 export function Requests() {
   const initialQuery = new URLSearchParams(useLocation().search).get('q') ?? '';
   const { query, setQuery, results, isSearching, isError, status, request, inLibrary } =
@@ -45,8 +46,11 @@ export function Requests() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <h1 className="cad-sr-only">Request music</h1>
         <p className="cad-meta requests__hint">
-          Can’t find something? Search for an artist and request it — it’ll be added to the library.
+          Looking for music that’s not (yet) on the server? Search for an artist and request them —
+          their whole discography is monitored and downloaded into the shared library, and it’ll
+          show up in search and Home shortly.
         </p>
         <DownloadQueue />
         <div data-testid="requests">
