@@ -3,17 +3,24 @@ import { play } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { TrackArt } from '../player/TrackArt';
 import { Shelf } from './Shelf';
-import { buildDailyMixes } from './dailyMix';
+import { buildDailyMixes, artistsFromTracks } from './dailyMix';
 import { usePlayItem } from '../player/usePlayItem';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** "Made for you" — personalised mix cards seeded from followed artists. The
- * card body opens the seed artist's page; the play FAB starts that artist's
- * instant-mix radio. Renders nothing until the user follows ≥1 artist. */
-export function DailyMixShelf({ artists }: { artists: JellyfinItem[] }) {
+/** "Made for you" — personalised mix cards seeded from the artists you follow
+ * AND the artists in what you've been playing, so it's alive even before you
+ * curate. The card body opens the seed artist's page; the play FAB starts that
+ * artist's instant-mix radio. Renders nothing only when there's no signal yet. */
+export function DailyMixShelf({
+  artists,
+  recentTracks = [],
+}: {
+  artists: JellyfinItem[];
+  recentTracks?: JellyfinItem[];
+}) {
   const playItem = usePlayItem();
   const history = useHistory();
-  const mixes = buildDailyMixes(artists);
+  const mixes = buildDailyMixes(artists, artistsFromTracks(recentTracks));
   if (mixes.length === 0) return null;
   return (
     <Shelf
