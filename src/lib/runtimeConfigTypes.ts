@@ -44,5 +44,8 @@ export interface RuntimeConfig {
 declare global {
   interface Window {
     __CADENCE_CONFIG__?: RuntimeConfig;
+    /** Set by the e2e harness (before app boot) to disable Ionic route/gesture
+     * animations, so transitions are instant and deterministic under test. */
+    __CADENCE_E2E__?: boolean;
   }
 }

@@ -69,6 +69,10 @@ export async function searchUntilResults(
 ): Promise<void> {
   const input = page.getByTestId('search-input').locator('input');
   const result = page.getByTestId(sectionTestId).getByTestId(resultTestId).first();
+  // The Search page's input mounts a beat after navigation lands (the route is
+  // set but the view is still rendering) — wait for it before filling, or the
+  // first fill() races an absent element and times out.
+  await expect(input).toBeVisible({ timeout: DATA_WAIT });
   for (let attempt = 0; attempt < 3; attempt++) {
     await input.fill('');
     await input.fill(term);
@@ -104,6 +108,10 @@ Before(async ({ page }) => {
   await page.addInitScript(
     ([key, id]) => {
       if (!localStorage.getItem(key)) localStorage.setItem(key, id);
+      // Disable Ionic route/gesture animations for deterministic transitions —
+      // App.tsx reads this before setupIonicReact(). Instant transitions remove
+      // the window where Ionic drops nav clicks / keeps a stale hidden page.
+      (window as unknown as { __CADENCE_E2E__?: boolean }).__CADENCE_E2E__ = true;
     },
     [DEVICE_KEY, E2E_DEVICE_ID],
   );
