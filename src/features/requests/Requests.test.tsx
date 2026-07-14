@@ -42,4 +42,11 @@ describe('Requests', () => {
     typeSearch('zznope');
     await waitFor(() => expect(screen.getByTestId('load-empty')).toBeInTheDocument());
   });
+
+  it('pre-fills the search from a ?q= param (the Search "request this" bridge)', async () => {
+    vi.mocked(searchArtists).mockResolvedValue([artist]);
+    renderWithProviders(<Requests />, { route: '/requests?q=radiohead' });
+    await waitFor(() => expect(searchArtists).toHaveBeenCalledWith('radiohead'));
+    expect(await screen.findByText('Radiohead')).toBeInTheDocument();
+  });
 });

@@ -11,8 +11,8 @@ export type RequestStatus = 'idle' | 'requesting' | 'requested' | 'error';
 /** Drives the Requests screen: a debounced Lidarr artist search + a per-artist
  * "request" action that adds the artist to Lidarr (monitored + search). Request
  * status is tracked per foreignArtistId so each row shows its own state. */
-export function useMusicRequests() {
-  const [query, setQuery] = useState('');
+export function useMusicRequests(initialQuery = '') {
+  const [query, setQuery] = useState(initialQuery);
   const debounced = useDebounced(query, 400);
   const toast = useToast();
   const [status, setStatus] = useState<Record<string, RequestStatus>>({});
