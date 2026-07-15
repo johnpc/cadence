@@ -12,7 +12,13 @@ When('I open an artist that has popular tracks', async ({ page }) => {
   await searchUntilResults(page, 'love', 'search-artists', 'result-row');
   const row = page.getByTestId('search-artists').getByTestId('result-row').first();
   await expect(row).toBeVisible({ timeout: DATA_WAIT });
-  await row.click();
+  // Click-and-VERIFY: an Ionic route push from a result row can be dropped,
+  // leaving the test on Search so the artist-page assertion times out — re-issue
+  // until /artist/ lands.
+  await expect(async () => {
+    await row.click().catch(() => undefined);
+    await expect(page).toHaveURL(/\/artist\//, { timeout: 3_000 });
+  }).toPass({ timeout: DATA_WAIT });
   await expect(page.getByTestId('artist-see-all')).toBeVisible({ timeout: DATA_WAIT });
 });
 

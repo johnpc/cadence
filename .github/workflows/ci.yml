@@ -209,7 +209,15 @@ jobs:
           # user, or AuthenticateByName 401s (the visibility-scenario failure).
           TEST_PASSWORD_2: ${{ matrix.area.name == 'playlists' && secrets.TEST_PASSWORD || secrets.TEST_PASSWORD_2 }}
         with:
-          timeout_minutes: 15
+          # Wall-clock per attempt. Sized for the LARGEST area (playback: 12
+          # scenarios, each signing in + streaming real audio, run serially within
+          # the area with Playwright retries:2). Under shared-Jellyfin contention a
+          # few scenarios burn their retries, and 12 × up-to-3 attempts × ~60-100s
+          # overran the old 15 min mid-suite (a raw "Timeout of 900000ms" kill, not
+          # a test failure). 25 min gives that retry stack room to finish green
+          # without weakening anything or capping matrix parallelism (areas still
+          # run fully concurrently).
+          timeout_minutes: 25
           max_attempts: 2
           retry_wait_seconds: 30
           # Re-warm the tunnel/auth INSIDE the retry command so attempt 2 (after

@@ -67,15 +67,16 @@ export async function searchUntilResults(
   sectionTestId: string,
   resultTestId = 'track-row-play',
 ): Promise<void> {
-  const input = page.getByTestId('search-input').locator('input');
   const result = page.getByTestId(sectionTestId).getByTestId(resultTestId).first();
-  // The Search page's input mounts a beat after navigation lands (the route is
-  // set but the view is still rendering) — wait for it before filling, or the
-  // first fill() races an absent element and times out.
-  await expect(input).toBeVisible({ timeout: DATA_WAIT });
   for (let attempt = 0; attempt < 3; attempt++) {
-    await input.fill('');
-    await input.fill(term);
+    // Re-resolve the input EACH attempt: the Search view can re-mount as the route
+    // settles (esp. arriving from another route under contention), which staled a
+    // once-captured handle and made fill() time out. A fresh locator + a bounded
+    // actionability wait, then a single fill, avoids the stale-handle race and the
+    // fill('')→fill(term) two-step that could straddle a re-render.
+    const input = page.getByTestId('search-input').locator('input');
+    await expect(input).toBeVisible({ timeout: DATA_WAIT });
+    await input.fill(term).catch(() => undefined);
     try {
       await expect(result).toBeAttached({ timeout: 20_000 });
       return;
