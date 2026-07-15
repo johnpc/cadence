@@ -3,12 +3,18 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { initTheme } from './features/theme/initTheme';
 import { initInstallPrompt } from './lib/installPrompt';
+import { registerServiceWorker } from './lib/registerServiceWorker';
 
 // Apply the stored palette before first paint so there's no theme flash.
 initTheme();
 
 // Capture the PWA install prompt so Settings can offer an Install button.
 initInstallPrompt();
+
+// Register the PWA service worker — web only; NEVER in the native app (see the
+// function's note: an SW on the Capacitor WKWebView can black-screen after an
+// app update by serving a stale shell).
+registerServiceWorker();
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
