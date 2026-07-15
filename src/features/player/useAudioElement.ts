@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { notifyNativePlaybackStarted } from '../../lib/nativeAudioSession';
+import { log } from '../../lib/diagnostics/diagnosticsStore';
 
 /**
  * Owns one long-lived HTMLAudioElement (survives route/modal changes — a JSX
@@ -36,16 +37,34 @@ export function useAudioElement(onEnded: () => void, onError: () => void = () =>
     const onMeta = () => setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
     const onPlay = () => {
       setIsPlaying(true);
+      log('play', 'audio play', { pos: audio.currentTime.toFixed(1) });
       // Re-assert the native iOS audio session on each real play so background /
       // lock-screen playback survives (no-op on web/Android).
       notifyNativePlaybackStarted();
     };
-    const onPause = () => setIsPlaying(false);
+    const onPause = () => {
+      setIsPlaying(false);
+      // A pause the user didn't ask for is the key symptom to diagnose — capture
+      // the position + whether the track actually ended so it's distinguishable.
+      log('pause', 'audio pause', {
+        pos: audio.currentTime.toFixed(1),
+        ended: String(audio.ended),
+      });
+    };
     const onEnd = () => endedRef.current();
-    const onErr = () => errorRef.current();
+    const onErr = () => {
+      log('error', 'audio error', {
+        code: String(audio.error?.code ?? '?'),
+        src: (audio.src ?? '').slice(0, 80),
+      });
+      errorRef.current();
+    };
     // Buffering/stall: 'waiting' fires when playback halts for data; 'playing'
     // and 'canplay' fire when it has enough to resume. Drives the spinner.
-    const onWaiting = () => setWaiting(true);
+    const onWaiting = () => {
+      setWaiting(true);
+      log('waiting', 'buffering stall', { pos: audio.currentTime.toFixed(1) });
+    };
     const onResumed = () => setWaiting(false);
     audio.addEventListener('timeupdate', onTime);
     audio.addEventListener('loadedmetadata', onMeta);

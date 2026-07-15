@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { log } from '../../lib/diagnostics/diagnosticsStore';
 
 /** The event the native layer dispatches on `window` to nudge the web player to
  * re-assert playback: after an OS audio interruption (Siri, a phone call) ENDS
@@ -23,6 +24,7 @@ export function useAudioInterruptionResume(isPlaying: boolean, resume: () => voi
   intendedRef.current = isPlaying;
   useEffect(() => {
     const onEnded = () => {
+      log('interruption', 'native resume nudge', { intended: String(intendedRef.current) });
       if (intendedRef.current) resume();
     };
     window.addEventListener(AUDIO_INTERRUPTION_ENDED, onEnded);

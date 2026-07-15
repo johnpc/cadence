@@ -25,6 +25,10 @@ class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
     ) {
         guard message.name == "cadenceAudioSession" else { return }
         reassertAudioSession()
+        webView?.evaluateJavaScript(
+            "window.__cadenceNativeLog && window.__cadenceNativeLog('native-session','reasserted')",
+            completionHandler: nil
+        )
     }
 
     private func reassertAudioSession() {

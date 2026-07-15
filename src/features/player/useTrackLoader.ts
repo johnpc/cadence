@@ -4,6 +4,7 @@ import { audioStreamUrl } from '../../lib/jellyfinStream';
 import { isDownloaded, localAudioUrl } from '../downloads/downloadStore';
 import { getCastState, onCastStateChange } from '../cast/castStore';
 import { castTrack } from '../cast/castController';
+import { log } from '../../lib/diagnostics/diagnosticsStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /**
@@ -61,12 +62,21 @@ export function useTrackLoader(
     const start = (src: string) => {
       if (!active || ref.current !== audio) return; // track changed mid-resolve
       audio.src = src;
+      log('track-load', 'set src', { id: currentId, local: String(src.startsWith('blob:')) });
       if (skipAutoPlay.current) {
         skipAutoPlay.current = false;
         return;
       }
       audio.addEventListener('canplay', onCanPlay);
-      void audio.play().catch(() => undefined);
+      void audio.play().catch((e: unknown) => {
+        // Swallowed so a rejected play never surfaces (the canplay listener above
+        // retries it), but LOG it — a rejected play (e.g. WKWebView "interrupted by
+        // a new load request") is exactly why "songs are tricky to start".
+        log('play-rejected', 'play() rejected', {
+          id: currentId,
+          reason: e instanceof Error ? e.name : 'unknown',
+        });
+      });
     };
     if (isDownloaded(currentId)) {
       void localAudioUrl(currentId).then((url) => start(url ?? audioStreamUrl(currentId)));
