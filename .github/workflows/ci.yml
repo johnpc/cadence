@@ -162,10 +162,13 @@ jobs:
       # library/home scenarios need that owned content, which the
       # playlist-ownership fix (own-only Your Library) otherwise leaves empty on
       # a fresh user. Idempotent; never fails the job.
-      - name: Seed cadence-test owned content
+      - name: Seed owned content for this area's user
         env:
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
-          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          # Seed the SAME user this area runs as (dedicated users own no content
+          # until seeded) — so 'open the first playlist' / followed-artist
+          # scenarios have their fixtures regardless of which user the area uses.
+          TEST_USERNAME: ${{ (matrix.area.name == 'downloads' && secrets.TEST_USERNAME_DL) || (matrix.area.name == 'playlists' && secrets.TEST_USERNAME_VIS) || secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: bash scripts/seed-e2e-user.sh
 
@@ -181,7 +184,12 @@ jobs:
           # The server URL is NOT in committed source — Vite reads it from this
           # secret at dev-server start (webServer in playwright.config.ts).
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
-          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          # DEDICATED test user per WRITE-heavy area so concurrent matrix shards
+          # don't contend on ONE user's mutable server state (playlists/downloads
+          # created+deleted by one area churned the library list another area was
+          # reading — the two consistently-failing areas at full parallelism). The
+          # read-only areas keep the shared cadence-test user. Password is shared.
+          TEST_USERNAME: ${{ (matrix.area.name == 'downloads' && secrets.TEST_USERNAME_DL) || (matrix.area.name == 'playlists' && secrets.TEST_USERNAME_VIS) || secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           # A DISTINCT Jellyfin DeviceId PER AREA. Jellyfin keys a playback session
           # per (user, DeviceId); all areas sign in as the same cadence-test user,
@@ -192,7 +200,10 @@ jobs:
           # reuse it (no session pile-up). See app-shell.steps.ts.
           E2E_DEVICE_ID: cadence-e2e-${{ matrix.area.name }}
           # Second user — cross-user playlist-visibility scenario (playlists area).
-          TEST_USERNAME_2: ${{ secrets.TEST_USERNAME_2 }}
+          # Playlists uses its OWN pair (vis + vis2) so the visibility test's
+          # public/private toggling can't collide with the shared users other
+          # concurrent areas read. Password shared.
+          TEST_USERNAME_2: ${{ matrix.area.name == 'playlists' && secrets.TEST_USERNAME_VIS2 || secrets.TEST_USERNAME_2 }}
           TEST_PASSWORD_2: ${{ secrets.TEST_PASSWORD_2 }}
         with:
           timeout_minutes: 15
