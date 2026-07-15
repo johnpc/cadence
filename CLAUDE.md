@@ -172,6 +172,19 @@ npm run gen:icons      # regenerate app icons from assets/icon*.png (add --nativ
 - **e2e test user:** a dedicated Jellyfin `cadence-test` user (creds in `.env.local` /
   CI secrets `TEST_USERNAME` / `TEST_PASSWORD`).
 - **CI:** `.github/workflows/ci.yml` — `quality` + `acceptance` matrix (one area per feature). No AWS.
+- **Diagnostics (opt-in playback logging):** off by default; **Settings → Diagnostics** turns on an
+  on-device ring buffer of player events (`src/lib/diagnostics/`), with a separate opt-in **Upload**
+  to a serverless backend. Logs come from BOTH the JS player (`log()` in diagnosticsStore) and the iOS
+  native audio layer (AppDelegate/MainViewController → `window.__cadenceNativeLog`, tagged
+  `source: ios`). Backend = private `johnpc/cadence-logs` CDK repo (API Gateway → Lambda → S3,
+  account 566092841021, `us-west-2`). Ingest URL + non-secret key are baked in at build via
+  `VITE_DIAGNOSTICS_URL`/`VITE_DIAGNOSTICS_KEY` (GitHub secrets, injected in **both** ios-deploy.yml's
+  build step AND docker-publish.yml's build-args — the native app has no runtime config, so it needs
+  them at build). **Read the logs** (`AWS_PROFILE=personal AWS_REGION=us-west-2`): find the bucket via
+  `aws cloudformation describe-stacks --stack-name CadenceLogsStack --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text`,
+  then `aws s3 ls s3://$B/device/` and `aws s3 cp s3://$B/device/<id>/<date>/ ./logs/ --recursive`;
+  each line is enriched JSON (`platform`, `category`, `message`, `fields`, …). Full runbook in README
+  "Diagnostics & telemetry".
 
 ## Gotchas learned the hard way
 

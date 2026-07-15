@@ -42,7 +42,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let info = notification.userInfo,
             let raw = info[AVAudioSessionInterruptionTypeKey] as? UInt,
             AVAudioSession.InterruptionType(rawValue: raw) == .ended
-        else { return }
+        else {
+            nativeLog("interruption", "began")
+            return
+        }
+        nativeLog("interruption", "ended")
         let shouldResume: Bool
         if let optsRaw = info[AVAudioSessionInterruptionOptionKey] as? UInt {
             shouldResume = AVAudioSession.InterruptionOptions(rawValue: optsRaw).contains(.shouldResume)
@@ -69,6 +73,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
+    // Record a native-side event into the web diagnostics log (opt-in on the JS
+    // side; a no-op when the global isn't installed). Keeps native audio-session
+    // events in the same timeline as the JS player events for diagnosis.
+    func nativeLog(_ category: String, _ message: String) {
+        DispatchQueue.main.async {
+            let vc = self.window?.rootViewController as? CAPBridgeViewController
+            let c = category.replacingOccurrences(of: "'", with: "")
+            let m = message.replacingOccurrences(of: "'", with: "")
+            vc?.webView?.evaluateJavaScript(
+                "window.__cadenceNativeLog && window.__cadenceNativeLog('\(c)','\(m)')",
+                completionHandler: nil
+            )
+        }
+    }
+
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
@@ -88,6 +107,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // (common with Siri in a WKWebView): re-assert playback on foreground.
         // The web side ignores this unless it still intends to be playing.
         try? AVAudioSession.sharedInstance().setActive(true)
+        nativeLog("foreground", "re-assert session")
         nudgeWebPlayerToResume()
     }
 

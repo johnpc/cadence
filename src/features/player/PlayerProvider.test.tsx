@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../lib/jellyfinPlayback', () => ({
@@ -96,7 +96,8 @@ describe('PlayerProvider', () => {
     );
     await userEvent.click(screen.getByText('play'));
     expect(screen.getByTestId('current')).toHaveTextContent('Song a');
-    expect(audio.src).toContain('/Audio/a/universal');
+    // src resolution is async (resolveTrackSrc) — wait for it to land.
+    await waitFor(() => expect(audio.src).toContain('/Audio/a/universal'));
     expect(screen.getByTestId('playing')).toHaveTextContent('true');
   });
 
@@ -109,7 +110,7 @@ describe('PlayerProvider', () => {
     await userEvent.click(screen.getByText('play'));
     act(() => audio.fire('ended'));
     expect(screen.getByTestId('current')).toHaveTextContent('Song b');
-    expect(audio.src).toContain('/Audio/b/universal');
+    await waitFor(() => expect(audio.src).toContain('/Audio/b/universal'));
   });
 
   it('skips to the next track when the current one fails to load', async () => {

@@ -16,6 +16,11 @@ initInstallPrompt();
 // app update by serving a stale shell).
 registerServiceWorker();
 
+// Diagnostics wiring is not needed for first paint — load it in its own chunk
+// after boot so it stays out of the entry bundle. Sets up the opt-in uploader
+// (inert unless enabled + configured) and the iOS native→JS log bridge.
+void import('./lib/diagnostics/initDiagnostics').then((m) => m.initDiagnostics());
+
 const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(

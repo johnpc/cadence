@@ -42,8 +42,15 @@ jobs:
       - run: npm ci
 
       # The Jellyfin base URL is a build-time constant committed in .env, so
-      # there's no backend config to pull — just build and sync.
+      # there's no backend config to pull — just build and sync. The diagnostics
+      # ingest URL + key MUST be injected here (Vite bakes them into the bundle at
+      # build time) — the native app has no runtime config.js, so without these the
+      # iOS build would have no upload endpoint. They're a non-secret throttling
+      # key; opt-in gates whether anything is ever sent (see diagnosticsUploader).
       - name: Build web and sync to Capacitor iOS
+        env:
+          VITE_DIAGNOSTICS_URL: ${{ secrets.VITE_DIAGNOSTICS_URL }}
+          VITE_DIAGNOSTICS_KEY: ${{ secrets.VITE_DIAGNOSTICS_KEY }}
         run: |
           npm run build
           npx cap sync ios

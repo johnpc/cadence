@@ -1,9 +1,8 @@
 import { useEffect, useRef, type RefObject } from 'react';
 import { useSyncExternalStore } from 'react';
-import { audioStreamUrl } from '../../lib/jellyfinStream';
-import { isDownloaded, localAudioUrl } from '../downloads/downloadStore';
 import { getCastState, onCastStateChange } from '../cast/castStore';
 import { castTrack } from '../cast/castController';
+import { startPlayback, resolveTrackSrc } from './startPlayback';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /**
@@ -49,33 +48,17 @@ export function useTrackLoader(
       wasCasting.current = false;
       skipAutoPlay.current = false;
     }
-    // iOS/WKWebView can reject the play() that immediately follows a src change
-    // with "interrupted by a new load request" (the element is still loading),
-    // which the .catch swallowed — the track silently never started (the "songs
-    // are tricky to start" symptom). Retry once when the element signals canplay.
-    const onCanPlay = () => {
-      if (active && ref.current === audio && audio.paused) {
-        void audio.play().catch(() => undefined);
-      }
-    };
-    const start = (src: string) => {
-      if (!active || ref.current !== audio) return; // track changed mid-resolve
-      audio.src = src;
-      if (skipAutoPlay.current) {
-        skipAutoPlay.current = false;
-        return;
-      }
-      audio.addEventListener('canplay', onCanPlay);
-      void audio.play().catch(() => undefined);
-    };
-    if (isDownloaded(currentId)) {
-      void localAudioUrl(currentId).then((url) => start(url ?? audioStreamUrl(currentId)));
-    } else {
-      start(audioStreamUrl(currentId));
-    }
+    // Resolve the src (local blob or stream) then play with the iOS-reliable
+    // canplay retry + diagnostics — both extracted (startPlayback/resolveTrackSrc)
+    // so this effect stays simple. `cleanup` removes the canplay listener on change.
+    let cleanup = () => {};
+    const isActive = () => active && ref.current === audio;
+    void resolveTrackSrc(currentId).then((src) => {
+      cleanup = startPlayback(audio, src, currentId, isActive, skipAutoPlay);
+    });
     return () => {
       active = false;
-      audio.removeEventListener('canplay', onCanPlay);
+      cleanup();
     };
   }, [currentId, current, ref, casting]);
 }

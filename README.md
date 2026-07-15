@@ -167,3 +167,47 @@ npm run gen:icons      # regenerate app icons from assets/icon*.png
 ```
 
 The Jellyfin base URL is a build-time constant (`VITE_JELLYFIN_URL`, defaulted in `.env`).
+
+## Diagnostics & telemetry (opt-in)
+
+Cadence can capture a **structured, on-device log** of playback events (track load,
+play/pause — including unexpected pauses, buffering stalls, rejected `play()`
+calls, audio-session re-asserts + interruptions on iOS, stream errors). It's **off
+by default**; enable it under **Settings → Diagnostics**. Captured events are
+viewable there and **Copy**-able to share — nothing leaves the device unless you
+turn on the separate **Upload diagnostics** toggle.
+
+Logs come from **both** layers: the JS player (`platform: web`, or `ios` inside the
+Capacitor app) and the iOS native audio session (via `window.__cadenceNativeLog`,
+tagged `source: ios`) — so a native interruption and the web player's reaction sit
+in one timeline.
+
+When **Upload** is on, batches POST to a small serverless backend (API Gateway →
+Lambda → S3), attributed by a random, anonymous per-install id + per-launch session
+id. No account, no personal data. The ingest URL + a non-secret throttling key are
+baked in at build time (`VITE_DIAGNOSTICS_URL` / `VITE_DIAGNOSTICS_KEY`, injected in
+CI); the configured URL is shown in Settings so you can confirm it's present.
+
+- **Backend infra:** the private [`johnpc/cadence-logs`](https://github.com/johnpc/cadence-logs) repo (CDK).
+- **Region:** `us-west-2`. **Retention:** objects auto-expire after 90 days.
+- **Storage layout:** one NDJSON object per batch, keyed
+  `device/<deviceId>/<YYYY-MM-DD>/<receivedAt>-<sessionId>.json`.
+
+### Reading the logs (maintainers)
+
+```bash
+export AWS_PROFILE=personal AWS_REGION=us-west-2
+B=$(aws cloudformation describe-stacks --stack-name CadenceLogsStack \
+  --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)
+
+aws s3 ls s3://$B/device/                              # which installs reported
+aws s3 ls s3://$B/device/<deviceId>/ --recursive       # everything a device sent
+aws s3 cp s3://$B/device/<deviceId>/2026-07-15/ ./logs/ --recursive
+cat ./logs/*.json | jq -c 'select(.category=="pause")' # e.g. every pause event
+cat ./logs/*.json | jq -c 'select(.platform=="ios")'   # native-side records
+```
+
+Each line is a fully-enriched record: `deviceId, sessionId, appVersion, platform,
+receivedAt, ts, category, message, fields`. Deploy/update the backend with
+`cd ~/repo/cadence-logs && npm run deploy`; rotate/read the ingest key from
+API Gateway (`aws apigateway get-api-key --api-key <id> --include-value`).

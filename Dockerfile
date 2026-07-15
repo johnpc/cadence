@@ -22,6 +22,12 @@ COPY . .
 # URL as this build-arg to prefill the field for cadence.jpc.io users.
 ARG VITE_JELLYFIN_URL=
 ENV VITE_JELLYFIN_URL=$VITE_JELLYFIN_URL
+# Opt-in diagnostics ingest (baked in at build; non-secret throttling key). Unset
+# → the web build simply has no upload option (on-device diagnostics still work).
+ARG VITE_DIAGNOSTICS_URL=
+ENV VITE_DIAGNOSTICS_URL=$VITE_DIAGNOSTICS_URL
+ARG VITE_DIAGNOSTICS_KEY=
+ENV VITE_DIAGNOSTICS_KEY=$VITE_DIAGNOSTICS_KEY
 RUN npm run build
 
 FROM nginx:alpine

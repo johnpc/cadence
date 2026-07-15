@@ -54,7 +54,11 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # No VITE_JELLYFIN_URL → a generic image; users pick their server at login.
+          # Diagnostics ingest baked in so the web build has an upload endpoint too
+          # (opt-in; non-secret throttling key).
           build-args: |
             VITE_JELLYFIN_URL=
+            VITE_DIAGNOSTICS_URL=${{ secrets.VITE_DIAGNOSTICS_URL }}
+            VITE_DIAGNOSTICS_KEY=${{ secrets.VITE_DIAGNOSTICS_KEY }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
