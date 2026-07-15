@@ -2,13 +2,18 @@ import { useCallback, type RefObject } from 'react';
 import { tap } from '../../lib/haptics';
 import { getCastState } from '../cast/castStore';
 import { castToggle, castSeek } from '../cast/castController';
+import { log } from '../../lib/diagnostics/diagnosticsStore';
 
 /**
  * Transport actions bound to the audio element: toggle (play/pause), seek, and
  * an explicit pause. Extracted from PlayerProvider to keep it thin. When casting
  * to a TV, toggle/seek proxy to the receiver instead of the local element.
  */
-export function usePlaybackControls(ref: RefObject<HTMLAudioElement | null>, hasQueue: boolean) {
+export function usePlaybackControls(
+  ref: RefObject<HTMLAudioElement | null>,
+  hasQueue: boolean,
+  isPlaying: boolean,
+) {
   const toggle = useCallback(() => {
     if (!hasQueue) return;
     tap();
@@ -18,9 +23,22 @@ export function usePlaybackControls(ref: RefObject<HTMLAudioElement | null>, has
     }
     const audio = ref.current;
     if (!audio) return;
-    if (audio.paused) void audio.play().catch(() => undefined);
-    else audio.pause();
-  }, [ref, hasQueue]);
+    // Decide from isPlaying (what the button SHOWS), not audio.paused. On iOS a
+    // background/interruption leaves audio.paused === false with no 'pause' event,
+    // so the two disagree — deciding on audio.paused made the tap do the opposite
+    // of the button (needing two taps to "take"). Acting on the shown state keeps
+    // one tap = the transition the user expects.
+    log('toggle', 'user toggle', { wasPlaying: String(isPlaying), paused: String(audio.paused) });
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      void audio.play().catch((e: unknown) => {
+        log('play-rejected', 'toggle play() rejected', {
+          reason: e instanceof Error ? e.name : 'unknown',
+        });
+      });
+    }
+  }, [ref, hasQueue, isPlaying]);
 
   const seek = useCallback(
     (seconds: number) => {

@@ -7,11 +7,13 @@ import {
   clearDiagnostics,
   onDiagnosticsChange,
   addDiagnosticsSink,
+  setLogContext,
 } from './diagnosticsStore';
 
 beforeEach(() => {
   localStorage.clear();
   clearDiagnostics();
+  setLogContext({});
 });
 
 afterEach(() => {
@@ -62,6 +64,18 @@ describe('diagnosticsStore', () => {
     clearDiagnostics();
     expect(cb).toHaveBeenCalledTimes(3);
     off();
+  });
+
+  it('merges ambient context into every entry (per-event fields win)', () => {
+    setDiagnosticsEnabled(true);
+    setLogContext({ platform: 'ios', trackId: 't1', title: 'Song A' });
+    log('play', 'started', {}, 1);
+    log('pause', 'user', { trackId: 'override' }, 2);
+    const [a, b] = diagnosticsEntries();
+    expect(a.fields).toMatchObject({ platform: 'ios', trackId: 't1', title: 'Song A' });
+    // Explicit per-event field overrides the ambient one.
+    expect(b.fields.trackId).toBe('override');
+    expect(b.fields.title).toBe('Song A');
   });
 
   it('feeds new entries to sinks, and a throwing sink never breaks logging', () => {
