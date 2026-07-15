@@ -97,6 +97,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Mark that we actually left the foreground, so the next didBecomeActive
         // nudges resume only after a real background trip (see the guard there).
         wasBackgrounded = true
+        // Log it so a lock-screen/background test is legible end-to-end in the
+        // diagnostics: 'background entered' → progress heartbeats should KEEP
+        // ticking while backgrounded (audio survives) → 'resume after background'
+        // on return. If the heartbeats stop right after this, background audio is
+        // still being suspended and we know exactly where to look.
+        nativeLog("background", "entered")
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
