@@ -18,3 +18,11 @@ Feature: Import a Deezer playlist
     When I open the Library tab
     And I open Import from Deezer
     Then I see a link explaining how to move a Spotify playlist to Deezer
+
+  Scenario: A Deezer-imported playlist shows its missing artists persistently
+    Given I am signed in
+    When I open the Library tab
+    And I open Import from Deezer
+    And I paste a public Deezer playlist and import it
+    And I open the imported playlist
+    Then the playlist page lists artists I can still request
