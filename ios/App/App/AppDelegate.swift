@@ -94,26 +94,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        // Mark that we actually left the foreground, so the next didBecomeActive
+        // nudges resume only after a real background trip (see the guard there).
+        wasBackgrounded = true
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
     }
 
+    // True only between entering the background and the next foreground, so the
+    // foreground handler nudges resume ONLY after an actual background trip — not
+    // on every didBecomeActive (which also fires for in-app returns, e.g. after a
+    // Control Center peek). Nudging on every activation, plus setActive(true) then,
+    // itself paused playback → the "click play twice" behaviour.
+    private var wasBackgrounded = false
+
     func applicationDidBecomeActiveResume() {
-        // Safety net for interruptions whose `.ended` notification never arrives
-        // (common with Siri in a WKWebView): re-assert playback on foreground.
-        // The web side ignores this unless it still intends to be playing.
-        try? AVAudioSession.sharedInstance().setActive(true)
-        nativeLog("foreground", "re-assert session")
+        guard wasBackgrounded else { return }
+        wasBackgrounded = false
+        // Do NOT setActive(true) here — device logs showed it fires an
+        // AVAudioSession interruption that pauses the WKWebView's <audio>. Just ask
+        // the web player to resume; it no-ops unless it still intends to play.
+        nativeLog("foreground", "resume after background")
         nudgeWebPlayerToResume()
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         applicationDidBecomeActiveResume()
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
