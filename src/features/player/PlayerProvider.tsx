@@ -17,6 +17,7 @@ import { useToast } from '../toast/useToast';
 import { useEffectiveProgress } from '../cast/useEffectiveProgress';
 import { useSmartPrev } from './useSmartPrev';
 import { useAudioInterruptionResume } from './useAudioInterruptionResume';
+import { useDiagnosticsContext } from './useDiagnosticsContext';
 import * as q from './queue';
 
 /** Holds the play queue + the one audio element, exposing player controls. */
@@ -41,9 +42,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   useTrackLoader(ref, current ?? undefined);
 
   const hasQueue = qh.queue.tracks.length > 0;
-  const { toggle, seek, seekBy, pause, resume } = usePlaybackControls(ref, hasQueue);
+  const { toggle, seek, seekBy, pause, resume } = usePlaybackControls(ref, hasQueue, isPlaying);
   // Recover from an OS audio interruption (Siri / call) if still meant to play.
   useAudioInterruptionResume(isPlaying, resume);
+  // Tag every diagnostic line with the current track + platform (and log changes).
+  useDiagnosticsContext(current);
 
   // Smart "previous": restart mid-track, else go to the prior track.
   const qc = { ...qh, prev: useSmartPrev(ref, seek, qh.prev) };

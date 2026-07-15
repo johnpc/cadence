@@ -15,6 +15,17 @@ const buffer: DiagnosticEntry[] = [];
 const changeListeners = new Set<() => void>();
 const sinks = new Set<(e: DiagnosticEntry) => void>();
 
+// Ambient context merged into every log line's fields (per-event fields win) —
+// so every event carries the current track + platform without threading it
+// through each call site. Set by the player as the track/platform change.
+let context: Record<string, string> = {};
+
+/** Merge/replace ambient fields present on every subsequent log line (e.g. the
+ * current track title/artist/id). Pass {} to clear. */
+export function setLogContext(next: Record<string, string>): void {
+  context = { ...next };
+}
+
 // A cached immutable snapshot of the buffer. useSyncExternalStore requires
 // getSnapshot to return a STABLE reference between changes (else it loops), so we
 // only rebuild this when the buffer actually mutates.
@@ -43,7 +54,8 @@ export function log(
   now: number = Date.now(),
 ): void {
   if (!diagnosticsEnabled()) return;
-  const entry: DiagnosticEntry = { ts: now, category, message, fields };
+  // Ambient context first so explicit per-event fields override it on conflict.
+  const entry: DiagnosticEntry = { ts: now, category, message, fields: { ...context, ...fields } };
   buffer.push(entry);
   if (buffer.length > MAX_ENTRIES) buffer.shift();
   refreshSnapshot();
