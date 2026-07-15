@@ -3,6 +3,7 @@ import { useSyncExternalStore } from 'react';
 import { getCastState, onCastStateChange } from '../cast/castStore';
 import { castTrack } from '../cast/castController';
 import { startPlayback, resolveTrackSrc } from './startPlayback';
+import { getSession, onSessionChange } from '../../lib/sessionStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /**
@@ -22,11 +23,17 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 export function useTrackLoader(
   ref: RefObject<HTMLAudioElement | null>,
   current?: JellyfinItem,
+  /** Bumped by the error handler to force a re-derive + retry of the same track. */
+  reloadNonce = 0,
 ): void {
   const currentId = current?.Id;
   const skipAutoPlay = useRef(!!currentId);
   // Re-run when casting connects/disconnects so playback hands off to/from the TV.
   const casting = useSyncExternalStore(onCastStateChange, () => getCastState().connected);
+  // Re-run when the session's userId becomes available: a track restored at launch
+  // can load BEFORE the async session is ready, producing a UserId=&api_key= stream
+  // URL that fails (code 4). Re-deriving once the session lands fixes that.
+  const userId = useSyncExternalStore(onSessionChange, () => getSession()?.userId ?? '');
   const wasCasting = useRef(casting);
   useEffect(() => {
     const audio = ref.current;
@@ -60,5 +67,7 @@ export function useTrackLoader(
       active = false;
       cleanup();
     };
-  }, [currentId, current, ref, casting]);
+    // userId: a session restored after an initial (session-less) load re-derives
+    // the URL. reloadNonce: the error handler forces a re-derive + retry.
+  }, [currentId, current, ref, casting, userId, reloadNonce]);
 }

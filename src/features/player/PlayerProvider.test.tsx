@@ -117,15 +117,19 @@ describe('PlayerProvider', () => {
     await waitFor(() => expect(audio.src).toContain('/Audio/b/universal'));
   });
 
-  it('skips to the next track when the current one fails to load', async () => {
+  it('retries the track on the first load error, then skips on the second', async () => {
     render(
       <PlayerProvider>
         <Probe />
       </PlayerProvider>,
     );
     await userEvent.click(screen.getByText('play'));
+    // First error → reload/retry the SAME track (don't lose the user's place).
     act(() => audio.fire('error'));
-    expect(screen.getByTestId('current')).toHaveTextContent('Song b');
+    expect(screen.getByTestId('current')).toHaveTextContent('Song a');
+    // Second error (retry budget spent) → skip to the next track.
+    act(() => audio.fire('error'));
+    await waitFor(() => expect(screen.getByTestId('current')).toHaveTextContent('Song b'));
   });
 
   it('prev restarts the current track when more than a few seconds in', async () => {
