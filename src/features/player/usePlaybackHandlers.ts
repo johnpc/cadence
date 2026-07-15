@@ -24,6 +24,9 @@ export function usePlaybackHandlers(
   audioRef: RefObject<HTMLAudioElement | null>,
   toast: (message: string) => void,
   sleep?: SleepAtTrackEnd,
+  /** Attempt to reload + retry the CURRENT track; returns false when the retry
+   * budget for this track is spent (then we skip). Wired to useTrackReload. */
+  requestReload?: (trackId: string | undefined) => boolean,
 ) {
   const onEnded = useCallback(() => {
     // "Stop after this track" sleep timer: a NATURAL end (not a manual skip)
@@ -48,23 +51,26 @@ export function usePlaybackHandlers(
   }, [qh, audioRef, sleep, toast]);
 
   const onError = useCallback(() => {
-    // Only react to errors during ACTUAL playback. On cold launch the restored
-    // track's src is set while paused (and before the auth token may have
-    // hydrated), which can fire a spurious `error` — surfacing a scary toast and
-    // skipping a track the user never tried to play. If we're paused, ignore it;
-    // the next real play attempt will re-load a valid src.
-    const audio = audioRef.current;
-    if (audio && audio.paused) return;
-    // If there's somewhere to advance, skip past the bad track; otherwise it's
-    // the last one — say so, rather than a "skipping" toast that goes nowhere
-    // and leaves playback looking frozen on a track that never plays.
+    // A track failed to load. First attempt a full RELOAD of the same track: the
+    // usual cause is a stream URL built before the session was ready at launch
+    // (UserId=&api_key= → code 4) or a transient blip — re-deriving the src fixes
+    // it without the user losing their place. requestReload returns false once the
+    // per-track retry budget is spent; only then do we surface it + skip.
+    const track = q.currentTrack(qh.queue);
+    if (requestReload?.(track?.Id)) {
+      toast('Trouble playing that — retrying…');
+      return;
+    }
+    // Retry budget spent. If there's somewhere to advance, skip past the bad
+    // track; otherwise it's the last one — say so rather than a "skipping" toast
+    // that goes nowhere and leaves playback looking frozen.
     if (q.hasNext(qh.queue) || (qh.repeat === 'all' && qh.queue.tracks.length > 1)) {
       toast("Couldn't play that track — skipping.");
       qh.next();
     } else {
       toast("Couldn't play that track.");
     }
-  }, [qh, audioRef, toast]);
+  }, [qh, audioRef, toast, requestReload]);
 
   return { onEnded, onError };
 }
