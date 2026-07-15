@@ -49,6 +49,15 @@ export function useTrackLoader(
       wasCasting.current = false;
       skipAutoPlay.current = false;
     }
+    // iOS/WKWebView can reject the play() that immediately follows a src change
+    // with "interrupted by a new load request" (the element is still loading),
+    // which the .catch swallowed — the track silently never started (the "songs
+    // are tricky to start" symptom). Retry once when the element signals canplay.
+    const onCanPlay = () => {
+      if (active && ref.current === audio && audio.paused) {
+        void audio.play().catch(() => undefined);
+      }
+    };
     const start = (src: string) => {
       if (!active || ref.current !== audio) return; // track changed mid-resolve
       audio.src = src;
@@ -56,6 +65,7 @@ export function useTrackLoader(
         skipAutoPlay.current = false;
         return;
       }
+      audio.addEventListener('canplay', onCanPlay);
       void audio.play().catch(() => undefined);
     };
     if (isDownloaded(currentId)) {
@@ -65,6 +75,7 @@ export function useTrackLoader(
     }
     return () => {
       active = false;
+      audio.removeEventListener('canplay', onCanPlay);
     };
   }, [currentId, current, ref, casting]);
 }

@@ -17,12 +17,23 @@ import { getCastState } from '../cast/castStore';
 import { castTrack } from '../cast/castController';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** A fake audio element exposing just what the loader touches. */
+/** A fake audio element exposing just what the loader touches. Captures canplay
+ * listeners so a test can fire them (the loader retries play() on canplay). */
 function fakeAudio() {
+  const listeners: Record<string, Array<() => void>> = {};
   return {
     src: '',
+    paused: true,
     play: vi.fn().mockResolvedValue(undefined),
     pause: vi.fn(),
+    addEventListener: vi.fn((evt: string, cb: () => void) => {
+      (listeners[evt] ??= []).push(cb);
+    }),
+    removeEventListener: vi.fn((evt: string, cb: () => void) => {
+      listeners[evt] = (listeners[evt] ?? []).filter((f) => f !== cb);
+    }),
+    /** Test helper: fire a captured event's listeners. */
+    __emit: (evt: string) => (listeners[evt] ?? []).forEach((f) => f()),
   } as unknown as HTMLAudioElement;
 }
 
@@ -51,6 +62,21 @@ describe('useTrackLoader', () => {
     // The common (streaming) path is synchronous — no waitFor needed.
     expect(audio.src).toBe('https://jf.test/Audio/t1/universal');
     expect(localAudioUrl).not.toHaveBeenCalled();
+  });
+
+  it('retries play() on canplay if the initial play was interrupted (still paused)', () => {
+    vi.mocked(isDownloaded).mockReturnValue(false);
+    const audio = fakeAudio();
+    // Change TO a new track (not the initial mount, which stays paused like a
+    // session-restore) so the loader autoplays and arms the canplay retry.
+    const { rerender } = renderHook(({ t }) => useLoader(t, audio), {
+      initialProps: { t: track('t1') },
+    });
+    rerender({ t: track('t2') });
+    expect(audio.play).toHaveBeenCalledTimes(1); // the initial play() on change
+    // Element is still paused (iOS rejected the load-racing play) → canplay retries.
+    (audio as unknown as { __emit: (e: string) => void }).__emit('canplay');
+    expect(audio.play).toHaveBeenCalledTimes(2);
   });
 
   it('plays from the local blob URL when the track is downloaded', async () => {
