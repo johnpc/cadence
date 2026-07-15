@@ -39,6 +39,10 @@ export interface RuntimeConfig {
    * fetch (pluginConfigStore) when nginx didn't already enable lidarrProxy — so
    * lidarrApi routes through Jellyfin (works on native iOS, which has no nginx). */
   lidarrPluginProxy?: boolean;
+  /** When true, the CadenceConfig Jellyfin plugin exposes the Deezer playlist
+   * import endpoint (POST /Cadence/Deezer/Import). Set by the plugin-config fetch
+   * (pluginConfigStore); gates the "Import from Deezer" screen. */
+  deezerImport?: boolean;
 }
 
 declare global {

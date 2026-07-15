@@ -51,4 +51,8 @@ export const ArtistTracksPage = lazyPage(
 export const GenreDetail = lazyPage(() => import('./features/genre/GenreDetail'), 'GenreDetail');
 export const History = lazyPage(() => import('./features/home/History'), 'History');
 export const Requests = lazyPage(() => import('./features/requests/Requests'), 'Requests');
+export const DeezerImport = lazyPage(
+  () => import('./features/deezer/DeezerImport'),
+  'DeezerImport',
+);
 export const NotFound = lazyPage(() => import('./features/shell/NotFound'), 'NotFound');

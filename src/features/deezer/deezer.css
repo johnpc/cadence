@@ -1,0 +1,48 @@
+.deezer-intro {
+  margin: 0 0 var(--cad-space-5);
+}
+
+.deezer-form {
+  margin-bottom: var(--cad-space-6);
+}
+
+.deezer-form__input {
+  margin-bottom: var(--cad-space-3);
+  --background: var(--cad-surface-2);
+  --padding-start: var(--cad-space-3);
+  --padding-end: var(--cad-space-3);
+  border-radius: var(--cad-radius-sm);
+}
+
+.deezer-form__hint {
+  margin: var(--cad-space-4) 0 0;
+}
+
+.deezer-form__hint a {
+  color: var(--cad-accent);
+}
+
+.deezer-missing {
+  margin-top: var(--cad-space-6);
+}
+
+.deezer-missing__row {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-2) 0;
+}
+
+.deezer-missing__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deezer-missing__done {
+  color: var(--cad-text-secondary);
+  font-size: 13px;
+  flex: 0 0 auto;
+}

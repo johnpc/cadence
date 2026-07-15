@@ -8,7 +8,9 @@ import './runtimeConfigTypes';
 
 /** A runtime-config boolean flag — true only for an explicit `true` (guards
  * against truthy strings an injected config might carry). */
-function configFlag(key: 'marlinProxy' | 'lidarrProxy' | 'lidarrPluginProxy'): boolean {
+function configFlag(
+  key: 'marlinProxy' | 'lidarrProxy' | 'lidarrPluginProxy' | 'deezerImport',
+): boolean {
   return window.__CADENCE_CONFIG__?.[key] === true;
 }
 
@@ -70,4 +72,10 @@ export function lidarrProxyEnabled(): boolean {
  * (`/Cadence/Lidarr/*`) not nginx — the native-iOS path. See lidarrTransport. */
 export function lidarrPluginProxyEnabled(): boolean {
   return configFlag('lidarrPluginProxy');
+}
+
+/** True when the CadenceConfig plugin exposes the Deezer import endpoint. Gates
+ * the "Import from Deezer" screen (deezerApi calls POST /Cadence/Deezer/Import). */
+export function deezerImportEnabled(): boolean {
+  return configFlag('deezerImport');
 }

@@ -21,6 +21,7 @@ describe('hydratePluginConfig', () => {
       SignupUrl: 'https://signup.example.com',
       CastReceiverAppId: 'ABC123',
       LidarrProxy: true,
+      DeezerImport: true,
     });
     await hydratePluginConfig();
     expect(window.__CADENCE_CONFIG__).toMatchObject({
@@ -29,6 +30,7 @@ describe('hydratePluginConfig', () => {
       castReceiverAppId: 'ABC123',
       lidarrProxy: true,
       lidarrPluginProxy: true,
+      deezerImport: true,
     });
     expect(request).toHaveBeenCalledWith('/Cadence/Config');
   });
@@ -42,12 +44,18 @@ describe('hydratePluginConfig', () => {
     expect(window.__CADENCE_CONFIG__?.lidarrPluginProxy).toBeUndefined();
   });
 
-  it('ignores empty strings and a false LidarrProxy', async () => {
-    request.mockResolvedValue({ MarlinUrl: '  ', SignupUrl: '', LidarrProxy: false });
+  it('ignores empty strings and a false LidarrProxy / DeezerImport', async () => {
+    request.mockResolvedValue({
+      MarlinUrl: '  ',
+      SignupUrl: '',
+      LidarrProxy: false,
+      DeezerImport: false,
+    });
     await hydratePluginConfig();
     expect(window.__CADENCE_CONFIG__?.marlinUrl).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.signupUrl).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.lidarrProxy).toBeUndefined();
+    expect(window.__CADENCE_CONFIG__?.deezerImport).toBeUndefined();
   });
 
   it('swallows a fetch failure (no plugin / offline) and leaves config untouched', async () => {
