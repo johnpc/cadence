@@ -1,9 +1,36 @@
 import { createBdd } from 'playwright-bdd';
 import { DATA_WAIT } from './timeouts';
-import { expect } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { navigate } from './app-shell.steps';
 
 const { When, Then } = createBdd();
+
+/** Wait for the search to SETTLE to a definite state — either the results
+ * container renders, or the empty state does. Under CI's shared-Jellyfin
+ * contention the native search fan-out (Items + Artists + Playlists) can
+ * transiently error, which lands the page in LoadState's error+retry panel
+ * instead; when that happens, tap Retry (a real user's move) and, failing that,
+ * re-type the query to re-issue it — then re-check. This re-firing is exactly
+ * what searchUntilResults does for artist/genre; the plain results steps lacked
+ * it, which is why a single transient fetch error timed out the whole scenario. */
+async function settleSearch(page: Page, term: string): Promise<void> {
+  const input = page.getByTestId('search-input').locator('input');
+  const settled = page.getByTestId('search-results').or(page.getByTestId('load-empty'));
+  await expect(async () => {
+    if (!(await settled.count())) {
+      // Not settled yet: recover from a transient error, then re-issue the query.
+      const retry = page.getByTestId('load-error').getByRole('button', { name: 'Try again' });
+      if (await retry.count())
+        await retry
+          .first()
+          .click()
+          .catch(() => undefined);
+      await input.fill('');
+      await input.fill(term);
+    }
+    await expect(settled.first()).toBeVisible({ timeout: 8_000 });
+  }).toPass({ timeout: DATA_WAIT });
+}
 
 When('I open the Search tab', async ({ page }) => {
   await navigate(page, 'Search');
@@ -11,8 +38,11 @@ When('I open the Search tab', async ({ page }) => {
 });
 
 When('I search for {string}', async ({ page }, term: string) => {
-  // IonSearchbar wraps a native input.
+  // IonSearchbar wraps a native input. Settle to a definite results/empty state
+  // (re-firing on a transient error) so the following assertions never race a
+  // still-loading or transiently-errored search.
   await page.getByTestId('search-input').locator('input').fill(term);
+  await settleSearch(page, term);
 });
 
 When('I press Enter in the search box', async ({ page }) => {
@@ -22,8 +52,8 @@ When('I press Enter in the search box', async ({ page }) => {
 
 Then('I see song results', async ({ page }) => {
   const results = page.getByTestId('search-results');
-  await expect(results.getByText('Songs')).toBeVisible();
-  await expect(results.getByTestId('track-row').first()).toBeVisible();
+  await expect(results.getByText('Songs')).toBeVisible({ timeout: DATA_WAIT });
+  await expect(results.getByTestId('track-row').first()).toBeVisible({ timeout: DATA_WAIT });
 });
 
 When('I tap the first song result', async ({ page }) => {
@@ -32,11 +62,19 @@ When('I tap the first song result', async ({ page }) => {
 
 When('I filter results to {string}', async ({ page }, label: string) => {
   // The filter chips only mount once search RESULTS render (the search screen
-  // shows the idle/empty state otherwise). Typing a query doesn't await results,
-  // and a slow backend can leave the chip absent past the default action
-  // timeout — so wait for it to be visible before clicking rather than racing it.
+  // shows the idle/empty state otherwise). A transient fetch error under
+  // contention replaces the chips with the error panel — recover via Try again,
+  // then click the chip once it's present. Re-fire until the chip is hittable.
   const chip = page.getByTestId(`filter-${label.toLowerCase()}`);
-  await expect(chip).toBeVisible({ timeout: DATA_WAIT });
+  await expect(async () => {
+    const retry = page.getByTestId('load-error').getByRole('button', { name: 'Try again' });
+    if (await retry.count())
+      await retry
+        .first()
+        .click()
+        .catch(() => undefined);
+    await expect(chip).toBeVisible({ timeout: 8_000 });
+  }).toPass({ timeout: DATA_WAIT });
   await chip.click();
 });
 
@@ -74,7 +112,19 @@ When('I open the first playlist result', async ({ page }) => {
 });
 
 Then('I see the no-results state', async ({ page }) => {
-  await expect(page.getByTestId('load-empty')).toBeVisible();
+  // A transient fetch error under contention shows the error panel, not the empty
+  // state — tap Try again until the empty state resolves (the query genuinely has
+  // no matches, so a successful fetch always lands here).
+  const empty = page.getByTestId('load-empty');
+  await expect(async () => {
+    const retry = page.getByTestId('load-error').getByRole('button', { name: 'Try again' });
+    if (await retry.count())
+      await retry
+        .first()
+        .click()
+        .catch(() => undefined);
+    await expect(empty).toBeVisible({ timeout: 8_000 });
+  }).toPass({ timeout: DATA_WAIT });
 });
 
 When('I clear the search box', async ({ page }) => {
