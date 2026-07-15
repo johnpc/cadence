@@ -23,7 +23,14 @@ export default defineConfig({
     // generate one).
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'script',
+      // Register the service worker OURSELVES (see main.tsx) instead of letting the
+      // plugin inject an unconditional script — the SW must NOT run inside the
+      // Capacitor native app (served from capacitor://localhost). There, an
+      // autoUpdate SW that precached the previous build's hashed asset names can,
+      // after the native binary updates to new names, serve a stale index.html
+      // referencing JS chunks that no longer exist → a black screen on launch. So
+      // registration is guarded to web only.
+      injectRegister: null,
       manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff,woff2}'],

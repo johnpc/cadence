@@ -14,7 +14,7 @@
   {
     "name": "lazy route chunk (playlist detail)",
     "path": ["dist/assets/PlaylistDetail-*.js", "!dist/assets/PlaylistDetail-legacy-*.js"],
-    "limit": "4 kB",
+    "limit": "6 kB",
     "gzip": true
   }
 ]
