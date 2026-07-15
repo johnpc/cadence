@@ -34,7 +34,14 @@ import '@ionic/react/css/palettes/dark.class.css';
 import './theme/fonts';
 import './theme/variables.css';
 
-setupIonicReact();
+// Disable Ionic's route/gesture animations ONLY under e2e (the harness sets
+// window.__CADENCE_E2E__ before boot). Ionic keeps the outgoing page mounted and
+// intercepts nav clicks during a transition — a real window that intermittently
+// dropped nav clicks and left a stale hidden page (double testids) for automation.
+// Instant transitions remove that window entirely. Production keeps animations.
+setupIonicReact({
+  animated: !(typeof window !== 'undefined' && window.__CADENCE_E2E__ === true),
+});
 
 const App: React.FC = () => (
   <IonApp>

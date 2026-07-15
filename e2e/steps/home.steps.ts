@@ -71,8 +71,12 @@ Then('I see the play history list', async ({ page }) => {
 });
 
 Then('I see the Recently added shelf with albums', async ({ page }) => {
-  await expect(page.getByTestId('home-greeting')).toBeVisible();
-  await expect(page.getByText('Recently added')).toBeVisible();
+  // Ionic keeps the outgoing page mounted (as .ion-page-hidden) through a route
+  // transition, so a testid can briefly resolve to TWO nodes — the stale hidden
+  // page and the live one. Assert on the FIRST match (the live page) to avoid a
+  // strict-mode violation during that window.
+  await expect(page.getByTestId('home-greeting').first()).toBeVisible();
+  await expect(page.getByTestId('home-shelves').getByText('Recently added').first()).toBeVisible();
   const cards = page.getByTestId('home-shelves').getByTestId('album-card');
   await expect(cards.first()).toBeAttached({ timeout: DATA_WAIT });
   expect(await cards.count()).toBeGreaterThan(0);

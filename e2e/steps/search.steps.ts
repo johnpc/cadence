@@ -31,7 +31,13 @@ When('I tap the first song result', async ({ page }) => {
 });
 
 When('I filter results to {string}', async ({ page }, label: string) => {
-  await page.getByTestId(`filter-${label.toLowerCase()}`).click();
+  // The filter chips only mount once search RESULTS render (the search screen
+  // shows the idle/empty state otherwise). Typing a query doesn't await results,
+  // and a slow backend can leave the chip absent past the default action
+  // timeout — so wait for it to be visible before clicking rather than racing it.
+  const chip = page.getByTestId(`filter-${label.toLowerCase()}`);
+  await expect(chip).toBeVisible({ timeout: DATA_WAIT });
+  await chip.click();
 });
 
 Then('I do not see the Albums section', async ({ page }) => {
@@ -86,8 +92,11 @@ When('I open the {string} genre tile', async ({ page }, name: string) => {
   // tile BUTTON itself (filtering by its label), not the inner text node — a
   // force-click on the span doesn't reliably fire the button's navigation.
   const tile = page.getByTestId('genre-tile').filter({ hasText: name }).first();
-  await tile.scrollIntoViewIfNeeded();
+  // The genre grid is fetched async — wait for the tile to exist/attach BEFORE
+  // scrolling to it (scrollIntoViewIfNeeded on a not-yet-attached element throws
+  // "Element is not attached to the DOM", which flaked deterministically).
   await expect(tile).toBeVisible({ timeout: DATA_WAIT });
+  await tile.scrollIntoViewIfNeeded();
   await tile.click({ force: true });
 });
 

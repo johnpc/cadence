@@ -37,16 +37,53 @@ When('I open my offline-fixture playlist', async ({ page }) => {
   await expect(page.getByTestId('playlist-detail')).toBeVisible({ timeout: DATA_WAIT });
 });
 
-/** Open the first search-result row's "…" menu. */
+/** Open the first search-result row's "…" menu. CRUCIAL: dismiss any action
+ * sheet still open from a previous step/iteration FIRST — Ionic's open
+ * <ion-action-sheet> renders a full-screen <ion-backdrop> that intercepts pointer
+ * events, so clicking the menu button under it silently retries to a timeout
+ * (the real downloads failure). Also scroll into view: the now-playing bar can
+ * overlap the lower rows. */
+// The row's "…" opens an <ion-action-sheet is-open>. Ionic does NOT remove
+// dismissed sheets — it leaves them in the DOM as .overlay-hidden — so match ONLY
+// the currently-open one, or a plain `ion-action-sheet` locator strict-mode-
+// violates once several have accumulated, and `waitFor detached` never resolves.
+const OPEN_SHEET = 'ion-action-sheet[is-open]';
+
+async function dismissOpenSheet(page: import('@playwright/test').Page) {
+  // Dismiss by tapping the open sheet's backdrop — NOT Escape: the search field
+  // is an IonSearchbar, which CLEARS its value on Escape, which would wipe the
+  // results the very next openFirstResultMenu depends on. Backdrop-tap closes the
+  // sheet without touching the searchbar. No-op when no sheet is open.
+  const backdrop = page.locator(`${OPEN_SHEET} ion-backdrop`);
+  if (await backdrop.count()) {
+    await backdrop
+      .first()
+      .click({ force: true })
+      .catch(() => undefined);
+    await page
+      .locator(OPEN_SHEET)
+      .waitFor({ state: 'detached', timeout: 5_000 })
+      .catch(() => undefined);
+  }
+}
+
 async function openFirstResultMenu(page: import('@playwright/test').Page) {
+  // Dismiss any sheet still open from a prior step/iteration first — an open
+  // sheet's <ion-backdrop> intercepts the menu-button click (the real downloads
+  // failure). Also scroll into view: the now-playing bar can overlap lower rows.
+  await dismissOpenSheet(page);
   const firstRow = page.getByTestId('search-results').getByTestId('track-row').first();
   await expect(firstRow).toBeVisible({ timeout: DATA_WAIT });
-  await firstRow.getByTestId('add-to-playlist').click();
+  const menu = firstRow.getByTestId('add-to-playlist');
+  await menu.scrollIntoViewIfNeeded();
+  await menu.click();
+  // Buttons are actionable only once the sheet is open.
+  await expect(page.locator(OPEN_SHEET)).toBeVisible({ timeout: DATA_WAIT });
 }
 
 When('I download the first song result', async ({ page }) => {
-  // Download now lives in the row's "…" menu. Tap Download, then reopen the menu
-  // and wait until it flips to "Remove download" — i.e. the audio bytes landed.
+  // Download lives in the row's "…" menu. Tap Download, then poll by REOPENING
+  // the menu until it flips to "Remove download" — i.e. the audio bytes landed.
   await openFirstResultMenu(page);
   await page.getByRole('button', { name: 'Download', exact: true }).click();
   await expect(async () => {
@@ -54,7 +91,7 @@ When('I download the first song result', async ({ page }) => {
     await expect(page.getByRole('button', { name: 'Remove download' })).toBeVisible({
       timeout: 2000,
     });
-    await page.keyboard.press('Escape');
+    await dismissOpenSheet(page);
   }).toPass({ timeout: DATA_WAIT });
 });
 
@@ -63,7 +100,7 @@ Then('the first song result shows as downloaded', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Remove download' })).toBeVisible({
     timeout: DATA_WAIT,
   });
-  await page.keyboard.press('Escape');
+  await dismissOpenSheet(page);
 });
 
 When('I open Downloads from the library', async ({ page }) => {

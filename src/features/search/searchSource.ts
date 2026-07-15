@@ -45,7 +45,10 @@ async function searchArtists(query: string, limit: number): Promise<JellyfinItem
   return res.Items.map((a) => ({ ...a, Type: 'MusicArtist' }));
 }
 
-async function searchPlaylists(query: string, limit: number): Promise<JellyfinItem[]> {
+/** Native Jellyfin playlist search. Exported because marlin can't index/rank
+ * playlists well, so the marlin source fetches playlists natively even when it's
+ * the active backend (see marlinSource). */
+export async function searchPlaylists(query: string, limit: number): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     searchTerm: query,

@@ -11,13 +11,17 @@
 import { getItemsByIds } from '../../lib/jellyfinItems';
 import { getMarlinUrl, getMarlinToken } from '../../lib/marlinStore';
 import { marlinProxyEnabled } from '../../lib/runtimeConfig';
+import { searchPlaylists } from './searchSource';
 import type { SearchSource } from './searchTypes';
 
-/** The music item types Cadence searches — marlin indexes the WHOLE Jellyfin
- * library (Movies, Series, Episodes, …), so we must scope to music or a movie
- * whose title matches would pollute the results. */
-const MUSIC_TYPES = ['Audio', 'MusicAlbum', 'MusicArtist', 'Playlist'] as const;
-const MUSIC_TYPE_SET: ReadonlySet<string> = new Set(MUSIC_TYPES);
+/** The item types Cadence searches via marlin. Playlists are NOT here — older
+ * marlin indexes don't include them at all, so we always fetch playlists from
+ * native Jellyfin (one cheap call) and merge, making playlist search work
+ * regardless of the marlin index state. marlin indexes the WHOLE library
+ * (Movies, Series, …) so we still scope tightly to music. */
+const MARLIN_TYPES = ['Audio', 'MusicAlbum', 'MusicArtist'] as const;
+/** Types allowed in the final merged result (marlin music + native playlists). */
+const RESULT_TYPE_SET: ReadonlySet<string> = new Set([...MARLIN_TYPES, 'Playlist']);
 
 /** How long to wait on the indexer before giving up and letting the selector
  * fall back to native search. Short by design: marlin exists to be FAST, so a
@@ -47,21 +51,34 @@ async function boundedFetch(url: string, init?: RequestInit): Promise<Response> 
   }
 }
 
-/** ONE call to the indexer's `/search?q=` returns ranked Jellyfin item ids;
- * hydrate them in a single `/Items?Ids=` call. Two requests vs. the native
- * source's ~3, and Meilisearch ranking beats Jellyfin's substring match.
- * `getItemsByIds` preserves marlin's relevance order.
- *
- * Scoped to music BOTH server-side (marlin's `includeItemTypes` filter) AND after
- * hydration (defence in depth — an older indexer that ignored the param still
- * can't leak a Movie/Series into music results). */
-export const marlinSearchSource: SearchSource = async (query, limit = 40) => {
+/** Marlin ids for ONE item type. Querying per-type (not all music types in one
+ * ranked list) is essential: a shared list ranks songs first and the limit then
+ * starves artists/albums entirely (a search like "love" is ~all songs). */
+async function marlinIdsFor(type: string, query: string, limit: number): Promise<string[]> {
   const params = new URLSearchParams({ q: query });
-  for (const t of MUSIC_TYPES) params.append('includeItemTypes', t);
+  params.append('includeItemTypes', type);
   const { url, init } = searchRequest(params.toString());
   const res = await boundedFetch(url, init);
   if (!res.ok) throw new Error(`marlin search failed: ${res.status}`);
   const { ids } = (await res.json()) as { ids?: string[] };
-  const hydrated = await getItemsByIds((ids ?? []).slice(0, limit));
-  return hydrated.filter((i) => i.Type && MUSIC_TYPE_SET.has(i.Type));
+  return (ids ?? []).slice(0, limit);
+}
+
+/** Query marlin PER music type (so each gets its own slots) + native playlists,
+ * all in parallel, then hydrate. Meilisearch ranking beats Jellyfin's substring
+ * match; playlists come from native Jellyfin since marlin can't rank them. A
+ * playlist-fetch failure degrades to no playlists, never a failed search.
+ *
+ * Scoped to music by the per-type marlin queries AND by the post-hydration type
+ * filter (defence in depth — an older indexer can't leak a Movie into results). */
+export const marlinSearchSource: SearchSource = async (query, limit = 40) => {
+  const perType = Math.max(10, Math.floor(limit / MARLIN_TYPES.length));
+  const [idLists, playlists] = await Promise.all([
+    Promise.all(MARLIN_TYPES.map((t) => marlinIdsFor(t, query, perType))),
+    searchPlaylists(query, 10).catch(() => []),
+  ]);
+  const ids = idLists.flat();
+  const hydrated = await getItemsByIds(ids);
+  const music = hydrated.filter((i) => i.Type && RESULT_TYPE_SET.has(i.Type));
+  return [...music, ...playlists];
 };

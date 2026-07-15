@@ -6,9 +6,17 @@
  */
 const BASE = (process.env.VITE_JELLYFIN_URL ?? '').replace(/\/+$/, '');
 
+// A DISTINCT fixture DeviceId per acceptance area. Jellyfin evicts prior sessions
+// that share a (user, DeviceId), so when several areas set up fixtures as the
+// SAME cadence-test user CONCURRENTLY with a shared DeviceId, whichever logged in
+// first has its token invalidated → 401 on the next fixture call (even a GET).
+// Scoping the DeviceId per area (E2E_DEVICE_ID, set per matrix job in ci.yml)
+// keeps each area's fixture session independent. Falls back to a unique-ish id
+// locally so parallel local runs don't collide either.
+const API_DEVICE_ID = `cadence-e2e-api-${process.env.E2E_DEVICE_ID ?? 'local'}`;
+
 function authHeader(token?: string): string {
-  const core =
-    'MediaBrowser Client="cadence-e2e", Device="e2e", DeviceId="cadence-e2e-api", Version="1"';
+  const core = `MediaBrowser Client="cadence-e2e", Device="e2e", DeviceId="${API_DEVICE_ID}", Version="1"`;
   return token ? `${core}, Token="${token}"` : core;
 }
 
@@ -20,6 +28,10 @@ async function api<T>(
     method: opts.method ?? 'GET',
     headers: {
       'X-Emby-Authorization': authHeader(opts.token),
+      // Jellyfin writes (and a token that's only done GETs) can 401 unless the
+      // bare Authorization header carries the token too — mirror the app's
+      // jellyfinFetch, which sends both. Reads work with either; writes need both.
+      ...(opts.token ? { Authorization: `MediaBrowser Token="${opts.token}"` } : {}),
       ...(opts.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
     },
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,

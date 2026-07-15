@@ -25,16 +25,35 @@ export function libraryList(page: Page) {
   return sidebar.getByTestId('library-list');
 }
 
+/** Nav label → the route path its link points at, so navigation can be
+ * confirmed rather than assumed (a click that races the route transition
+ * otherwise leaves the next step running on the previous page). */
+const NAV_PATH: Record<string, RegExp> = {
+  Home: /\/home$/,
+  Search: /\/search$/,
+  'Your Library': /\/library/,
+};
+
 export async function navigate(page: Page, label: string): Promise<void> {
-  // Prefer the desktop sidebar link (CI width). It may mount a beat after the
-  // shell, so give it a moment before falling back to the mobile tab button.
-  const sidebar = page.getByTestId(NAV_TESTID[label]);
-  try {
-    await sidebar.waitFor({ state: 'visible', timeout: 5_000 });
-    await sidebar.click();
-  } catch {
-    await page.locator('ion-tab-button', { hasText: label }).click();
-  }
+  // Ionic's IonRouterOutlet intermittently DROPS a nav click — the click lands
+  // on the link but the router transition is a no-op, leaving the app on the
+  // previous tab. It's a genuine, measurable race (~1-in-15 even on a fully
+  // settled app; higher on the just-mounted post-sign-in shell). No amount of
+  // "wait before clicking" fully removes it, so the robust fix is to click and
+  // VERIFY the route changed, re-issuing the click if it didn't. This mirrors
+  // what a real user does (tap again when a tap seems ignored).
+  const path = NAV_PATH[label];
+  const target = () => {
+    const sidebar = page.getByTestId(NAV_TESTID[label]);
+    return sidebar
+      .waitFor({ state: 'visible', timeout: 5_000 })
+      .then(() => sidebar)
+      .catch(() => page.locator('ion-tab-button', { hasText: label }));
+  };
+  await expect(async () => {
+    (await target()).click().catch(() => undefined);
+    if (path) await expect(page).toHaveURL(path, { timeout: 3_000 });
+  }).toPass({ timeout: DATA_WAIT });
 }
 
 /** Type a search term and wait for a result inside `sectionTestId` to attach,
@@ -50,6 +69,10 @@ export async function searchUntilResults(
 ): Promise<void> {
   const input = page.getByTestId('search-input').locator('input');
   const result = page.getByTestId(sectionTestId).getByTestId(resultTestId).first();
+  // The Search page's input mounts a beat after navigation lands (the route is
+  // set but the view is still rendering) — wait for it before filling, or the
+  // first fill() races an absent element and times out.
+  await expect(input).toBeVisible({ timeout: DATA_WAIT });
   for (let attempt = 0; attempt < 3; attempt++) {
     await input.fill('');
     await input.fill(term);
@@ -85,6 +108,10 @@ Before(async ({ page }) => {
   await page.addInitScript(
     ([key, id]) => {
       if (!localStorage.getItem(key)) localStorage.setItem(key, id);
+      // Disable Ionic route/gesture animations for deterministic transitions —
+      // App.tsx reads this before setupIonicReact(). Instant transitions remove
+      // the window where Ionic drops nav clicks / keeps a stale hidden page.
+      (window as unknown as { __CADENCE_E2E__?: boolean }).__CADENCE_E2E__ = true;
     },
     [DEVICE_KEY, E2E_DEVICE_ID],
   );
@@ -106,6 +133,12 @@ Given('I am signed in', async ({ page }) => {
     undefined,
     { timeout: 60_000 },
   );
+  // The session key is written a beat BEFORE the router replaces /signin with
+  // the destination — so waiting on the key alone lets the next step race the
+  // route transition (and a cold data fetch) with too small a budget, which
+  // flaked intermittently. Wait for the sign-in form to actually go away so
+  // downstream assertions start from the signed-in app, not mid-navigation.
+  await expect(page.getByTestId('signin-submit')).toHaveCount(0, { timeout: DATA_WAIT });
 });
 
 Then('I see the sign-in screen', async ({ page }) => {

@@ -6,16 +6,21 @@ on:
   pull_request:
     branches: [main]
 
-# The acceptance suite reads/writes the SHARED live Jellyfin server over ONE
-# cloudflared tunnel, so CI must serialize GLOBALLY — not per-PR. A per-PR/-branch
-# group let several runs (rival PRs + each main push during a merge burst) hit
-# Jellyfin at once and stampede it (throttled auth / stalled first-paint that
-# reads as widespread flaky timeouts). A single constant group means at most one
-# run touches Jellyfin at a time, repo-wide. cancel-in-progress only for PR
-# events: a new commit on a PR supersedes its older run, but a main (push) run is
-# never cancelled — it queues so every merged commit is verified end to end.
+# Concurrency: main-push runs and PR runs get SEPARATE groups so a PR run can
+# never cancel an in-progress main run. That mattered because the iOS deploy is
+# gated on a SUCCESSFUL main CI (workflow_run) — when a single shared group let a
+# PR push cancel the main run, main CI showed "cancelled", so the deploy never
+# fired. Now:
+#   - push to main → group "ci-main", never cancelled (every merged commit is
+#     verified end to end, and reaches `success` so iOS Deploy triggers).
+#   - a PR → group "ci-pr-<ref>", cancel-in-progress so a new commit on that PR
+#     supersedes its own older run.
+# Trade-off: a PR run and a main run can briefly overlap on the shared Jellyfin
+# (only during a merge), which the suite tolerates (workers:1 + retries keep each
+# run gentle); the old strict repo-wide serialization was cancelling main, which
+# was the worse failure.
 concurrency:
-  group: ci-global
+  group: ci-${{ github.event_name == 'push' && 'main' || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -84,17 +89,12 @@ jobs:
     name: Acceptance Tests (${{ matrix.area.name }})
     runs-on: ubuntu-latest
     strategy:
-      # Stop the whole matrix as soon as one area fails — the earlier areas are a
-      # representative smoke of the shared server, so a real failure will surface
-      # fast without burning compute on the remaining areas. (Re-run after a fix.)
-      fail-fast: true
-      # All areas hit ONE self-hosted Jellyfin, but it handles concurrency fine
-      # (verified: list API <1s, owner-check burst ~0.1s). The "flake" that looked
-      # like a stampede was actually real defects — an ascending community-shelf
-      # sort that truncated new playlists, and play/search steps racing content
-      # into existence — now fixed at the source. So parallelism is back up for
-      # CI wall-clock; raise/lower if the server shows real contention.
-      max-parallel: 4
+      # Let every area run even if one fails — a lone failure shouldn't cancel the
+      # rest and hide which areas are healthy. Each area is its own check.
+      fail-fast: false
+      # NO parallelism limit — areas run fully in parallel. Concurrency problems
+      # are fixed at the source (reliable navigation via Ionic routerLink instead
+      # of raw NavLink; robust step waits) rather than by throttling the matrix.
       matrix:
         area:
           - name: smoke
@@ -162,10 +162,13 @@ jobs:
       # library/home scenarios need that owned content, which the
       # playlist-ownership fix (own-only Your Library) otherwise leaves empty on
       # a fresh user. Idempotent; never fails the job.
-      - name: Seed cadence-test owned content
+      - name: Seed owned content for this area's user
         env:
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
-          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          # Seed the SAME user this area runs as (dedicated users own no content
+          # until seeded) — so 'open the first playlist' / followed-artist
+          # scenarios have their fixtures regardless of which user the area uses.
+          TEST_USERNAME: ${{ (matrix.area.name == 'downloads' && secrets.TEST_USERNAME_DL) || (matrix.area.name == 'playlists' && secrets.TEST_USERNAME_VIS) || secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: bash scripts/seed-e2e-user.sh
 
@@ -181,7 +184,12 @@ jobs:
           # The server URL is NOT in committed source — Vite reads it from this
           # secret at dev-server start (webServer in playwright.config.ts).
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
-          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          # DEDICATED test user per WRITE-heavy area so concurrent matrix shards
+          # don't contend on ONE user's mutable server state (playlists/downloads
+          # created+deleted by one area churned the library list another area was
+          # reading — the two consistently-failing areas at full parallelism). The
+          # read-only areas keep the shared cadence-test user. Password is shared.
+          TEST_USERNAME: ${{ (matrix.area.name == 'downloads' && secrets.TEST_USERNAME_DL) || (matrix.area.name == 'playlists' && secrets.TEST_USERNAME_VIS) || secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           # A DISTINCT Jellyfin DeviceId PER AREA. Jellyfin keys a playback session
           # per (user, DeviceId); all areas sign in as the same cadence-test user,
@@ -192,8 +200,14 @@ jobs:
           # reuse it (no session pile-up). See app-shell.steps.ts.
           E2E_DEVICE_ID: cadence-e2e-${{ matrix.area.name }}
           # Second user — cross-user playlist-visibility scenario (playlists area).
-          TEST_USERNAME_2: ${{ secrets.TEST_USERNAME_2 }}
-          TEST_PASSWORD_2: ${{ secrets.TEST_PASSWORD_2 }}
+          # Playlists uses its OWN pair (vis + vis2) so the visibility test's
+          # public/private toggling can't collide with the shared users other
+          # concurrent areas read. Password shared.
+          TEST_USERNAME_2: ${{ matrix.area.name == 'playlists' && secrets.TEST_USERNAME_VIS2 || secrets.TEST_USERNAME_2 }}
+          # vis2 was provisioned with the SHARED password (TEST_PASSWORD); only the
+          # legacy cadence-test-2 uses TEST_PASSWORD_2. Match the password to the
+          # user, or AuthenticateByName 401s (the visibility-scenario failure).
+          TEST_PASSWORD_2: ${{ matrix.area.name == 'playlists' && secrets.TEST_PASSWORD || secrets.TEST_PASSWORD_2 }}
         with:
           timeout_minutes: 15
           max_attempts: 2
