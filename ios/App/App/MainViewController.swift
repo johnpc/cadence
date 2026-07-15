@@ -32,20 +32,21 @@ class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
     }
 
     private func reassertAudioSession() {
+        // Ensure the category is .playback (needed for background audio), but do
+        // NOT call setActive(true) here. Device logs proved that setActive(true)
+        // on each play, while the WKWebView's <audio> is already playing, itself
+        // FIRES an AVAudioSession interruption that immediately pauses playback —
+        // every tap played ~90ms then an "interruption began" paused it, looping.
+        // The session is activated once at launch (AppDelegate) and the playing
+        // <audio> keeps it active; re-activating per play is both unnecessary and
+        // the direct cause of the pause loop. Only (re)set the category if it has
+        // somehow drifted off .playback (cheap, no interruption when unchanged).
         let session = AVAudioSession.sharedInstance()
+        guard session.category != .playback else { return }
         do {
-            // Only touch the category when it isn't already .playback. Repeatedly
-            // calling setCategory (the web player posts this on every play event)
-            // can trigger a route re-evaluation that briefly interrupts the
-            // WKWebView's <audio> — heard as a random mid-song pause. setActive(true)
-            // on an already-active session is a documented no-op, so it's safe to
-            // call each time and keeps the session held for background playback.
-            if session.category != .playback {
-                try session.setCategory(.playback, mode: .default)
-            }
-            try session.setActive(true)
+            try session.setCategory(.playback, mode: .default)
         } catch {
-            print("cadenceAudioSession: failed to re-assert audio session: \(error)")
+            print("cadenceAudioSession: failed to set playback category: \(error)")
         }
     }
 }
