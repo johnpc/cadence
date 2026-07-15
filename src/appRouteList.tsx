@@ -53,6 +53,9 @@ export function appRouteList() {
     <Route exact path="/requests" key="requests">
       <L.Requests />
     </Route>,
+    <Route exact path="/import/deezer" key="deezer-import">
+      <L.DeezerImport />
+    </Route>,
     <Route exact path="/" key="root">
       <Redirect to="/home" />
     </Route>,

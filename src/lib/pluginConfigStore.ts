@@ -17,6 +17,7 @@ interface PluginConfigResponse {
   SignupUrl?: string;
   CastReceiverAppId?: string;
   LidarrProxy?: boolean;
+  DeezerImport?: boolean;
 }
 
 /** Merge a string value into the config only when it's non-empty AND not already
@@ -48,6 +49,9 @@ export async function hydratePluginConfig(): Promise<void> {
       config.lidarrProxy = true;
       config.lidarrPluginProxy = true;
     }
+    // The Deezer import endpoint lives on the same plugin — flag it so the client
+    // routes "Import from Deezer" to /Cadence/Deezer/Import (works on native iOS).
+    if (res.DeezerImport === true && !config.deezerImport) config.deezerImport = true;
   } catch {
     /* no plugin / offline / unauthenticated — keep existing config */
   }
