@@ -1,6 +1,6 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
-import { DATA_WAIT } from './timeouts';
+import { DATA_WAIT, DOWNLOAD_WAIT } from './timeouts';
 import { navigate } from './app-shell.steps';
 import { login, createSmallPlaylist, deletePlaylistsByName, type Session } from './jellyfinApi';
 
@@ -82,23 +82,32 @@ async function openFirstResultMenu(page: import('@playwright/test').Page) {
 }
 
 When('I download the first song result', async ({ page }) => {
-  // Download lives in the row's "…" menu. Tap Download, then poll by REOPENING
-  // the menu until it flips to "Remove download" — i.e. the audio bytes landed.
+  // Download lives in the row's "…" menu — tap it once, then dismiss the sheet.
   await openFirstResultMenu(page);
   await page.getByRole('button', { name: 'Download', exact: true }).click();
+  await dismissOpenSheet(page);
+  // Poll the DURABLE signal — a completed download writes to the localStorage
+  // download index (cadence.downloads.index) — instead of reopening the action
+  // sheet each iteration. Reopening raced the search-results re-render (the menu
+  // couldn't find its row and timed out); the index is stable and completes the
+  // moment the real audio bytes land. DOWNLOAD_WAIT: whole-file transfer budget.
   await expect(async () => {
-    await openFirstResultMenu(page);
-    await expect(page.getByRole('button', { name: 'Remove download' })).toBeVisible({
-      timeout: 2000,
+    const count = await page.evaluate(() => {
+      try {
+        return (JSON.parse(localStorage.getItem('cadence.downloads.index') || '[]') as unknown[])
+          .length;
+      } catch {
+        return 0;
+      }
     });
-    await dismissOpenSheet(page);
-  }).toPass({ timeout: DATA_WAIT });
+    expect(count).toBeGreaterThan(0);
+  }).toPass({ timeout: DOWNLOAD_WAIT });
 });
 
 Then('the first song result shows as downloaded', async ({ page }) => {
   await openFirstResultMenu(page);
   await expect(page.getByRole('button', { name: 'Remove download' })).toBeVisible({
-    timeout: DATA_WAIT,
+    timeout: DOWNLOAD_WAIT, // waits on the real download having completed
   });
   await dismissOpenSheet(page);
 });
@@ -138,7 +147,7 @@ Then('the audio element is playing from a local download', async ({ page }) => {
       return !!audio?.src && audio.src.startsWith('blob:');
     },
     undefined,
-    { timeout: DATA_WAIT },
+    { timeout: DOWNLOAD_WAIT }, // resolving the cached blob is byte-transfer path
   );
 });
 

@@ -28,7 +28,13 @@ When('I open the first playlist', async ({ page }) => {
   await expect(rows.first()).toBeVisible({ timeout: DATA_WAIT });
   const row = rows.filter({ hasNotText: 'Liked Songs' }).first();
   await expect(row).toBeVisible({ timeout: DATA_WAIT });
-  await row.click({ force: true });
+  // Click-and-VERIFY: an Ionic route push from a library row can be dropped,
+  // leaving the test in the list so the playlist-detail assertion times out —
+  // re-issue until /playlist/ lands.
+  await expect(async () => {
+    await row.click({ force: true }).catch(() => undefined);
+    await expect(page).toHaveURL(/\/playlist\//, { timeout: 3_000 });
+  }).toPass({ timeout: DATA_WAIT });
 });
 
 Then('I see the playlist tracks', async ({ page }) => {

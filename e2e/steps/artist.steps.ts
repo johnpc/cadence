@@ -35,12 +35,16 @@ When('I open the first artist result', async ({ page }) => {
   // Re-fire the (already-typed) search if the artist section is slow to fill,
   // so a transient Jellyfin hiccup doesn't fail the run.
   await searchUntilResults(page, 'love', 'search-artists', 'result-row');
-  // No force: a forced click can miss the row after a re-render (search debounce)
-  // and land on empty space — then the artist page never opens. Real click waits
-  // for the row to be hittable.
   const row = page.getByTestId('search-artists').getByTestId('result-row').first();
-  await expect(row).toBeVisible({ timeout: DATA_WAIT });
-  await row.click();
+  // Click-and-VERIFY: like the tab nav, an Ionic route push from a result-row
+  // click is intermittently dropped (the row re-renders under the search
+  // debounce, or the transition swallows the click), leaving the test on Search
+  // so the artist page's assertions time out. Re-issue the click until the
+  // /artist/ route actually lands.
+  await expect(async () => {
+    await row.click().catch(() => undefined);
+    await expect(page).toHaveURL(/\/artist\//, { timeout: 3_000 });
+  }).toPass({ timeout: DATA_WAIT });
 });
 
 Then("I see the artist's albums", async ({ page }) => {
