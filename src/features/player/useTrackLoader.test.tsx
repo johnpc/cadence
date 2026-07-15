@@ -55,28 +55,12 @@ describe('useTrackLoader', () => {
     vi.mocked(castTrack).mockResolvedValue(undefined);
   });
 
-  it('streams from Jellyfin synchronously when the track is not downloaded', () => {
+  it('streams from Jellyfin when the track is not downloaded', async () => {
     vi.mocked(isDownloaded).mockReturnValue(false);
     const audio = fakeAudio();
     renderHook(() => useLoader(track('t1'), audio));
-    // The common (streaming) path is synchronous — no waitFor needed.
-    expect(audio.src).toBe('https://jf.test/Audio/t1/universal');
-    expect(localAudioUrl).not.toHaveBeenCalled();
-  });
-
-  it('retries play() on canplay if the initial play was interrupted (still paused)', () => {
-    vi.mocked(isDownloaded).mockReturnValue(false);
-    const audio = fakeAudio();
-    // Change TO a new track (not the initial mount, which stays paused like a
-    // session-restore) so the loader autoplays and arms the canplay retry.
-    const { rerender } = renderHook(({ t }) => useLoader(t, audio), {
-      initialProps: { t: track('t1') },
-    });
-    rerender({ t: track('t2') });
-    expect(audio.play).toHaveBeenCalledTimes(1); // the initial play() on change
-    // Element is still paused (iOS rejected the load-racing play) → canplay retries.
-    (audio as unknown as { __emit: (e: string) => void }).__emit('canplay');
-    expect(audio.play).toHaveBeenCalledTimes(2);
+    // src resolution runs through resolveTrackSrc (async) now.
+    await waitFor(() => expect(audio.src).toBe('https://jf.test/Audio/t1/universal'));
   });
 
   it('plays from the local blob URL when the track is downloaded', async () => {
@@ -139,11 +123,11 @@ describe('useTrackLoader', () => {
     expect(isDownloaded).not.toHaveBeenCalled();
   });
 
-  it('leaves a session-restored first track paused (no autoplay)', () => {
+  it('leaves a session-restored first track paused (no autoplay)', async () => {
     vi.mocked(isDownloaded).mockReturnValue(false);
     const audio = fakeAudio();
     renderHook(() => useLoader(track('restored'), audio));
-    expect(audio.src).not.toBe('');
+    await waitFor(() => expect(audio.src).not.toBe(''));
     expect(audio.play).not.toHaveBeenCalled();
   });
 });

@@ -3,8 +3,6 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { initTheme } from './features/theme/initTheme';
 import { initInstallPrompt } from './lib/installPrompt';
-import { initDiagnosticsUpload } from './lib/diagnostics/diagnosticsUploader';
-import { initNativeDiagnosticsBridge } from './lib/diagnostics/nativeDiagnosticsBridge';
 import { registerServiceWorker } from './lib/registerServiceWorker';
 
 // Apply the stored palette before first paint so there's no theme flash.
@@ -13,17 +11,15 @@ initTheme();
 // Capture the PWA install prompt so Settings can offer an Install button.
 initInstallPrompt();
 
-// Wire the opt-in diagnostics uploader to the log store + page lifecycle. Inert
-// unless the user enabled upload AND the backend is configured (see uploader).
-initDiagnosticsUpload();
-
-// Let the iOS native layer record its own events into the same log pipeline.
-initNativeDiagnosticsBridge();
-
 // Register the PWA service worker — web only; NEVER in the native app (see the
 // function's note: an SW on the Capacitor WKWebView can black-screen after an
 // app update by serving a stale shell).
 registerServiceWorker();
+
+// Diagnostics wiring is not needed for first paint — load it in its own chunk
+// after boot so it stays out of the entry bundle. Sets up the opt-in uploader
+// (inert unless enabled + configured) and the iOS native→JS log bridge.
+void import('./lib/diagnostics/initDiagnostics').then((m) => m.initDiagnostics());
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
