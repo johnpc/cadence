@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useDiagnosticsContext } from './useDiagnosticsContext';
 import * as store from '../../lib/diagnostics/diagnosticsStore';
@@ -6,7 +6,12 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 vi.mock('../../lib/platform', () => ({ isIos: () => false }));
 vi.mock('../auth/useAuth', () => ({ useAuth: () => ({ username: 'john' }) }));
-vi.mock('react-router-dom', () => ({ useLocation: () => ({ pathname: '/playlist/42' }) }));
+
+// The hook reads the route from window.location (NOT react-router — PlayerProvider
+// mounts outside the Router), so drive it via the hash here.
+beforeEach(() => {
+  window.location.hash = '#/playlist/42';
+});
 
 const track = (Id: string, Name: string): JellyfinItem =>
   ({ Id, Name, Artists: ['An Artist'], Album: 'An Album' }) as JellyfinItem;
