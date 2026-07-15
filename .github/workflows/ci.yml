@@ -204,7 +204,10 @@ jobs:
           # public/private toggling can't collide with the shared users other
           # concurrent areas read. Password shared.
           TEST_USERNAME_2: ${{ matrix.area.name == 'playlists' && secrets.TEST_USERNAME_VIS2 || secrets.TEST_USERNAME_2 }}
-          TEST_PASSWORD_2: ${{ secrets.TEST_PASSWORD_2 }}
+          # vis2 was provisioned with the SHARED password (TEST_PASSWORD); only the
+          # legacy cadence-test-2 uses TEST_PASSWORD_2. Match the password to the
+          # user, or AuthenticateByName 401s (the visibility-scenario failure).
+          TEST_PASSWORD_2: ${{ matrix.area.name == 'playlists' && secrets.TEST_PASSWORD || secrets.TEST_PASSWORD_2 }}
         with:
           timeout_minutes: 15
           max_attempts: 2
