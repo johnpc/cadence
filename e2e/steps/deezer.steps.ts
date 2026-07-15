@@ -43,3 +43,25 @@ Then('I see a link explaining how to move a Spotify playlist to Deezer', async (
   await expect(link).toBeVisible({ timeout: DATA_WAIT });
   await expect(link).toHaveAttribute('href', /spotify-to-deezer/);
 });
+
+When('I open the imported playlist', async ({ page }) => {
+  // The result screen links straight into the newly-created Jellyfin playlist —
+  // click-and-verify the /playlist/ route lands (Ionic can drop the push).
+  const open = page.getByTestId('deezer-open-playlist');
+  await expect(open).toBeVisible({ timeout: DATA_WAIT });
+  await expect(async () => {
+    await open.click().catch(() => undefined);
+    await expect(page).toHaveURL(/\/playlist\//, { timeout: 3_000 });
+  }).toPass({ timeout: DATA_WAIT });
+  await expect(page.getByTestId('playlist-detail')).toBeVisible({ timeout: DATA_WAIT });
+});
+
+Then('the playlist page lists artists I can still request', async ({ page }) => {
+  // Persisted server-side (recomputed against the library) — fetched fresh on the
+  // playlist page, so it survives across sessions, not just at import time.
+  const section = page.getByTestId('deezer-playlist-missing');
+  await expect(section).toBeVisible({ timeout: DATA_WAIT });
+  await expect(section.getByTestId('deezer-missing-row').first()).toBeVisible({
+    timeout: DATA_WAIT,
+  });
+});
