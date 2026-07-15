@@ -30,7 +30,15 @@ class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
     private func reassertAudioSession() {
         let session = AVAudioSession.sharedInstance()
         do {
-            try session.setCategory(.playback, mode: .default)
+            // Only touch the category when it isn't already .playback. Repeatedly
+            // calling setCategory (the web player posts this on every play event)
+            // can trigger a route re-evaluation that briefly interrupts the
+            // WKWebView's <audio> — heard as a random mid-song pause. setActive(true)
+            // on an already-active session is a documented no-op, so it's safe to
+            // call each time and keeps the session held for background playback.
+            if session.category != .playback {
+                try session.setCategory(.playback, mode: .default)
+            }
             try session.setActive(true)
         } catch {
             print("cadenceAudioSession: failed to re-assert audio session: \(error)")
