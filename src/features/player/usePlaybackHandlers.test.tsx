@@ -80,12 +80,30 @@ describe('usePlaybackHandlers', () => {
     expect(qh.advance).toHaveBeenCalled();
   });
 
-  it('onError toasts and skips when the error happens during playback', () => {
+  it('onError RETRIES (reload) the track first, before skipping', () => {
     const qh = stubQueue();
     const toast = vi.fn();
+    const requestReload = vi.fn().mockReturnValue(true); // retry available
     const ref = createRef<HTMLAudioElement>();
     (ref as { current: HTMLAudioElement }).current = { paused: false } as HTMLAudioElement;
-    const { result } = renderHook(() => usePlaybackHandlers(qh, ref, toast));
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, ref, toast, undefined, requestReload),
+    );
+    result.current.onError();
+    expect(requestReload).toHaveBeenCalledWith('a'); // the current track id
+    expect(toast).toHaveBeenCalledWith('Trouble playing that — retrying…');
+    expect(qh.next).not.toHaveBeenCalled();
+  });
+
+  it('onError skips once the retry budget is spent (requestReload → false)', () => {
+    const qh = stubQueue();
+    const toast = vi.fn();
+    const requestReload = vi.fn().mockReturnValue(false); // no retries left
+    const ref = createRef<HTMLAudioElement>();
+    (ref as { current: HTMLAudioElement }).current = { paused: false } as HTMLAudioElement;
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, ref, toast, undefined, requestReload),
+    );
     result.current.onError();
     expect(toast).toHaveBeenCalledWith("Couldn't play that track — skipping.");
     expect(qh.next).toHaveBeenCalled();
@@ -94,22 +112,14 @@ describe('usePlaybackHandlers', () => {
   it('onError at the LAST track reports failure without a dead-end "skipping" toast', () => {
     const qh = stubQueue({ queue: { tracks: [{ Id: 'a' }], index: 0 } as never });
     const toast = vi.fn();
+    const requestReload = vi.fn().mockReturnValue(false);
     const ref = createRef<HTMLAudioElement>();
     (ref as { current: HTMLAudioElement }).current = { paused: false } as HTMLAudioElement;
-    const { result } = renderHook(() => usePlaybackHandlers(qh, ref, toast));
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, ref, toast, undefined, requestReload),
+    );
     result.current.onError();
     expect(toast).toHaveBeenCalledWith("Couldn't play that track.");
-    expect(qh.next).not.toHaveBeenCalled();
-  });
-
-  it('onError is IGNORED when paused (spurious cold-launch error, not a real failure)', () => {
-    const qh = stubQueue();
-    const toast = vi.fn();
-    const ref = createRef<HTMLAudioElement>();
-    (ref as { current: HTMLAudioElement }).current = { paused: true } as HTMLAudioElement;
-    const { result } = renderHook(() => usePlaybackHandlers(qh, ref, toast));
-    result.current.onError();
-    expect(toast).not.toHaveBeenCalled();
     expect(qh.next).not.toHaveBeenCalled();
   });
 });
