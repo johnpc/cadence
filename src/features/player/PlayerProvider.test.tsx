@@ -7,6 +7,10 @@ vi.mock('../../lib/jellyfinPlayback', () => ({
   reportPlaybackStopped: vi.fn(),
 }));
 vi.mock('../../lib/jellyfinItems', () => ({ getInstantMix: vi.fn().mockResolvedValue([]) }));
+// Diagnostics context needs Auth + Router providers (it reads user + route); it's
+// covered in useDiagnosticsContext.test — stub it here so PlayerProvider tests stay
+// focused on playback and don't require the full provider tree.
+vi.mock('./useDiagnosticsContext', () => ({ useDiagnosticsContext: () => {} }));
 import { PlayerProvider } from './PlayerProvider';
 import { usePlayer } from './usePlayer';
 import { setSession } from '../../lib/sessionStore';
