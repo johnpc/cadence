@@ -37,11 +37,15 @@ When('I open my offline-fixture playlist', async ({ page }) => {
   await expect(page.getByTestId('playlist-detail')).toBeVisible({ timeout: DATA_WAIT });
 });
 
-/** Open the first search-result row's "…" menu. */
+/** Open the first search-result row's "…" menu. Scroll it into view first — the
+ * persistent now-playing bar can overlap the last visible rows, and a menu
+ * button under that bar isn't actionable, which timed the click out. */
 async function openFirstResultMenu(page: import('@playwright/test').Page) {
   const firstRow = page.getByTestId('search-results').getByTestId('track-row').first();
   await expect(firstRow).toBeVisible({ timeout: DATA_WAIT });
-  await firstRow.getByTestId('add-to-playlist').click();
+  const menu = firstRow.getByTestId('add-to-playlist');
+  await menu.scrollIntoViewIfNeeded();
+  await menu.click();
 }
 
 When('I download the first song result', async ({ page }) => {
