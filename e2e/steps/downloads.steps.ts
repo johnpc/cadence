@@ -1,6 +1,6 @@
 import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
-import { DATA_WAIT } from './timeouts';
+import { DATA_WAIT, DOWNLOAD_WAIT } from './timeouts';
 import { navigate } from './app-shell.steps';
 import { login, createSmallPlaylist, deletePlaylistsByName, type Session } from './jellyfinApi';
 
@@ -92,13 +92,14 @@ When('I download the first song result', async ({ page }) => {
       timeout: 2000,
     });
     await dismissOpenSheet(page);
-  }).toPass({ timeout: DATA_WAIT });
+    // DOWNLOAD_WAIT: waiting on real audio BYTES to land, not a metadata read.
+  }).toPass({ timeout: DOWNLOAD_WAIT });
 });
 
 Then('the first song result shows as downloaded', async ({ page }) => {
   await openFirstResultMenu(page);
   await expect(page.getByRole('button', { name: 'Remove download' })).toBeVisible({
-    timeout: DATA_WAIT,
+    timeout: DOWNLOAD_WAIT,
   });
   await dismissOpenSheet(page);
 });
@@ -138,7 +139,9 @@ Then('the audio element is playing from a local download', async ({ page }) => {
       return !!audio?.src && audio.src.startsWith('blob:');
     },
     undefined,
-    { timeout: DATA_WAIT },
+    // DOWNLOAD_WAIT: resolving the cached blob for offline playback follows the
+    // byte-transfer path, slower than a metadata read.
+    { timeout: DOWNLOAD_WAIT },
   );
 });
 
