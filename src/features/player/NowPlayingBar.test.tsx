@@ -7,7 +7,7 @@ import type { PlayerContextValue } from './types';
 import type { MediaItem } from '../../lib/navidromeTypes';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 
-vi.mock('../../lib/jellyfinLyrics', () => ({ getLyrics: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../lib/navidromeLyrics', () => ({ getLyrics: vi.fn().mockResolvedValue([]) }));
 
 // useCast defaults to disconnected; a test overrides it to assert the cast pill.
 const castState = {

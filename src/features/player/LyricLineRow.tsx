@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import type { LyricLine } from '../../lib/jellyfinLyrics';
+import type { LyricLine } from '../../lib/navidromeLyrics';
 
 /** One lyric line. When the line is timed (synced lyrics), it's a button that
  * seeks to its timestamp — tap a line to jump there, Spotify-style. Untimed

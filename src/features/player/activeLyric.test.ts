@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { activeLineIndex, isSynced } from './activeLyric';
-import type { LyricLine } from '../../lib/jellyfinLyrics';
+import type { LyricLine } from '../../lib/navidromeLyrics';
 
 const plain: LyricLine[] = [{ text: 'a' }, { text: 'b' }, { text: 'c' }];
 const synced: LyricLine[] = [

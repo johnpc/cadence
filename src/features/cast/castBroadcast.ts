@@ -3,7 +3,7 @@ import { castReceiverAppId } from '../../lib/runtimeConfig';
 import { getCastState } from './castStore';
 import { CAST_NAMESPACE, nowPlayingMessage, queueMessage, lyricsMessage } from './castMessages';
 import type { MediaItem } from '../../lib/navidromeTypes';
-import type { LyricLine } from '../../lib/jellyfinLyrics';
+import type { LyricLine } from '../../lib/navidromeLyrics';
 
 /**
  * Push app state to the custom Cast receiver over the custom namespace, so it

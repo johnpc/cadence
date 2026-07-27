@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getLyrics } from '../../lib/jellyfinLyrics';
+import { getLyrics } from '../../lib/navidromeLyrics';
 
 /** Lyrics for a track, fetched lazily (only when the lyrics sheet is opened). */
 export function useLyrics(itemId: string | undefined, enabled: boolean) {

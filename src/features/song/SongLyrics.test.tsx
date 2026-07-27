@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinLyrics', () => ({ getLyrics: vi.fn() }));
-import { getLyrics } from '../../lib/jellyfinLyrics';
+vi.mock('../../lib/navidromeLyrics', () => ({ getLyrics: vi.fn() }));
+import { getLyrics } from '../../lib/navidromeLyrics';
 import { SongLyrics } from './SongLyrics';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';

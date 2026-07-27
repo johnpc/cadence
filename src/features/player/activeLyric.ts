@@ -1,4 +1,4 @@
-import type { LyricLine } from '../../lib/jellyfinLyrics';
+import type { LyricLine } from '../../lib/navidromeLyrics';
 
 /** True when at least one line carries timing — i.e. the track has synced
  * (LRC) lyrics we can karaoke-highlight. */

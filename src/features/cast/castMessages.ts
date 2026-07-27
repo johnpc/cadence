@@ -1,7 +1,7 @@
 import { imageUrl } from '../../lib/navidromeStream';
 import { artistLine } from '../player/playerFormat';
 import type { MediaItem } from '../../lib/navidromeTypes';
-import type { LyricLine } from '../../lib/jellyfinLyrics';
+import type { LyricLine } from '../../lib/navidromeLyrics';
 
 /**
  * The custom-namespace message protocol between the app and the Cast receiver
