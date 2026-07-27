@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylists: vi.fn() }));
-import { getPlaylists } from '../../lib/jellyfinPlaylists';
+vi.mock('../../lib/navidromePlaylists', () => ({ getPlaylists: vi.fn() }));
+import { getPlaylists } from '../../lib/navidromePlaylists';
 import {
   PLAYLISTS_LIST_CACHE_KEY,
   getCachedPlaylists,

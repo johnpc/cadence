@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   getPlaylists: vi.fn(),
   createPlaylist: vi.fn(),
   getPlaylistItems: vi.fn(),
@@ -35,7 +35,7 @@ vi.mock('@ionic/react', async (importOriginal) => {
 });
 
 import { CreatePlaylist } from './CreatePlaylist';
-import { createPlaylist } from '../../lib/jellyfinPlaylists';
+import { createPlaylist } from '../../lib/navidromePlaylists';
 import { ToastContext } from '../toast/ToastContext';
 
 function renderCreate(toast = vi.fn()) {

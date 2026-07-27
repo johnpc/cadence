@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { usePlayer } from './usePlayer';
 import { getSimilarSongs, getAlbumTracks } from '../../lib/navidromeItems';
-import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
+import { getPlaylistItems } from '../../lib/navidromePlaylists';
 import { touchRecentPlay } from '../library/recentPlays';
 import type { MediaItem } from '../../lib/navidromeTypes';
 

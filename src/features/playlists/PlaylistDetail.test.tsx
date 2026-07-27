@@ -29,9 +29,12 @@ vi.mock('@ionic/react', async (importOriginal) => {
   };
 });
 
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   getPlaylistItems: vi.fn(),
   getPlaylists: vi.fn().mockResolvedValue([]),
+  getPlaylist: vi
+    .fn()
+    .mockResolvedValue({ Id: 'p1', Name: 'My Playlist', Type: 'Playlist', CanDelete: true }),
   createPlaylist: vi.fn(),
   addToPlaylist: vi.fn(),
   removeFromPlaylist: vi.fn(),
@@ -40,14 +43,8 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylistIsPublic: vi.fn().mockResolvedValue(false),
   setPlaylistIsPublic: vi.fn(),
 }));
-vi.mock('../../lib/jellyfinItems', () => ({
-  getItem: vi
-    .fn()
-    .mockResolvedValue({ Id: 'p1', Name: 'My Playlist', Type: 'Playlist', CanDelete: true }),
-}));
 vi.mock('../../lib/navidromeItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
-import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
-import { getItem } from '../../lib/jellyfinItems';
+import { getPlaylistItems, getPlaylist } from '../../lib/navidromePlaylists';
 import { PlaylistDetail } from './PlaylistDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
@@ -76,7 +73,7 @@ function renderDetail(player: PlayerContextValue = stubPlayer()) {
 
 describe('PlaylistDetail', () => {
   beforeEach(() => {
-    vi.mocked(getItem).mockResolvedValue({
+    vi.mocked(getPlaylist).mockResolvedValue({
       Id: 'p1',
       Name: 'My Playlist',
       Type: 'Playlist',
@@ -104,7 +101,7 @@ describe('PlaylistDetail', () => {
   });
 
   it('shows the playlist description when present', async () => {
-    vi.mocked(getItem).mockResolvedValue({
+    vi.mocked(getPlaylist).mockResolvedValue({
       Id: 'p1',
       Name: 'My Playlist',
       Type: 'Playlist',
@@ -138,7 +135,7 @@ describe('PlaylistDetail', () => {
   it('removes a track via its remove button', async () => {
     const withEntry: MediaItem[] = [{ ...tracks[0], PlaylistItemId: 'e1' }];
     vi.mocked(getPlaylistItems).mockResolvedValue(withEntry);
-    const { removeFromPlaylist } = await import('../../lib/jellyfinPlaylists');
+    const { removeFromPlaylist } = await import('../../lib/navidromePlaylists');
     vi.mocked(removeFromPlaylist).mockResolvedValue();
     renderDetail();
     // Open the row's "…" menu, then tap "Remove from this playlist".
@@ -148,7 +145,7 @@ describe('PlaylistDetail', () => {
   });
 
   it('for a playlist you do NOT own, offers Clone and hides delete + track-remove', async () => {
-    vi.mocked(getItem).mockResolvedValue({
+    vi.mocked(getPlaylist).mockResolvedValue({
       Id: 'p1',
       Name: 'Community Mix',
       Type: 'Playlist',

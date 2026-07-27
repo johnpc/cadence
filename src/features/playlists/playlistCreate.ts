@@ -3,7 +3,7 @@ import {
   createPlaylist,
   createPlaylistWithItems,
   getPlaylistItems,
-} from '../../lib/jellyfinPlaylists';
+} from '../../lib/navidromePlaylists';
 import { PLAYLISTS_KEY } from './playlistsApi';
 
 /** Create a playlist; refreshes the list on success. */

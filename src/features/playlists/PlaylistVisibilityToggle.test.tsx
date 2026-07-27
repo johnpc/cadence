@@ -3,11 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   getPlaylistIsPublic: vi.fn(),
   setPlaylistIsPublic: vi.fn(),
 }));
-import { getPlaylistIsPublic, setPlaylistIsPublic } from '../../lib/jellyfinPlaylists';
+import { getPlaylistIsPublic, setPlaylistIsPublic } from '../../lib/navidromePlaylists';
 import { PlaylistVisibilityToggle } from './PlaylistVisibilityToggle';
 import { ToastContext } from '../toast/ToastContext';
 

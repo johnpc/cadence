@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPlaylistIsPublic, setPlaylistIsPublic } from '../../lib/jellyfinPlaylists';
+import { getPlaylistIsPublic, setPlaylistIsPublic } from '../../lib/navidromePlaylists';
 import { PLAYLISTS_KEY } from './playlistsApi';
 import { useToast } from '../toast/useToast';
 

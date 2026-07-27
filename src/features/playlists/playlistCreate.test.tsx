@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ReactNode } from 'react';
 
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   createPlaylist: vi.fn(),
   createPlaylistWithItems: vi.fn(),
   getPlaylistItems: vi.fn(),
@@ -12,7 +12,7 @@ import {
   createPlaylist,
   createPlaylistWithItems,
   getPlaylistItems,
-} from '../../lib/jellyfinPlaylists';
+} from '../../lib/navidromePlaylists';
 import { useCreatePlaylist, useCreatePlaylistWithItems, useClonePlaylist } from './playlistCreate';
 
 const wrapper = ({ children }: { children: ReactNode }) => (

@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([]),
   createPlaylist: vi.fn(),
   createPlaylistWithItems: vi.fn(),

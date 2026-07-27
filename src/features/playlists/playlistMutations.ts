@@ -5,7 +5,7 @@ import {
   movePlaylistItem,
   removeFromPlaylist,
   renamePlaylist,
-} from '../../lib/jellyfinPlaylists';
+} from '../../lib/navidromePlaylists';
 import { PLAYLISTS_KEY } from './playlistsKeys';
 
 /** Add a track to a playlist; refreshes that playlist's items. */

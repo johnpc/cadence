@@ -5,7 +5,7 @@ import {
   getRecentlyPlayed,
   getOnRepeat,
 } from '../../lib/jellyfinDiscover';
-import { getPublicPlaylists } from '../../lib/jellyfinPlaylists';
+import { getPublicPlaylists } from '../../lib/navidromePlaylists';
 import { getCachedShelf, fetchAndCacheShelf } from './homeShelfCache';
 
 /** initialData that seeds a shelf query from its disk cache so a returning user

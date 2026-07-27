@@ -12,7 +12,7 @@ vi.mock('../../lib/navidromeItems', () => ({ getFavoriteAlbums: vi.fn().mockReso
 vi.mock('../../lib/navidromeArtists', () => ({
   getFavoriteArtists: vi.fn().mockResolvedValue([]),
 }));
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   getPublicPlaylists: vi.fn().mockResolvedValue([]),
 }));
 vi.mock('../player/usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
@@ -24,7 +24,7 @@ import {
 } from '../../lib/jellyfinDiscover';
 import { getFavoriteAlbums } from '../../lib/navidromeItems';
 import { getFavoriteArtists } from '../../lib/navidromeArtists';
-import { getPublicPlaylists } from '../../lib/jellyfinPlaylists';
+import { getPublicPlaylists } from '../../lib/navidromePlaylists';
 import { Home } from './Home';
 import { renderWithProviders } from '../../test/renderWithProviders';
 import type { MediaItem } from '../../lib/navidromeTypes';

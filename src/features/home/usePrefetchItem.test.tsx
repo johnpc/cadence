@@ -3,10 +3,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement, type ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({ getItem: vi.fn() }));
 vi.mock('../../lib/navidromeItems', () => ({ getAlbum: vi.fn(), getAlbumTracks: vi.fn() }));
 vi.mock('../../lib/navidromeArtists', () => ({ getArtist: vi.fn(), getArtistAlbums: vi.fn() }));
-vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylistItems: vi.fn() }));
+vi.mock('../../lib/navidromePlaylists', () => ({
+  getPlaylist: vi.fn(),
+  getPlaylistItems: vi.fn(),
+}));
 import { usePrefetchItem } from './usePrefetchItem';
 import type { MediaItem } from '../../lib/navidromeTypes';
 

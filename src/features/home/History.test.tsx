@@ -8,9 +8,13 @@ vi.mock('../../lib/jellyfinDiscover', () => ({
   getSuggestedSongs: vi.fn(),
   getRecentlyPlayed: vi.fn(),
 }));
-vi.mock('../../lib/jellyfinItems', () => ({ getItem: vi.fn() }));
+vi.mock('../../lib/navidromeItems', () => ({ getAlbum: vi.fn() }));
+vi.mock('../../lib/navidromeArtists', () => ({ getArtist: vi.fn() }));
+vi.mock('../../lib/navidromePlaylists', () => ({ getPlaylist: vi.fn() }));
 import { getRecentlyPlayed } from '../../lib/jellyfinDiscover';
-import { getItem } from '../../lib/jellyfinItems';
+import { getAlbum } from '../../lib/navidromeItems';
+import { getArtist } from '../../lib/navidromeArtists';
+import { getPlaylist } from '../../lib/navidromePlaylists';
 import { touchRecentPlay } from '../library/recentPlays';
 import { History } from './History';
 import { PlayerContext } from '../player/PlayerContext';
@@ -62,9 +66,12 @@ describe('History', () => {
   it('also shows recently-played collections (playlists/artists) and opens them', async () => {
     vi.mocked(getRecentlyPlayed).mockResolvedValue(songs);
     // Seed the local recent-plays store with a played playlist; useJumpBackIn
-    // hydrates it via getItem into the collections shelf.
+    // hydrates it via getAlbum/getArtist/getPlaylist (in that order, since a
+    // recent play has no stored kind) into the collections shelf.
     touchRecentPlay('pl1', 1000);
-    vi.mocked(getItem).mockResolvedValue({ Id: 'pl1', Name: 'My Mix', Type: 'Playlist' });
+    vi.mocked(getAlbum).mockRejectedValue(new Error('not an album'));
+    vi.mocked(getArtist).mockRejectedValue(new Error('not an artist'));
+    vi.mocked(getPlaylist).mockResolvedValue({ Id: 'pl1', Name: 'My Mix', Type: 'Playlist' });
     renderHistory();
     expect(await screen.findByText('My Mix')).toBeInTheDocument();
     // The songs section still renders alongside it.

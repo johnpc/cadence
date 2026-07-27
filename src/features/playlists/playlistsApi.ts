@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getItem } from '../../lib/jellyfinItems';
+import { getPlaylist } from '../../lib/navidromePlaylists';
 import { getCachedPlaylistItems, fetchAndCachePlaylistItems } from './playlistItemsCache';
 import { getCachedPlaylists, fetchAndCachePlaylists } from './playlistsListCache';
 import { PLAYLISTS_KEY } from './playlistsKeys';
@@ -19,7 +19,7 @@ export {
 export function usePlaylist(playlistId: string) {
   const q = useQuery({
     queryKey: ['playlist', playlistId],
-    queryFn: () => getItem(playlistId),
+    queryFn: () => getPlaylist(playlistId),
     staleTime: 60_000,
   });
   return { playlist: q.data ?? null };

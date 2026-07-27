@@ -5,12 +5,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/navidromeItems', () => ({ getSong: vi.fn(), getAlbum: vi.fn() }));
 vi.mock('../../lib/navidromeArtists', () => ({ getArtist: vi.fn() }));
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   getPlaylists: vi.fn(),
   getPlaylistItems: vi.fn(),
 }));
 import { getSong } from '../../lib/navidromeItems';
-import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
+import { getPlaylists, getPlaylistItems } from '../../lib/navidromePlaylists';
 import { useSong, useSongPlaylists } from './songApi';
 import type { MediaItem } from '../../lib/navidromeTypes';
 

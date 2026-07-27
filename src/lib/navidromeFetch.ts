@@ -21,7 +21,7 @@ import type { Session } from './navidromeTypes';
 
 export { Unauthenticated, RequestTimeout, HttpError, SubsonicError } from './navidromeErrors';
 
-type ParamValue = string | number | boolean | string[] | undefined;
+type ParamValue = string | number | boolean | string[] | number[] | undefined;
 
 export interface RequestOptions {
   method?: 'GET' | 'POST';
@@ -37,7 +37,7 @@ function buildParams(session: Session | null, extra?: Record<string, ParamValue>
   const params = subsonicAuthParams(session);
   for (const [key, value] of Object.entries(extra ?? {})) {
     if (value === undefined) continue;
-    if (Array.isArray(value)) value.forEach((v) => params.append(key, v));
+    if (Array.isArray(value)) value.forEach((v) => params.append(key, String(v)));
     else params.set(key, String(value));
   }
   return params;

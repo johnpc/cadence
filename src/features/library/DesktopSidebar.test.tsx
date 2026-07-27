@@ -9,13 +9,13 @@ vi.mock('../../lib/navidromeItems', () => ({
 vi.mock('../../lib/navidromeArtists', () => ({
   getFavoriteArtists: vi.fn().mockResolvedValue([]),
 }));
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([{ Id: 'p1', Name: 'Road Trip', Type: 'Playlist' }]),
   createPlaylist: vi.fn(),
 }));
 import { getFavoriteSongs, getFavoriteAlbums } from '../../lib/navidromeItems';
 import { getFavoriteArtists } from '../../lib/navidromeArtists';
-import { getPlaylists } from '../../lib/jellyfinPlaylists';
+import { getPlaylists } from '../../lib/navidromePlaylists';
 import { DesktopSidebar } from './DesktopSidebar';
 import { renderWithProviders } from '../../test/renderWithProviders';
 

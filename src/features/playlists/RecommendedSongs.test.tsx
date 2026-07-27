@@ -4,13 +4,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({ getInstantMix: vi.fn() }));
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromeItems', () => ({ getSimilarSongs: vi.fn() }));
+vi.mock('../../lib/navidromePlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([]),
   addToPlaylist: vi.fn().mockResolvedValue(undefined),
 }));
-import { getInstantMix } from '../../lib/jellyfinItems';
-import { addToPlaylist } from '../../lib/jellyfinPlaylists';
+import { getSimilarSongs } from '../../lib/navidromeItems';
+import { addToPlaylist } from '../../lib/navidromePlaylists';
 import { RecommendedSongs } from './RecommendedSongs';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
@@ -35,7 +35,7 @@ afterEach(() => {
 
 describe('RecommendedSongs', () => {
   it('recommends candidates not already in the playlist', async () => {
-    vi.mocked(getInstantMix).mockResolvedValue([rec('have'), rec('x'), rec('y')]);
+    vi.mocked(getSimilarSongs).mockResolvedValue([rec('have'), rec('x'), rec('y')]);
     renderRecs();
     expect(await screen.findByText('Rec x')).toBeInTheDocument();
     expect(screen.getByText('Rec y')).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe('RecommendedSongs', () => {
   });
 
   it('adds a recommendation and removes it from the list', async () => {
-    vi.mocked(getInstantMix).mockResolvedValue([rec('x'), rec('y')]);
+    vi.mocked(getSimilarSongs).mockResolvedValue([rec('x'), rec('y')]);
     renderRecs();
     await screen.findByText('Rec x');
     await userEvent.click(screen.getByRole('button', { name: 'Add Rec x' }));
@@ -53,7 +53,7 @@ describe('RecommendedSongs', () => {
   });
 
   it('dismisses a recommendation, hides it, and reveals a fresh candidate', async () => {
-    vi.mocked(getInstantMix).mockResolvedValue([
+    vi.mocked(getSimilarSongs).mockResolvedValue([
       rec('x'),
       rec('y'),
       rec('z'),
@@ -73,9 +73,9 @@ describe('RecommendedSongs', () => {
   });
 
   it('renders nothing when there are no fresh candidates', async () => {
-    vi.mocked(getInstantMix).mockResolvedValue([rec('have')]);
+    vi.mocked(getSimilarSongs).mockResolvedValue([rec('have')]);
     const { container } = renderRecs();
-    await waitFor(() => expect(getInstantMix).toHaveBeenCalled());
+    await waitFor(() => expect(getSimilarSongs).toHaveBeenCalled());
     expect(container.querySelector('[data-testid="playlist-recs"]')).toBeNull();
   });
 
@@ -87,6 +87,6 @@ describe('RecommendedSongs', () => {
         </MemoryRouter>
       </QueryClientProvider>,
     );
-    expect(getInstantMix).not.toHaveBeenCalled();
+    expect(getSimilarSongs).not.toHaveBeenCalled();
   });
 });

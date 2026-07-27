@@ -1,4 +1,4 @@
-import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
+import { getPlaylistItems } from '../../lib/navidromePlaylists';
 import { createItemListCache } from '../../lib/itemListCache';
 import type { MediaItem } from '../../lib/navidromeTypes';
 

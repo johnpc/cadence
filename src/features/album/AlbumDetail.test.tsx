@@ -12,7 +12,7 @@ vi.mock('../../lib/navidromeItems', () => ({
   getSimilarSongs: vi.fn().mockResolvedValue([]),
   getAlbumsByIds: vi.fn().mockResolvedValue([]),
 }));
-vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylists: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../lib/navidromePlaylists', () => ({ getPlaylists: vi.fn().mockResolvedValue([]) }));
 vi.mock('../../lib/navidromeArtists', () => ({ getArtistAlbums: vi.fn().mockResolvedValue([]) }));
 import { getAlbum, getAlbumTracks } from '../../lib/navidromeItems';
 import { AlbumDetail } from './AlbumDetail';

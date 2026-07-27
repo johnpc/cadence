@@ -3,8 +3,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement, type ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({ getItem: vi.fn() }));
-import { getItem } from '../../lib/jellyfinItems';
+vi.mock('../../lib/navidromeItems', () => ({ getAlbum: vi.fn() }));
+vi.mock('../../lib/navidromeArtists', () => ({ getArtist: vi.fn() }));
+vi.mock('../../lib/navidromePlaylists', () => ({ getPlaylist: vi.fn() }));
+import { getAlbum } from '../../lib/navidromeItems';
+import { getArtist } from '../../lib/navidromeArtists';
+import { getPlaylist } from '../../lib/navidromePlaylists';
 import { useJumpBackIn } from './useJumpBackIn';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
@@ -27,24 +31,38 @@ describe('useJumpBackIn', () => {
   it('is empty with no recent plays (and does not fetch)', () => {
     const { result } = setup();
     expect(result.current.items).toEqual([]);
-    expect(getItem).not.toHaveBeenCalled();
+    expect(getAlbum).not.toHaveBeenCalled();
   });
 
   it('hydrates recent-play ids into items, newest first', async () => {
     localStorage.setItem('cadence.recent-plays', JSON.stringify({ a: 100, b: 300 }));
-    vi.mocked(getItem).mockImplementation(async (id: string) => item(id));
+    vi.mocked(getAlbum).mockImplementation(async (id: string) => item(id));
     const { result } = setup();
     await waitFor(() => expect(result.current.items).toHaveLength(2));
     // b (ts 300) is newer than a (ts 100) → first.
     expect(result.current.items.map((i) => i.Id)).toEqual(['b', 'a']);
   });
 
-  it('drops ids that fail to resolve (deleted/moved item)', async () => {
+  it('falls back to artist, then playlist, when an id is not an album', async () => {
+    localStorage.setItem('cadence.recent-plays', JSON.stringify({ ar: 100, pl: 200 }));
+    vi.mocked(getAlbum).mockRejectedValue(new Error('not an album'));
+    vi.mocked(getArtist).mockImplementation(async (id: string) =>
+      id === 'ar' ? item(id, 'MusicArtist') : Promise.reject(new Error('not an artist')),
+    );
+    vi.mocked(getPlaylist).mockImplementation(async (id: string) => item(id, 'Playlist'));
+    const { result } = setup();
+    await waitFor(() => expect(result.current.items).toHaveLength(2));
+    expect(result.current.items.map((i) => i.Type)).toEqual(['Playlist', 'MusicArtist']);
+  });
+
+  it('drops ids that fail to resolve as any kind (deleted/moved item)', async () => {
     localStorage.setItem('cadence.recent-plays', JSON.stringify({ good: 200, gone: 100 }));
-    vi.mocked(getItem).mockImplementation(async (id: string) => {
+    vi.mocked(getAlbum).mockImplementation(async (id: string) => {
       if (id === 'gone') throw new Error('404');
       return item(id);
     });
+    vi.mocked(getArtist).mockRejectedValue(new Error('404'));
+    vi.mocked(getPlaylist).mockRejectedValue(new Error('404'));
     const { result } = setup();
     await waitFor(() => expect(result.current.items).toHaveLength(1));
     expect(result.current.items[0].Id).toBe('good');

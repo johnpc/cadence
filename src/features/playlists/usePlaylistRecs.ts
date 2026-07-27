@@ -10,10 +10,11 @@ import type { MediaItem } from '../../lib/navidromeTypes';
  * pool, hides tracks already in the playlist / dismissed / just-added, and
  * exposes add + dismiss actions. Dismissing reveals the next unused candidate. */
 export function usePlaylistRecs(playlistId: string, existing: MediaItem[], enabled = true) {
-  // The candidate pool is an InstantMix (slow, below the fold) — only fetch once
-  // there are tracks to seed from AND the caller says it's in view.
+  // The candidate pool is a similar-songs radio seeded on the playlist's first
+  // track (slow, below the fold) — only fetch once there's a track to seed
+  // from AND the caller says it's in view.
   const { candidates, isLoading } = usePlaylistRecommendations(
-    playlistId,
+    existing[0]?.Id,
     enabled && existing.length > 0,
   );
   const add = useAddToPlaylist();

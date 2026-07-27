@@ -13,14 +13,14 @@ vi.mock('../../lib/navidromeItems', () => ({
   getSimilarSongs: vi.fn().mockResolvedValue([]),
 }));
 vi.mock('../../lib/navidromeArtists', () => ({ getArtist: vi.fn() }));
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([]),
   getPlaylistItems: vi.fn().mockResolvedValue([]),
   addToPlaylist: vi.fn(),
 }));
 import { getSong, getAlbum, getSimilarSongs } from '../../lib/navidromeItems';
 import { getArtist } from '../../lib/navidromeArtists';
-import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
+import { getPlaylists, getPlaylistItems } from '../../lib/navidromePlaylists';
 import { SongDetail } from './SongDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';

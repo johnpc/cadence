@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getSong, getAlbum } from '../../lib/navidromeItems';
 import { getArtist } from '../../lib/navidromeArtists';
-import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
+import { getPlaylists, getPlaylistItems } from '../../lib/navidromePlaylists';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** A single track's metadata (name, artists, album). */

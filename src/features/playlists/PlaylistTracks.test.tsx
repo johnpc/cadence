@@ -38,7 +38,7 @@ function chooseSort(value: string) {
   });
 }
 
-vi.mock('../../lib/jellyfinPlaylists', () => ({
+vi.mock('../../lib/navidromePlaylists', () => ({
   removeFromPlaylist: vi.fn(),
   movePlaylistItem: vi.fn(),
 }));

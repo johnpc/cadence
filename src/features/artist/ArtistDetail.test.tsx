@@ -10,7 +10,7 @@ vi.mock('../../lib/navidromeItems', () => ({
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
 }));
-vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylists: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../lib/navidromePlaylists', () => ({ getPlaylists: vi.fn().mockResolvedValue([]) }));
 vi.mock('../../lib/navidromeArtists', () => ({
   getArtist: vi.fn(),
   getArtistAlbums: vi.fn(),

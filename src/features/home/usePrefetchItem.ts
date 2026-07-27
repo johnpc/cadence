@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { getItem } from '../../lib/jellyfinItems';
 import { getAlbum } from '../../lib/navidromeItems';
 import { getArtist } from '../../lib/navidromeArtists';
+import { getPlaylist } from '../../lib/navidromePlaylists';
 import { fetchAndCacheArtistAlbums } from '../artist/artistApi';
 import { fetchAndCacheAlbumTracks } from '../album/albumApi';
 import { fetchAndCachePlaylistItems } from '../playlists/playlistItemsCache';
@@ -42,9 +42,7 @@ export function usePrefetchItem() {
           ...opts,
         });
       } else if (item.Type === 'Playlist') {
-        // TODO(navidrome-port): getItem (Jellyfin) until the playlists slice
-        // adds a Subsonic-backed getPlaylist metadata read.
-        header('playlist', () => getItem(item.Id));
+        header('playlist', () => getPlaylist(item.Id));
         void qc.prefetchQuery({
           queryKey: ['playlist-items', item.Id],
           queryFn: () => fetchAndCachePlaylistItems(item.Id),
