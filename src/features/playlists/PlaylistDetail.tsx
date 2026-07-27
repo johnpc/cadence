@@ -17,7 +17,6 @@ import { RecommendedSongs } from './RecommendedSongs';
 import { DeletePlaylistButton } from './DeletePlaylistButton';
 import { RenamePlaylistButton } from './RenamePlaylistButton';
 import { ClonePlaylistButton } from './ClonePlaylistButton';
-import { DeezerMissingArtists } from '../deezer/DeezerMissingArtists';
 import { usePlaylist, usePlaylistItems } from './playlistsApi';
 import './playlists.css';
 
@@ -66,9 +65,6 @@ export function PlaylistDetail() {
               tracks={tracks}
               editable={playlist?.CanDelete === true}
             />
-            {/* Persistent "request these" list for a Deezer-imported playlist —
-                renders nothing unless this playlist mirrors a Deezer subscription. */}
-            <DeezerMissingArtists playlistId={id} />
             {/* Add-recommendations only makes sense for a playlist you own. */}
             {playlist?.CanDelete === true && <RecommendedSongs playlistId={id} tracks={tracks} />}
           </div>

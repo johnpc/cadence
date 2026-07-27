@@ -1,9 +1,8 @@
 /**
  * Shape of the runtime configuration injected at container startup
- * (window.__CADENCE_CONFIG__, written by deploy/runtime-config.sh from env, or
- * merged from the CadenceConfig Jellyfin plugin at sign-in) — NOT baked into the
- * build. Everything is optional; readers (see runtimeConfig.ts) must tolerate a
- * missing config.js.
+ * (window.__CADENCE_CONFIG__, written by deploy/runtime-config.sh from env) —
+ * NOT baked into the build. Everything is optional; readers (see
+ * runtimeConfig.ts) must tolerate a missing config.js.
  */
 export interface RuntimeConfig {
   /** Optional sign-up URL — when set, the sign-in screen shows a "Sign up" link
@@ -34,15 +33,6 @@ export interface RuntimeConfig {
    * Enables the "request missing music" feature. The write-capable key never
    * reaches the browser. Web/PWA only (config.js absent on native → false). */
   lidarrProxy?: boolean;
-  /** When true, the Lidarr proxy is provided by the CadenceConfig Jellyfin plugin
-   * (GET|POST /Cadence/Lidarr/*), not the serving nginx. Set by the plugin-config
-   * fetch (pluginConfigStore) when nginx didn't already enable lidarrProxy — so
-   * lidarrApi routes through Jellyfin (works on native iOS, which has no nginx). */
-  lidarrPluginProxy?: boolean;
-  /** When true, the CadenceConfig Jellyfin plugin exposes the Deezer playlist
-   * import endpoint (POST /Cadence/Deezer/Import). Set by the plugin-config fetch
-   * (pluginConfigStore); gates the "Import from Deezer" screen. */
-  deezerImport?: boolean;
 }
 
 declare global {

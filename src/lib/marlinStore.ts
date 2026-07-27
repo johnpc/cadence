@@ -1,9 +1,9 @@
 /**
  * Optional marlin-search (Meilisearch) config for faster search — a base URL +
- * auth token, persisted per-device. OFF by default (native Jellyfin search until
- * configured). A server-managed URL (runtime config.js / the CadenceConfig
- * plugin) SUPERSEDES the user's choice — see getMarlinUrl / marlinManagedByServer.
- * The token is stored on-device via Preferences, never baked into the build.
+ * auth token, persisted per-device. OFF by default (native search until
+ * configured). A server-managed URL (runtime config.js) SUPERSEDES the user's
+ * choice — see getMarlinUrl / marlinManagedByServer. The token is stored
+ * on-device via Preferences, never baked into the build.
  */
 import { Preferences } from '@capacitor/preferences';
 import { configuredMarlinUrl, marlinProxyEnabled } from './runtimeConfig';

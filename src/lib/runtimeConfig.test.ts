@@ -4,8 +4,6 @@ import {
   configuredMarlinUrl,
   configuredServerUrl,
   lidarrProxyEnabled,
-  lidarrPluginProxyEnabled,
-  deezerImportEnabled,
   marlinProxyEnabled,
   signupUrl,
 } from './runtimeConfig';
@@ -53,26 +51,6 @@ describe('lidarrProxyEnabled', () => {
   it('is false for any non-true value', () => {
     window.__CADENCE_CONFIG__ = { lidarrProxy: undefined };
     expect(lidarrProxyEnabled()).toBe(false);
-  });
-});
-
-describe('lidarrPluginProxyEnabled', () => {
-  it('is false with no config', () => {
-    expect(lidarrPluginProxyEnabled()).toBe(false);
-  });
-  it('is true only when lidarrPluginProxy: true (plugin is the Lidarr source)', () => {
-    window.__CADENCE_CONFIG__ = { lidarrPluginProxy: true };
-    expect(lidarrPluginProxyEnabled()).toBe(true);
-  });
-});
-
-describe('deezerImportEnabled', () => {
-  it('is false with no config', () => {
-    expect(deezerImportEnabled()).toBe(false);
-  });
-  it('is true only when deezerImport: true', () => {
-    window.__CADENCE_CONFIG__ = { deezerImport: true };
-    expect(deezerImportEnabled()).toBe(true);
   });
 });
 

@@ -1,11 +1,8 @@
-/** Client for the Lidarr proxy. Two transports, both injecting the write-capable
- * API key SERVER-SIDE so nothing here carries a credential:
- *  - the serving nginx's same-origin `/api/lidarr/*` (web/PWA), OR
- *  - the CadenceConfig Jellyfin plugin's `/Cadence/Lidarr/*` (works on native
- *    iOS, which has no nginx) — reached via jellyfinFetch so the Jellyfin auth
- *    header rides along.
- * Only allowlisted endpoints are reachable (search / profiles / rootfolder /
- * queue / artist). Used by the Requests screen to find + request missing music. */
+/** Client for the Lidarr proxy — the serving nginx's same-origin `/api/lidarr/*`,
+ * which injects the write-capable API key SERVER-SIDE so nothing here carries a
+ * credential. Only allowlisted endpoints are reachable (search / profiles /
+ * rootfolder / queue / artist). Used by the Requests screen to find + request
+ * missing music. */
 import { lidarrFetch, lidarrPost } from './lidarrTransport';
 import type {
   LidarrSearchResult,

@@ -1,16 +1,14 @@
 /**
  * Readers for the runtime configuration (window.__CADENCE_CONFIG__) injected at
- * container startup by deploy/runtime-config.sh or merged from the CadenceConfig
- * Jellyfin plugin at sign-in. The config shape lives in runtimeConfigTypes.ts;
- * everything is optional, so every reader tolerates a missing config.js.
+ * container startup by deploy/runtime-config.sh. The config shape lives in
+ * runtimeConfigTypes.ts; everything is optional, so every reader tolerates a
+ * missing config.js.
  */
 import './runtimeConfigTypes';
 
 /** A runtime-config boolean flag — true only for an explicit `true` (guards
  * against truthy strings an injected config might carry). */
-function configFlag(
-  key: 'marlinProxy' | 'lidarrProxy' | 'lidarrPluginProxy' | 'deezerImport',
-): boolean {
+function configFlag(key: 'marlinProxy' | 'lidarrProxy'): boolean {
   return window.__CADENCE_CONFIG__?.[key] === true;
 }
 
@@ -62,20 +60,8 @@ export function marlinProxyEnabled(): boolean {
   return configFlag('marlinProxy');
 }
 
-/** True when the Lidarr proxy is available (nginx `/api/lidarr/*` OR the
- * CadenceConfig plugin). Gates the "request missing music" UI. */
+/** True when the deploy enabled the same-origin `/api/lidarr/*` proxy (API key
+ * injected server-side by nginx). Gates the "request missing music" UI. */
 export function lidarrProxyEnabled(): boolean {
   return configFlag('lidarrProxy');
-}
-
-/** True when the Lidarr proxy is the CadenceConfig Jellyfin plugin
- * (`/Cadence/Lidarr/*`) not nginx — the native-iOS path. See lidarrTransport. */
-export function lidarrPluginProxyEnabled(): boolean {
-  return configFlag('lidarrPluginProxy');
-}
-
-/** True when the CadenceConfig plugin exposes the Deezer import endpoint. Gates
- * the "Import from Deezer" screen (deezerApi calls POST /Cadence/Deezer/Import). */
-export function deezerImportEnabled(): boolean {
-  return configFlag('deezerImport');
 }
