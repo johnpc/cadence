@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinStream', () => ({ audioStreamUrl: (id: string) => `stream:${id}` }));
+vi.mock('../../lib/navidromeStream', () => ({ audioStreamUrl: (id: string) => `stream:${id}` }));
 import { useNextTrackPrefetch } from './useNextTrackPrefetch';
 import { startQueue } from './queue';
 import type { MediaItem } from '../../lib/navidromeTypes';

@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Chromecast } from '@hauxir2/capacitor-chromecast';
-import { audioStreamUrl, imageUrl } from '../../lib/jellyfinStream';
+import { audioStreamUrl, imageUrl } from '../../lib/navidromeStream';
 import { castReceiverAppId } from '../../lib/runtimeConfig';
 import { setCastState, getCastState } from './castStore';
 import { setCastProgress } from './castProgress';

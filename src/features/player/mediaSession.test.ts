@@ -21,7 +21,7 @@ const track: MediaItem = {
 
 describe('mediaSession', () => {
   beforeEach(() => {
-    setSession({ token: 't', userId: 'u' });
+    setSession({ username: 'u', userId: 'u', subsonicSalt: 's', subsonicToken: 't' });
     // jsdom has neither; stub the shapes the module touches.
     vi.stubGlobal(
       'MediaMetadata',

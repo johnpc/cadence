@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import { musicalNotes } from 'ionicons/icons';
 import { IonIcon } from '@ionic/react';
-import { imageUrl } from '../../lib/jellyfinStream';
+import { imageUrl } from '../../lib/navidromeStream';
 import { useLocalArt } from '../downloads/useLocalArt';
 import type { MediaItem } from '../../lib/navidromeTypes';
 import './trackArt.css';

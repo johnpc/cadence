@@ -7,7 +7,6 @@
  * stalled server fails fast (→ retryable) instead of hanging the UI forever.
  */
 import { apiUrl, embyAuthHeader } from './jellyfinConfig';
-import { getSession } from './sessionStore';
 import { notifySessionExpired } from './sessionExpiry';
 import { Unauthenticated, RequestTimeout, HttpError, REQUEST_TIMEOUT_MS } from './jellyfinErrors';
 
@@ -21,7 +20,10 @@ export interface RequestOptions {
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', body, token = getSession()?.token } = options;
+  // NOTE: mid-port — the module-scoped session is now Subsonic-shaped (no
+  // `.token`), so callers still on this Jellyfin-flavored client must pass an
+  // explicit token; there is no longer an ambient session to fall back to.
+  const { method = 'GET', body, token } = options;
   const headers: Record<string, string> = {
     'X-Emby-Authorization': embyAuthHeader(token),
   };

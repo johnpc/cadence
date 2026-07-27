@@ -24,7 +24,7 @@ describe('jellyfinDiscover', () => {
   });
 
   it('getLatestAlbums hits the Latest endpoint and returns the array', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub([{ Id: 'al', Name: 'A', Type: 'MusicAlbum' }]);
     const albums = await getLatestAlbums(5);
     expect(albums).toHaveLength(1);
@@ -34,7 +34,7 @@ describe('jellyfinDiscover', () => {
   });
 
   it('getSuggestedSongs reads the Suggestions envelope', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub({ Items: [{ Id: 's', Name: 'x', Type: 'Audio' }], TotalRecordCount: 1 });
     const songs = await getSuggestedSongs(5);
     expect(songs).toHaveLength(1);
@@ -44,7 +44,7 @@ describe('jellyfinDiscover', () => {
   });
 
   it('getRecentlyPlayed requests played audio, most-recent first', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub({ Items: [{ Id: 's', Name: 'x', Type: 'Audio' }], TotalRecordCount: 1 });
     const songs = await getRecentlyPlayed(5);
     expect(songs).toHaveLength(1);
@@ -54,7 +54,7 @@ describe('jellyfinDiscover', () => {
   });
 
   it('getOnRepeat requests played audio by per-user PlayCount from the user endpoint', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub({ Items: [{ Id: 's', Name: 'x', Type: 'Audio' }], TotalRecordCount: 1 });
     const songs = await getOnRepeat(5);
     expect(songs).toHaveLength(1);

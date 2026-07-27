@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { request, Unauthenticated, RequestTimeout } from './jellyfinFetch';
-import { setSession } from './sessionStore';
 import { onSessionExpired } from './sessionExpiry';
 
 function mockFetch(status: number, body: unknown = {}) {
@@ -13,7 +12,6 @@ function mockFetch(status: number, body: unknown = {}) {
 
 describe('jellyfinFetch.request', () => {
   afterEach(() => {
-    setSession(null);
     vi.restoreAllMocks();
   });
 
@@ -64,15 +62,6 @@ describe('jellyfinFetch.request', () => {
       vi.fn().mockResolvedValue({ ok: true, status: 204, text: async () => '' } as Response),
     );
     expect(await request('/Users/x/FavoriteItems/y', { method: 'POST' })).toBeUndefined();
-  });
-
-  it('falls back to the stored session token when none is passed', async () => {
-    setSession({ token: 'stored', userId: 'u' });
-    const f = mockFetch(200, {});
-    vi.stubGlobal('fetch', f);
-    await request('/Items');
-    const [, init] = f.mock.calls[0];
-    expect(init.headers['Authorization']).toBe('MediaBrowser Token="stored"');
   });
 
   it('passes an abort signal so the request is bounded by a timeout', async () => {

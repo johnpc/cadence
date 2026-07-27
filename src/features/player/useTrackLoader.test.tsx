@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useRef } from 'react';
 import { useTrackLoader } from './useTrackLoader';
 
-vi.mock('../../lib/jellyfinStream', () => ({
+vi.mock('../../lib/navidromeStream', () => ({
   audioStreamUrl: (id: string) => `https://jf.test/Audio/${id}/universal`,
 }));
 vi.mock('../downloads/downloadStore', () => ({ localAudioUrl: vi.fn(), isDownloaded: vi.fn() }));

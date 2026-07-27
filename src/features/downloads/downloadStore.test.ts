@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinStream', () => ({
+vi.mock('../../lib/navidromeStream', () => ({
   audioStreamUrl: (id: string) => `https://jf.test/Audio/${id}/universal`,
   imageUrl: (item: { Id: string }) => `https://jf.test/Items/${item.Id}/Images/Primary`,
 }));

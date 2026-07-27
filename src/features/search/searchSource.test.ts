@@ -24,7 +24,7 @@ describe('jellyfinSearchSource', () => {
   });
 
   it('queries /Items (songs+albums), /Artists, and playlists, merging + tagging artists', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi.fn().mockImplementation((url: string) => {
       let items: unknown[];
       if (url.includes('/Artists')) {
@@ -112,7 +112,7 @@ describe('marlinSearchSource', () => {
   }
 
   it('queries marlin per type (so songs cannot starve artists/albums) + hydrates', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     marlin.url = 'https://search.example.com';
     marlin.token = 'tok';
     const f = stubMarlin({
@@ -141,7 +141,7 @@ describe('marlinSearchSource', () => {
   });
 
   it('drops any non-music item the indexer returns (defence in depth)', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     marlin.url = 'https://search.example.com';
     // An older indexer ignores includeItemTypes and returns a Movie under the
     // Audio query — only music survives the post-hydration filter.
@@ -158,7 +158,7 @@ describe('marlinSearchSource', () => {
   });
 
   it('uses the same-origin /api/search proxy with NO token when marlinProxy is on', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     window.__CADENCE_CONFIG__ = { marlinProxy: true };
     const f = stubMarlin({
       proxy: true,
@@ -176,7 +176,7 @@ describe('marlinSearchSource', () => {
   });
 
   it('fetches playlists from native Jellyfin (marlin cannot rank them) and merges them', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     marlin.url = 'https://search.example.com';
     const f = stubMarlin({
       perType: { Audio: ['song'], MusicAlbum: [], MusicArtist: [] },
@@ -192,7 +192,7 @@ describe('marlinSearchSource', () => {
   });
 
   it('still returns marlin music even if the native playlist fetch fails', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     marlin.url = 'https://search.example.com';
     stubMarlin({
       perType: { Audio: ['song'], MusicAlbum: [], MusicArtist: [] },
@@ -212,7 +212,7 @@ describe('searchSource (active selector)', () => {
   });
 
   it('uses native search when marlin is not configured (default)', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     marlin.configured = false;
     const f = vi.fn().mockResolvedValue({
       ok: true,
@@ -227,7 +227,7 @@ describe('searchSource (active selector)', () => {
   });
 
   it('activates marlin via the same-origin proxy even without a Settings URL', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     marlin.configured = false; // no user Settings URL…
     window.__CADENCE_CONFIG__ = { marlinProxy: true }; // …but the deploy enabled the proxy
     const f = vi.fn().mockImplementation((url: string) => {
@@ -249,7 +249,7 @@ describe('searchSource (active selector)', () => {
   });
 
   it('falls back to native search when the configured marlin call fails', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     marlin.configured = true;
     marlin.url = 'https://search.example.com';
     const f = vi.fn().mockImplementation((url: string) => {
@@ -268,7 +268,7 @@ describe('searchSource (active selector)', () => {
   });
 
   it('falls back to native search when the marlin fetch aborts (hung indexer)', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     marlin.configured = true;
     marlin.url = 'https://search.example.com';
     const f = vi.fn().mockImplementation((url: string, init?: RequestInit) => {

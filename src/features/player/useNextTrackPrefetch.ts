@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { audioStreamUrl } from '../../lib/jellyfinStream';
+import { audioStreamUrl } from '../../lib/navidromeStream';
 import * as q from './queue';
 
 /**

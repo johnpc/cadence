@@ -15,7 +15,7 @@ const { plugin, isNativePlatform } = vi.hoisted(() => ({
 }));
 vi.mock('@hauxir2/capacitor-chromecast', () => ({ Chromecast: plugin }));
 vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform } }));
-vi.mock('../../lib/jellyfinStream', () => ({
+vi.mock('../../lib/navidromeStream', () => ({
   audioStreamUrl: (id: string) => `https://jf.test/Audio/${id}/universal`,
   imageUrl: () => 'https://jf.test/art.jpg',
 }));

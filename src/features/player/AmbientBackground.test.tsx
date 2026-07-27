@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinStream', () => ({ imageUrl: (i: { Id: string }) => `img:${i.Id}` }));
+vi.mock('../../lib/navidromeStream', () => ({ imageUrl: (i: { Id: string }) => `img:${i.Id}` }));
 const color = vi.fn<[string | null], string | null>(() => null);
 vi.mock('../color/useDominantColor', () => ({
   useDominantColor: (src: string | null) => color(src),

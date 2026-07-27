@@ -22,7 +22,7 @@ describe('useMediaSessionSync', () => {
   });
 
   it('publishes metadata + state + handlers when available', () => {
-    setSession({ token: 't', userId: 'u' });
+    setSession({ username: 'u', userId: 'u', subsonicSalt: 's', subsonicToken: 't' });
     vi.stubGlobal(
       'MediaMetadata',
       class {

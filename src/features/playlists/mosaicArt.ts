@@ -1,4 +1,4 @@
-import { imageUrl } from '../../lib/jellyfinStream';
+import { imageUrl } from '../../lib/navidromeStream';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Up to 4 distinct cover-art URLs drawn from a playlist's tracks, for a

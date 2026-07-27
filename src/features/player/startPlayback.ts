@@ -1,5 +1,5 @@
 import { log } from '../../lib/diagnostics/diagnosticsStore';
-import { audioStreamUrl } from '../../lib/jellyfinStream';
+import { audioStreamUrl } from '../../lib/navidromeStream';
 import { isDownloaded, localAudioUrl } from '../downloads/downloadStore';
 
 /** Resolve the best src for a track: a locally-downloaded blob when present

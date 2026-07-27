@@ -1,31 +1,29 @@
 /**
- * Durable persistence of the signed-in Jellyfin session (token + userId +
- * username). Uses @capacitor/preferences so it survives relaunches on native
- * (UserDefaults / SharedPreferences), where localStorage is not durable in the
- * iOS WKWebView. Web is unaffected (Preferences is localStorage-backed there).
+ * Durable persistence of the signed-in Navidrome session. Uses
+ * @capacitor/preferences so it survives relaunches on native (UserDefaults /
+ * SharedPreferences), where localStorage is not durable in the iOS WKWebView.
+ * Web is unaffected (Preferences is localStorage-backed there).
  */
 import { Preferences } from '@capacitor/preferences';
 import type { Session } from './navidromeTypes';
 
 const KEY = 'cadence.session';
 
-export interface StoredSession extends Session {
-  username: string;
-}
-
-export async function loadStoredSession(): Promise<StoredSession | null> {
+export async function loadStoredSession(): Promise<Session | null> {
   const { value } = await Preferences.get({ key: KEY });
   if (!value) return null;
   try {
-    const parsed = JSON.parse(value) as StoredSession;
-    if (parsed.token && parsed.userId) return parsed;
+    const parsed = JSON.parse(value) as Session;
+    if (parsed.username && parsed.userId && parsed.subsonicToken && parsed.subsonicSalt) {
+      return parsed;
+    }
   } catch {
     // Corrupt value — treat as no session.
   }
   return null;
 }
 
-export async function storeSession(session: StoredSession): Promise<void> {
+export async function storeSession(session: Session): Promise<void> {
   await Preferences.set({ key: KEY, value: JSON.stringify(session) });
 }
 

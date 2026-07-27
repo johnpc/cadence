@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinAuth', () => ({
+vi.mock('../../lib/navidromeAuth', () => ({
   authenticateByName: vi.fn(),
   validateToken: vi.fn(),
 }));
@@ -11,10 +11,17 @@ vi.mock('../../lib/sessionPersistence', () => ({
   clearStoredSession: vi.fn(),
 }));
 
-import { authenticateByName, validateToken } from '../../lib/jellyfinAuth';
+import { authenticateByName, validateToken } from '../../lib/navidromeAuth';
 import { setSession } from '../../lib/sessionStore';
 import { clearStoredSession, loadStoredSession, storeSession } from '../../lib/sessionPersistence';
 import { currentUsername, signIn, signOut } from './authClient';
+
+const stored = {
+  username: 'cadence-test',
+  userId: 'u',
+  subsonicSalt: 'salt1',
+  subsonicToken: 'tok1',
+};
 
 describe('authClient', () => {
   afterEach(() => {
@@ -28,37 +35,25 @@ describe('authClient', () => {
   });
 
   it('currentUsername validates a stored session and primes the store', async () => {
-    vi.mocked(loadStoredSession).mockResolvedValue({
-      token: 't',
-      userId: 'u',
-      username: 'cadence-test',
-    });
-    vi.mocked(validateToken).mockResolvedValue({ Id: 'u', Name: 'cadence-test' });
+    vi.mocked(loadStoredSession).mockResolvedValue(stored);
+    vi.mocked(validateToken).mockResolvedValue(true);
     expect(await currentUsername()).toBe('cadence-test');
-    expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u' });
+    expect(setSession).toHaveBeenCalledWith(stored);
   });
 
-  it('currentUsername clears a dead token', async () => {
-    vi.mocked(loadStoredSession).mockResolvedValue({
-      token: 'bad',
-      userId: 'u',
-      username: 'x',
-    });
-    vi.mocked(validateToken).mockResolvedValue(null);
+  it('currentUsername clears a dead session', async () => {
+    vi.mocked(loadStoredSession).mockResolvedValue({ ...stored, username: 'x' });
+    vi.mocked(validateToken).mockResolvedValue(false);
     expect(await currentUsername()).toBeNull();
     expect(clearStoredSession).toHaveBeenCalled();
     expect(setSession).toHaveBeenCalledWith(null);
   });
 
   it('signIn authenticates, primes the store, and persists', async () => {
-    vi.mocked(authenticateByName).mockResolvedValue({ token: 't', userId: 'u' });
+    vi.mocked(authenticateByName).mockResolvedValue(stored);
     await signIn('cadence-test', 'pw');
-    expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u' });
-    expect(storeSession).toHaveBeenCalledWith({
-      token: 't',
-      userId: 'u',
-      username: 'cadence-test',
-    });
+    expect(setSession).toHaveBeenCalledWith(stored);
+    expect(storeSession).toHaveBeenCalledWith(stored);
   });
 
   it('signOut clears memory + durable store', async () => {

@@ -1,4 +1,4 @@
-import { audioStreamUrl, imageUrl } from '../../lib/jellyfinStream';
+import { audioStreamUrl, imageUrl } from '../../lib/navidromeStream';
 import { addToIndex, removeFromIndex, readIndex } from './downloadIndex';
 import { selectBlobStore } from './blobStore';
 import type { MediaItem } from '../../lib/navidromeTypes';

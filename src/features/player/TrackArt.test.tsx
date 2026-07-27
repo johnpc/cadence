@@ -8,7 +8,7 @@ describe('TrackArt', () => {
   afterEach(() => setSession(null));
 
   it('renders an img when the item has art', () => {
-    setSession({ token: 't', userId: 'u' });
+    setSession({ username: 'u', userId: 'u', subsonicSalt: 's', subsonicToken: 't' });
     const item: MediaItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
     const { container } = render(<TrackArt item={item} />);
     expect(container.querySelector('img')).toBeInTheDocument();
@@ -26,7 +26,7 @@ describe('TrackArt', () => {
   });
 
   it('fades the image in only once it has loaded', () => {
-    setSession({ token: 't', userId: 'u' });
+    setSession({ username: 'u', userId: 'u', subsonicSalt: 's', subsonicToken: 't' });
     const item: MediaItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
     const { container } = render(<TrackArt item={item} />);
     const img = container.querySelector('img') as HTMLImageElement;
@@ -36,7 +36,7 @@ describe('TrackArt', () => {
   });
 
   it('falls back to the placeholder when the image fails to load', () => {
-    setSession({ token: 't', userId: 'u' });
+    setSession({ username: 'u', userId: 'u', subsonicSalt: 's', subsonicToken: 't' });
     const item: MediaItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
     const { container } = render(<TrackArt item={item} />);
     const img = container.querySelector('img');
@@ -47,7 +47,7 @@ describe('TrackArt', () => {
   });
 
   it('is memoized: a parent re-render with the same props reuses the img element', () => {
-    setSession({ token: 't', userId: 'u' });
+    setSession({ username: 'u', userId: 'u', subsonicSalt: 's', subsonicToken: 't' });
     const item: MediaItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
     const { container, rerender } = render(<TrackArt item={item} size={44} />);
     const first = container.querySelector('img');

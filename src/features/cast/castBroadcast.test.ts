@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const { sendMessage } = vi.hoisted(() => ({ sendMessage: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@hauxir2/capacitor-chromecast', () => ({ Chromecast: { sendMessage } }));
-vi.mock('../../lib/jellyfinStream', () => ({ imageUrl: () => 'https://jf.test/art.jpg' }));
+vi.mock('../../lib/navidromeStream', () => ({ imageUrl: () => 'https://jf.test/art.jpg' }));
 
 import { sendNowPlaying, sendQueue, sendLyrics } from './castBroadcast';
 import { setCastState } from './castStore';

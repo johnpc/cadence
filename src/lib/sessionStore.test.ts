@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { getSession, setSession } from './sessionStore';
 
+const session = { username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' };
+
 describe('sessionStore', () => {
   afterEach(() => setSession(null));
 
@@ -9,8 +11,8 @@ describe('sessionStore', () => {
   });
 
   it('holds and clears the session', () => {
-    setSession({ token: 't', userId: 'u' });
-    expect(getSession()).toEqual({ token: 't', userId: 'u' });
+    setSession(session);
+    expect(getSession()).toEqual(session);
     setSession(null);
     expect(getSession()).toBeNull();
   });

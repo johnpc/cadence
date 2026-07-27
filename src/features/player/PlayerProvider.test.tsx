@@ -71,7 +71,7 @@ function Probe() {
 
 describe('PlayerProvider', () => {
   beforeEach(() => {
-    setSession({ token: 't', userId: 'u' });
+    setSession({ username: 'u', userId: 'u', subsonicSalt: 's', subsonicToken: 't' });
     audio = new FakeAudio();
     // First construction is the main element; later ones are the prefetch
     // hook's throwaway buffers (must not clobber the main element's src).
@@ -101,7 +101,8 @@ describe('PlayerProvider', () => {
     await userEvent.click(screen.getByText('play'));
     expect(screen.getByTestId('current')).toHaveTextContent('Song a');
     // src resolution is async (resolveTrackSrc) — wait for it to land.
-    await waitFor(() => expect(audio.src).toContain('/Audio/a/universal'));
+    await waitFor(() => expect(audio.src).toContain('/rest/stream?'));
+    expect(audio.src).toContain('id=a');
     expect(screen.getByTestId('playing')).toHaveTextContent('true');
   });
 
@@ -114,7 +115,8 @@ describe('PlayerProvider', () => {
     await userEvent.click(screen.getByText('play'));
     act(() => audio.fire('ended'));
     expect(screen.getByTestId('current')).toHaveTextContent('Song b');
-    await waitFor(() => expect(audio.src).toContain('/Audio/b/universal'));
+    await waitFor(() => expect(audio.src).toContain('/rest/stream?'));
+    expect(audio.src).toContain('id=b');
   });
 
   it('retries the track on the first load error, then skips on the second', async () => {

@@ -1,9 +1,9 @@
 /**
- * Thin wrapper over the Jellyfin auth endpoints + durable session storage.
+ * Thin wrapper over the Navidrome auth endpoints + durable session storage.
  * Isolates all session side-effects so AuthProvider stays declarative and tests
  * mock a single module. Mirrors stoop's authClient shape.
  */
-import { authenticateByName, validateToken } from '../../lib/jellyfinAuth';
+import { authenticateByName, validateToken } from '../../lib/navidromeAuth';
 import { setSession } from '../../lib/sessionStore';
 import { clearStoredSession, loadStoredSession, storeSession } from '../../lib/sessionPersistence';
 
@@ -15,21 +15,21 @@ import { clearStoredSession, loadStoredSession, storeSession } from '../../lib/s
 export async function currentUsername(): Promise<string | null> {
   const stored = await loadStoredSession();
   if (!stored) return null;
-  const user = await validateToken({ token: stored.token, userId: stored.userId });
-  if (!user) {
+  const valid = await validateToken(stored);
+  if (!valid) {
     await clearStoredSession();
     setSession(null);
     return null;
   }
-  setSession({ token: stored.token, userId: stored.userId });
+  setSession(stored);
   return stored.username;
 }
 
-/** Sign in with a Jellyfin account; persists the session + primes the store. */
+/** Sign in with a Navidrome account; persists the session + primes the store. */
 export async function signIn(username: string, password: string): Promise<void> {
   const session = await authenticateByName(username, password);
   setSession(session);
-  await storeSession({ ...session, username });
+  await storeSession(session);
 }
 
 /** Clear the session everywhere (memory + durable store). */

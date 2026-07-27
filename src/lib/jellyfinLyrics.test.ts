@@ -20,7 +20,7 @@ describe('getLyrics', () => {
   });
 
   it('returns plain lines (no start) when the track has unsynced lyrics', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     stub(200, { Lyrics: [{ Text: 'line one' }, { Text: 'line two' }] });
     expect(await getLyrics('s1')).toEqual([
       { text: 'line one', start: undefined },
@@ -29,7 +29,7 @@ describe('getLyrics', () => {
   });
 
   it('converts Start ticks to seconds for synced (LRC) lyrics', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     // 32,800,000 ticks = 3.28s; a leading 0-tick line stays unsynced.
     stub(200, {
       Lyrics: [
@@ -44,7 +44,7 @@ describe('getLyrics', () => {
   });
 
   it('returns [] when there are no lyrics (404)', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     stub(404);
     expect(await getLyrics('s1')).toEqual([]);
   });

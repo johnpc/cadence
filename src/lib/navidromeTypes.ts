@@ -1,27 +1,39 @@
 /**
- * Hand-modeled Jellyfin API shapes — only the fields Cadence actually consumes.
- * We deliberately do NOT pull the heavy @jellyfin/sdk types; this keeps the
- * client thin and the bundle lean. No `any`.
+ * Hand-modeled Navidrome/Subsonic API shapes — only the fields Cadence
+ * actually consumes. No `any`.
  */
 
-/** Result of POST /Users/AuthenticateByName. */
-export interface AuthResult {
-  AccessToken: string;
-  User: JellyfinUser;
-}
-
-export interface JellyfinUser {
-  Id: string;
-  Name: string;
-  /** The user's permissions (`IsAdministrator`), as Jellyfin returns them on
-   * `/Users/Me`. Modelled for completeness; no feature currently gates on it. */
-  Policy?: { IsAdministrator?: boolean };
-}
-
-/** The session Cadence persists + threads into every request. */
-export interface Session {
+/** Result of POST /auth/login (Navidrome's native, non-Subsonic sign-in
+ * endpoint) — the only call that produces Subsonic credentials rather than
+ * consuming them. `subsonicToken` is `md5(password + subsonicSalt)`, computed
+ * SERVER-SIDE; Cadence never sees the plaintext password again after this
+ * call, and never computes the hash itself. `token` (a JWT) is intentionally
+ * unused — see navidromeAuth.ts. */
+export interface LoginResponse {
+  id: string;
+  username: string;
+  subsonicSalt: string;
+  subsonicToken: string;
   token: string;
+}
+
+/** Result of GET /rest/getUser — used only to confirm a stored session is
+ * still valid (see navidromeAuth.validateToken). */
+export interface NavidromeUser {
+  username: string;
+}
+
+/** The session Cadence persists + threads into every Subsonic request. Unlike
+ * Jellyfin's single bearer token, Subsonic authenticates per-request via
+ * `u` (username) + `t` (subsonicToken) + `s` (subsonicSalt) — see
+ * navidromeConfig.subsonicAuthParams. This pair never expires (valid until
+ * the user's password changes, recomputed fresh server-side on every
+ * request, no server-side session state), unlike the JWT `token` above. */
+export interface Session {
+  username: string;
   userId: string;
+  subsonicSalt: string;
+  subsonicToken: string;
 }
 
 /** A media item (song, album, artist, playlist) — the subset we render. */
@@ -55,13 +67,15 @@ export interface MediaItem {
   Overview?: string;
   /** True when the current user has favorited it. */
   UserData?: { IsFavorite?: boolean };
-  /** True when the current user may delete the item — for playlists this holds
-   * only for the OWNER, so it's our signal for "this is my playlist" (Jellyfin
-   * doesn't expose OwnerUserId on the /Items response). */
+  /** True when the current user may act on the item as its owner — for
+   * playlists, `owner === session.username` (see navidromeMapper); Navidrome
+   * exposes the owner's username directly, unlike Jellyfin. */
   CanDelete?: boolean;
   /** Present on items carrying their own primary image. */
   ImageTags?: { Primary?: string };
-  /** The per-entry id of this track WITHIN a playlist (for removal). */
+  /** The per-entry id of this track WITHIN a playlist (for removal). Subsonic
+   * addresses playlist entries by array INDEX, not a stable id, so this holds
+   * the stringified index (see navidromeMapper/navidromePlaylists). */
   PlaylistItemId?: string;
 }
 

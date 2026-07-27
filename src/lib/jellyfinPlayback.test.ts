@@ -19,7 +19,7 @@ describe('jellyfinPlayback', () => {
   });
 
   it('reportPlaybackStart POSTs to Sessions/Playing at position 0', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = okFetch();
     await reportPlaybackStart('song1');
     const [url, init] = f.mock.calls[0];
@@ -29,7 +29,7 @@ describe('jellyfinPlayback', () => {
   });
 
   it('reportPlaybackProgress converts seconds to ticks', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = okFetch();
     await reportPlaybackProgress('song1', 12);
     const [url, init] = f.mock.calls[0];
@@ -38,14 +38,14 @@ describe('jellyfinPlayback', () => {
   });
 
   it('reportPlaybackStopped hits the Stopped endpoint', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = okFetch();
     await reportPlaybackStopped('song1', 30);
     expect(f.mock.calls[0][0]).toContain('/Sessions/Playing/Stopped');
   });
 
   it('swallows errors so reporting never breaks playback', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network')));
     await expect(reportPlaybackStart('song1')).resolves.toBeUndefined();
   });

@@ -52,7 +52,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('getPlaylists returns only playlists the user OWNS (confirmed via the share endpoint)', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     // 'mine' + 'admincandelete' both have CanDelete true (admin sees that on
     // everything), but only 'mine' passes the owner-only /Users check.
     const f = stubOwnership(
@@ -70,7 +70,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('getPublicPlaylists returns others playlists NEWEST-FIRST (Descending)', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stubOwnership(
       [
         // Server returns these in DateCreated-Descending order (newest first).
@@ -91,14 +91,14 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('getPlaylistItems reads a playlist’s tracks', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub({ Items: [{ Id: 'a', Name: 'x', Type: 'Audio' }], TotalRecordCount: 1 });
     await getPlaylistItems('pl1');
     expect(f.mock.calls[0][0]).toContain('/Playlists/pl1/Items');
   });
 
   it('createPlaylist POSTs and returns the new id', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub({ Id: 'new1' });
     const id = await createPlaylist('My Mix');
     expect(id).toBe('new1');
@@ -112,7 +112,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('createPlaylistWithItems POSTs the name and initial ids', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub({ Id: 'q1' });
     const id = await createPlaylistWithItems('My Queue', ['a', 'b']);
     expect(id).toBe('q1');
@@ -126,7 +126,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('addToPlaylist POSTs the item id', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub(undefined, 204);
     await addToPlaylist('pl1', 'song1');
     const [url, init] = f.mock.calls[0];
@@ -136,7 +136,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('removeFromPlaylist DELETEs the entry id', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub(undefined, 204);
     await removeFromPlaylist('pl1', 'entry1');
     const [url, init] = f.mock.calls[0];
@@ -146,7 +146,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('movePlaylistItem POSTs to the Move endpoint with the new index', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub(undefined, 204);
     await movePlaylistItem('pl1', 'entry1', 2);
     const [url, init] = f.mock.calls[0];
@@ -155,7 +155,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('deletePlaylist DELETEs the playlist item', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub(undefined, 204);
     await deletePlaylist('pl1');
     const [url, init] = f.mock.calls[0];
@@ -164,7 +164,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('renamePlaylist POSTs the new name to the UpdatePlaylist endpoint', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub(undefined, 204);
     await renamePlaylist('pl1', 'New Name');
     const [url, init] = f.mock.calls[0];
@@ -174,7 +174,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('getPlaylistIsPublic reads OpenAccess from the playlist DTO', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     stub({ OpenAccess: true, Shares: [], ItemIds: [] });
     expect(await getPlaylistIsPublic('pl1')).toBe(true);
     stub({ OpenAccess: false });
@@ -184,7 +184,7 @@ describe('jellyfinPlaylists', () => {
   });
 
   it('setPlaylistIsPublic POSTs IsPublic to the UpdatePlaylist endpoint', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stub(undefined, 204);
     await setPlaylistIsPublic('pl1', true);
     const [url, init] = f.mock.calls[0];

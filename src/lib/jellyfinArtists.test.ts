@@ -14,7 +14,7 @@ describe('jellyfinArtists', () => {
   });
 
   it('getArtistAlbums filters albums by the artist', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -29,7 +29,7 @@ describe('jellyfinArtists', () => {
   });
 
   it('getArtistTopTracks requests audio by the artist sorted by play count', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -44,7 +44,7 @@ describe('jellyfinArtists', () => {
   });
 
   it('getFavoriteArtists requests followed MusicArtist items', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -59,7 +59,7 @@ describe('jellyfinArtists', () => {
   });
 
   it('getArtistsByIds hydrates ids and preserves their order', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -80,7 +80,7 @@ describe('jellyfinArtists', () => {
   });
 
   it('getArtistsByIds returns an empty array without calling the server', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi.fn();
     vi.stubGlobal('fetch', f);
     expect(await getArtistsByIds([])).toEqual([]);

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { startPlayback, resolveTrackSrc } from './startPlayback';
 
 vi.mock('../../lib/diagnostics/diagnosticsStore', () => ({ log: vi.fn() }));
-vi.mock('../../lib/jellyfinStream', () => ({
+vi.mock('../../lib/navidromeStream', () => ({
   audioStreamUrl: (id: string) => `https://jf.test/Audio/${id}/universal`,
 }));
 vi.mock('../downloads/downloadStore', () => ({ localAudioUrl: vi.fn(), isDownloaded: vi.fn() }));

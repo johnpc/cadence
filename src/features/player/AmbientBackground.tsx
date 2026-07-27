@@ -1,4 +1,4 @@
-import { imageUrl } from '../../lib/jellyfinStream';
+import { imageUrl } from '../../lib/navidromeStream';
 import { useDominantColor } from '../color/useDominantColor';
 import type { MediaItem } from '../../lib/navidromeTypes';
 import './ambientBackground.css';

@@ -1,6 +1,6 @@
 /**
  * Module-scoped auth session, set by AuthProvider on sign-in/refresh and read by
- * jellyfinFetch + the stream URL builders. Keeping it here (not threaded through
+ * navidromeFetch + the stream URL builders. Keeping it here (not threaded through
  * every xApi call) lets `xApi.ts` signatures stay credential-free — mirrors how
  * stoop never passes creds around.
  */

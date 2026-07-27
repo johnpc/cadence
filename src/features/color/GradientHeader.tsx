@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { imageUrl } from '../../lib/jellyfinStream';
+import { imageUrl } from '../../lib/navidromeStream';
 import { useDominantColor } from './useDominantColor';
 import type { MediaItem } from '../../lib/navidromeTypes';
 import './gradientHeader.css';

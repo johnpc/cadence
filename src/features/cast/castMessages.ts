@@ -1,4 +1,4 @@
-import { imageUrl } from '../../lib/jellyfinStream';
+import { imageUrl } from '../../lib/navidromeStream';
 import { artistLine } from '../player/playerFormat';
 import type { MediaItem } from '../../lib/navidromeTypes';
 import type { LyricLine } from '../../lib/jellyfinLyrics';

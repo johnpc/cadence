@@ -28,7 +28,7 @@ describe('jellyfinItems', () => {
   });
 
   it('getItem fetches a single item by id for the user', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -41,7 +41,7 @@ describe('jellyfinItems', () => {
   });
 
   it('getItemTracks requests an album’s tracks by AlbumIds, in order', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stubItems([{ Id: 'a', Name: 'x', Type: 'Audio' }]);
     const items = await getItemTracks('album1');
     expect(items).toHaveLength(1);
@@ -51,7 +51,7 @@ describe('jellyfinItems', () => {
   });
 
   it('getInstantMix requests a radio seeded from an item', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stubItems([{ Id: 'r', Name: 'x', Type: 'Audio' }]);
     const items = await getInstantMix('seed1', 20);
     expect(items).toHaveLength(1);
@@ -61,7 +61,7 @@ describe('jellyfinItems', () => {
   });
 
   it('getItemsByIds hydrates ids and preserves the requested order', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     // Server returns them out of order; helper must restore the id order.
     const f = stubItems([
       { Id: 'b', Name: 'B', Type: 'MusicAlbum' },
@@ -74,7 +74,7 @@ describe('jellyfinItems', () => {
   });
 
   it('getItemsByIds skips the request for an empty id list', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stubItems([]);
     const items = await getItemsByIds([]);
     expect(items).toEqual([]);
@@ -82,14 +82,14 @@ describe('jellyfinItems', () => {
   });
 
   it('getItemsByIds drops ids the server did not return', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     stubItems([{ Id: 'a', Name: 'A', Type: 'MusicAlbum' }]);
     const items = await getItemsByIds(['a', 'missing']);
     expect(items.map((i) => i.Id)).toEqual(['a']);
   });
 
   it('getFavoriteSongs requests liked audio, newest first', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stubItems([{ Id: 'a', Name: 'x', Type: 'Audio' }]);
     await getFavoriteSongs();
     const [url] = f.mock.calls[0];
@@ -98,7 +98,7 @@ describe('jellyfinItems', () => {
   });
 
   it('getFavoriteAlbums requests saved albums, newest first', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = stubItems([{ Id: 'al', Name: 'x', Type: 'MusicAlbum' }]);
     await getFavoriteAlbums();
     const [url] = f.mock.calls[0];
@@ -107,7 +107,7 @@ describe('jellyfinItems', () => {
   });
 
   it('addFavorite POSTs to the user favorite endpoint', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi
       .fn()
       .mockResolvedValue({ ok: true, status: 200, text: async () => '' } as Response);
@@ -119,7 +119,7 @@ describe('jellyfinItems', () => {
   });
 
   it('removeFavorite DELETEs from the user favorite endpoint', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi
       .fn()
       .mockResolvedValue({ ok: true, status: 200, text: async () => '' } as Response);

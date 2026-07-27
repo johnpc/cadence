@@ -1,4 +1,4 @@
-import { imageUrl } from '../../lib/jellyfinStream';
+import { imageUrl } from '../../lib/navidromeStream';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Cover art at several sizes for the OS now-playing UI, so it picks the

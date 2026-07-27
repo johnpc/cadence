@@ -1,7 +1,7 @@
-/** Streaming audio quality — a cap on the transcode bitrate for the Jellyfin
- * `/universal` stream (Spotify's Data Saver / quality tiers). Persisted per
- * device. 'auto' (default) sends no cap: Jellyfin direct-plays or transcodes at
- * full quality. */
+/** Streaming audio quality — a cap on the transcode bitrate for the Navidrome
+ * `stream` endpoint (Spotify's Data Saver / quality tiers). Persisted per
+ * device. 'auto' (default) sends no cap: the server direct-plays or transcodes
+ * at full quality. */
 export type AudioQuality = 'auto' | 'high' | 'normal' | 'low';
 
 /** The bitrate cap in bits/sec for each tier, or null for 'auto' (no cap). */

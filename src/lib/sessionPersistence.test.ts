@@ -15,6 +15,13 @@ vi.mock('@capacitor/preferences', () => ({
 
 import { clearStoredSession, loadStoredSession, storeSession } from './sessionPersistence';
 
+const session = {
+  username: 'cadence-test',
+  userId: 'u',
+  subsonicSalt: 'salt1',
+  subsonicToken: 'tok1',
+};
+
 describe('sessionPersistence', () => {
   beforeEach(() => store.clear());
 
@@ -23,12 +30,8 @@ describe('sessionPersistence', () => {
   });
 
   it('round-trips a stored session', async () => {
-    await storeSession({ token: 't', userId: 'u', username: 'cadence-test' });
-    expect(await loadStoredSession()).toEqual({
-      token: 't',
-      userId: 'u',
-      username: 'cadence-test',
-    });
+    await storeSession(session);
+    expect(await loadStoredSession()).toEqual(session);
   });
 
   it('treats corrupt JSON as no session', async () => {
@@ -36,13 +39,13 @@ describe('sessionPersistence', () => {
     expect(await loadStoredSession()).toBeNull();
   });
 
-  it('ignores a session missing token/userId', async () => {
+  it('ignores a session missing required fields', async () => {
     store.set('cadence.session', JSON.stringify({ username: 'x' }));
     expect(await loadStoredSession()).toBeNull();
   });
 
   it('clears the stored session', async () => {
-    await storeSession({ token: 't', userId: 'u', username: 'x' });
+    await storeSession(session);
     await clearStoredSession();
     expect(await loadStoredSession()).toBeNull();
   });

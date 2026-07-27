@@ -9,7 +9,7 @@ describe('jellyfinGenres', () => {
   });
 
   it('getGenreTracks requests audio for the genre, most-played first', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     const f = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
