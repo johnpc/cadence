@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinPlayback', () => ({
+vi.mock('../../lib/navidromePlayback', () => ({
   reportPlaybackStart: vi.fn(),
   reportPlaybackProgress: vi.fn(),
   reportPlaybackStopped: vi.fn(),
@@ -10,7 +10,7 @@ import {
   reportPlaybackStart,
   reportPlaybackProgress,
   reportPlaybackStopped,
-} from '../../lib/jellyfinPlayback';
+} from '../../lib/navidromePlayback';
 import { usePlaybackReporting } from './usePlaybackReporting';
 
 describe('usePlaybackReporting', () => {
@@ -30,7 +30,7 @@ describe('usePlaybackReporting', () => {
     expect(reportPlaybackStart).toHaveBeenCalledWith('a');
     pos = 42;
     rerender({ id: 'b' });
-    expect(reportPlaybackStopped).toHaveBeenCalledWith('a', 42);
+    expect(reportPlaybackStopped).toHaveBeenCalledWith('a');
     expect(reportPlaybackStart).toHaveBeenCalledWith('b');
   });
 

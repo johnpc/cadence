@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-vi.mock('../../lib/jellyfinPlayback', () => ({
+vi.mock('../../lib/navidromePlayback', () => ({
   reportPlaybackStart: vi.fn(),
   reportPlaybackProgress: vi.fn(),
   reportPlaybackStopped: vi.fn(),

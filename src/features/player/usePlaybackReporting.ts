@@ -3,12 +3,12 @@ import {
   reportPlaybackStart,
   reportPlaybackProgress,
   reportPlaybackStopped,
-} from '../../lib/jellyfinPlayback';
+} from '../../lib/navidromePlayback';
 
 /**
- * Reports playback to Jellyfin so tracks count as played (feeds play counts +
- * Recently Played). Fires Start on each new track, Progress every 10s, and
- * Stopped when the track changes or the player unmounts. `getPosition` reads
+ * Reports playback so tracks count as played (feeds play counts + Recently
+ * Played). Fires Start on each new track, Progress every 10s, and the final
+ * scrobble when the track changes or the player unmounts. `getPosition` reads
  * the live position without re-subscribing this effect to every tick.
  */
 export function usePlaybackReporting(currentId: string | undefined, getPosition: () => number) {
@@ -23,7 +23,7 @@ export function usePlaybackReporting(currentId: string | undefined, getPosition:
     }, 10_000);
     return () => {
       clearInterval(timer);
-      void reportPlaybackStopped(currentId, posRef.current());
+      void reportPlaybackStopped(currentId);
     };
   }, [currentId]);
 }
