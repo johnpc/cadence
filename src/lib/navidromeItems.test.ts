@@ -13,7 +13,6 @@ import {
   getFavoriteAlbums,
   addFavorite,
   removeFavorite,
-  getAlbumsByIds,
 } from './navidromeItems';
 
 const mockedRequest = vi.mocked(request);
@@ -97,18 +96,5 @@ describe('navidromeItems', () => {
     mockedRequest.mockResolvedValue({});
     await removeFavorite('s1');
     expect(request).toHaveBeenCalledWith('/unstar', { params: { id: 's1' } });
-  });
-
-  it('getAlbumsByIds hydrates in the given order, dropping missing ones', async () => {
-    mockedRequest
-      .mockResolvedValueOnce({ album: { id: 'a', name: 'A' } })
-      .mockRejectedValueOnce(new Error('404'));
-    expect(await getAlbumsByIds(['a', 'missing'])).toEqual([expect.objectContaining({ Id: 'a' })]);
-  });
-
-  it('getAlbumsByIds returns [] for an empty list without calling request', async () => {
-    mockedRequest.mockClear();
-    expect(await getAlbumsByIds([])).toEqual([]);
-    expect(request).not.toHaveBeenCalled();
   });
 });

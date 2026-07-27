@@ -1,10 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  getAlbum,
-  getAlbumTracks,
-  getSimilarSongs,
-  getAlbumsByIds,
-} from '../../lib/navidromeItems';
+import { getAlbum, getAlbumTracks, getSimilarSongs } from '../../lib/navidromeItems';
+import { getAlbumsByIds } from '../../lib/navidromeItemsByIds';
 import { getArtistAlbums } from '../../lib/navidromeArtists';
 import { createItemListCache } from '../../lib/itemListCache';
 import { rankSimilarAlbumIds } from './rankSimilar';

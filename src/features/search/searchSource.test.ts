@@ -1,293 +1,64 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Control the marlin config from tests (the selector reads these).
-const marlin = { url: '', token: '', configured: false };
+const marlin = { configured: false };
 vi.mock('../../lib/marlinStore', () => ({
-  getMarlinUrl: () => marlin.url,
-  getMarlinToken: () => marlin.token,
   marlinConfigured: () => marlin.configured,
 }));
+vi.mock('../../lib/navidromeSearch', () => ({ navidromeSearchSource: vi.fn() }));
+vi.mock('./marlinSource', () => ({ marlinSearchSource: vi.fn() }));
 
-import { jellyfinSearchSource, marlinSearchSource, searchSource } from './searchSource';
-import { setSession } from '../../lib/sessionStore';
+import { searchSource } from './searchSource';
+import { navidromeSearchSource } from '../../lib/navidromeSearch';
+import { marlinSearchSource } from './marlinSource';
 
 beforeEach(() => {
-  marlin.url = '';
-  marlin.token = '';
   marlin.configured = false;
-});
-
-describe('jellyfinSearchSource', () => {
-  afterEach(() => {
-    setSession(null);
-    vi.restoreAllMocks();
-  });
-
-  it('queries /Items (songs+albums), /Artists, and playlists, merging + tagging artists', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
-    const f = vi.fn().mockImplementation((url: string) => {
-      let items: unknown[];
-      if (url.includes('/Artists')) {
-        items = [{ Id: 'ar', Name: 'An Artist' }]; // no Type from the Artists endpoint
-      } else if (url.includes('IncludeItemTypes=Playlist')) {
-        items = [{ Id: 'pl', Name: 'A Playlist', Type: 'Playlist' }];
-      } else {
-        items = [
-          { Id: 's', Name: 'Song', Type: 'Audio' },
-          { Id: 'al', Name: 'Album', Type: 'MusicAlbum' },
-        ];
-      }
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        text: async () => JSON.stringify({ Items: items }),
-      } as Response);
-    });
-    vi.stubGlobal('fetch', f);
-
-    const results = await jellyfinSearchSource('love', 10);
-
-    const urls = f.mock.calls.map((c) => c[0] as string);
-    expect(urls.some((u) => u.includes('/Items?') && u.includes('IncludeItemTypes=Audio'))).toBe(
-      true,
-    );
-    expect(urls.some((u) => u.includes('/Artists?'))).toBe(true);
-    expect(urls.some((u) => u.includes('IncludeItemTypes=Playlist'))).toBe(true);
-    // Artists get tagged so the grouping can find them.
-    expect(results.find((r) => r.Id === 'ar')?.Type).toBe('MusicArtist');
-    expect(results.map((r) => r.Type).sort()).toEqual([
-      'Audio',
-      'MusicAlbum',
-      'MusicArtist',
-      'Playlist',
-    ]);
-  });
-});
-
-describe('marlinSearchSource', () => {
-  afterEach(() => {
-    setSession(null);
-    vi.restoreAllMocks();
-  });
-
-  // marlin is queried PER type; each single-type /search returns that type's ids,
-  // and the /Items?Ids= hydration maps every id to a mock item of that type.
-  // `catalog` maps id → item; `native` overrides the native /Items?Playlist call.
-  function stubMarlin(opts: {
-    perType: Record<string, string[]>;
-    catalog: Record<string, { Id: string; Name: string; Type: string }>;
-    playlists?: { Id: string; Name: string; Type: string }[];
-    playlistFails?: boolean;
-    proxy?: boolean;
-  }) {
-    const searchPath = opts.proxy ? '/api/search' : '/search?';
-    const f = vi.fn().mockImplementation((url: string) => {
-      if (url.includes(searchPath)) {
-        const type = new URL(url, 'http://x').searchParams.get('includeItemTypes') ?? '';
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          json: async () => ({ ids: opts.perType[type] ?? [] }),
-        } as Response);
-      }
-      if (url.includes('IncludeItemTypes=Playlist')) {
-        if (opts.playlistFails) return Promise.reject(new Error('playlist fetch failed'));
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          text: async () => JSON.stringify({ Items: opts.playlists ?? [] }),
-        } as Response);
-      }
-      // Hydration: return catalog items for the requested Ids.
-      const requested = (new URL(url, 'http://x').searchParams.get('Ids') ?? '').split(',');
-      const items = requested.map((id) => opts.catalog[id]).filter(Boolean);
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        text: async () => JSON.stringify({ Items: items }),
-      } as Response);
-    });
-    vi.stubGlobal('fetch', f);
-    return f;
-  }
-
-  it('queries marlin per type (so songs cannot starve artists/albums) + hydrates', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
-    marlin.url = 'https://search.example.com';
-    marlin.token = 'tok';
-    const f = stubMarlin({
-      perType: { Audio: ['s1'], MusicAlbum: ['al1'], MusicArtist: ['ar1'] },
-      catalog: {
-        s1: { Id: 's1', Name: 'Song', Type: 'Audio' },
-        al1: { Id: 'al1', Name: 'Album', Type: 'MusicAlbum' },
-        ar1: { Id: 'ar1', Name: 'Artist', Type: 'MusicArtist' },
-      },
-    });
-
-    const results = await marlinSearchSource('love', 40);
-    const searchUrls = f.mock.calls
-      .map((c) => c[0] as string)
-      .filter((u) => u.includes('/search?'));
-    // One query per music type — each gets its own slots.
-    expect(searchUrls.some((u) => u.includes('includeItemTypes=Audio'))).toBe(true);
-    expect(searchUrls.some((u) => u.includes('includeItemTypes=MusicAlbum'))).toBe(true);
-    expect(searchUrls.some((u) => u.includes('includeItemTypes=MusicArtist'))).toBe(true);
-    // marlin is never asked for playlists (it can't rank them).
-    expect(searchUrls.some((u) => u.includes('includeItemTypes=Playlist'))).toBe(false);
-    const marlinCall = f.mock.calls.find((c) => (c[0] as string).includes('/search?'));
-    expect((marlinCall?.[1] as RequestInit).headers).toMatchObject({ Authorization: 'tok' });
-    // All three types survive — the artist is NOT starved by songs.
-    expect(results.map((r) => r.Id).sort()).toEqual(['al1', 'ar1', 's1']);
-  });
-
-  it('drops any non-music item the indexer returns (defence in depth)', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
-    marlin.url = 'https://search.example.com';
-    // An older indexer ignores includeItemTypes and returns a Movie under the
-    // Audio query — only music survives the post-hydration filter.
-    stubMarlin({
-      perType: { Audio: ['mov', 'song'], MusicAlbum: [], MusicArtist: [] },
-      catalog: {
-        mov: { Id: 'mov', Name: 'Love Actually', Type: 'Movie' },
-        song: { Id: 'song', Name: 'Love Song', Type: 'Audio' },
-      },
-    });
-
-    const results = await marlinSearchSource('love', 40);
-    expect(results.map((r) => r.Id)).toEqual(['song']);
-  });
-
-  it('uses the same-origin /api/search proxy with NO token when marlinProxy is on', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
-    window.__CADENCE_CONFIG__ = { marlinProxy: true };
-    const f = stubMarlin({
-      proxy: true,
-      perType: { Audio: ['a'], MusicAlbum: [], MusicArtist: [] },
-      catalog: { a: { Id: 'a', Name: 'A', Type: 'Audio' } },
-    });
-
-    const results = await marlinSearchSource('love', 40);
-    const call = f.mock.calls.find((c) => (c[0] as string).includes('/api/search'));
-    expect((call?.[0] as string).startsWith('/api/search')).toBe(true); // same-origin, no host
-    // No Authorization header — the proxy injects the token server-side.
-    expect((call?.[1] as RequestInit | undefined)?.headers).toBeUndefined();
-    expect(results.map((r) => r.Id)).toEqual(['a']);
-    delete window.__CADENCE_CONFIG__;
-  });
-
-  it('fetches playlists from native Jellyfin (marlin cannot rank them) and merges them', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
-    marlin.url = 'https://search.example.com';
-    const f = stubMarlin({
-      perType: { Audio: ['song'], MusicAlbum: [], MusicArtist: [] },
-      catalog: { song: { Id: 'song', Name: 'A Song', Type: 'Audio' } },
-      playlists: [{ Id: 'pl', Name: 'Cadence Test Mix', Type: 'Playlist' }],
-    });
-
-    const results = await marlinSearchSource('Cadence', 40);
-    expect(f.mock.calls.some((c) => (c[0] as string).includes('IncludeItemTypes=Playlist'))).toBe(
-      true,
-    );
-    expect(results.find((r) => r.Type === 'Playlist')?.Name).toBe('Cadence Test Mix');
-  });
-
-  it('still returns marlin music even if the native playlist fetch fails', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
-    marlin.url = 'https://search.example.com';
-    stubMarlin({
-      perType: { Audio: ['song'], MusicAlbum: [], MusicArtist: [] },
-      catalog: { song: { Id: 'song', Name: 'A Song', Type: 'Audio' } },
-      playlistFails: true,
-    });
-
-    const results = await marlinSearchSource('love', 40);
-    expect(results.map((r) => r.Id)).toEqual(['song']); // music survived; no playlists
-  });
+  vi.mocked(navidromeSearchSource).mockResolvedValue([{ Id: 'native', Name: 'N', Type: 'Audio' }]);
 });
 
 describe('searchSource (active selector)', () => {
   afterEach(() => {
-    setSession(null);
-    vi.restoreAllMocks();
-  });
-
-  it('uses native search when marlin is not configured (default)', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
-    marlin.configured = false;
-    const f = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: async () => JSON.stringify({ Items: [] }),
-    } as Response);
-    vi.stubGlobal('fetch', f);
-    await searchSource('x', 10);
-    // Native fan-out hits /Artists; marlin would hit /search.
-    expect(f.mock.calls.some((c) => (c[0] as string).includes('/Artists'))).toBe(true);
-    expect(f.mock.calls.some((c) => (c[0] as string).includes('/search?q='))).toBe(false);
-  });
-
-  it('activates marlin via the same-origin proxy even without a Settings URL', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
-    marlin.configured = false; // no user Settings URL…
-    window.__CADENCE_CONFIG__ = { marlinProxy: true }; // …but the deploy enabled the proxy
-    const f = vi.fn().mockImplementation((url: string) => {
-      const items = url.includes('/api/search')
-        ? undefined
-        : [{ Id: 'a', Name: 'A', Type: 'Audio' }];
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: async () => ({ ids: ['a'] }),
-        text: async () => JSON.stringify({ Items: items }),
-      } as Response);
-    });
-    vi.stubGlobal('fetch', f);
-    await searchSource('x', 10);
-    expect(f.mock.calls.some((c) => (c[0] as string).includes('/api/search'))).toBe(true);
-    expect(f.mock.calls.some((c) => (c[0] as string).includes('/Artists'))).toBe(false);
+    vi.clearAllMocks();
     delete window.__CADENCE_CONFIG__;
   });
 
-  it('falls back to native search when the configured marlin call fails', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
-    marlin.configured = true;
-    marlin.url = 'https://search.example.com';
-    const f = vi.fn().mockImplementation((url: string) => {
-      if (url.includes('/search?')) return Promise.resolve({ ok: false, status: 502 } as Response);
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        text: async () => JSON.stringify({ Items: [{ Id: 's', Name: 'S', Type: 'Audio' }] }),
-      } as Response);
-    });
-    vi.stubGlobal('fetch', f);
+  it('uses native search when marlin is not configured (default)', async () => {
     const results = await searchSource('x', 10);
-    // Marlin 502 → native fan-out ran and returned results.
-    expect(f.mock.calls.some((c) => (c[0] as string).includes('/Artists'))).toBe(true);
-    expect(results.some((r) => r.Id === 's')).toBe(true);
+    expect(marlinSearchSource).not.toHaveBeenCalled();
+    expect(results).toEqual([{ Id: 'native', Name: 'N', Type: 'Audio' }]);
+  });
+
+  it('activates marlin via the same-origin proxy even without a Settings URL', async () => {
+    marlin.configured = false; // no user Settings URL…
+    window.__CADENCE_CONFIG__ = { marlinProxy: true }; // …but the deploy enabled the proxy
+    vi.mocked(marlinSearchSource).mockResolvedValue([{ Id: 'marlin', Name: 'M', Type: 'Audio' }]);
+    const results = await searchSource('x', 10);
+    expect(marlinSearchSource).toHaveBeenCalledWith('x', 10);
+    expect(navidromeSearchSource).not.toHaveBeenCalled();
+    expect(results).toEqual([{ Id: 'marlin', Name: 'M', Type: 'Audio' }]);
+  });
+
+  it('activates marlin when the user configured a Settings URL', async () => {
+    marlin.configured = true;
+    vi.mocked(marlinSearchSource).mockResolvedValue([{ Id: 'marlin', Name: 'M', Type: 'Audio' }]);
+    await searchSource('x', 10);
+    expect(marlinSearchSource).toHaveBeenCalled();
+  });
+
+  it('falls back to native search when the configured marlin call fails', async () => {
+    marlin.configured = true;
+    vi.mocked(marlinSearchSource).mockRejectedValue(new Error('502'));
+    const results = await searchSource('x', 10);
+    expect(navidromeSearchSource).toHaveBeenCalled();
+    expect(results).toEqual([{ Id: 'native', Name: 'N', Type: 'Audio' }]);
   });
 
   it('falls back to native search when the marlin fetch aborts (hung indexer)', async () => {
-    setSession({ username: 'u', userId: 'uid', subsonicSalt: 's', subsonicToken: 't' });
     marlin.configured = true;
-    marlin.url = 'https://search.example.com';
-    const f = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
-      if (url.includes('/search?')) {
-        // Simulate the timeout firing: reject with an AbortError like a real
-        // aborted fetch, so the selector's catch must fall back.
-        void init?.signal;
-        return Promise.reject(new DOMException('aborted', 'AbortError'));
-      }
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        text: async () => JSON.stringify({ Items: [{ Id: 's', Name: 'S', Type: 'Audio' }] }),
-      } as Response);
-    });
-    vi.stubGlobal('fetch', f);
+    vi.mocked(marlinSearchSource).mockRejectedValue(new DOMException('aborted', 'AbortError'));
     const results = await searchSource('x', 10);
-    // Aborted marlin call → native fan-out ran and returned results.
-    expect(f.mock.calls.some((c) => (c[0] as string).includes('/Artists'))).toBe(true);
-    expect(results.some((r) => r.Id === 's')).toBe(true);
+    expect(navidromeSearchSource).toHaveBeenCalled();
+    expect(results).toEqual([{ Id: 'native', Name: 'N', Type: 'Audio' }]);
   });
 });

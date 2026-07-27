@@ -87,13 +87,3 @@ export async function addFavorite(id: string, kind: FavoriteKind = 'song'): Prom
 export async function removeFavorite(id: string, kind: FavoriteKind = 'song'): Promise<void> {
   await request('/unstar', { params: { [FAVORITE_PARAM[kind]]: id } });
 }
-
-/** Hydrate album ids into full items, preserving the caller's order (e.g.
- * ranked similar-album ids). A missing/deleted album is dropped rather than
- * failing the whole batch — Subsonic has no batch-by-id endpoint. */
-export async function getAlbumsByIds(ids: string[]): Promise<MediaItem[]> {
-  if (ids.length === 0) return [];
-  const albums = await Promise.all(ids.map((id) => getAlbum(id).catch(() => null)));
-  const byId = new Map(albums.filter((a): a is MediaItem => a !== null).map((a) => [a.Id, a]));
-  return ids.map((id) => byId.get(id)).filter((a): a is MediaItem => a !== undefined);
-}

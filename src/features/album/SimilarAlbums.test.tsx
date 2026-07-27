@@ -6,9 +6,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/navidromeItems', () => ({
   getSimilarSongs: vi.fn(),
+}));
+vi.mock('../../lib/navidromeItemsByIds', () => ({
   getAlbumsByIds: vi.fn(),
 }));
-import { getSimilarSongs, getAlbumsByIds } from '../../lib/navidromeItems';
+import { getSimilarSongs } from '../../lib/navidromeItems';
+import { getAlbumsByIds } from '../../lib/navidromeItemsByIds';
 import { SimilarAlbums } from './SimilarAlbums';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
