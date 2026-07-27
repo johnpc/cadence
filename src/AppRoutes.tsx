@@ -5,7 +5,7 @@ import { AppLoading } from './AppLoading';
 import { RouteAnnouncer } from './features/shell/RouteAnnouncer';
 
 /**
- * The root session gate. While the Jellyfin session resolves we show the branded
+ * The root session gate. While the Navidrome session resolves we show the branded
  * loader; a signed-out user gets the sign-in screen; a signed-in user gets the
  * tab shell. Keeping the gate here (not per-route) means no data screen ever
  * renders before we know who the user is.

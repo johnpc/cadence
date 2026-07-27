@@ -1,5 +1,5 @@
 Feature: App shell
-  Signed out, the app opens on the Jellyfin sign-in screen. Once signed in it
+  Signed out, the app opens on the Navidrome sign-in screen. Once signed in it
   becomes a Spotify-style tab shell — Home, Search, and Your Library — with no
   full-library scroll.
 

@@ -17,7 +17,7 @@ export default defineConfig({
     // Precache the FULL build (entry + vendor + every lazy route chunk + CSS)
     // via Workbox so the PWA opens instantly on repeat visits and boots OFFLINE
     // — the passthrough SW cached nothing, so the app was blank with no network.
-    // Only same-origin static assets are precached; the cross-origin Jellyfin
+    // Only same-origin static assets are precached; the cross-origin Navidrome
     // API + audio streams are never touched. autoUpdate: a new deploy's SW takes
     // over and reloads once. We keep our own manifest.json (don't let the plugin
     // generate one).
@@ -38,16 +38,16 @@ export default defineConfig({
         // Never serve the SPA shell for the runtime config or cross-origin calls.
         navigateFallbackDenylist: [/^\/config\.js$/],
         cleanupOutdatedCaches: true,
-        // Durable, bounded cover-art cache at the SW layer. Jellyfin cover art is
-        // immutable (URLs carry an image `tag`) and CORS `*`, so CacheFirst is
-        // safe: once fetched, an <img> is served from the SW with ZERO network —
-        // it survives the browser HTTP cache being evicted (which happens fast in
+        // Durable, bounded cover-art cache at the SW layer. Navidrome's
+        // getCoverArt is immutable per id and CORS `*`, so CacheFirst is safe:
+        // once fetched, an <img> is served from the SW with ZERO network — it
+        // survives the browser HTTP cache being evicted (which happens fast in
         // an installed PWA on mobile) and works fully offline. Bounded to 500
         // covers / 60 days so it can't grow without limit. Only cross-origin
-        // /Images/ requests match; API JSON + audio streams are untouched.
+        // getCoverArt requests match; API JSON + audio streams are untouched.
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => /\/Items\/[^/]+\/Images\//.test(url.pathname),
+            urlPattern: ({ url }) => url.pathname.endsWith('/getCoverArt'),
             handler: 'CacheFirst',
             options: {
               cacheName: 'cadence-cover-art',

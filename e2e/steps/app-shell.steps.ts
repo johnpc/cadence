@@ -59,7 +59,7 @@ export async function navigate(page: Page, label: string): Promise<void> {
 /** Type a search term and wait for a result inside `sectionTestId` to attach,
  * re-firing the query if the first attempt yields nothing in time. Mirrors a
  * real user re-typing when a search is slow, and exercises the query-retry
- * path — so a single transient Jellyfin hiccup doesn't fail the run. The result
+ * path — so a single transient Navidrome hiccup doesn't fail the run. The result
  * is the first `resultTestId` (default track-row-play) within the section. */
 export async function searchUntilResults(
   page: Page,
@@ -89,14 +89,12 @@ export async function searchUntilResults(
 
 // A fixed DeviceId per e2e run. ensureDeviceId reads it from the
 // Capacitor-Preferences localStorage key, so every scenario/retry in a run reuses
-// ONE Jellyfin session instead of minting a fresh device each time — which
-// otherwise piles up thousands of sessions and slows Jellyfin auth to a crawl.
-// CRUCIAL for parallel CI: Jellyfin keys a playback session per (user, DeviceId),
-// and every acceptance area signs in as the SAME cadence-test user. A single
-// shared DeviceId across concurrent matrix shards made them collide on ONE
-// server-side session and clobber each other's state (areas passed alone, failed
-// together — the real root cause of the "stampede flake"). So CI sets a distinct
-// E2E_DEVICE_ID per area (see ci.yml); the default is only for local single runs.
+// ONE id instead of minting a fresh device each time. Subsonic auth (salt+token,
+// verified fresh per request) has no server-side session keyed by DeviceId, so
+// this id is purely cosmetic now — it just keeps diagnostics tagging
+// deterministic per area. CI still sets a distinct E2E_DEVICE_ID per area (see
+// ci.yml) so diagnostics from concurrent matrix shards stay attributable; the
+// default is only for local single runs.
 const E2E_DEVICE_ID = process.env.E2E_DEVICE_ID || 'cadence-e2e-fixed-device';
 const DEVICE_KEY = 'CapacitorStorage.cadence.device-id';
 
@@ -127,7 +125,7 @@ Given('I am signed in', async ({ page }) => {
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill(PASSWORD as string);
   await page.getByTestId('signin-submit').click();
-  // The Jellyfin auth POST can be slow under CI contention — give the session
+  // The Navidrome auth POST can be slow under CI contention — give the session
   // token a generous window to land before proceeding.
   await page.waitForFunction(
     () => Object.keys(localStorage).some((k) => k.includes('cadence.session')),

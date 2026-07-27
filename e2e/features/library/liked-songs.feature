@@ -1,5 +1,5 @@
 Feature: Liked songs
-  The user's liked songs (Jellyfin favorites) live in Your Library as the first
+  The user's liked songs (Navidrome favorites) live in Your Library as the first
   playlist row, and liking a song adds it there.
 
   Scenario: Your Library shows the Liked Songs row

@@ -41,7 +41,7 @@ jobs:
 
       - run: npm ci
 
-      # The Jellyfin base URL is a build-time constant committed in .env, so
+      # The Navidrome base URL is a build-time constant committed in .env, so
       # there's no backend config to pull — just build and sync. The diagnostics
       # ingest URL + key MUST be injected here (Vite bakes them into the bundle at
       # build time) — the native app has no runtime config.js, so without these the

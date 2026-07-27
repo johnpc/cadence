@@ -1,8 +1,8 @@
 import { artistLine } from '../player/playerFormat';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
-/** How the Liked Songs list is ordered. 'recent' (default) keeps Jellyfin's
- * most-recently-added order; 'title'/'artist' sort alphabetically. */
+/** How the Liked Songs list is ordered. 'recent' (default) keeps the server's
+ * most-recently-starred order; 'title'/'artist' sort alphabetically. */
 export type LikedSort = 'recent' | 'title' | 'artist';
 
 /** The sort options, in display order, with their labels. */

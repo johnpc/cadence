@@ -2,7 +2,7 @@ Feature: Offline downloads
   A track can be downloaded to the device so it plays without a network
   connection — the point of the feature. Downloading stores the audio locally;
   the Downloads screen lists what's saved; and a downloaded track keeps playing
-  even when the Jellyfin server is unreachable.
+  even when the Navidrome server is unreachable.
 
   Scenario: Download a track and see it in Downloads
     Given I am signed in

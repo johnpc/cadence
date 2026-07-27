@@ -4,7 +4,7 @@ import { defineBddConfig } from 'playwright-bdd';
 
 /**
  * Load .env.local (gitignored) for local runs so TEST_USERNAME / TEST_PASSWORD
- * (the Jellyfin cadence-test user) are available without a dependency. In CI
+ * (the Navidrome cadence-test user) are available without a dependency. In CI
  * these come from GitHub secrets.
  */
 if (existsSync('.env.local')) {
@@ -25,7 +25,7 @@ const testDir = defineBddConfig({
   features: 'e2e/features/**/*.feature',
   steps: 'e2e/steps/**/*.ts',
   // Scenarios tagged @requires-deploy assert LIVE backend behavior (real
-  // Jellyfin reads/writes) that only holds against the real server; excluded
+  // Navidrome reads/writes) that only holds against the real server; excluded
   // from default runs. Include them with RUN_PENDING_DEPLOY=1.
   tags: process.env.RUN_PENDING_DEPLOY ? undefined : 'not @requires-deploy',
 });
@@ -34,7 +34,7 @@ export default defineConfig({
   testDir,
   fullyParallel: true,
   // In CI, run scenarios within an area SERIALLY (workers: 1). Every scenario
-  // signs in and reads/writes the SAME self-hosted Jellyfin; with 4 workers ×
+  // signs in and reads/writes the SAME self-hosted Navidrome; with 4 workers ×
   // 3 parallel area jobs that was ~12 concurrent sign-in storms hammering one
   // server — the root of the acceptance "flakes". Serial per area + the
   // max-parallel:3 cap keeps peak load gentle. Locally, 4 workers for speed.
@@ -42,7 +42,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
-  // CI reaches the home Jellyfin through a cloudflared tunnel, so round-trips
+  // CI reaches the home Navidrome through a cloudflared tunnel, so round-trips
   // can be slow — give tests and assertions extra headroom there.
   timeout: process.env.CI ? 120_000 : 60_000,
   expect: { timeout: process.env.CI ? 30_000 : 15_000 },

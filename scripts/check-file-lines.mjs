@@ -10,7 +10,7 @@ import { join, relative } from 'node:path';
 
 const MAX_LINES = 100;
 // The one source tree we author. Cadence has no self-hosted backend of its own —
-// Jellyfin IS the backend — so there's no `amplify/` tree to walk.
+// Navidrome IS the backend — so there's no `amplify/` tree to walk.
 const ROOTS = ['src'].map((d) => join(process.cwd(), d));
 const SKIP_DIRS = new Set(['node_modules', 'dist', 'build']);
 

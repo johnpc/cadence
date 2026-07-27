@@ -1,8 +1,8 @@
 import type { MediaItem } from './navidromeTypes';
 
 /** Collapse items sharing a (case-insensitive, trimmed) name to the first seen,
- * preserving order. The library can contain several distinct Jellyfin playlists
- * with identical names, which read as duplicates to the user. */
+ * preserving order. The library can contain several distinct playlists with
+ * identical names, which read as duplicates to the user. */
 export function dedupeByName(items: MediaItem[]): MediaItem[] {
   const seen = new Set<string>();
   const out: MediaItem[] = [];

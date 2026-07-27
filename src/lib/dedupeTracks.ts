@@ -1,8 +1,8 @@
 import type { MediaItem } from './navidromeTypes';
 
 /**
- * Some albums are stored in Jellyfin with every track duplicated (two file
- * encodings), so a fetch returns each song twice. Collapse to one per slot:
+ * Some albums are stored with every track duplicated (two file encodings), so
+ * a fetch returns each song twice. Collapse to one per slot:
  * key on disc+track number when present (ParentIndexNumber/IndexNumber), else
  * on the track name. First occurrence wins, preserving sort order.
  */

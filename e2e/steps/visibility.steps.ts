@@ -7,7 +7,7 @@ import {
   setPlaylistPublic,
   deletePlaylistsByName,
   type Session,
-} from './jellyfinApi';
+} from './navidromeApi';
 
 const { Given, When, Then, Before, After } = createBdd();
 

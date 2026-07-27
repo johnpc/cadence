@@ -6,7 +6,7 @@ import type { MediaItem } from '../../lib/navidromeTypes';
  * navigation — the top shelf's first card — so even a FIRST-EVER open (which the
  * disk cache can't help, since the item was never opened) paints instantly.
  *
- * Deliberately just ONE item: each prefetch is a request over the slow Jellyfin
+ * Deliberately just ONE item: each prefetch is a request over the slow Navidrome
  * tunnel, so warming a whole shelf would stampede it and hurt the very load it's
  * meant to help. react-query dedupes + staleTime-guards, so if the user hovers or
  * taps that card first, this costs nothing. Uses requestIdleCallback so it never

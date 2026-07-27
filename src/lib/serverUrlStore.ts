@@ -1,8 +1,8 @@
 /**
- * The Jellyfin server base URL, chosen at sign-in and persisted per-device.
+ * The Navidrome server base URL, chosen at sign-in and persisted per-device.
  * Runtime-configurable (not a build-time constant) so one build can point at
- * ANY Jellyfin server — the prerequisite for a self-hostable public image.
- * VITE_JELLYFIN_URL, when set at build time, is only the initial default.
+ * ANY Navidrome server — the prerequisite for a self-hostable public image.
+ * VITE_NAVIDROME_URL, when set at build time, is only the initial default.
  *
  * Persisted via @capacitor/preferences (like the session + device id) so it
  * survives native relaunches — iOS WKWebView localStorage is NOT durable, so a
@@ -17,9 +17,9 @@ import { configuredServerUrl } from './runtimeConfig';
 const KEY = 'cadence.server-url';
 
 /** Normalise a server URL: trim whitespace + trailing slashes, and prepend
- * https:// when the user typed a bare host (e.g. "jellyfin.jpc.io"). Without a
+ * https:// when the user typed a bare host (e.g. "navidrome.jpc.io"). Without a
  * scheme the browser treats the value as a relative path and every request
- * silently hits the app's own origin instead of the Jellyfin server. An empty
+ * silently hits the app's own origin instead of the Navidrome server. An empty
  * string stays empty (means "no server configured"). */
 const trim = (url: string): string => {
   const t = url.trim().replace(/\/+$/, '');
@@ -28,10 +28,10 @@ const trim = (url: string): string => {
 };
 
 /** The build-time default (the maintainer's server), or '' for a generic image. */
-const BUILD_DEFAULT_URL = trim(import.meta.env.VITE_JELLYFIN_URL || '');
+const BUILD_DEFAULT_URL = trim(import.meta.env.VITE_NAVIDROME_URL || '');
 
 /** The default server when the user hasn't chosen one: a runtime-configured URL
- * (window.__CADENCE_CONFIG__.serverUrl, set per-deployment via the JELLYFIN_URL
+ * (window.__CADENCE_CONFIG__.serverUrl, set per-deployment via the NAVIDROME_URL
  * env) takes precedence over the build-time constant — so a self-hoster can pin
  * their server without rebuilding the image. */
 function defaultUrl(): string {

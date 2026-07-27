@@ -4,7 +4,7 @@ import './searchBackend.css';
 
 /** Settings "Faster search" section: optionally point search at a Meilisearch
  * (marlin-search) indexer for one-call, better-ranked results. Off by default —
- * leaving the URL blank keeps Jellyfin's native search. The token is stored only
+ * leaving the URL blank keeps Navidrome's native search. The token is stored only
  * on this device (never shipped in the build). */
 export function SearchBackend() {
   const { url, token, saved, managed, onUrl, onToken, save } = useMarlinSettings();
@@ -17,7 +17,7 @@ export function SearchBackend() {
       <p className="search-backend__hint cad-meta">
         {managed
           ? 'Your server administrator has configured search for everyone on this server, so these settings can’t be changed here.'
-          : 'Optional: point search at a Meilisearch (marlin-search) server for faster, better-ranked results. Leave blank to use your Jellyfin server’s search.'}
+          : 'Optional: point search at a Meilisearch (marlin-search) server for faster, better-ranked results. Leave blank to use your Navidrome server’s search.'}
       </p>
       <IonInput
         label="Search server URL"

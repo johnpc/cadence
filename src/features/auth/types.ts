@@ -4,7 +4,7 @@ export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
 export interface AuthState {
   status: AuthStatus;
-  /** Jellyfin username of the signed-in user, when authenticated. */
+  /** Navidrome username of the signed-in user, when authenticated. */
   username: string | null;
 }
 

@@ -14,7 +14,7 @@ interface MediaUpdate {
 }
 
 /**
- * Thin wrapper over the Chromecast plugin. Casts a Jellyfin track's audio to a
+ * Thin wrapper over the Chromecast plugin. Casts a Navidrome track's audio to a
  * TV (e.g. an Nvidia Shield) using the default media receiver. Playback then
  * lives on the receiver; the app proxies transport to it. Session state is kept
  * in castStore so the UI reacts. MVP is native-only (the Cast device picker is a

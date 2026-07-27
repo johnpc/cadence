@@ -1,15 +1,16 @@
-# Self-host Cadence — a Spotify-like web client for YOUR Jellyfin server.
+# Self-host Cadence — a Spotify-like web client for YOUR Navidrome server.
 #
 #   docker compose up -d
 #
 # Then open http://localhost:8095 and, on the sign-in screen, enter your
-# Jellyfin server address (e.g. https://jellyfin.example.com) plus your Jellyfin
-# username and password. The server address is remembered on the device.
+# Navidrome server address (e.g. https://navidrome.example.com) plus your
+# Navidrome username and password. The server address is remembered on the
+# device.
 #
 # The image is server-agnostic — nothing about your server is baked in. Put it
 # behind your own HTTPS reverse proxy (Caddy, nginx, Traefik, cloudflared…) for
-# remote access; the browser talks to Jellyfin directly, so your Jellyfin server
-# must be reachable from the browser and send permissive CORS headers.
+# remote access; the browser talks to Navidrome directly, so your Navidrome
+# server must be reachable from the browser and send permissive CORS headers.
 services:
   cadence:
     image: mrorbitman/cadence:latest
@@ -18,10 +19,10 @@ services:
       - '8095:80'
     restart: unless-stopped
     # environment:
-    #   # Optional: pre-fill the sign-in Server field with your Jellyfin URL so
+    #   # Optional: pre-fill the sign-in Server field with your Navidrome URL so
     #   # users don't type it (they can still override). Applied at container
     #   # start — no rebuild.
-    #   JELLYFIN_URL: https://jellyfin.example.com
+    #   NAVIDROME_URL: https://navidrome.example.com
     #   # Optional: show a "Sign up" link on the sign-in screen pointing at your
     #   # own registration/invite page.
     #   SIGNUP_URL: https://your-server.example/signup

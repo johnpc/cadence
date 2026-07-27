@@ -6,8 +6,8 @@ import { navigate } from './app-shell.steps';
 const { When, Then } = createBdd();
 
 /** Wait for the search to SETTLE to a definite state — either the results
- * container renders, or the empty state does. Under CI's shared-Jellyfin
- * contention the native search fan-out (Items + Artists + Playlists) can
+ * container renders, or the empty state does. Under CI's shared-Navidrome
+ * contention the native search (search3 + a playlist name filter) can
  * transiently error, which lands the page in LoadState's error+retry panel
  * instead; when that happens, tap Retry (a real user's move) and, failing that,
  * re-type the query to re-issue it — then re-check. This re-firing is exactly

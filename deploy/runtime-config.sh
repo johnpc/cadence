@@ -6,14 +6,14 @@
 #
 # Supported env (all optional; unset → omitted → app default):
 #   SIGNUP_URL   — show a "Sign up" link on the sign-in screen.
-#   JELLYFIN_URL — default Jellyfin server URL (pre-fills the Server field; the
+#   NAVIDROME_URL — default Navidrome server URL (pre-fills the Server field; the
 #                  user can still override, and a saved choice wins).
 #   CAST_RECEIVER_APP_ID — custom Google Cast receiver app id; enables the
 #                  visualizer/lyrics/queue-on-TV receiver (see receiver/README).
 #   MARLIN_URL   — marlin-search indexer base URL (e.g. http://192.168.7.211:5000).
 #                  When set (with MARLIN_TOKEN), nginx proxies same-origin
 #                  /api/search to it and injects the token server-side, and the
-#                  app uses that instead of Jellyfin's native search fan-out. The
+#                  app uses that instead of Navidrome's native search fan-out. The
 #                  token NEVER reaches the browser. Off (native search) when unset.
 #   MARLIN_TOKEN — the indexer's EXPRESS_AUTH_TOKEN, injected by nginx (not shipped
 #                  to the client).
@@ -46,7 +46,7 @@ add_field() {
 }
 
 add_field signupUrl "${SIGNUP_URL:-}"
-add_field serverUrl "${JELLYFIN_URL:-}"
+add_field serverUrl "${NAVIDROME_URL:-}"
 add_field castReceiverAppId "${CAST_RECEIVER_APP_ID:-}"
 
 # Same-origin marlin proxy: write the nginx snippet + flag config.js, but ONLY
@@ -106,4 +106,4 @@ cat > "$CONFIG_PATH" <<EOF
 window.__CADENCE_CONFIG__ = {${FIELDS}};
 EOF
 
-echo "cadence: wrote runtime config (SIGNUP_URL ${SIGNUP_URL:+set}${SIGNUP_URL:-unset}, JELLYFIN_URL ${JELLYFIN_URL:+set}${JELLYFIN_URL:-unset}, MARLIN ${MARLIN_URL:+set}${MARLIN_URL:-unset}, LIDARR ${LIDARR_URL:+set}${LIDARR_URL:-unset})"
+echo "cadence: wrote runtime config (SIGNUP_URL ${SIGNUP_URL:+set}${SIGNUP_URL:-unset}, NAVIDROME_URL ${NAVIDROME_URL:+set}${NAVIDROME_URL:-unset}, MARLIN ${MARLIN_URL:+set}${MARLIN_URL:-unset}, LIDARR ${LIDARR_URL:+set}${LIDARR_URL:-unset})"

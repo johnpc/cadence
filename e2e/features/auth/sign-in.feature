@@ -1,5 +1,5 @@
-Feature: Sign in with a Jellyfin account
-  A returning user signs in with their Jellyfin credentials and lands in the
+Feature: Sign in with a Navidrome account
+  A returning user signs in with their Navidrome credentials and lands in the
   app; a bad password is rejected; a valid session survives a reload.
 
   Scenario: Signing in lands on the Home tab

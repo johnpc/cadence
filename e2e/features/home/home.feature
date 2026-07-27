@@ -1,6 +1,6 @@
 Feature: Home recommendations
   Home is the Spotify-style recommendation surface: horizontal shelves of real
-  albums and songs from the Jellyfin library, with no full-library scroll.
+  albums and songs from the Navidrome library, with no full-library scroll.
 
   Scenario: Home shows a recommendation shelf and opens an album
     Given I am signed in

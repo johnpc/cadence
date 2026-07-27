@@ -1,5 +1,5 @@
 Feature: Artist detail
-  Searching surfaces artists (via Jellyfin's Artists endpoint), and tapping one
+  Searching surfaces artists (via Subsonic's search3), and tapping one
   opens their page with their albums.
 
   Scenario: Opening an artist from search shows their albums

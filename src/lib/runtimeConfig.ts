@@ -30,7 +30,7 @@ export function signupUrl(): string | null {
   return safeHttpUrl(window.__CADENCE_CONFIG__?.signupUrl);
 }
 
-/** The runtime default Jellyfin server URL, or null when unset/invalid. Used as
+/** The runtime default Navidrome server URL, or null when unset/invalid. Used as
  * the sign-in default when the user hasn't already chosen a server. Trailing
  * slashes are left for serverUrlStore to normalise. */
 export function configuredServerUrl(): string | null {

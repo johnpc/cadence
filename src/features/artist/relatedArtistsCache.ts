@@ -13,9 +13,9 @@ export const RELATED_ARTISTS_CACHE_KEY = relatedArtistsCache.storageKey;
 
 /** Artists that recur across this artist's similar-songs radio, ranked by
  * co-occurrence then hydrated to cards (Subsonic has no dedicated related-
- * artists endpoint). Limit 20: latency scaled steeply with the mix size on
- * Jellyfin's InstantMix; kept conservative here too, and 20 tracks yield
- * plenty of distinct artists. */
+ * artists endpoint). Limit 20: latency scales steeply with the mix size on
+ * getSimilarSongs2; kept conservative here, and 20 tracks yield plenty of
+ * distinct artists. */
 async function fetchRelatedArtists(artistId: string): Promise<MediaItem[]> {
   const mix = await getSimilarSongs(artistId, 20);
   return getArtistsByIds(rankRelatedArtistIds(mix, artistId));

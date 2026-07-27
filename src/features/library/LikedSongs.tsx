@@ -14,7 +14,7 @@ import { useProgressiveList } from '../../lib/useProgressiveList';
 import { useLikedSongs } from './libraryApi';
 import './likedSongs.css';
 
-/** The "Liked Songs" collection — the user's Jellyfin favorites, with a find
+/** The "Liked Songs" collection — the user's Navidrome favorites, with a find
  * box and a sort selector (Recently added / Title / Artist) once the list is
  * large enough to warrant them. */
 export function LikedSongs() {

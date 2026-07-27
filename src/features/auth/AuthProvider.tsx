@@ -10,7 +10,7 @@ import { queryClient } from '../../lib/queryClient';
 import { clearPersistedQueue } from '../player/queuePersistence';
 import type { AuthState } from './types';
 
-/** Provides Jellyfin session state + auth actions to the tree via AuthContext. */
+/** Provides Navidrome session state + auth actions to the tree via AuthContext. */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading', username: null });
 
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     await authClient.signOut();
     // Don't leak the previous user's data into the next session on a shared /
-    // multi-user server: drop the cached Jellyfin responses (library, playlists,
+    // multi-user server: drop the cached Navidrome responses (library, playlists,
     // likes) and the persisted play queue before flipping to signed-out.
     queryClient.clear();
     clearPersistedQueue();

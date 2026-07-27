@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "description": "A Spotify-like music client for your self-hosted Jellyfin server.",
+  "description": "A Spotify-like music client for your self-hosted Navidrome server.",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

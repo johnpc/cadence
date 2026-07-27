@@ -5,7 +5,7 @@ import './requests.css';
 
 /** One artist search result with a Request button reflecting its status. The
  * remote poster (from MusicBrainz via Lidarr) shows when present, else nothing —
- * these artists aren't in the library yet, so there's no Jellyfin art. */
+ * these artists aren't in the library yet, so there's no Navidrome art. */
 export function RequestRow({
   artist,
   status,

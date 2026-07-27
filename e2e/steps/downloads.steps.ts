@@ -2,7 +2,7 @@ import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
 import { DATA_WAIT, DOWNLOAD_WAIT } from './timeouts';
 import { navigate } from './app-shell.steps';
-import { login, createSmallPlaylist, deletePlaylistsByName, type Session } from './jellyfinApi';
+import { login, createSmallPlaylist, deletePlaylistsByName, type Session } from './navidromeApi';
 
 const { Given, When, Then, After } = createBdd();
 
@@ -129,7 +129,7 @@ Then('I see the downloaded track', async ({ page }) => {
 });
 
 When('the network goes offline', async ({ page }) => {
-  // Cut the network at the browser level: any Jellyfin stream request now fails,
+  // Cut the network at the browser level: any Navidrome stream request now fails,
   // so playback can ONLY succeed from the local download — the real test.
   await page.context().setOffline(true);
 });

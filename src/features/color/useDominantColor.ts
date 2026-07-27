@@ -3,7 +3,7 @@ import { averageColor, darken, rgbCss, type Rgb } from './dominantColor';
 
 /** Sample the dominant colour of an image URL (via a tiny off-screen canvas)
  * and return it as a darkened `rgb(...)` string for a header gradient — or null
- * until it resolves / if it can't be sampled. Jellyfin serves art with CORS
+ * until it resolves / if it can't be sampled. Navidrome serves art with CORS
  * `*`, so a crossOrigin load can read the pixels. */
 export function useDominantColor(src: string | null): string | null {
   const [color, setColor] = useState<string | null>(null);

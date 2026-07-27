@@ -1,7 +1,7 @@
 import './appLoading.css';
 
 /**
- * Branded app-init screen — shown during the `loading` window while the Jellyfin
+ * Branded app-init screen — shown during the `loading` window while the Navidrome
  * session resolves, replacing the blank flash at the root gate. Theme-aware via
  * --cad-* tokens. Render-only; no logic, no fetching.
  */

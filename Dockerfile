@@ -16,12 +16,12 @@ COPY package.json package-lock.json ./
 COPY scripts ./scripts
 RUN npm ci
 COPY . .
-# Optional build-time default Jellyfin URL. EMPTY by default so the public image
-# is server-agnostic — each self-hoster enters their server at sign-in (see
-# serverUrlStore). The maintainer's deploy (deploy/compose.yaml) passes its own
-# URL as this build-arg to prefill the field for cadence.jpc.io users.
-ARG VITE_JELLYFIN_URL=
-ENV VITE_JELLYFIN_URL=$VITE_JELLYFIN_URL
+# Optional build-time default Navidrome URL. EMPTY by default so the public
+# image is server-agnostic — each self-hoster enters their server at sign-in
+# (see serverUrlStore). The maintainer's deploy (deploy/compose.yaml) passes its
+# own URL as this build-arg to prefill the field for cadence.jpc.io users.
+ARG VITE_NAVIDROME_URL=
+ENV VITE_NAVIDROME_URL=$VITE_NAVIDROME_URL
 # Opt-in diagnostics ingest (baked in at build; non-secret throttling key). Unset
 # → the web build simply has no upload option (on-device diagnostics still work).
 ARG VITE_DIAGNOSTICS_URL=

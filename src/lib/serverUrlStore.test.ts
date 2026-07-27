@@ -27,9 +27,9 @@ beforeEach(() => {
   prefs.clear();
   delete window.__CADENCE_CONFIG__;
   // Pin the build-time default to empty so these tests are hermetic — they must
-  // not depend on whether the runner's env happens to set VITE_JELLYFIN_URL
+  // not depend on whether the runner's env happens to set VITE_NAVIDROME_URL
   // (empty in committed .env / CI, but present in a dev's .env.local).
-  vi.stubEnv('VITE_JELLYFIN_URL', '');
+  vi.stubEnv('VITE_NAVIDROME_URL', '');
 });
 afterEach(() => {
   localStorage.clear();
@@ -40,7 +40,7 @@ afterEach(() => {
 
 describe('serverUrlStore', () => {
   it('returns an empty default when nothing is stored and no build URL is set', async () => {
-    // The committed build has no default server (VITE_JELLYFIN_URL empty), so a
+    // The committed build has no default server (VITE_NAVIDROME_URL empty), so a
     // fresh store returns '' — the sign-in screen then asks the user for one.
     const { getServerUrl } = await freshStore();
     expect(getServerUrl()).toBe('');
@@ -64,8 +64,8 @@ describe('serverUrlStore', () => {
 
   it('prepends https:// when the user types a bare host (no scheme)', async () => {
     const { setServerUrl, getServerUrl } = await freshStore();
-    setServerUrl('jellyfin.jpc.io');
-    expect(getServerUrl()).toBe('https://jellyfin.jpc.io');
+    setServerUrl('navidrome.jpc.io');
+    expect(getServerUrl()).toBe('https://navidrome.jpc.io');
   });
 
   it('preserves an explicit http:// scheme (local/LAN servers)', async () => {
@@ -101,14 +101,14 @@ describe('serverUrlStore', () => {
 
   it('hasServerUrl reflects whether a usable URL is configured', async () => {
     const { hasServerUrl, setServerUrl } = await freshStore();
-    // No build-time default is committed (VITE_JELLYFIN_URL is empty in source),
+    // No build-time default is committed (VITE_NAVIDROME_URL is empty in source),
     // so a fresh store has none until the user picks one — then it flips true.
     expect(hasServerUrl()).toBe(false);
     setServerUrl('https://jf.example.com');
     expect(hasServerUrl()).toBe(true);
   });
 
-  // Runtime env (window.__CADENCE_CONFIG__.serverUrl, from the JELLYFIN_URL env)
+  // Runtime env (window.__CADENCE_CONFIG__.serverUrl, from the NAVIDROME_URL env)
   // is the default when the user hasn't chosen a server — so a self-hoster can
   // pin their server without rebuilding.
   it('uses the runtime-configured server URL as the default (over build default)', async () => {

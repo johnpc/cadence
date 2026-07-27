@@ -6,9 +6,9 @@
  */
 export interface RuntimeConfig {
   /** Optional sign-up URL — when set, the sign-in screen shows a "Sign up" link
-   * (e.g. an invite/registration page for the server operator's Jellyfin). */
+   * (e.g. an invite/registration page for the server operator's Navidrome). */
   signupUrl?: string;
-  /** Optional default Jellyfin server URL — pre-fills the sign-in Server field
+  /** Optional default Navidrome server URL — pre-fills the sign-in Server field
    * so a self-hoster can pin their server without rebuilding the image. The
    * user can still override it; a saved choice takes precedence. */
   serverUrl?: string;
@@ -19,7 +19,7 @@ export interface RuntimeConfig {
   castReceiverAppId?: string;
   /** Optional default marlin-search (Meilisearch) base URL for faster search.
    * A per-deploy default the user can override in Settings; unset → native
-   * Jellyfin search until the user configures a URL themselves. The token is
+   * Navidrome search until the user configures a URL themselves. The token is
    * NOT here — it's entered/stored on-device (see marlinStore). */
   marlinUrl?: string;
   /** When true, the serving nginx proxies `/api/search` to the marlin indexer

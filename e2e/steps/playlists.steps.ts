@@ -38,7 +38,7 @@ When('I open the first playlist', async ({ page }) => {
 });
 
 Then('I see the playlist tracks', async ({ page }) => {
-  // A large playlist's items read from the shared Jellyfin server can take
+  // A large playlist's items read from the shared Navidrome server can take
   // several seconds (more under CI contention) — give it real headroom.
   const rows = page.getByTestId('playlist-detail').getByTestId('track-row');
   await expect(rows.first()).toBeAttached({ timeout: DATA_WAIT });
@@ -98,7 +98,7 @@ When('I press the playlist play button', async ({ page }) => {
 });
 
 Then('I see recommended songs to add', async ({ page }) => {
-  // Recommendations come from Jellyfin's instant-mix radio seeded on the
+  // Recommendations come from Subsonic's similar-songs radio seeded on the
   // playlist — real tracks. The section is deferred until it scrolls into view
   // (perf: the mix is a slow call, so it doesn't block the playlist on mount),
   // so scroll the sentinel/section into view to trigger the fetch, like a user.

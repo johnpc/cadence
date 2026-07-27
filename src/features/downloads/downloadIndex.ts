@@ -4,7 +4,7 @@ import type { MediaItem } from '../../lib/navidromeTypes';
  * The persisted list of downloaded tracks — the item metadata (title, artist,
  * art id, ids) for each saved track, in localStorage. Stored separately from
  * the audio blobs (downloadStore) so the Downloads screen can render the full
- * list WITHOUT a Jellyfin round-trip — the whole point of offline: the list
+ * list WITHOUT a Navidrome round-trip — the whole point of offline: the list
  * itself must survive with no network.
  */
 const INDEX_KEY = 'cadence.downloads.index';

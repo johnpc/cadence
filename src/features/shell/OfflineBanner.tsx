@@ -7,7 +7,7 @@ import './offlineBanner.css';
 
 /** A slim banner shown while the device is offline, so failed loads/playback
  * read as "no connection" rather than a broken app. Cadence streams from
- * Jellyfin, so most things need a connection — but downloaded tracks still play,
+ * Navidrome, so most things need a connection — but downloaded tracks still play,
  * so when the user has any, point them to their offline library instead of
  * implying nothing works. */
 export function OfflineBanner() {
@@ -30,7 +30,7 @@ export function OfflineBanner() {
           , or connect to reach your server.
         </span>
       ) : (
-        <span>You&rsquo;re offline — connect to reach your Jellyfin server.</span>
+        <span>You&rsquo;re offline — connect to reach your Navidrome server.</span>
       )}
     </div>
   );

@@ -3,7 +3,7 @@ import type { useHomeShelves } from './HomeShelves';
 type Shelves = ReturnType<typeof useHomeShelves>;
 
 /** True once every Home shelf has finished loading (none still in flight, none
- * errored) yet ALL came back empty. That means the signed-in Jellyfin user can
+ * errored) yet ALL came back empty. That means the signed-in Navidrome user can
  * authenticate but sees no music — almost always because their account lacks
  * access to the music library — so Home should say so rather than show a wall
  * of "Nothing here yet" that reads like an empty server. */

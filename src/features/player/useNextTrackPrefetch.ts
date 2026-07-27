@@ -4,7 +4,7 @@ import * as q from './queue';
 
 /**
  * Warms the NEXT track so switching to it is near-gapless. A single detached
- * <audio preload="auto"> buffers the upcoming stream (kicking Jellyfin's
+ * <audio preload="auto"> buffers the upcoming stream (kicking Navidrome's
  * transcoder awake over the cold tunnel) — it never plays, never touches the
  * main element, and never touches MediaSession, so the iOS lock-screen path is
  * untouched. Only prefetch while actually playing, so a paused/idle queue

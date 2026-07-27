@@ -1,6 +1,6 @@
 Feature: Song detail
   Every track has its own page — art, title, and links out to its artist and
-  album — reachable from the full player. Real tracks come from Jellyfin.
+  album — reachable from the full player. Real tracks come from Navidrome.
 
   Scenario: Opening the song page from the full player
     Given I am signed in

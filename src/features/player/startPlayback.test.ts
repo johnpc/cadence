@@ -27,7 +27,7 @@ afterEach(() => {
 });
 
 describe('resolveTrackSrc', () => {
-  it('streams from Jellyfin when not downloaded', async () => {
+  it('streams from Navidrome when not downloaded', async () => {
     vi.mocked(isDownloaded).mockReturnValue(false);
     expect(await resolveTrackSrc('t1')).toBe('https://jf.test/Audio/t1/universal');
   });

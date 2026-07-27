@@ -37,7 +37,7 @@ export function ClearCacheButton() {
       <IonAlert
         isOpen={confirmOpen}
         header="Clear cache?"
-        message="Reloads all data from your Jellyfin server. Your account, likes, and playlists are not affected."
+        message="Reloads all data from your Navidrome server. Your account, likes, and playlists are not affected."
         buttons={[
           { text: 'Cancel', role: 'cancel' },
           { text: 'Clear', handler: () => void run() },

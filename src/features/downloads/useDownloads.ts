@@ -5,7 +5,7 @@ import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * The list of downloaded tracks as reactive state, straight from the local
- * index (no Jellyfin round-trip — the list must render offline). Re-reads on
+ * index (no Navidrome round-trip — the list must render offline). Re-reads on
  * every add/remove so the Downloads screen and any download button stay in sync.
  */
 export function useDownloads(): { tracks: MediaItem[] } {

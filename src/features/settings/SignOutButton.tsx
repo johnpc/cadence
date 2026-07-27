@@ -21,7 +21,7 @@ export function SignOutButton() {
       <IonAlert
         isOpen={confirmOpen}
         header="Sign out?"
-        message="You'll need your Jellyfin username and password to sign back in."
+        message="You'll need your Navidrome username and password to sign back in."
         buttons={[
           { text: 'Cancel', role: 'cancel' },
           { text: 'Sign out', role: 'destructive', handler: () => void signOut() },

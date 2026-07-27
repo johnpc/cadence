@@ -13,7 +13,7 @@ function loadRate(): number {
 /**
  * Owns playback speed: applies it to the audio element, persists it per device,
  * and re-applies on track change (a fresh src resets the element's rate). Mirrors
- * useVolume. Useful for the long mixes / spoken-word content a Jellyfin library
+ * useVolume. Useful for the long mixes / spoken-word content a Navidrome library
  * often holds, not just music.
  */
 export function usePlaybackRate(audioRef: RefObject<HTMLAudioElement | null>, currentId?: string) {

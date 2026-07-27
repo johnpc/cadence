@@ -11,7 +11,7 @@
 #
 # To update: re-pull repo (git -C repo pull) and re-run the `up -d --build`.
 #
-# The Jellyfin server URL is NOT baked into the build — set JELLYFIN_URL below
+# The Navidrome server URL is NOT baked into the build — set NAVIDROME_URL below
 # (or in a .env beside this file / Dockge's env field). It's injected at
 # container start into config.js by deploy/runtime-config.sh, so changing it
 # needs only a restart, not a rebuild — and the address never lives in source.
@@ -19,8 +19,8 @@
 # Optional faster search: set MARLIN_URL + MARLIN_TOKEN (the indexer's
 # EXPRESS_AUTH_TOKEN) to have nginx proxy same-origin /api/search to marlin and
 # inject the token server-side — the token never reaches the browser and marlin
-# needs no public hostname. Unset → Jellyfin native search. Keep real values in a
-# .env beside this file (gitignored), never committed.
+# needs no public hostname. Unset → Navidrome native search. Keep real values in
+# a .env beside this file (gitignored), never committed.
 #
 # Optional "request missing music" (Lidarr): set LIDARR_URL + LIDARR_API_KEY to
 # have nginx proxy same-origin /api/lidarr/* (a curated allowlist) to Lidarr,
@@ -33,7 +33,7 @@ services:
     image: cadence-local:latest
     container_name: cadence
     environment:
-      JELLYFIN_URL: ${JELLYFIN_URL:-}
+      NAVIDROME_URL: ${NAVIDROME_URL:-}
       MARLIN_URL: ${MARLIN_URL:-}
       MARLIN_TOKEN: ${MARLIN_TOKEN:-}
       LIDARR_URL: ${LIDARR_URL:-}

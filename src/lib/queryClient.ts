@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
-import { isRetryableError } from './jellyfinErrors';
+import { isRetryableError } from './navidromeErrors';
 
-/** App-wide react-query client. All server state (Jellyfin data) lives here.
+/** App-wide react-query client. All server state (Navidrome data) lives here.
  *
  * - `staleTime` 30s: data stays fresh across quick navigation, so revisiting a
  *   page you just saw paints instantly from cache instead of refetching (the

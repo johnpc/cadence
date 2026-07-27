@@ -4,7 +4,7 @@ import { useLikeToggle } from './useLikeToggle';
 import type { MediaItem } from '../../lib/navidromeTypes';
 import './likeButton.css';
 
-/** A heart toggle that likes/unlikes a track (Jellyfin favorite). */
+/** A heart toggle that likes/unlikes a track (Navidrome favorite). */
 export function LikeButton({ track, size = 22 }: { track: MediaItem; size?: number }) {
   const { liked, toggle, busy } = useLikeToggle(track);
   return (

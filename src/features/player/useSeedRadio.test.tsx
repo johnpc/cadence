@@ -1,8 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({ getInstantMix: vi.fn(), getItemTracks: vi.fn() }));
-import { getInstantMix, getItemTracks } from '../../lib/jellyfinItems';
+vi.mock('../../lib/navidromeItems', () => ({
+  getSimilarSongs: vi.fn(),
+  getAlbumTracks: vi.fn(),
+}));
+import { getSimilarSongs, getAlbumTracks } from '../../lib/navidromeItems';
 import { PlayerContext } from './PlayerContext';
 import { useSeedRadio } from './useSeedRadio';
 import type { PlayerContextValue } from './types';
@@ -28,8 +31,8 @@ describe('useSeedRadio', () => {
   });
 
   it("plays the album's own tracks immediately, then extends with the mix", async () => {
-    vi.mocked(getItemTracks).mockResolvedValue([track('a1'), track('a2')]);
-    vi.mocked(getInstantMix).mockResolvedValue([track('m1'), track('m2')]);
+    vi.mocked(getAlbumTracks).mockResolvedValue([track('a1'), track('a2')]);
+    vi.mocked(getSimilarSongs).mockResolvedValue([track('m1'), track('m2')]);
     const { seedRadio, playQueue, addToQueue } = setup();
     await seedRadio('al');
     // Album tracks play at once (no waiting on the slow mix).
@@ -39,16 +42,16 @@ describe('useSeedRadio', () => {
   });
 
   it('falls back to just the mix when the album has no tracks', async () => {
-    vi.mocked(getItemTracks).mockResolvedValue([]);
-    vi.mocked(getInstantMix).mockResolvedValue([track('m1')]);
+    vi.mocked(getAlbumTracks).mockResolvedValue([]);
+    vi.mocked(getSimilarSongs).mockResolvedValue([track('m1')]);
     const { seedRadio, playQueue } = setup();
     await seedRadio('al');
     expect(playQueue).toHaveBeenCalledWith([track('m1')], 0);
   });
 
   it('does nothing when neither tracks nor mix return anything', async () => {
-    vi.mocked(getItemTracks).mockResolvedValue([]);
-    vi.mocked(getInstantMix).mockResolvedValue([]);
+    vi.mocked(getAlbumTracks).mockResolvedValue([]);
+    vi.mocked(getSimilarSongs).mockResolvedValue([]);
     const { seedRadio, playQueue } = setup();
     await seedRadio('al');
     expect(playQueue).not.toHaveBeenCalled();

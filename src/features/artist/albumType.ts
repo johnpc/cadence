@@ -4,7 +4,7 @@ import type { MediaItem } from '../../lib/navidromeTypes';
 export type AlbumSection = 'albums' | 'singles' | 'compilations';
 
 /**
- * Classify an album into a discography section, Spotify-style. Jellyfin has no
+ * Classify an album into a discography section, Spotify-style. Navidrome has no
  * native "album type", so we infer:
  * - Compilations: credited to "Various Artists" (a collection, not the artist's
  *   own release).

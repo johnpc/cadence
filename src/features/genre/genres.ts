@@ -1,13 +1,13 @@
-/** A browsable music category, matched to a Jellyfin genre name. `color` gives
+/** A browsable music category, matched to a Navidrome genre name. `color` gives
  * each tile its own Spotify-style hue. */
 export interface Genre {
   name: string;
   color: string;
 }
 
-/** The curated "Browse all" categories. Jellyfin exposes ~890 raw genres, most
- * of them noisy (semicolon-joined, video categories) — so we hand-pick the
- * clean, well-populated ones rather than dumping the raw list. */
+/** The curated "Browse all" categories. The raw library genre list is noisy
+ * (inconsistent tagging, one-off values) — so we hand-pick the clean,
+ * well-populated ones rather than dumping the raw list. */
 export const GENRES: Genre[] = [
   { name: 'Pop', color: '#e91429' },
   { name: 'Rock', color: '#e1118c' },

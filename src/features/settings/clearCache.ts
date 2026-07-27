@@ -23,8 +23,8 @@ const CACHE_LS_KEYS = [
 ];
 
 /** Wipe Cadence's caches without touching the session or user data (likes,
- * playlists, theme live on the Jellyfin server or in Preferences — untouched).
- * Clears the react-query cache (all cached Jellyfin responses), the persisted
+ * playlists, theme live on the Navidrome server or in Preferences — untouched).
+ * Clears the react-query cache (all cached Navidrome responses), the persisted
  * disk caches (e.g. playlist tracks), and any Cache Storage buckets (PWA/image
  * caches), then refetches active queries so the current screen repaints with
  * fresh data instead of going blank. */

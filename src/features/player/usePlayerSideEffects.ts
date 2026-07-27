@@ -10,7 +10,7 @@ import type { MediaItem } from '../../lib/navidromeTypes';
 /**
  * The player's fire-and-forget integrations — hooks that observe playback and
  * produce side effects but return nothing the render needs: report plays to
- * Jellyfin, append instant-mix radio when the queue runs dry, warm the next
+ * Navidrome, append similar-songs radio when the queue runs dry, warm the next
  * track for gapless transitions, and reflect the track in the tab title.
  * Grouped out of PlayerProvider so it stays a thin composition root.
  */
@@ -21,7 +21,7 @@ export function usePlayerSideEffects(
   ref: RefObject<HTMLAudioElement | null>,
   isPlaying: boolean,
 ): void {
-  // Report playback to Jellyfin (play counts + Recently Played). Reads position
+  // Report playback to Navidrome (play counts + Recently Played). Reads position
   // live from the audio element so it doesn't re-fire on every tick.
   usePlaybackReporting(currentId, () => ref.current?.currentTime ?? 0);
 

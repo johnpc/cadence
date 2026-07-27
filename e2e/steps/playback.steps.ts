@@ -71,11 +71,11 @@ Then('the Now-Playing bar shows a track', async ({ page }) => {
   await expect(page.getByTestId('now-playing-title')).toHaveText(/\S/, { timeout: DATA_WAIT });
 });
 
-Then('the audio element is loaded with a Jellyfin stream', async ({ page }) => {
-  // The one long-lived <audio> gets a Jellyfin universal-stream src on play.
+Then('the audio element is loaded with a Navidrome stream', async ({ page }) => {
+  // The one long-lived <audio> gets a Subsonic /rest/stream src on play.
   await page.waitForFunction(() => {
     const audio = document.querySelector('audio');
-    return !!audio?.src && audio.src.includes('/Audio/') && audio.src.includes('/universal');
+    return !!audio?.src && audio.src.includes('/rest/stream');
   });
 });
 

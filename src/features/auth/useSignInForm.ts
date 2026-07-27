@@ -3,7 +3,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { getServerUrl, setServerUrl } from '../../lib/serverUrlStore';
 
-/** Form state + action for Jellyfin username/password sign-in, including the
+/** Form state + action for Navidrome username/password sign-in, including the
  * server URL (persisted before authenticating so the request hits it). */
 export function useSignInForm() {
   const { signIn } = useAuth();
@@ -21,7 +21,7 @@ export function useSignInForm() {
 
   const submit = useCallback(async () => {
     if (!server.trim()) {
-      setError('Enter your Jellyfin server address.');
+      setError('Enter your Navidrome server address.');
       return;
     }
     setError(null);

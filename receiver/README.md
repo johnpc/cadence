@@ -10,7 +10,7 @@ a Google Cast developer registration + hosting, neither of which CI can do.
 
 ## How it fits together
 
-- The app sends audio (a Jellyfin universal-stream URL) via the Cast SDK, and
+- The app sends audio (a Navidrome/Subsonic stream URL) via the Cast SDK, and
   pushes now-playing + queue updates on the custom namespace
   `urn:x-cast:io.jpc.cadence` (see `src/features/cast/castMessages.ts` +
   `castBroadcast.ts`).

@@ -1,6 +1,6 @@
 Feature: Search
   Search is the primary discovery surface. Typing a query shows real matching
-  songs from the Jellyfin library; a nonsense query shows an empty state; and
+  songs from the Navidrome library; a nonsense query shows an empty state; and
   tapping a song plays it.
 
   Scenario: Searching shows real results and plays a song

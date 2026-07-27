@@ -4,7 +4,7 @@ import { useSignInForm } from './useSignInForm';
 import { signupUrl } from '../../lib/runtimeConfig';
 import './auth.css';
 
-/** Jellyfin username/password sign-in. */
+/** Navidrome username/password sign-in. */
 export function SignIn() {
   const f = useSignInForm();
   const signup = signupUrl();
@@ -22,7 +22,7 @@ export function SignIn() {
         >
           <img className="auth__logo" src="/icons/icon-192.png" alt="" width={88} height={88} />
           <h1 className="auth__title cad-h1">Cadence</h1>
-          <p className="auth__subtext cad-body">Sign in with your Jellyfin account.</p>
+          <p className="auth__subtext cad-body">Sign in with your Navidrome account.</p>
           <AuthField
             label="Server"
             type="url"

@@ -14,7 +14,7 @@ export function useSong(songId: string) {
   return { song: q.data ?? null, isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
-/** The playlists that contain a track. Jellyfin has no reverse index, so we
+/** The playlists that contain a track. Subsonic has no reverse index, so we
  * scan the user's playlists (capped) and keep the ones whose items include it.
  * Bounded + cached so the song page stays responsive. */
 async function playlistsContaining(songId: string): Promise<MediaItem[]> {

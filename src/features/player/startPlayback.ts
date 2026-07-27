@@ -3,7 +3,7 @@ import { audioStreamUrl } from '../../lib/navidromeStream';
 import { isDownloaded, localAudioUrl } from '../downloads/downloadStore';
 
 /** Resolve the best src for a track: a locally-downloaded blob when present
- * (offline), else the Jellyfin network stream. Async only for the downloaded
+ * (offline), else the Navidrome network stream. Async only for the downloaded
  * case; the common (streaming) path resolves synchronously. */
 export async function resolveTrackSrc(id: string): Promise<string> {
   if (isDownloaded(id)) return (await localAudioUrl(id)) ?? audioStreamUrl(id);

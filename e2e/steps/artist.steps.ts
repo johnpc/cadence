@@ -39,7 +39,7 @@ When('I play the artist track list', async ({ page }) => {
 
 When('I open the first artist result', async ({ page }) => {
   // Re-fire the (already-typed) search if the artist section is slow to fill,
-  // so a transient Jellyfin hiccup doesn't fail the run.
+  // so a transient Navidrome hiccup doesn't fail the run.
   await searchUntilResults(page, 'love', 'search-artists', 'result-row');
   const row = page.getByTestId('search-artists').getByTestId('result-row').first();
   // Click-and-VERIFY: like the tab nav, an Ionic route push from a result-row

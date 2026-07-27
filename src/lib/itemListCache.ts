@@ -1,7 +1,7 @@
 import type { MediaItem } from './navidromeTypes';
 
 /**
- * A namespaced localStorage cache of Jellyfin item lists (a playlist's tracks,
+ * A namespaced localStorage cache of Navidrome item lists (a playlist's tracks,
  * an album's tracks, an artist's albums…). These change rarely but are costly to
  * fetch over the tunnel, so we persist the last-seen list per id and seed the
  * query with it — a previously-opened page paints INSTANTLY from disk, then

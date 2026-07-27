@@ -5,7 +5,7 @@ import './playlistCover.css';
 
 /** The playlist's cover: its own art when it has one, else a Spotify-style 2×2
  * mosaic built from the first tracks' album art, else TrackArt's placeholder.
- * Jellyfin doesn't always auto-generate a playlist cover, so this keeps a
+ * Navidrome doesn't always auto-generate a playlist cover, so this keeps a
  * genuinely art-less playlist from showing a bare note icon. */
 export function PlaylistCover({
   playlist,

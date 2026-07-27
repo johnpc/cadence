@@ -1,6 +1,6 @@
 import type { MediaItem } from '../../lib/navidromeTypes';
 
-/** The detail-page path for a mixed item, by its Jellyfin Type — used by the
+/** The detail-page path for a mixed item, by its MediaItem Type — used by the
  * "Jump back in" shelf, whose cards can be albums, playlists, or artists.
  * Falls back to the album page (the most common played collection). */
 export function detailPath(item: MediaItem): string {

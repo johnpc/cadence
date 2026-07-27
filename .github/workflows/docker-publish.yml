@@ -1,7 +1,7 @@
 name: Publish Docker image
 
 # Builds the self-hostable image and pushes it to Docker Hub. The image is
-# server-agnostic — it ships with NO baked-in Jellyfin URL, so each self-hoster
+# server-agnostic — it ships with NO baked-in Navidrome URL, so each self-hoster
 # enters their own server address at sign-in (see serverUrlStore). Runs on a
 # push to main (tags `latest` + the commit sha) and on a version tag (`vX.Y.Z`).
 on:
@@ -53,11 +53,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # No VITE_JELLYFIN_URL → a generic image; users pick their server at login.
+          # No VITE_NAVIDROME_URL → a generic image; users pick their server at login.
           # Diagnostics ingest baked in so the web build has an upload endpoint too
           # (opt-in; non-secret throttling key).
           build-args: |
-            VITE_JELLYFIN_URL=
+            VITE_NAVIDROME_URL=
             VITE_DIAGNOSTICS_URL=${{ secrets.VITE_DIAGNOSTICS_URL }}
             VITE_DIAGNOSTICS_KEY=${{ secrets.VITE_DIAGNOSTICS_KEY }}
           cache-from: type=gha

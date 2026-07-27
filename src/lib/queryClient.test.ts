@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { queryClient } from './queryClient';
-import { Unauthenticated, RequestTimeout } from './jellyfinErrors';
+import { Unauthenticated, RequestTimeout } from './navidromeErrors';
 
 describe('queryClient', () => {
   const defaults = queryClient.getDefaultOptions().queries;

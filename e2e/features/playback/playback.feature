@@ -1,12 +1,12 @@
 Feature: Playback
   Tapping a track starts playback: the Now-Playing bar appears with the track,
-  and the full player opens. Real tracks come from the Jellyfin library.
+  and the full player opens. Real tracks come from the Navidrome library.
 
   Scenario: Playing a track shows it in the Now-Playing bar
     Given I am signed in
     When I tap a track from search
     Then the Now-Playing bar shows a track
-    And the audio element is loaded with a Jellyfin stream
+    And the audio element is loaded with a Navidrome stream
 
   Scenario: Changing the playback speed applies to the audio
     Given I am signed in

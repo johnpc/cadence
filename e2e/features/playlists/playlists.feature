@@ -1,5 +1,5 @@
 Feature: Playlists
-  Playlists from Jellyfin show in Your Library, open to their tracks, and play
+  Playlists from Navidrome show in Your Library, open to their tracks, and play
   as a queue.
 
   Scenario: Opening a playlist shows its tracks and plays them

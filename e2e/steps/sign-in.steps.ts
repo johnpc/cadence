@@ -27,7 +27,7 @@ When("I sign in with the test user's credentials", async ({ page }) => {
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill(PASSWORD as string);
   await page.getByTestId('signin-submit').click();
-  // Wait for the persisted Jellyfin session before proceeding — navigating
+  // Wait for the persisted Navidrome session before proceeding — navigating
   // before it lands races the session (the ghost-guest-read bug from stoop).
   // Generous timeout: the auth POST can be slow under CI contention.
   await page.waitForFunction(
@@ -66,7 +66,7 @@ Then('I land on the Home tab', async ({ page }) => {
 });
 
 Then('I see a sign-in error', async ({ page }) => {
-  // The rejecting Jellyfin round-trip can be slow under CI contention (and the
+  // The rejecting Navidrome round-trip can be slow under CI contention (and the
   // server may throttle repeated bad-password attempts) — give it real headroom.
   await expect(page.getByTestId('signin-error')).toBeVisible({ timeout: 60_000 });
 });

@@ -55,7 +55,7 @@ describe('useTrackLoader', () => {
     vi.mocked(castTrack).mockResolvedValue(undefined);
   });
 
-  it('streams from Jellyfin when the track is not downloaded', async () => {
+  it('streams from Navidrome when the track is not downloaded', async () => {
     vi.mocked(isDownloaded).mockReturnValue(false);
     const audio = fakeAudio();
     renderHook(() => useLoader(track('t1'), audio));

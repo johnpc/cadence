@@ -18,7 +18,7 @@ import { useAlbum, useAlbumTracks } from './albumApi';
 import './album.css';
 
 /** One album: header (always shown once metadata loads) + its tracklist. Even
- * when Jellyfin reports no tracks, the header (art, title, artist link) shows. */
+ * when Navidrome reports no tracks, the header (art, title, artist link) shows. */
 export function AlbumDetail() {
   const { id } = useParams<{ id: string }>();
   const { album } = useAlbum(id);

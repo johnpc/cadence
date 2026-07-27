@@ -1,7 +1,7 @@
 /*
  * Cadence Cast receiver — runs on the TV (Chromecast / Nvidia Shield).
  *
- * Plays the audio the sender casts (a Jellyfin universal-stream URL) via the
+ * Plays the audio the sender casts (a Navidrome/Subsonic stream URL) via the
  * default CAF media pipeline, AND listens on Cadence's custom namespace for
  * now-playing + queue messages (see src/features/cast/castMessages.ts) to render
  * the cover art, a lightweight canvas visualizer, and a live "Up next" list.

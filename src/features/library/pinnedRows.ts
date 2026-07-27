@@ -7,8 +7,8 @@ function songs(n: number): string {
 
 /**
  * The synthetic playlists pinned to the top of the library's Playlists filter:
- * Liked Songs (Jellyfin favorites) and Downloads (offline tracks). Both are
- * pseudo-playlists — not real Jellyfin playlists — so they're built here rather
+ * Liked Songs (Navidrome favorites) and Downloads (offline tracks). Both are
+ * pseudo-playlists — not real Navidrome playlists — so they're built here rather
  * than coming from the server. Downloads is pinned only when non-empty so a
  * user who never downloads doesn't see an empty shortcut.
  */
