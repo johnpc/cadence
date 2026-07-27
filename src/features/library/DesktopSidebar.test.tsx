@@ -2,17 +2,19 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({
+vi.mock('../../lib/navidromeItems', () => ({
   getFavoriteSongs: vi.fn().mockResolvedValue([]),
   getFavoriteAlbums: vi.fn().mockResolvedValue([]),
 }));
-vi.mock('../../lib/jellyfinArtists', () => ({ getFavoriteArtists: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../lib/navidromeArtists', () => ({
+  getFavoriteArtists: vi.fn().mockResolvedValue([]),
+}));
 vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([{ Id: 'p1', Name: 'Road Trip', Type: 'Playlist' }]),
   createPlaylist: vi.fn(),
 }));
-import { getFavoriteSongs, getFavoriteAlbums } from '../../lib/jellyfinItems';
-import { getFavoriteArtists } from '../../lib/jellyfinArtists';
+import { getFavoriteSongs, getFavoriteAlbums } from '../../lib/navidromeItems';
+import { getFavoriteArtists } from '../../lib/navidromeArtists';
 import { getPlaylists } from '../../lib/jellyfinPlaylists';
 import { DesktopSidebar } from './DesktopSidebar';
 import { renderWithProviders } from '../../test/renderWithProviders';

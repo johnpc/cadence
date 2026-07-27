@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
+import { addFavorite, removeFavorite } from '../../lib/navidromeItems';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import { SAVED_ALBUMS_KEY, FOLLOWED_ARTISTS_KEY } from './libraryApi';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
- * Save/unsave a collection (album or artist) to the library — Jellyfin
- * favorites work on any item, so this reuses addFavorite/removeFavorite.
- * Seeds from UserData.IsFavorite, flips optimistically, invalidates the
- * saved-albums list. On failure it rolls back AND toasts (no silent revert).
+ * Save/unsave a collection (album or artist) to the library, via the same
+ * addFavorite/removeFavorite Subsonic star/unstar calls as liked songs (kind
+ * picks the right param — albumId vs artistId). Seeds from
+ * UserData.IsFavorite, flips optimistically, invalidates the saved-albums
+ * list. On failure it rolls back AND toasts (no silent revert).
  */
 export function useSaveToggle(item: MediaItem | null) {
   const queryClient = useQueryClient();
@@ -40,9 +41,10 @@ export function useSaveToggle(item: MediaItem | null) {
         failRemove: "Couldn't remove from your library",
       };
 
+  const kind = isArtist ? 'artist' : 'album';
   const mutation = useMutation({
     mutationFn: (next: boolean) =>
-      next ? addFavorite(item?.Id ?? '') : removeFavorite(item?.Id ?? ''),
+      next ? addFavorite(item?.Id ?? '', kind) : removeFavorite(item?.Id ?? '', kind),
     onMutate: (next: boolean) => setSaved(next),
     onError: (_e, next) => {
       setSaved(!next); // roll back

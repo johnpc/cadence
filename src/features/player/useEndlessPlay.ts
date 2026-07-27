@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { getInstantMix } from '../../lib/jellyfinItems';
+import { getSimilarSongs } from '../../lib/navidromeItems';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
@@ -22,9 +22,9 @@ export function useEndlessPlay(
     if (!atEnd || !repeatOff || !last || seededFor.current === last.Id) return;
     seededFor.current = last.Id;
     let cancelled = false;
-    void getInstantMix(last.Id)
+    void getSimilarSongs(last.Id)
       .then((mix) => {
-        // Drop the seed itself if Jellyfin echoes it back as the first result.
+        // Drop the seed itself if the server echoes it back as the first result.
         const fresh = mix.filter((t) => t.Id !== last.Id);
         if (!cancelled && fresh.length) append(fresh);
       })

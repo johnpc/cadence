@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
+import { addFavorite, removeFavorite } from '../../lib/navidromeItems';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import { LIKED_SONGS_KEY } from './libraryApi';

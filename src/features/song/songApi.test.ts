@@ -3,12 +3,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement, type ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({ getItem: vi.fn() }));
+vi.mock('../../lib/navidromeItems', () => ({ getSong: vi.fn(), getAlbum: vi.fn() }));
+vi.mock('../../lib/navidromeArtists', () => ({ getArtist: vi.fn() }));
 vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylists: vi.fn(),
   getPlaylistItems: vi.fn(),
 }));
-import { getItem } from '../../lib/jellyfinItems';
+import { getSong } from '../../lib/navidromeItems';
 import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import { useSong, useSongPlaylists } from './songApi';
 import type { MediaItem } from '../../lib/navidromeTypes';
@@ -27,14 +28,14 @@ afterEach(() => {
 
 describe('useSong', () => {
   it('returns the fetched track', async () => {
-    vi.mocked(getItem).mockResolvedValue(track);
+    vi.mocked(getSong).mockResolvedValue(track);
     const { result } = renderHook(() => useSong('s1'), { wrapper: wrapper() });
     await waitFor(() => expect(result.current.song).toEqual(track));
     expect(result.current.isError).toBe(false);
   });
 
   it('surfaces errors', async () => {
-    vi.mocked(getItem).mockRejectedValue(new Error('boom'));
+    vi.mocked(getSong).mockRejectedValue(new Error('boom'));
     const { result } = renderHook(() => useSong('s1'), { wrapper: wrapper() });
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.song).toBeNull();

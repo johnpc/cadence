@@ -41,12 +41,11 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   setPlaylistIsPublic: vi.fn(),
 }));
 vi.mock('../../lib/jellyfinItems', () => ({
-  addFavorite: vi.fn(),
-  removeFavorite: vi.fn(),
   getItem: vi
     .fn()
     .mockResolvedValue({ Id: 'p1', Name: 'My Playlist', Type: 'Playlist', CanDelete: true }),
 }));
+vi.mock('../../lib/navidromeItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
 import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import { getItem } from '../../lib/jellyfinItems';
 import { PlaylistDetail } from './PlaylistDetail';

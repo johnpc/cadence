@@ -2,8 +2,8 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
-import { addFavorite } from '../../lib/jellyfinItems';
+vi.mock('../../lib/navidromeItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
+import { addFavorite } from '../../lib/navidromeItems';
 import { SaveButton } from './SaveButton';
 import { ToastContext } from '../toast/ToastContext';
 import { renderWithProviders } from '../../test/renderWithProviders';
@@ -28,7 +28,7 @@ describe('SaveButton', () => {
     expect(btn).toHaveAttribute('aria-pressed', 'false');
     await userEvent.click(btn);
     await waitFor(() => expect(btn).toHaveAttribute('aria-pressed', 'true'));
-    expect(addFavorite).toHaveBeenCalledWith('al1');
+    expect(addFavorite).toHaveBeenCalledWith('al1', 'album');
   });
 
   it('is disabled when there is no item', () => {

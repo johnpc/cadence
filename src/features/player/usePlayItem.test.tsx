@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({ getItemTracks: vi.fn(), getInstantMix: vi.fn() }));
-import { getInstantMix, getItemTracks } from '../../lib/jellyfinItems';
+vi.mock('../../lib/navidromeItems', () => ({ getAlbumTracks: vi.fn(), getSimilarSongs: vi.fn() }));
+import { getSimilarSongs, getAlbumTracks } from '../../lib/navidromeItems';
 import { PlayerContext } from './PlayerContext';
 import { usePlayItem } from './usePlayItem';
 import type { PlayerContextValue } from './types';
@@ -27,24 +27,24 @@ describe('usePlayItem', () => {
   });
 
   it('plays an album by its tracks in order', async () => {
-    vi.mocked(getItemTracks).mockResolvedValue([track('a'), track('b')]);
+    vi.mocked(getAlbumTracks).mockResolvedValue([track('a'), track('b')]);
     const { play, playQueue } = setup();
     await play({ Id: 'al', Name: 'Album', Type: 'MusicAlbum' });
-    expect(getItemTracks).toHaveBeenCalledWith('al');
+    expect(getAlbumTracks).toHaveBeenCalledWith('al');
     expect(playQueue).toHaveBeenCalledWith([track('a'), track('b')], 0);
   });
 
-  it('starts an instant mix for an artist', async () => {
-    vi.mocked(getInstantMix).mockResolvedValue([track('x')]);
+  it('starts a similar-songs radio for an artist', async () => {
+    vi.mocked(getSimilarSongs).mockResolvedValue([track('x')]);
     const { play, playQueue } = setup();
     await play({ Id: 'ar', Name: 'Artist', Type: 'MusicArtist' });
-    expect(getInstantMix).toHaveBeenCalledWith('ar');
+    expect(getSimilarSongs).toHaveBeenCalledWith('ar');
     expect(playQueue).toHaveBeenCalledWith([track('x')], 0);
   });
 
   it('falls back to a radio when an album has no tracks', async () => {
-    vi.mocked(getItemTracks).mockResolvedValue([]);
-    vi.mocked(getInstantMix).mockResolvedValue([track('r')]);
+    vi.mocked(getAlbumTracks).mockResolvedValue([]);
+    vi.mocked(getSimilarSongs).mockResolvedValue([track('r')]);
     const { play, playQueue } = setup();
     await play({ Id: 'al', Name: 'Album', Type: 'MusicAlbum' });
     expect(playQueue).toHaveBeenCalledWith([track('r')], 0);

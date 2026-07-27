@@ -7,11 +7,11 @@ vi.mock('../../lib/jellyfinDiscover', () => ({
   getRecentlyPlayed: vi.fn().mockResolvedValue([]),
   getOnRepeat: vi.fn().mockResolvedValue([]),
 }));
-vi.mock('../../lib/jellyfinItems', () => ({
-  getFavoriteAlbums: vi.fn().mockResolvedValue([]),
-  getItem: vi.fn().mockResolvedValue(null),
+vi.mock('../../lib/jellyfinItems', () => ({ getItem: vi.fn().mockResolvedValue(null) }));
+vi.mock('../../lib/navidromeItems', () => ({ getFavoriteAlbums: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../lib/navidromeArtists', () => ({
+  getFavoriteArtists: vi.fn().mockResolvedValue([]),
 }));
-vi.mock('../../lib/jellyfinArtists', () => ({ getFavoriteArtists: vi.fn().mockResolvedValue([]) }));
 vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPublicPlaylists: vi.fn().mockResolvedValue([]),
 }));
@@ -22,8 +22,8 @@ import {
   getRecentlyPlayed,
   getOnRepeat,
 } from '../../lib/jellyfinDiscover';
-import { getFavoriteAlbums } from '../../lib/jellyfinItems';
-import { getFavoriteArtists } from '../../lib/jellyfinArtists';
+import { getFavoriteAlbums } from '../../lib/navidromeItems';
+import { getFavoriteArtists } from '../../lib/navidromeArtists';
 import { getPublicPlaylists } from '../../lib/jellyfinPlaylists';
 import { Home } from './Home';
 import { renderWithProviders } from '../../test/renderWithProviders';

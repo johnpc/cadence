@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ReactNode } from 'react';
 
-vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
-import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
+vi.mock('../../lib/navidromeItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
+import { addFavorite, removeFavorite } from '../../lib/navidromeItems';
 import { useSaveToggle } from './useSaveToggle';
 import { ToastContext } from '../toast/ToastContext';
 import type { MediaItem } from '../../lib/navidromeTypes';
@@ -45,7 +45,7 @@ describe('useSaveToggle', () => {
     const { result } = renderHook(() => useSaveToggle(album(false)), { wrapper });
     act(() => result.current.toggle());
     expect(result.current.saved).toBe(true);
-    await waitFor(() => expect(addFavorite).toHaveBeenCalledWith('al1'));
+    await waitFor(() => expect(addFavorite).toHaveBeenCalledWith('al1', 'album'));
     await waitFor(() => expect(toast).toHaveBeenCalledWith('Saved to library'));
   });
 
@@ -54,6 +54,7 @@ describe('useSaveToggle', () => {
     const { result } = renderHook(() => useSaveToggle(artist(false)), { wrapper });
     act(() => result.current.toggle());
     await waitFor(() => expect(toast).toHaveBeenCalledWith('Following'));
+    expect(addFavorite).toHaveBeenCalledWith('ar1', 'artist');
   });
 
   it('unsaves a saved album', async () => {
@@ -61,7 +62,7 @@ describe('useSaveToggle', () => {
     const { result } = renderHook(() => useSaveToggle(album(true)), { wrapper });
     act(() => result.current.toggle());
     expect(result.current.saved).toBe(false);
-    await waitFor(() => expect(removeFavorite).toHaveBeenCalledWith('al1'));
+    await waitFor(() => expect(removeFavorite).toHaveBeenCalledWith('al1', 'album'));
   });
 
   it('rolls back AND toasts on error', async () => {

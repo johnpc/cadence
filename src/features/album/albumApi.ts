@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { getItem, getItemTracks, getInstantMix, getItemsByIds } from '../../lib/jellyfinItems';
-import { getArtistAlbums } from '../../lib/jellyfinArtists';
+import {
+  getAlbum,
+  getAlbumTracks,
+  getSimilarSongs,
+  getAlbumsByIds,
+} from '../../lib/navidromeItems';
+import { getArtistAlbums } from '../../lib/navidromeArtists';
 import { createItemListCache } from '../../lib/itemListCache';
 import { rankSimilarAlbumIds } from './rankSimilar';
 import type { MediaItem } from '../../lib/navidromeTypes';
@@ -20,7 +25,7 @@ export const SIMILAR_ALBUMS_CACHE_KEY = similarAlbumsCache.storageKey;
 /** Fetch an album's tracks and persist them (query fn + prefetch, so a hovered/
  * tapped album warms the same disk cache the detail page reads). */
 export function fetchAndCacheAlbumTracks(albumId: string): Promise<MediaItem[]> {
-  return albumTracksCache.fetchAndCache(albumId, getItemTracks);
+  return albumTracksCache.fetchAndCache(albumId, getAlbumTracks);
 }
 export function getCachedAlbumTracks(albumId: string): MediaItem[] | undefined {
   return albumTracksCache.get(albumId);
@@ -30,7 +35,7 @@ export function getCachedAlbumTracks(albumId: string): MediaItem[] | undefined {
 export function useAlbum(albumId: string) {
   const q = useQuery({
     queryKey: ['album', albumId],
-    queryFn: () => getItem(albumId),
+    queryFn: () => getAlbum(albumId),
     staleTime: 60_000,
   });
   return { album: q.data ?? null, isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
@@ -71,9 +76,9 @@ export function useMoreByArtist(artistId: string | undefined, excludeId: string,
  * already yield plenty of distinct albums to rank an 8-item shelf. So we trade a
  * slightly smaller candidate pool for a ~3.5× faster call. */
 async function fetchSimilarAlbums(albumId: string): Promise<MediaItem[]> {
-  const mix = await getInstantMix(albumId, 20);
+  const mix = await getSimilarSongs(albumId, 20);
   const ids = rankSimilarAlbumIds(mix, albumId);
-  return getItemsByIds(ids);
+  return getAlbumsByIds(ids);
 }
 
 export function useSimilarAlbums(albumId: string, enabled = true) {

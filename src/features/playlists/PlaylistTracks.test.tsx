@@ -42,7 +42,7 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   removeFromPlaylist: vi.fn(),
   movePlaylistItem: vi.fn(),
 }));
-vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
+vi.mock('../../lib/navidromeItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
 // Row actions now live in the "…" menu (an ActionSheet jsdom can't open). Stub
 // TrackRow to expose the props PlaylistTracks controls (reorder + remove) as
 // data attributes, so this test keeps covering that conditional logic.

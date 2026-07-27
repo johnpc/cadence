@@ -1,6 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { getItem } from '../../lib/jellyfinItems';
-import { getArtistAlbums, getArtistTopTracks, getArtistTracks } from '../../lib/jellyfinArtists';
+import {
+  getArtist,
+  getArtistAlbums,
+  getArtistTopTracks,
+  getArtistTracks,
+} from '../../lib/navidromeArtists';
 import { createItemListCache } from '../../lib/itemListCache';
 import { getCachedRelatedArtists, fetchAndCacheRelatedArtists } from './relatedArtistsCache';
 import type { MediaItem } from '../../lib/navidromeTypes';
@@ -24,7 +28,7 @@ export function getCachedArtistAlbums(artistId: string): MediaItem[] | undefined
 export function useArtist(artistId: string) {
   const q = useQuery({
     queryKey: ['artist', artistId],
-    queryFn: () => getItem(artistId),
+    queryFn: () => getArtist(artistId),
     staleTime: 60_000,
   });
   return { artist: q.data ?? null, isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };

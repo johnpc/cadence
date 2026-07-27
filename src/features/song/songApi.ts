@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getItem } from '../../lib/jellyfinItems';
+import { getSong, getAlbum } from '../../lib/navidromeItems';
+import { getArtist } from '../../lib/navidromeArtists';
 import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
@@ -7,7 +8,7 @@ import type { MediaItem } from '../../lib/navidromeTypes';
 export function useSong(songId: string) {
   const q = useQuery({
     queryKey: ['song', songId],
-    queryFn: () => getItem(songId),
+    queryFn: () => getSong(songId),
     staleTime: 60_000,
   });
   return { song: q.data ?? null, isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
@@ -46,7 +47,7 @@ export function useSongPlaylists(songId: string, enabled = true) {
 export function useSongAlbum(albumId: string | undefined) {
   const q = useQuery({
     queryKey: ['album', albumId],
-    queryFn: () => getItem(albumId as string),
+    queryFn: () => getAlbum(albumId as string),
     enabled: !!albumId,
     staleTime: 60_000,
   });
@@ -58,7 +59,7 @@ export function useSongAlbum(albumId: string | undefined) {
 export function useSongArtist(artistId: string | undefined) {
   const q = useQuery({
     queryKey: ['artist', artistId],
-    queryFn: () => getItem(artistId as string),
+    queryFn: () => getArtist(artistId as string),
     enabled: !!artistId,
     staleTime: 60_000,
   });

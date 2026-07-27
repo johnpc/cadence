@@ -4,11 +4,11 @@ import { MemoryRouter, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({
-  getInstantMix: vi.fn(),
-  getItemsByIds: vi.fn(),
+vi.mock('../../lib/navidromeItems', () => ({
+  getSimilarSongs: vi.fn(),
+  getAlbumsByIds: vi.fn(),
 }));
-import { getInstantMix, getItemsByIds } from '../../lib/jellyfinItems';
+import { getSimilarSongs, getAlbumsByIds } from '../../lib/navidromeItems';
 import { SimilarAlbums } from './SimilarAlbums';
 import type { MediaItem } from '../../lib/navidromeTypes';
 
@@ -44,8 +44,8 @@ describe('SimilarAlbums', () => {
   });
 
   it('shows albums from the radio mix and links to each', async () => {
-    vi.mocked(getInstantMix).mockResolvedValue(mix);
-    vi.mocked(getItemsByIds).mockResolvedValue(hydrated);
+    vi.mocked(getSimilarSongs).mockResolvedValue(mix);
+    vi.mocked(getAlbumsByIds).mockResolvedValue(hydrated);
     renderSimilar();
     await waitFor(() => expect(screen.getByText('Neighbour Album')).toBeInTheDocument());
     expect(screen.getByText('Other Band')).toBeInTheDocument();
@@ -54,10 +54,10 @@ describe('SimilarAlbums', () => {
   });
 
   it('renders nothing when the mix yields no sibling albums', async () => {
-    vi.mocked(getInstantMix).mockResolvedValue([]);
-    vi.mocked(getItemsByIds).mockResolvedValue([]);
+    vi.mocked(getSimilarSongs).mockResolvedValue([]);
+    vi.mocked(getAlbumsByIds).mockResolvedValue([]);
     const { container } = renderSimilar();
-    await waitFor(() => expect(getItemsByIds).toHaveBeenCalled());
+    await waitFor(() => expect(getAlbumsByIds).toHaveBeenCalled());
     expect(container.querySelector('[data-testid="similar-albums"]')).toBeNull();
   });
 });

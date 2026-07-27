@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { usePlayer } from './usePlayer';
-import { getInstantMix, getItemTracks } from '../../lib/jellyfinItems';
+import { getSimilarSongs, getAlbumTracks } from '../../lib/navidromeItems';
 import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import { touchRecentPlay } from '../library/recentPlays';
 import type { MediaItem } from '../../lib/navidromeTypes';
@@ -8,9 +8,9 @@ import type { MediaItem } from '../../lib/navidromeTypes';
 /** Load the ordered tracks a collection should play: an album's tracks, a
  * playlist's tracks, else an instant-mix radio (artist/song seed). */
 async function tracksFor(item: MediaItem): Promise<MediaItem[]> {
-  if (item.Type === 'MusicAlbum') return getItemTracks(item.Id);
+  if (item.Type === 'MusicAlbum') return getAlbumTracks(item.Id);
   if (item.Type === 'Playlist') return getPlaylistItems(item.Id);
-  return getInstantMix(item.Id);
+  return getSimilarSongs(item.Id);
 }
 
 /**
@@ -24,7 +24,7 @@ export function usePlayItem() {
   return useCallback(
     async (item: MediaItem) => {
       const tracks = await tracksFor(item);
-      const queue = tracks.length ? tracks : await getInstantMix(item.Id);
+      const queue = tracks.length ? tracks : await getSimilarSongs(item.Id);
       if (queue.length) {
         touchRecentPlay(item.Id, Date.now());
         playQueue(queue, 0);

@@ -1,6 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { getItem } from '../../lib/jellyfinItems';
+import { getAlbum } from '../../lib/navidromeItems';
+import { getArtist } from '../../lib/navidromeArtists';
 import { fetchAndCacheArtistAlbums } from '../artist/artistApi';
 import { fetchAndCacheAlbumTracks } from '../album/albumApi';
 import { fetchAndCachePlaylistItems } from '../playlists/playlistItemsCache';
@@ -21,30 +23,28 @@ export function usePrefetchItem() {
       // so the detail header paints INSTANTLY on tap — no blank 3-5s while
       // getItem cold-fetches — then refetch in the background to enrich
       // (Overview/Genres the shelf item may lack). This is the big perceived win.
-      const header = (key: string) => {
+      const header = (key: string, fetcher: () => Promise<MediaItem>) => {
         qc.setQueryData([key, item.Id], (prev: MediaItem | undefined) => prev ?? item);
-        void qc.prefetchQuery({
-          queryKey: [key, item.Id],
-          queryFn: () => getItem(item.Id),
-          staleTime: 0,
-        });
+        void qc.prefetchQuery({ queryKey: [key, item.Id], queryFn: fetcher, staleTime: 0 });
       };
       if (item.Type === 'MusicAlbum') {
-        header('album');
+        header('album', () => getAlbum(item.Id));
         void qc.prefetchQuery({
           queryKey: ['album-tracks', item.Id],
           queryFn: () => fetchAndCacheAlbumTracks(item.Id),
           ...opts,
         });
       } else if (item.Type === 'MusicArtist') {
-        header('artist');
+        header('artist', () => getArtist(item.Id));
         void qc.prefetchQuery({
           queryKey: ['artist-albums', item.Id],
           queryFn: () => fetchAndCacheArtistAlbums(item.Id),
           ...opts,
         });
       } else if (item.Type === 'Playlist') {
-        header('playlist');
+        // TODO(navidrome-port): getItem (Jellyfin) until the playlists slice
+        // adds a Subsonic-backed getPlaylist metadata read.
+        header('playlist', () => getItem(item.Id));
         void qc.prefetchQuery({
           queryKey: ['playlist-items', item.Id],
           queryFn: () => fetchAndCachePlaylistItems(item.Id),

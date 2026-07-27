@@ -4,22 +4,27 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({
-  getItem: vi.fn(),
-  getItemTracks: vi.fn(),
-  getInstantMix: vi.fn().mockResolvedValue([]),
+vi.mock('../../lib/navidromeItems', () => ({
+  getAlbumTracks: vi.fn(),
+  getSimilarSongs: vi.fn().mockResolvedValue([]),
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
 }));
 vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylists: vi.fn().mockResolvedValue([]) }));
-vi.mock('../../lib/jellyfinArtists', () => ({
+vi.mock('../../lib/navidromeArtists', () => ({
+  getArtist: vi.fn(),
   getArtistAlbums: vi.fn(),
   getArtistTopTracks: vi.fn(),
   getArtistsByIds: vi.fn().mockResolvedValue([]),
   getFavoriteArtists: vi.fn().mockResolvedValue([]),
 }));
-import { getItem, getInstantMix } from '../../lib/jellyfinItems';
-import { getArtistAlbums, getArtistTopTracks, getArtistsByIds } from '../../lib/jellyfinArtists';
+import { getSimilarSongs } from '../../lib/navidromeItems';
+import {
+  getArtist,
+  getArtistAlbums,
+  getArtistTopTracks,
+  getArtistsByIds,
+} from '../../lib/navidromeArtists';
 import { ArtistDetail } from './ArtistDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
@@ -49,7 +54,7 @@ function renderArtist() {
 describe('ArtistDetail', () => {
   beforeEach(() => {
     vi.mocked(getArtistTopTracks).mockResolvedValue([]);
-    vi.mocked(getInstantMix).mockResolvedValue([]);
+    vi.mocked(getSimilarSongs).mockResolvedValue([]);
     vi.mocked(getArtistsByIds).mockResolvedValue([]);
   });
   afterEach(() => {
@@ -60,7 +65,7 @@ describe('ArtistDetail', () => {
   });
 
   it('shows the artist name and their albums', async () => {
-    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtist).mockResolvedValue(artist);
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);
     renderArtist();
     expect(await screen.findByText('First Album')).toBeInTheDocument();
@@ -70,7 +75,7 @@ describe('ArtistDetail', () => {
   });
 
   it('splits the discography into Albums and Singles & EPs sections', async () => {
-    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtist).mockResolvedValue(artist);
     vi.mocked(getArtistAlbums).mockResolvedValue([
       { Id: 'lp', Name: 'The LP', Type: 'MusicAlbum', ChildCount: 11 },
       { Id: 'sg', Name: 'The Single', Type: 'MusicAlbum', ChildCount: 2 },
@@ -83,7 +88,7 @@ describe('ArtistDetail', () => {
   });
 
   it('shows a Popular section with the artist top tracks', async () => {
-    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtist).mockResolvedValue(artist);
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);
     vi.mocked(getArtistTopTracks).mockResolvedValue([
       { Id: 't1', Name: 'Hit Song', Type: 'Audio', Artists: ['The Artist'] },
@@ -94,19 +99,19 @@ describe('ArtistDetail', () => {
   });
 
   it('offers a radio button that starts the artist radio', async () => {
-    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtist).mockResolvedValue(artist);
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);
-    vi.mocked(getInstantMix).mockResolvedValue([
+    vi.mocked(getSimilarSongs).mockResolvedValue([
       { Id: 'mix1', Name: 'Radio Track', Type: 'Audio' },
     ]);
     renderArtist();
     const radio = await screen.findByTestId('artist-radio');
     await userEvent.click(radio); // exercises onRadio → playItem(artist)
-    await waitFor(() => expect(getInstantMix).toHaveBeenCalled());
+    await waitFor(() => expect(getSimilarSongs).toHaveBeenCalled());
   });
 
   it('shows a "Fans also like" section with related artists', async () => {
-    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtist).mockResolvedValue(artist);
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);
     vi.mocked(getArtistsByIds).mockResolvedValue([
       { Id: 'rel1', Name: 'Related One', Type: 'MusicArtist' },
@@ -117,14 +122,14 @@ describe('ArtistDetail', () => {
   });
 
   it('shows an empty state when the artist has no albums', async () => {
-    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtist).mockResolvedValue(artist);
     vi.mocked(getArtistAlbums).mockResolvedValue([]);
     renderArtist();
     await waitFor(() => expect(screen.getByTestId('load-empty')).toBeInTheDocument());
   });
 
   it('shows an error state and retries the albums fetch', async () => {
-    vi.mocked(getItem).mockResolvedValue(artist);
+    vi.mocked(getArtist).mockResolvedValue(artist);
     vi.mocked(getArtistAlbums)
       .mockRejectedValueOnce(new Error('boom'))
       .mockResolvedValueOnce(albums);
@@ -134,14 +139,14 @@ describe('ArtistDetail', () => {
   });
 
   it('shows genre chips when the artist has genres', async () => {
-    vi.mocked(getItem).mockResolvedValue({ ...artist, Genres: ['Indie', 'Alternative'] });
+    vi.mocked(getArtist).mockResolvedValue({ ...artist, Genres: ['Indie', 'Alternative'] });
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);
     renderArtist();
     expect(await screen.findByTestId('genre-chips')).toHaveTextContent('Indie');
   });
 
   it('shows an About section when the artist has a bio', async () => {
-    vi.mocked(getItem).mockResolvedValue({ ...artist, Overview: 'A prolific indie act.' });
+    vi.mocked(getArtist).mockResolvedValue({ ...artist, Overview: 'A prolific indie act.' });
     vi.mocked(getArtistAlbums).mockResolvedValue(albums);
     renderArtist();
     expect(await screen.findByTestId('artist-about')).toHaveTextContent('A prolific indie act.');

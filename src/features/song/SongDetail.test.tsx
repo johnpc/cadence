@@ -4,19 +4,22 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({
-  getItem: vi.fn(),
+vi.mock('../../lib/navidromeItems', () => ({
+  getSong: vi.fn(),
+  getAlbum: vi.fn(),
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
-  getItemTracks: vi.fn(),
-  getInstantMix: vi.fn().mockResolvedValue([]),
+  getAlbumTracks: vi.fn(),
+  getSimilarSongs: vi.fn().mockResolvedValue([]),
 }));
+vi.mock('../../lib/navidromeArtists', () => ({ getArtist: vi.fn() }));
 vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPlaylists: vi.fn().mockResolvedValue([]),
   getPlaylistItems: vi.fn().mockResolvedValue([]),
   addToPlaylist: vi.fn(),
 }));
-import { getItem, getInstantMix } from '../../lib/jellyfinItems';
+import { getSong, getAlbum, getSimilarSongs } from '../../lib/navidromeItems';
+import { getArtist } from '../../lib/navidromeArtists';
 import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import { SongDetail } from './SongDetail';
 import { PlayerContext } from '../player/PlayerContext';
@@ -36,12 +39,12 @@ const song: MediaItem = {
 const album: MediaItem = { Id: 'al1', Name: 'The Album', Type: 'MusicAlbum' };
 const artist: MediaItem = { Id: 'ar1', Name: 'The Artist', Type: 'MusicArtist' };
 
-/** getItem serves the song, its album, and its artist by id — the page fetches
+/** getSong/getAlbum/getArtist each serve their own entity — the page fetches
  * all three to build the rich context cards. */
-function itemById(id: string): Promise<MediaItem> {
-  if (id === 'al1') return Promise.resolve(album);
-  if (id === 'ar1') return Promise.resolve(artist);
-  return Promise.resolve(song);
+function mockAllResolved(): void {
+  vi.mocked(getSong).mockResolvedValue(song);
+  vi.mocked(getAlbum).mockResolvedValue(album);
+  vi.mocked(getArtist).mockResolvedValue(artist);
 }
 
 function renderSong(playQueue = vi.fn()) {
@@ -65,7 +68,7 @@ afterEach(() => {
 
 describe('SongDetail', () => {
   it('shows the title with linked artist and album', async () => {
-    vi.mocked(getItem).mockImplementation(itemById);
+    mockAllResolved();
     renderSong();
     expect(await screen.findByRole('heading', { name: 'A Song' })).toBeInTheDocument();
     expect(screen.getByTestId('song-links').querySelector('a[href="/artist/ar1"]')).not.toBeNull();
@@ -73,14 +76,14 @@ describe('SongDetail', () => {
   });
 
   it('shows the year·duration meta line', async () => {
-    vi.mocked(getItem).mockImplementation(itemById);
+    mockAllResolved();
     renderSong();
     await screen.findByRole('heading', { name: 'A Song' });
     expect(screen.getByText('1985 · 3:00')).toBeInTheDocument();
   });
 
   it('shows rich album and artist context cards', async () => {
-    vi.mocked(getItem).mockImplementation(itemById);
+    mockAllResolved();
     renderSong();
     await screen.findByRole('heading', { name: 'A Song' });
     await waitFor(() =>
@@ -91,7 +94,7 @@ describe('SongDetail', () => {
 
   it('shows a skeleton while the song loads', async () => {
     let resolve: (v: MediaItem) => void = () => {};
-    vi.mocked(getItem).mockReturnValue(new Promise<MediaItem>((r) => (resolve = r)));
+    vi.mocked(getSong).mockReturnValue(new Promise<MediaItem>((r) => (resolve = r)));
     renderSong();
     expect(screen.getByTestId('song-skeleton')).toBeInTheDocument();
     resolve(song);
@@ -99,7 +102,7 @@ describe('SongDetail', () => {
   });
 
   it('plays the song when the play button is tapped', async () => {
-    vi.mocked(getItem).mockImplementation(itemById);
+    mockAllResolved();
     const playQueue = vi.fn();
     renderSong(playQueue);
     await screen.findByRole('heading', { name: 'A Song' });
@@ -108,16 +111,16 @@ describe('SongDetail', () => {
   });
 
   it('starts song radio from the current track', async () => {
-    vi.mocked(getItem).mockImplementation(itemById);
-    vi.mocked(getInstantMix).mockResolvedValue([song]);
+    mockAllResolved();
+    vi.mocked(getSimilarSongs).mockResolvedValue([song]);
     renderSong();
     await screen.findByRole('heading', { name: 'A Song' });
     await userEvent.click(screen.getByTestId('song-radio'));
-    await waitFor(() => expect(getInstantMix).toHaveBeenCalledWith('s1'));
+    await waitFor(() => expect(getSimilarSongs).toHaveBeenCalledWith('s1'));
   });
 
   it('lists the playlists the song appears in', async () => {
-    vi.mocked(getItem).mockImplementation(itemById);
+    mockAllResolved();
     vi.mocked(getPlaylists).mockResolvedValue([{ Id: 'p1', Name: 'My Mix', Type: 'Playlist' }]);
     vi.mocked(getPlaylistItems).mockResolvedValue([song]);
     renderSong();
@@ -128,14 +131,14 @@ describe('SongDetail', () => {
   });
 
   it('shows an error state when the song fails to load', async () => {
-    vi.mocked(getItem).mockRejectedValue(new Error('boom'));
+    vi.mocked(getSong).mockRejectedValue(new Error('boom'));
     renderSong();
     await waitFor(() => expect(screen.getByText(/try again/i)).toBeInTheDocument());
   });
 
   it('shows a "not found" empty state (not a blank page) for a missing song', async () => {
     // A resolved-but-null song (deleted/invalid id) must not leave a blank page.
-    vi.mocked(getItem).mockResolvedValue(null as unknown as MediaItem);
+    vi.mocked(getSong).mockResolvedValue(null as unknown as MediaItem);
     renderSong();
     await waitFor(() => expect(screen.getByText('Song not found')).toBeInTheDocument());
     expect(screen.queryByTestId('song-detail')).not.toBeInTheDocument();

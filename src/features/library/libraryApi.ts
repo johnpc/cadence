@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getFavoriteSongs, getFavoriteAlbums } from '../../lib/jellyfinItems';
-import { getFavoriteArtists } from '../../lib/jellyfinArtists';
+import { getFavoriteSongs, getFavoriteAlbums } from '../../lib/navidromeItems';
+import { getFavoriteArtists } from '../../lib/navidromeArtists';
 import { getCachedList, fetchAndCacheList } from './libraryListCache';
 
 /** Query key for the liked-songs list (shared so the toggle can invalidate it). */

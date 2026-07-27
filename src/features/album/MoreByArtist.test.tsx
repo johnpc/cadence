@@ -5,8 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 
-vi.mock('../../lib/jellyfinArtists', () => ({ getArtistAlbums: vi.fn() }));
-import { getArtistAlbums } from '../../lib/jellyfinArtists';
+vi.mock('../../lib/navidromeArtists', () => ({ getArtistAlbums: vi.fn() }));
+import { getArtistAlbums } from '../../lib/navidromeArtists';
 import { MoreByArtist } from './MoreByArtist';
 import type { MediaItem } from '../../lib/navidromeTypes';
 

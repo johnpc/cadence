@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ReactNode } from 'react';
 
-vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
-import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
+vi.mock('../../lib/navidromeItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
+import { addFavorite, removeFavorite } from '../../lib/navidromeItems';
 import { useLikeToggle } from './useLikeToggle';
 import { ToastContext } from '../toast/ToastContext';
 import type { MediaItem } from '../../lib/navidromeTypes';

@@ -2,8 +2,8 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
-import { addFavorite } from '../../lib/jellyfinItems';
+vi.mock('../../lib/navidromeItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
+import { addFavorite } from '../../lib/navidromeItems';
 import { LikeButton } from './LikeButton';
 import { renderWithProviders } from '../../test/renderWithProviders';
 import type { MediaItem } from '../../lib/navidromeTypes';

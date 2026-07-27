@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({
+vi.mock('../../lib/navidromeItems', () => ({
   getFavoriteSongs: vi.fn(),
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
@@ -25,7 +25,7 @@ beforeEach(() => {
     },
   );
 });
-import { getFavoriteSongs } from '../../lib/jellyfinItems';
+import { getFavoriteSongs } from '../../lib/navidromeItems';
 import { LikedSongs } from './LikedSongs';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 import type { MediaItem } from '../../lib/navidromeTypes';

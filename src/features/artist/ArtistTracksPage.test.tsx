@@ -4,20 +4,20 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinItems', () => ({
-  getItem: vi.fn().mockResolvedValue({ Id: 'ar', Name: 'The Band', Type: 'MusicArtist' }),
-  getInstantMix: vi.fn().mockResolvedValue([]),
+vi.mock('../../lib/navidromeItems', () => ({
+  getSimilarSongs: vi.fn().mockResolvedValue([]),
   addFavorite: vi.fn(),
   removeFavorite: vi.fn(),
 }));
 vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylists: vi.fn().mockResolvedValue([]) }));
-vi.mock('../../lib/jellyfinArtists', () => ({
+vi.mock('../../lib/navidromeArtists', () => ({
+  getArtist: vi.fn().mockResolvedValue({ Id: 'ar', Name: 'The Band', Type: 'MusicArtist' }),
   getArtistTracks: vi.fn(),
   getArtistAlbums: vi.fn().mockResolvedValue([]),
   getArtistTopTracks: vi.fn().mockResolvedValue([]),
   getArtistsByIds: vi.fn().mockResolvedValue([]),
 }));
-import { getArtistTracks } from '../../lib/jellyfinArtists';
+import { getArtistTracks } from '../../lib/navidromeArtists';
 import { ArtistTracksPage } from './ArtistTracksPage';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
