@@ -2,14 +2,14 @@ import { fireEvent, render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { TrackArt } from './TrackArt';
 import { setSession } from '../../lib/sessionStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 describe('TrackArt', () => {
   afterEach(() => setSession(null));
 
   it('renders an img when the item has art', () => {
     setSession({ token: 't', userId: 'u' });
-    const item: JellyfinItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
+    const item: MediaItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
     const { container } = render(<TrackArt item={item} />);
     expect(container.querySelector('img')).toBeInTheDocument();
   });
@@ -27,7 +27,7 @@ describe('TrackArt', () => {
 
   it('fades the image in only once it has loaded', () => {
     setSession({ token: 't', userId: 'u' });
-    const item: JellyfinItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
+    const item: MediaItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
     const { container } = render(<TrackArt item={item} />);
     const img = container.querySelector('img') as HTMLImageElement;
     expect(img.className).not.toContain('track-art__img--loaded'); // faded out
@@ -37,7 +37,7 @@ describe('TrackArt', () => {
 
   it('falls back to the placeholder when the image fails to load', () => {
     setSession({ token: 't', userId: 'u' });
-    const item: JellyfinItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
+    const item: MediaItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
     const { container } = render(<TrackArt item={item} />);
     const img = container.querySelector('img');
     expect(img).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe('TrackArt', () => {
 
   it('is memoized: a parent re-render with the same props reuses the img element', () => {
     setSession({ token: 't', userId: 'u' });
-    const item: JellyfinItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
+    const item: MediaItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
     const { container, rerender } = render(<TrackArt item={item} size={44} />);
     const first = container.querySelector('img');
     rerender(<TrackArt item={item} size={44} />); // same props → memo skips render

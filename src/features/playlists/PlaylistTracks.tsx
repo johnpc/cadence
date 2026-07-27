@@ -6,7 +6,7 @@ import { filterTracks } from './filterTracks';
 import { sortPlaylistTracks, type PlaylistSort } from './sortPlaylistTracks';
 import { useProgressiveList } from '../../lib/useProgressiveList';
 import { usePlaylistTrackMutations } from './usePlaylistTrackMutations';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** A playlist's tracklist with a "Find in playlist" filter + a sort selector.
  * Reorder controls show only in the unfiltered, custom-order view (a filtered
@@ -20,7 +20,7 @@ export function PlaylistTracks({
 }: {
   playlistId: string;
   playlistName?: string;
-  tracks: JellyfinItem[];
+  tracks: MediaItem[];
   /** Owner-only: show remove + reorder. Off for cloned/community playlists you
    * don't own (those mutations would 403). */
   editable?: boolean;

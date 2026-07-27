@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { songMetaLine, clampText } from './songMeta';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const base: JellyfinItem = { Id: 's1', Name: 'Song', Type: 'Audio' };
+const base: MediaItem = { Id: 's1', Name: 'Song', Type: 'Audio' };
 
 describe('songMetaLine', () => {
   it('joins year and duration with a dot', () => {

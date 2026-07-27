@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { getCachedPlaylistItems, setCachedPlaylistItems } from './playlistItemsCache';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const track = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 afterEach(() => localStorage.clear());
 

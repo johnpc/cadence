@@ -3,7 +3,7 @@ import { audioStreamUrl, imageUrl } from './jellyfinStream';
 import { setSession } from './sessionStore';
 import { getServerUrl } from './serverUrlStore';
 import { writeAudioQuality } from '../features/settings/audioQualityStore';
-import type { JellyfinItem } from './jellyfinTypes';
+import type { MediaItem } from './navidromeTypes';
 
 describe('jellyfinStream', () => {
   afterEach(() => {
@@ -35,7 +35,7 @@ describe('jellyfinStream', () => {
   });
 
   it('uses the item primary image when it has one', () => {
-    const item: JellyfinItem = {
+    const item: MediaItem = {
       Id: 'i1',
       Name: 'x',
       Type: 'Audio',
@@ -50,7 +50,7 @@ describe('jellyfinStream', () => {
   });
 
   it('falls back to the album image for a track without its own (no tag — unknown)', () => {
-    const item: JellyfinItem = { Id: 'i1', Name: 'x', Type: 'Audio', AlbumId: 'alb1' };
+    const item: MediaItem = { Id: 'i1', Name: 'x', Type: 'Audio', AlbumId: 'alb1' };
     const url = imageUrl(item)!;
     expect(url).toContain('/Items/alb1/Images/Primary');
     // We don't have the album's Primary tag here, so none is sent (the item's

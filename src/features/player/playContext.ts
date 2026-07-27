@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Where the current queue was started from — "Playing from PLAYLIST · Chill
  * Mix", Spotify-style. Session-only (in memory): a fresh launch has no context
@@ -24,7 +24,7 @@ function emit(): void {
 /** Record the collection a play started from. Passing null clears it (e.g. when
  * a single track is played from search, which has no collection context). */
 export function setPlayContext(
-  ctx: { kind: string; label: string; path?: string; tracks: JellyfinItem[] } | null,
+  ctx: { kind: string; label: string; path?: string; tracks: MediaItem[] } | null,
 ): void {
   current = ctx
     ? {

@@ -1,11 +1,11 @@
 import { imageUrl } from '../../lib/jellyfinStream';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Up to 4 distinct cover-art URLs drawn from a playlist's tracks, for a
  * Spotify-style 2×2 mosaic when the playlist has no cover of its own. Deduped
  * by the source image id so the mosaic isn't four copies of one album; returns
  * fewer than 4 (even 0) when the tracks don't have that much distinct art. */
-export function mosaicUrls(tracks: JellyfinItem[], size = 160): string[] {
+export function mosaicUrls(tracks: MediaItem[], size = 160): string[] {
   const urls: string[] = [];
   const seen = new Set<string>();
   for (const track of tracks) {

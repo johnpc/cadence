@@ -3,7 +3,7 @@ import { getItem, getItemTracks, getInstantMix, getItemsByIds } from '../../lib/
 import { getArtistAlbums } from '../../lib/jellyfinArtists';
 import { createItemListCache } from '../../lib/itemListCache';
 import { rankSimilarAlbumIds } from './rankSimilar';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Disk cache of album tracklists — albums are immutable, so a revisited album
  * paints instantly from disk (see itemListCache). */
@@ -19,10 +19,10 @@ export const SIMILAR_ALBUMS_CACHE_KEY = similarAlbumsCache.storageKey;
 
 /** Fetch an album's tracks and persist them (query fn + prefetch, so a hovered/
  * tapped album warms the same disk cache the detail page reads). */
-export function fetchAndCacheAlbumTracks(albumId: string): Promise<JellyfinItem[]> {
+export function fetchAndCacheAlbumTracks(albumId: string): Promise<MediaItem[]> {
   return albumTracksCache.fetchAndCache(albumId, getItemTracks);
 }
-export function getCachedAlbumTracks(albumId: string): JellyfinItem[] | undefined {
+export function getCachedAlbumTracks(albumId: string): MediaItem[] | undefined {
   return albumTracksCache.get(albumId);
 }
 
@@ -70,7 +70,7 @@ export function useMoreByArtist(artistId: string | undefined, excludeId: string,
  * Limit (live-measured ~9s at 10, ~10.6s at 20, ~37s at 60!), and 20 tracks
  * already yield plenty of distinct albums to rank an 8-item shelf. So we trade a
  * slightly smaller candidate pool for a ~3.5× faster call. */
-async function fetchSimilarAlbums(albumId: string): Promise<JellyfinItem[]> {
+async function fetchSimilarAlbums(albumId: string): Promise<MediaItem[]> {
   const mix = await getInstantMix(albumId, 20);
   const ids = rankSimilarAlbumIds(mix, albumId);
   return getItemsByIds(ids);

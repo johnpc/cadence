@@ -11,13 +11,13 @@ vi.mock('./castController', () => ({ isCastAvailable, castTrack, stopCast }));
 import { useCast } from './useCast';
 import { setCastState } from './castStore';
 import { ToastContext } from '../toast/ToastContext';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const toast = vi.fn();
 const wrapper = ({ children }: { children: ReactNode }) => (
   <ToastContext.Provider value={toast}>{children}</ToastContext.Provider>
 );
-const track = { Id: 't1', Name: 'x' } as JellyfinItem;
+const track = { Id: 't1', Name: 'x' } as MediaItem;
 
 describe('useCast', () => {
   afterEach(() => {

@@ -34,7 +34,7 @@ import { useDownloads } from '../downloads/useDownloads';
 import { removeAllDownloads } from '../downloads/downloadStore';
 import { DownloadsManager } from './DownloadsManager';
 import { ToastContext } from '../toast/ToastContext';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const render_ = () =>
   render(
@@ -44,7 +44,7 @@ const render_ = () =>
   );
 const stub = (n: number) =>
   vi.mocked(useDownloads).mockReturnValue({
-    tracks: Array.from({ length: n }, (_, i) => ({ Id: `t${i}` }) as JellyfinItem),
+    tracks: Array.from({ length: n }, (_, i) => ({ Id: `t${i}` }) as MediaItem),
   });
 
 describe('DownloadsManager', () => {

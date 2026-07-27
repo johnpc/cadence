@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createItemListCache } from './itemListCache';
-import type { JellyfinItem } from './jellyfinTypes';
+import type { MediaItem } from './navidromeTypes';
 
-const item = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const item = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 afterEach(() => localStorage.clear());
 

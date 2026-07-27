@@ -5,7 +5,7 @@ import { usePlayer } from '../player/usePlayer';
 import { usePrefetchItem } from '../home/usePrefetchItem';
 import { ResultRow } from './ResultRow';
 import type { RecentItem } from './recentSearchStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The Search idle state: recently-tapped results, or a prompt when empty. */
 export function RecentSearches({
@@ -31,10 +31,10 @@ export function RecentSearches({
 
   const open = (item: RecentItem) => {
     // Seed the detail header from the item we hold so it paints instantly.
-    prefetch(item as JellyfinItem);
+    prefetch(item as MediaItem);
     if (item.Type === 'MusicAlbum') history.push(`/album/${item.Id}`);
     else if (item.Type === 'MusicArtist') history.push(`/artist/${item.Id}`);
-    else playQueue([item as JellyfinItem], 0);
+    else playQueue([item as MediaItem], 0);
   };
 
   return (
@@ -48,7 +48,7 @@ export function RecentSearches({
       {recents.map((item) => (
         <div className="search__recent-row" key={item.Id}>
           <ResultRow
-            item={item as JellyfinItem}
+            item={item as MediaItem}
             subtitle={
               item.Type === 'MusicArtist' ? 'Artist' : (item.Artists?.[0] ?? item.AlbumArtist ?? '')
             }

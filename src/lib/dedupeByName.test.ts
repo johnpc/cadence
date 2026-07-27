@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { dedupeByName } from './dedupeByName';
-import type { JellyfinItem } from './jellyfinTypes';
+import type { MediaItem } from './navidromeTypes';
 
-const item = (id: string, name: string): JellyfinItem => ({ Id: id, Name: name, Type: 'Playlist' });
+const item = (id: string, name: string): MediaItem => ({ Id: id, Name: name, Type: 'Playlist' });
 
 describe('dedupeByName', () => {
   it('keeps the first of same-named items, preserving order', () => {

@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import type { SleepMode } from './useSleepTimer';
 
 /** Repeat mode: off, repeat the whole queue, or repeat the current track. */
@@ -7,7 +7,7 @@ export type RepeatMode = 'off' | 'all' | 'one';
 /** Player state + actions exposed via PlayerContext. */
 export interface PlayerContextValue {
   /** The track currently loaded, or null when nothing is playing. */
-  current: JellyfinItem | null;
+  current: MediaItem | null;
   isPlaying: boolean;
   /** True while playback is stalled buffering (drives the loading spinner). */
   waiting: boolean;
@@ -16,16 +16,16 @@ export interface PlayerContextValue {
   canNext: boolean;
   canPrev: boolean;
   /** The full queue and the current index (for the Up Next view). */
-  queue: JellyfinItem[];
+  queue: MediaItem[];
   queueIndex: number;
   /** Load a list of tracks and start playing at `startIndex`. */
-  playQueue: (tracks: JellyfinItem[], startIndex?: number) => void;
+  playQueue: (tracks: MediaItem[], startIndex?: number) => void;
   /** Play a list in shuffled order (turns shuffle on). */
-  playShuffled: (tracks: JellyfinItem[]) => void;
+  playShuffled: (tracks: MediaItem[]) => void;
   /** Queue a track to play right after the current one. */
-  playNext: (track: JellyfinItem) => void;
+  playNext: (track: MediaItem) => void;
   /** Append a track (or several) to the end of the queue. */
-  addToQueue: (track: JellyfinItem | JellyfinItem[]) => void;
+  addToQueue: (track: MediaItem | MediaItem[]) => void;
   /** Play/pause the current track. */
   toggle: () => void;
   next: () => void;

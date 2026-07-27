@@ -15,9 +15,9 @@ import {
   startQueue,
   startShuffled,
 } from './queue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (id: string): JellyfinItem => ({ Id: id, Name: `Song ${id}`, Type: 'Audio' });
+const track = (id: string): MediaItem => ({ Id: id, Name: `Song ${id}`, Type: 'Audio' });
 const tracks = ['a', 'b', 'c'].map(track);
 
 describe('queue', () => {

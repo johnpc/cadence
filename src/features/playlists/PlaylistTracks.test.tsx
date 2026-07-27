@@ -52,7 +52,7 @@ vi.mock('../player/TrackRow', () => ({
     reorder,
     onRemove,
   }: {
-    track: JellyfinItem;
+    track: MediaItem;
     reorder?: unknown;
     onRemove?: unknown;
   }) => (
@@ -69,10 +69,10 @@ import { PlaylistTracks } from './PlaylistTracks';
 import { PlayerContext } from '../player/PlayerContext';
 import { ToastContext } from '../toast/ToastContext';
 import { stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Build N tracks so the filter box (which shows only for >8) appears. */
-function makeTracks(n: number): JellyfinItem[] {
+function makeTracks(n: number): MediaItem[] {
   return Array.from({ length: n }, (_, i) => ({
     Id: String(i),
     PlaylistItemId: `e${i}`,
@@ -82,7 +82,7 @@ function makeTracks(n: number): JellyfinItem[] {
   }));
 }
 
-function renderTracks(tracks: JellyfinItem[], editable = true) {
+function renderTracks(tracks: MediaItem[], editable = true) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={client}>
@@ -147,7 +147,7 @@ describe('PlaylistTracks', () => {
   });
 
   it('renders a track that has no PlaylistItemId (falls back to its Id key)', () => {
-    const tracks: JellyfinItem[] = [
+    const tracks: MediaItem[] = [
       { Id: 'only', Name: 'Loose Track', Type: 'Audio', Artists: ['X'] },
     ];
     renderTracks(tracks);

@@ -1,10 +1,10 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The artist(s) · album line under a song title, with each part linked to its
  * detail page. Falls back to plain text where an id is missing. */
-export function SongLinks({ song }: { song: JellyfinItem }) {
+export function SongLinks({ song }: { song: MediaItem }) {
   const artists = song.ArtistItems ?? [];
   return (
     <p className="song__links cad-meta" data-testid="song-links">

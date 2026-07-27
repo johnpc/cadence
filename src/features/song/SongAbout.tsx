@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { TrackArt } from '../player/TrackArt';
 import { albumMeta } from '../album/albumMeta';
 import { clampText } from './songMeta';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The rich context cards below a song: the album it's from and the artist who
  * made it — each with art, a meta/bio snippet, and a link to its detail page.
@@ -11,8 +11,8 @@ export function SongAbout({
   album,
   artist,
 }: {
-  album: JellyfinItem | null;
-  artist: JellyfinItem | null;
+  album: MediaItem | null;
+  artist: MediaItem | null;
 }) {
   if (!album && !artist) return null;
   return (

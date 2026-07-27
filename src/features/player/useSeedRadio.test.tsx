@@ -6,10 +6,10 @@ import { getInstantMix, getItemTracks } from '../../lib/jellyfinItems';
 import { PlayerContext } from './PlayerContext';
 import { useSeedRadio } from './useSeedRadio';
 import type { PlayerContextValue } from './types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import type { ReactNode } from 'react';
 
-const track = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const track = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 function setup() {
   const playQueue = vi.fn();

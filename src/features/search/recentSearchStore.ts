@@ -3,12 +3,12 @@
  * Search tab shows something useful before the user types (like Spotify). Each
  * entry is the minimal item shape needed to render + re-navigate.
  */
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const KEY = 'cadence.recent-searches';
 const MAX = 12;
 
-export type RecentItem = Pick<JellyfinItem, 'Id' | 'Name' | 'Type' | 'AlbumId' | 'AlbumArtist'> & {
+export type RecentItem = Pick<MediaItem, 'Id' | 'Name' | 'Type' | 'AlbumId' | 'AlbumArtist'> & {
   Artists?: string[];
 };
 

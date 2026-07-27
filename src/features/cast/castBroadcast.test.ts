@@ -7,9 +7,9 @@ vi.mock('../../lib/jellyfinStream', () => ({ imageUrl: () => 'https://jf.test/ar
 import { sendNowPlaying, sendQueue, sendLyrics } from './castBroadcast';
 import { setCastState } from './castStore';
 import { CAST_NAMESPACE } from './castMessages';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = { Id: 't1', Name: 'Song', Type: 'Audio', Artists: ['A'] } as JellyfinItem;
+const track = { Id: 't1', Name: 'Song', Type: 'Audio', Artists: ['A'] } as MediaItem;
 const connect = (on: boolean) =>
   setCastState({ connected: on, deviceName: on ? 'TV' : '', playing: on });
 const setAppId = (id: string | undefined) => {

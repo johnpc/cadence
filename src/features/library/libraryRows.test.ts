@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildLibraryRows, filterRowsByText, filterFromSearch } from './libraryRows';
 import { sortRows } from './librarySort';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 describe('filterFromSearch', () => {
   it('reads a valid ?filter= value', () => {
@@ -17,11 +17,11 @@ describe('filterFromSearch', () => {
   });
 });
 
-const pl: JellyfinItem[] = [{ Id: 'p1', Name: 'Road Trip', Type: 'Playlist' }];
-const al: JellyfinItem[] = [
+const pl: MediaItem[] = [{ Id: 'p1', Name: 'Road Trip', Type: 'Playlist' }];
+const al: MediaItem[] = [
   { Id: 'a1', Name: 'OK Computer', Type: 'MusicAlbum', AlbumArtist: 'Radiohead' },
 ];
-const ar: JellyfinItem[] = [{ Id: 'ar1', Name: 'Radiohead', Type: 'MusicArtist' }];
+const ar: MediaItem[] = [{ Id: 'ar1', Name: 'Radiohead', Type: 'MusicArtist' }];
 const data = { playlists: pl, albums: al, artists: ar, likedCount: 3, downloadsCount: 0 };
 
 describe('buildLibraryRows', () => {

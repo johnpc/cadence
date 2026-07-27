@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** How many "Made for you" mixes to show. */
 export const MIX_COUNT = 6;
@@ -6,7 +6,7 @@ export const MIX_COUNT = 6;
 /** A personalised mix: an artist to seed an instant-mix radio from, with a
  * Spotify-style "<Artist> Mix" label. */
 export interface DailyMix {
-  seed: JellyfinItem;
+  seed: MediaItem;
   title: string;
 }
 
@@ -14,9 +14,9 @@ export interface DailyMix {
  * (via each track's ArtistItems). Lets Home derive "Made for you" mixes from
  * what the user actually LISTENS to — not only artists they explicitly follow —
  * so Home is alive even before any curation. Pure + dedup'd by artist id. */
-export function artistsFromTracks(tracks: JellyfinItem[]): JellyfinItem[] {
+export function artistsFromTracks(tracks: MediaItem[]): MediaItem[] {
   const seen = new Set<string>();
-  const out: JellyfinItem[] = [];
+  const out: MediaItem[] = [];
   for (const t of tracks) {
     for (const a of t.ArtistItems ?? []) {
       if (a.Id && a.Name && !seen.has(a.Id)) {
@@ -33,12 +33,12 @@ export function artistsFromTracks(tracks: JellyfinItem[]): JellyfinItem[] {
  * Only artists with an id/name qualify (needed to seed the radio); capped to
  * MIX_COUNT. Pure so the selection stays unit-testable. */
 export function buildDailyMixes(
-  followed: JellyfinItem[],
-  fromListening: JellyfinItem[] = [],
+  followed: MediaItem[],
+  fromListening: MediaItem[] = [],
   limit = MIX_COUNT,
 ): DailyMix[] {
   const seen = new Set<string>();
-  const seeds: JellyfinItem[] = [];
+  const seeds: MediaItem[] = [];
   for (const a of [...followed, ...fromListening]) {
     if (a.Id && a.Name && !seen.has(a.Id)) {
       seen.add(a.Id);

@@ -3,11 +3,11 @@ import { usePlayer } from './usePlayer';
 import { getInstantMix, getItemTracks } from '../../lib/jellyfinItems';
 import { getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import { touchRecentPlay } from '../library/recentPlays';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Load the ordered tracks a collection should play: an album's tracks, a
  * playlist's tracks, else an instant-mix radio (artist/song seed). */
-async function tracksFor(item: JellyfinItem): Promise<JellyfinItem[]> {
+async function tracksFor(item: MediaItem): Promise<MediaItem[]> {
   if (item.Type === 'MusicAlbum') return getItemTracks(item.Id);
   if (item.Type === 'Playlist') return getPlaylistItems(item.Id);
   return getInstantMix(item.Id);
@@ -22,7 +22,7 @@ async function tracksFor(item: JellyfinItem): Promise<JellyfinItem[]> {
 export function usePlayItem() {
   const { playQueue } = usePlayer();
   return useCallback(
-    async (item: JellyfinItem) => {
+    async (item: MediaItem) => {
       const tracks = await tracksFor(item);
       const queue = tracks.length ? tracks : await getInstantMix(item.Id);
       if (queue.length) {

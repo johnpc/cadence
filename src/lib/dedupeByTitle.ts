@@ -1,4 +1,4 @@
-import type { JellyfinItem } from './jellyfinTypes';
+import type { MediaItem } from './navidromeTypes';
 
 /** A live/alt marker in a track title, e.g. "(live)", "- Live", "[Remastered]".
  * Used to prefer the plain studio version when the same song appears twice. */
@@ -19,9 +19,9 @@ function baseTitle(name: string): string {
  * (relevance), but when a later duplicate is a cleaner studio version than the
  * one already kept, it replaces it — so the studio take wins regardless of which
  * came first. Used for the artist "Popular" row, where duplicates look sloppy. */
-export function dedupeByTitle(tracks: JellyfinItem[]): JellyfinItem[] {
+export function dedupeByTitle(tracks: MediaItem[]): MediaItem[] {
   const index = new Map<string, number>(); // baseTitle → position in out
-  const out: JellyfinItem[] = [];
+  const out: MediaItem[] = [];
   for (const t of tracks) {
     const key = baseTitle(t.Name);
     const at = index.get(key);

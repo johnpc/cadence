@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { readIndex, addToIndex, removeFromIndex, indexedIds } from './downloadIndex';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (Id: string, Name = Id): JellyfinItem => ({ Id, Name }) as JellyfinItem;
+const track = (Id: string, Name = Id): MediaItem => ({ Id, Name }) as MediaItem;
 
 describe('downloadIndex', () => {
   afterEach(() => localStorage.clear());

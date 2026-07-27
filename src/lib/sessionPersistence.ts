@@ -5,7 +5,7 @@
  * iOS WKWebView. Web is unaffected (Preferences is localStorage-backed there).
  */
 import { Preferences } from '@capacitor/preferences';
-import type { Session } from './jellyfinTypes';
+import type { Session } from './navidromeTypes';
 
 const KEY = 'cadence.session';
 

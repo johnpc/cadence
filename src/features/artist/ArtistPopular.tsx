@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { TrackRow } from '../player/TrackRow';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The artist's "Popular" tracks (a short preview). Play/shuffle for them lives
  * in the artist header (Spotify-style), so this section is just the ranked
@@ -10,7 +10,7 @@ export function ArtistPopular({
   artistId,
   artistName,
 }: {
-  tracks: JellyfinItem[];
+  tracks: MediaItem[];
   artistId?: string;
   artistName?: string;
 }) {

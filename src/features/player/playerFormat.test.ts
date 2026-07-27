@@ -6,7 +6,7 @@ import {
   formatTime,
   trackDuration,
 } from './playerFormat';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 describe('trackDuration', () => {
   it('converts .NET ticks to m:ss', () => {
@@ -34,7 +34,7 @@ describe('formatTime', () => {
 });
 
 describe('collectionSummary', () => {
-  const t = (ticks?: number): JellyfinItem => ({
+  const t = (ticks?: number): MediaItem => ({
     Id: 'x',
     Name: 'x',
     Type: 'Audio',
@@ -75,7 +75,7 @@ describe('durationWords', () => {
 });
 
 describe('artistLine', () => {
-  const base: JellyfinItem = { Id: '1', Name: 'x', Type: 'Audio' };
+  const base: MediaItem = { Id: '1', Name: 'x', Type: 'Audio' };
   it('joins artists', () => {
     expect(artistLine({ ...base, Artists: ['A', 'B'] })).toBe('A, B');
   });

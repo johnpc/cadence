@@ -3,7 +3,7 @@ import { CardShelf } from './CardShelf';
 import { usePlayer } from '../player/usePlayer';
 import type { useHomeShelves } from './useHomeShelves';
 
-type Shelf = { songs: import('../../lib/jellyfinTypes').JellyfinItem[] } & {
+type Shelf = { songs: import('../../lib/navidromeTypes').MediaItem[] } & {
   isLoading: boolean;
   isError: boolean;
   refetch: () => void;

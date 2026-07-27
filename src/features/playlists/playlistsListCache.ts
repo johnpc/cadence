@@ -1,6 +1,6 @@
 import { createItemListCache } from '../../lib/itemListCache';
 import { getPlaylists } from '../../lib/jellyfinPlaylists';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * Disk cache of the user's OWNED playlists (the Your Library list). Building it
@@ -18,11 +18,11 @@ const KEY = 'owned';
 export const PLAYLISTS_LIST_CACHE_KEY = cache.storageKey;
 
 /** Cached owned-playlists list, or undefined when not cached yet. */
-export function getCachedPlaylists(): JellyfinItem[] | undefined {
+export function getCachedPlaylists(): MediaItem[] | undefined {
   return cache.get(KEY);
 }
 
 /** Fetch the owned playlists and persist them (query fn). */
-export function fetchAndCachePlaylists(): Promise<JellyfinItem[]> {
+export function fetchAndCachePlaylists(): Promise<MediaItem[]> {
   return cache.fetchAndCache(KEY, () => getPlaylists());
 }

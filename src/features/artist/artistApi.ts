@@ -3,7 +3,7 @@ import { getItem } from '../../lib/jellyfinItems';
 import { getArtistAlbums, getArtistTopTracks, getArtistTracks } from '../../lib/jellyfinArtists';
 import { createItemListCache } from '../../lib/itemListCache';
 import { getCachedRelatedArtists, fetchAndCacheRelatedArtists } from './relatedArtistsCache';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 export { RELATED_ARTISTS_CACHE_KEY } from './relatedArtistsCache';
 
@@ -13,10 +13,10 @@ const artistAlbumsCache = createItemListCache('cadence.artist-albums');
 export const ARTIST_ALBUMS_CACHE_KEY = artistAlbumsCache.storageKey;
 
 /** Fetch an artist's albums and persist them (query fn + prefetch). */
-export function fetchAndCacheArtistAlbums(artistId: string): Promise<JellyfinItem[]> {
+export function fetchAndCacheArtistAlbums(artistId: string): Promise<MediaItem[]> {
   return artistAlbumsCache.fetchAndCache(artistId, getArtistAlbums);
 }
-export function getCachedArtistAlbums(artistId: string): JellyfinItem[] | undefined {
+export function getCachedArtistAlbums(artistId: string): MediaItem[] | undefined {
   return artistAlbumsCache.get(artistId);
 }
 

@@ -2,13 +2,13 @@ import { IonIcon } from '@ionic/react';
 import { shareOutline } from 'ionicons/icons';
 import { useToast } from '../toast/useToast';
 import { shareItem } from './shareLink';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './shareButton.css';
 
 /** A share button: opens the OS share sheet where available (mobile), otherwise
  * copies the item's app link — with a matching toast. Renders nothing until the
  * item has loaded. */
-export function ShareButton({ item, size = 24 }: { item: JellyfinItem | null; size?: number }) {
+export function ShareButton({ item, size = 24 }: { item: MediaItem | null; size?: number }) {
   const toast = useToast();
   if (!item) return null;
   return (

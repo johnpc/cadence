@@ -5,7 +5,7 @@ import { TrackArt } from '../player/TrackArt';
 import { artistLine } from '../player/playerFormat';
 import { usePlaylistRecs } from './usePlaylistRecs';
 import { useInView } from '../../lib/useInView';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** "Recommended songs to add" — instant-mix picks seeded on the playlist, each
  * with an Add button and a Dismiss action that swaps in the next candidate. The
@@ -17,7 +17,7 @@ export function RecommendedSongs({
   tracks,
 }: {
   playlistId: string;
-  tracks: JellyfinItem[];
+  tracks: MediaItem[];
 }) {
   const { ref, inView } = useInView();
   const { recommendations, addRec, dismissRecommendation } = usePlaylistRecs(

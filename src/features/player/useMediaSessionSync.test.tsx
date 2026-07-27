@@ -2,9 +2,9 @@ import { renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useMediaSessionSync } from './useMediaSessionSync';
 import { setSession } from '../../lib/sessionStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track: JellyfinItem = { Id: 't', Name: 'S', Type: 'Audio', Artists: ['A'] };
+const track: MediaItem = { Id: 't', Name: 'S', Type: 'Audio', Artists: ['A'] };
 const handlers = { play: vi.fn(), pause: vi.fn(), next: vi.fn(), prev: vi.fn(), seek: vi.fn() };
 
 describe('useMediaSessionSync', () => {

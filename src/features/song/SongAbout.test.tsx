@@ -2,22 +2,22 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { SongAbout } from './SongAbout';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album: JellyfinItem = {
+const album: MediaItem = {
   Id: 'al1',
   Name: 'The Album',
   Type: 'MusicAlbum',
   ProductionYear: 1985,
 };
-const artist: JellyfinItem = {
+const artist: MediaItem = {
   Id: 'ar1',
   Name: 'The Artist',
   Type: 'MusicArtist',
   Overview: 'A short bio of the artist that gives context.',
 };
 
-function renderAbout(a: JellyfinItem | null, ar: JellyfinItem | null) {
+function renderAbout(a: MediaItem | null, ar: MediaItem | null) {
   render(
     <MemoryRouter>
       <SongAbout album={a} artist={ar} />

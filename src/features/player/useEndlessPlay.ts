@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { getInstantMix } from '../../lib/jellyfinItems';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * Spotify-style endless play: when the queue reaches its last track (and the
@@ -9,10 +9,10 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * tail track. Disabled while repeat is on (the queue loops instead).
  */
 export function useEndlessPlay(
-  queue: JellyfinItem[],
+  queue: MediaItem[],
   index: number,
   repeatOff: boolean,
-  append: (tracks: JellyfinItem[]) => void,
+  append: (tracks: MediaItem[]) => void,
 ) {
   const seededFor = useRef<string | null>(null);
 

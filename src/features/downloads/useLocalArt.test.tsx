@@ -4,9 +4,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 vi.mock('./downloadStore', () => ({ isDownloaded: vi.fn(), localArtUrl: vi.fn() }));
 import { isDownloaded, localArtUrl } from './downloadStore';
 import { useLocalArt } from './useLocalArt';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const item = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const item = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 afterEach(() => {
   vi.resetAllMocks();

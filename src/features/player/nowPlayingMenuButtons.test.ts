@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nowPlayingMenuButtons, type NowPlayingMenuActions } from './nowPlayingMenuButtons';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const actions = (): NowPlayingMenuActions => ({
   goToSong: vi.fn(),
@@ -11,7 +11,7 @@ const actions = (): NowPlayingMenuActions => ({
   addToPlaylist: vi.fn(),
 });
 
-const labels = (track: JellyfinItem) => nowPlayingMenuButtons(track, actions()).map((b) => b.text);
+const labels = (track: MediaItem) => nowPlayingMenuButtons(track, actions()).map((b) => b.text);
 
 describe('nowPlayingMenuButtons', () => {
   it('offers go-to-song, a single Add to playlist…, radio, copy link, Cancel', () => {
@@ -31,7 +31,7 @@ describe('nowPlayingMenuButtons', () => {
   });
 
   it('includes Go to album/artist only when the track has them', () => {
-    const track: JellyfinItem = {
+    const track: MediaItem = {
       Id: 't',
       Name: 'x',
       Type: 'Audio',

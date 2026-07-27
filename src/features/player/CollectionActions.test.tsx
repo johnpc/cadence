@@ -4,9 +4,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CollectionActions } from './CollectionActions';
 import { getPlayContext, setPlayContext } from './playContext';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const tracks: JellyfinItem[] = [
+const tracks: MediaItem[] = [
   { Id: 'a', Name: 'A', Type: 'Audio' },
   { Id: 'b', Name: 'B', Type: 'Audio' },
 ];

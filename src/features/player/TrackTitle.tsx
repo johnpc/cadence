@@ -1,5 +1,5 @@
 import { artistLine } from './playerFormat';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The title + artist lines of a track row, with an animated equalizer glyph
  * when this is the currently-playing track. */
@@ -8,7 +8,7 @@ export function TrackTitle({
   isCurrent,
   isPlaying,
 }: {
-  track: JellyfinItem;
+  track: MediaItem;
   isCurrent: boolean;
   isPlaying: boolean;
 }) {

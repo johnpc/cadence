@@ -4,12 +4,12 @@ import { usePlaylistRecommendations } from './recommendationsApi';
 import { selectRecommendations } from './recommendations';
 import { getDismissedRecs, dismissRec } from './dismissedRecs';
 import { useToast } from '../toast/useToast';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Drives the playlist's "Recommended songs to add" section: fetches a candidate
  * pool, hides tracks already in the playlist / dismissed / just-added, and
  * exposes add + dismiss actions. Dismissing reveals the next unused candidate. */
-export function usePlaylistRecs(playlistId: string, existing: JellyfinItem[], enabled = true) {
+export function usePlaylistRecs(playlistId: string, existing: MediaItem[], enabled = true) {
   // The candidate pool is an InstantMix (slow, below the fold) — only fetch once
   // there are tracks to seed from AND the caller says it's in view.
   const { candidates, isLoading } = usePlaylistRecommendations(
@@ -26,7 +26,7 @@ export function usePlaylistRecs(playlistId: string, existing: JellyfinItem[], en
     [candidates, existingIds, hidden],
   );
 
-  const addRec = (track: JellyfinItem) => {
+  const addRec = (track: MediaItem) => {
     setHidden((h) => [...h, track.Id]);
     add.mutate(
       { playlistId, itemId: track.Id },
@@ -40,7 +40,7 @@ export function usePlaylistRecs(playlistId: string, existing: JellyfinItem[], en
     );
   };
 
-  const dismissRecommendation = (track: JellyfinItem) => {
+  const dismissRecommendation = (track: MediaItem) => {
     dismissRec(playlistId, track.Id);
     setHidden((h) => [...h, track.Id]);
   };

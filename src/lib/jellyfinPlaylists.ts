@@ -6,7 +6,7 @@
  */
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
-import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
+import type { ItemsResponse, MediaItem } from './navidromeTypes';
 
 export { getPlaylists, getPublicPlaylists } from './jellyfinPlaylistLists';
 
@@ -14,7 +14,7 @@ export { getPlaylists, getPublicPlaylists } from './jellyfinPlaylistLists';
  * cover a full playlist (a 200-cap silently hid tracks past #200 on large
  * playlists — e.g. a 463-track one); the row list is virtualized so a big
  * result still renders fast. */
-export async function getPlaylistItems(playlistId: string, limit = 1000): Promise<JellyfinItem[]> {
+export async function getPlaylistItems(playlistId: string, limit = 1000): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     userId,

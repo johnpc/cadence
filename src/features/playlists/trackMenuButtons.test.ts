@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { trackMenuButtons, addToPlaylistButtons, type TrackMenuActions } from './trackMenuButtons';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const actions = (over: Partial<TrackMenuActions> = {}): TrackMenuActions => ({
   playNext: vi.fn(),
@@ -17,7 +17,7 @@ const actions = (over: Partial<TrackMenuActions> = {}): TrackMenuActions => ({
   ...over,
 });
 
-const labels = (track: JellyfinItem, over: Partial<TrackMenuActions> = {}) =>
+const labels = (track: MediaItem, over: Partial<TrackMenuActions> = {}) =>
   trackMenuButtons(track, actions(over)).map((b) => b.text);
 
 describe('trackMenuButtons', () => {
@@ -80,7 +80,7 @@ describe('trackMenuButtons', () => {
   });
 
   it('includes Go to album/artist only when the track has them', () => {
-    const track: JellyfinItem = {
+    const track: MediaItem = {
       Id: 't',
       Name: 'x',
       Type: 'Audio',
@@ -93,7 +93,7 @@ describe('trackMenuButtons', () => {
 });
 
 describe('addToPlaylistButtons', () => {
-  const playlists: JellyfinItem[] = [
+  const playlists: MediaItem[] = [
     { Id: 'p1', Name: 'Road Trip', Type: 'Playlist' },
     { Id: 'p2', Name: 'Chill', Type: 'Playlist' },
   ];

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { NowPlayingBar } from './NowPlayingBar';
 import type { PlayerContextValue } from './types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 
 vi.mock('../../lib/jellyfinLyrics', () => ({ getLyrics: vi.fn().mockResolvedValue([]) }));
@@ -33,7 +33,7 @@ function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
   return stubPlayer(overrides);
 }
 
-const song: JellyfinItem = { Id: 's1', Name: 'Test Song', Type: 'Audio', Artists: ['Tester'] };
+const song: MediaItem = { Id: 's1', Name: 'Test Song', Type: 'Audio', Artists: ['Tester'] };
 
 const renderBar = (value: PlayerContextValue, progress?: { position: number; duration: number }) =>
   renderWithProviders(<NowPlayingBar />, { player: value, progress });

@@ -8,9 +8,9 @@ vi.mock('./DownloadButton', () => ({ DownloadButton: () => null }));
 import { useDownloads } from './useDownloads';
 import { Downloads } from './Downloads';
 import { renderWithProviders } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const tracks: JellyfinItem[] = [
+const tracks: MediaItem[] = [
   { Id: 'a', Name: 'First Down', Type: 'Audio' },
   { Id: 'b', Name: 'Second Down', Type: 'Audio' },
 ];

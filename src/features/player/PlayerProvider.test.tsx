@@ -14,7 +14,7 @@ vi.mock('./useDiagnosticsContext', () => ({ useDiagnosticsContext: () => {} }));
 import { PlayerProvider } from './PlayerProvider';
 import { usePlayer } from './usePlayer';
 import { setSession } from '../../lib/sessionStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 // A controllable fake HTMLAudioElement — jsdom can't decode audio.
 class FakeAudio {
@@ -50,7 +50,7 @@ class FakeAudio {
 }
 
 let audio: FakeAudio;
-const track = (id: string): JellyfinItem => ({ Id: id, Name: `Song ${id}`, Type: 'Audio' });
+const track = (id: string): MediaItem => ({ Id: id, Name: `Song ${id}`, Type: 'Audio' });
 
 function Probe() {
   const p = usePlayer();

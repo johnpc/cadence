@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { isCastAvailable, castTrack, stopCast } from './castController';
 import { getCastState, onCastStateChange } from './castStore';
 import { useToast } from '../toast/useToast';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * Cast session as reactive state for the UI: whether cast is offered on this
@@ -18,7 +18,7 @@ export function useCast() {
     available: isCastAvailable(),
     connected: state.connected,
     deviceName: state.deviceName,
-    cast: async (track: JellyfinItem | null) => {
+    cast: async (track: MediaItem | null) => {
       if (!track) return;
       try {
         await castTrack(track);

@@ -22,9 +22,9 @@ import { ArtistTracksPage } from './ArtistTracksPage';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
 import type { PlayerContextValue } from '../player/types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const tracks: JellyfinItem[] = [
+const tracks: MediaItem[] = [
   { Id: 'a', Name: 'Alpha Song', Type: 'Audio', Artists: ['The Band'] },
   { Id: 'b', Name: 'Beta Song', Type: 'Audio' },
 ];

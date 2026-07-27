@@ -4,7 +4,7 @@ import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton'
 import { ShareButton } from '../share/ShareButton';
 import { GradientHeader } from '../color/GradientHeader';
 import { collectionSummary } from '../player/playerFormat';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The playlist detail header: cover, title, description, song-count summary,
  * and the play/shuffle/queue + share actions. */
@@ -12,8 +12,8 @@ export function PlaylistHeader({
   playlist,
   tracks,
 }: {
-  playlist: JellyfinItem | null;
-  tracks: JellyfinItem[];
+  playlist: MediaItem | null;
+  tracks: MediaItem[];
 }) {
   return (
     <>

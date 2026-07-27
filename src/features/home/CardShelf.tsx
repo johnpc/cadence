@@ -1,6 +1,6 @@
 import { Shelf } from './Shelf';
 import { AlbumCard } from './AlbumCard';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 interface ShelfData {
   isLoading: boolean;
@@ -23,11 +23,11 @@ export function CardShelf({
   hideWhenEmpty = false,
 }: {
   title: string;
-  items: JellyfinItem[];
+  items: MediaItem[];
   state: ShelfData;
-  onOpen: (item: JellyfinItem, index: number) => void;
-  onPlay: (item: JellyfinItem, index: number) => void;
-  onPrefetch?: (item: JellyfinItem) => void;
+  onOpen: (item: MediaItem, index: number) => void;
+  onPlay: (item: MediaItem, index: number) => void;
+  onPrefetch?: (item: MediaItem) => void;
   round?: boolean;
   seeAllHref?: string;
   /** Hide the whole shelf once it has loaded empty (Spotify-style — no bare

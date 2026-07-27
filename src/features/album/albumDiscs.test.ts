@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { groupByDisc, isMultiDisc } from './albumDiscs';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const t = (id: string, disc?: number): JellyfinItem => ({
+const t = (id: string, disc?: number): MediaItem => ({
   Id: id,
   Name: id,
   Type: 'Audio',

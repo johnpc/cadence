@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useDocumentTitle } from './useDocumentTitle';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (over: Partial<JellyfinItem> = {}): JellyfinItem => ({
+const track = (over: Partial<MediaItem> = {}): MediaItem => ({
   Id: 't',
   Name: 'Karma Police',
   Type: 'Audio',
@@ -24,7 +24,7 @@ describe('useDocumentTitle', () => {
 
   it('reverts to Cadence when nothing is playing', () => {
     const { rerender } = renderHook(({ c }) => useDocumentTitle(c), {
-      initialProps: { c: track() as JellyfinItem | null },
+      initialProps: { c: track() as MediaItem | null },
     });
     expect(document.title).toBe('Karma Police · Radiohead');
     rerender({ c: null });

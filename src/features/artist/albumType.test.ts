@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { albumType, groupDiscography } from './albumType';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album = (over: Partial<JellyfinItem>): JellyfinItem =>
-  ({ Id: over.Id ?? 'x', Name: over.Name ?? 'x', Type: 'MusicAlbum', ...over }) as JellyfinItem;
+const album = (over: Partial<MediaItem>): MediaItem =>
+  ({ Id: over.Id ?? 'x', Name: over.Name ?? 'x', Type: 'MusicAlbum', ...over }) as MediaItem;
 
 describe('albumType', () => {
   it('classifies a full-length (7+ tracks) as an album', () => {

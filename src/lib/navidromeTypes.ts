@@ -25,7 +25,7 @@ export interface Session {
 }
 
 /** A media item (song, album, artist, playlist) — the subset we render. */
-export interface JellyfinItem {
+export interface MediaItem {
   Id: string;
   Name: string;
   Type: string;
@@ -67,6 +67,6 @@ export interface JellyfinItem {
 
 /** Envelope returned by list endpoints (/Items, /Playlists/{id}/Items, …). */
 export interface ItemsResponse {
-  Items: JellyfinItem[];
+  Items: MediaItem[];
   TotalRecordCount: number;
 }

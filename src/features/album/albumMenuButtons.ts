@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 export interface AlbumMenuActions {
   startRadio: () => void;
@@ -15,7 +15,7 @@ interface SheetButton {
 /** Build the album "…" overflow buttons: start an instant-mix radio seeded on
  * the album, jump to its artist (when known), and copy a share link — matching
  * the song/artist overflow menus. Pure so the inclusion logic is unit-testable. */
-export function albumMenuButtons(album: JellyfinItem, a: AlbumMenuActions): SheetButton[] {
+export function albumMenuButtons(album: MediaItem, a: AlbumMenuActions): SheetButton[] {
   const artist = album.ArtistItems?.[0];
   return [
     { text: 'Go to album radio', handler: a.startRadio },

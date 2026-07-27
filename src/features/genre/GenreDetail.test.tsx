@@ -8,9 +8,9 @@ import { getGenreTracks } from '../../lib/jellyfinGenres';
 import { GenreDetail } from './GenreDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const tracks: JellyfinItem[] = [
+const tracks: MediaItem[] = [
   { Id: 't1', Name: 'Pop Hit', Type: 'Audio', Artists: ['A'] },
   { Id: 't2', Name: 'Pop Deep Cut', Type: 'Audio' },
 ];

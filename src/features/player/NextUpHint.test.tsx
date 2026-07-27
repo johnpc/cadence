@@ -3,9 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { NextUpHint } from './NextUpHint';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const q: JellyfinItem[] = [
+const q: MediaItem[] = [
   { Id: 'a', Name: 'Now', Type: 'Audio', Artists: ['Band A'] },
   { Id: 'b', Name: 'Coming Up', Type: 'Audio', Artists: ['Band B'] },
 ];

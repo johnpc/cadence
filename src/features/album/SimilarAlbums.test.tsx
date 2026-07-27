@@ -10,13 +10,13 @@ vi.mock('../../lib/jellyfinItems', () => ({
 }));
 import { getInstantMix, getItemsByIds } from '../../lib/jellyfinItems';
 import { SimilarAlbums } from './SimilarAlbums';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const mix: JellyfinItem[] = [
+const mix: MediaItem[] = [
   { Id: 't1', Name: 'x', Type: 'Audio', AlbumId: 'al2' },
   { Id: 't2', Name: 'y', Type: 'Audio', AlbumId: 'al2' },
 ];
-const hydrated: JellyfinItem[] = [
+const hydrated: MediaItem[] = [
   { Id: 'al2', Name: 'Neighbour Album', Type: 'MusicAlbum', AlbumArtist: 'Other Band' },
 ];
 

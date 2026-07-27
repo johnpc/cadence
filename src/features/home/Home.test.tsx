@@ -27,10 +27,10 @@ import { getFavoriteArtists } from '../../lib/jellyfinArtists';
 import { getPublicPlaylists } from '../../lib/jellyfinPlaylists';
 import { Home } from './Home';
 import { renderWithProviders } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album: JellyfinItem = { Id: 'al', Name: 'Fresh Album', Type: 'MusicAlbum', AlbumArtist: 'A' };
-const song: JellyfinItem = { Id: 's', Name: 'Suggested Song', Type: 'Audio', Artists: ['B'] };
+const album: MediaItem = { Id: 'al', Name: 'Fresh Album', Type: 'MusicAlbum', AlbumArtist: 'A' };
+const song: MediaItem = { Id: 's', Name: 'Suggested Song', Type: 'Audio', Artists: ['B'] };
 
 describe('Home', () => {
   // Clear the recent-plays store before AND after each test so a prior test's
@@ -56,7 +56,7 @@ describe('Home', () => {
   });
 
   it('shows an On repeat shelf from your most-played tracks', async () => {
-    const onRepeat: JellyfinItem = { Id: 'r', Name: 'Looped Song', Type: 'Audio', Artists: ['C'] };
+    const onRepeat: MediaItem = { Id: 'r', Name: 'Looped Song', Type: 'Audio', Artists: ['C'] };
     vi.mocked(getLatestAlbums).mockResolvedValue([]);
     vi.mocked(getSuggestedSongs).mockResolvedValue([]);
     vi.mocked(getOnRepeat).mockResolvedValue([onRepeat]);

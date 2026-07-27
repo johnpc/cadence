@@ -15,7 +15,7 @@ vi.mock('../cast/castController', () => ({ castTrack: vi.fn().mockResolvedValue(
 import { localAudioUrl, isDownloaded } from '../downloads/downloadStore';
 import { getCastState } from '../cast/castStore';
 import { castTrack } from '../cast/castController';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** A fake audio element exposing just what the loader touches. Captures canplay
  * listeners so a test can fire them (the loader retries play() on canplay). */
@@ -37,10 +37,10 @@ function fakeAudio() {
   } as unknown as HTMLAudioElement;
 }
 
-const track = (Id: string): JellyfinItem => ({ Id, Name: Id }) as JellyfinItem;
+const track = (Id: string): MediaItem => ({ Id, Name: Id }) as MediaItem;
 
 /** Drive the hook with a ref pointing at our fake element. */
-function useLoader(current: JellyfinItem | undefined, audio: HTMLAudioElement) {
+function useLoader(current: MediaItem | undefined, audio: HTMLAudioElement) {
   const ref = useRef<HTMLAudioElement | null>(audio);
   useTrackLoader(ref, current);
   return ref;

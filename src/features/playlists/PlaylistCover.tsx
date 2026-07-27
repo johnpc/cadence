@@ -1,6 +1,6 @@
 import { TrackArt } from '../player/TrackArt';
 import { mosaicUrls } from './mosaicArt';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './playlistCover.css';
 
 /** The playlist's cover: its own art when it has one, else a Spotify-style 2×2
@@ -12,8 +12,8 @@ export function PlaylistCover({
   tracks,
   size = 160,
 }: {
-  playlist: JellyfinItem | null;
-  tracks: JellyfinItem[];
+  playlist: MediaItem | null;
+  tracks: MediaItem[];
   size?: number;
 }) {
   const hasOwnArt = !!playlist?.ImageTags?.Primary;

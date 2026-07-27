@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getItem } from '../../lib/jellyfinItems';
 import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** A single track's metadata (name, artists, album). */
 export function useSong(songId: string) {
@@ -16,15 +16,15 @@ export function useSong(songId: string) {
 /** The playlists that contain a track. Jellyfin has no reverse index, so we
  * scan the user's playlists (capped) and keep the ones whose items include it.
  * Bounded + cached so the song page stays responsive. */
-async function playlistsContaining(songId: string): Promise<JellyfinItem[]> {
+async function playlistsContaining(songId: string): Promise<MediaItem[]> {
   const playlists = (await getPlaylists()).slice(0, 40);
   const checks = await Promise.all(
     playlists.map(async (pl) => {
-      const entries = await getPlaylistItems(pl.Id).catch(() => [] as JellyfinItem[]);
+      const entries = await getPlaylistItems(pl.Id).catch(() => [] as MediaItem[]);
       return entries.some((t) => t.Id === songId) ? pl : null;
     }),
   );
-  return checks.filter((p): p is JellyfinItem => p !== null);
+  return checks.filter((p): p is MediaItem => p !== null);
 }
 
 /** The playlists a song appears in. EXPENSIVE — it lists the user's playlists

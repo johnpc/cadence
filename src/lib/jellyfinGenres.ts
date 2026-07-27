@@ -1,14 +1,14 @@
 /** Genre reads — tracks tagged with a given music genre, for the genre pages. */
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
-import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
+import type { ItemsResponse, MediaItem } from './navidromeTypes';
 
 const audioFields =
   'Artists,AlbumArtist,Album,AlbumId,ArtistItems,IndexNumber,ParentIndexNumber,RunTimeTicks';
 
 /** Audio tracks tagged with `genre`, most-played first — the Spotify-style
  * genre page. Genre is matched by name (Jellyfin's genre ids are unstable). */
-export async function getGenreTracks(genre: string, limit = 100): Promise<JellyfinItem[]> {
+export async function getGenreTracks(genre: string, limit = 100): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     Genres: genre,

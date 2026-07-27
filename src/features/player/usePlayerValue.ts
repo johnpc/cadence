@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { buildPlayerValue } from './playerValue';
 import type { usePlayerQueue } from './usePlayerQueue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import type { SleepMode } from './useSleepTimer';
 import type { PlayerContextValue } from './types';
 
@@ -28,7 +28,7 @@ interface Transport {
  */
 export function usePlayerValue(
   qh: QueueHook,
-  current: JellyfinItem | null,
+  current: MediaItem | null,
   t: Transport,
 ): PlayerContextValue {
   // Destructure so the memo depends on each transport field individually (a

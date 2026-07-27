@@ -1,6 +1,6 @@
 import { imageUrl } from '../../lib/jellyfinStream';
 import { artistLine } from '../player/playerFormat';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import type { LyricLine } from '../../lib/jellyfinLyrics';
 
 /**
@@ -36,7 +36,7 @@ export interface LyricsMessage {
 export type CastMessage = NowPlayingMessage | QueueMessage | LyricsMessage;
 
 /** Build the now-playing message for the receiver from the current track. */
-export function nowPlayingMessage(track: JellyfinItem, isPlaying: boolean): NowPlayingMessage {
+export function nowPlayingMessage(track: MediaItem, isPlaying: boolean): NowPlayingMessage {
   return {
     type: 'nowPlaying',
     title: track.Name,
@@ -49,7 +49,7 @@ export function nowPlayingMessage(track: JellyfinItem, isPlaying: boolean): NowP
 /** Build the live-queue message: the upcoming order + the current index, so the
  * receiver can highlight "now playing" and show what's next. Capped so a huge
  * queue doesn't bloat the message. */
-export function queueMessage(tracks: JellyfinItem[], index: number): QueueMessage {
+export function queueMessage(tracks: MediaItem[], index: number): QueueMessage {
   return {
     type: 'queue',
     index,

@@ -6,9 +6,9 @@ const prefetch = vi.fn();
 vi.mock('../home/usePrefetchItem', () => ({ usePrefetchItem: () => prefetch }));
 import { LibraryRowItem } from './LibraryRowItem';
 import type { LibraryRow } from './libraryRows';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const playlist: JellyfinItem = { Id: 'pl1', Name: 'My Mix', Type: 'Playlist' };
+const playlist: MediaItem = { Id: 'pl1', Name: 'My Mix', Type: 'Playlist' };
 const row: LibraryRow = {
   id: 'pl1',
   name: 'My Mix',

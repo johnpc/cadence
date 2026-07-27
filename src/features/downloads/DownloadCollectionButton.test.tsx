@@ -6,9 +6,9 @@ vi.mock('./useDownloadCollection', () => ({ useDownloadCollection: vi.fn() }));
 import { useDownloadCollection } from './useDownloadCollection';
 import { DownloadCollectionButton } from './DownloadCollectionButton';
 import { renderWithProviders } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const tracks = [{ Id: 'a', Name: 'A' }] as JellyfinItem[];
+const tracks = [{ Id: 'a', Name: 'A' }] as MediaItem[];
 const stub = (over: Partial<ReturnType<typeof useDownloadCollection>>) =>
   vi.mocked(useDownloadCollection).mockReturnValue({
     state: 'none',

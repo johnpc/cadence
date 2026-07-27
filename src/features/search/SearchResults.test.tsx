@@ -4,9 +4,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { SearchResults } from './SearchResults';
 import { groupResults } from './searchGroups';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const items: JellyfinItem[] = [
+const items: MediaItem[] = [
   { Id: 's', Name: 'Found Song', Type: 'Audio', Artists: ['X'] },
   { Id: 'al', Name: 'Found Album', Type: 'MusicAlbum' },
   { Id: 'pl', Name: 'Found Playlist', Type: 'Playlist' },

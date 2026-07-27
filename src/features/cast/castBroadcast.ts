@@ -2,7 +2,7 @@ import { Chromecast } from '@hauxir2/capacitor-chromecast';
 import { castReceiverAppId } from '../../lib/runtimeConfig';
 import { getCastState } from './castStore';
 import { CAST_NAMESPACE, nowPlayingMessage, queueMessage, lyricsMessage } from './castMessages';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import type { LyricLine } from '../../lib/jellyfinLyrics';
 
 /**
@@ -25,12 +25,12 @@ async function send(message: object): Promise<void> {
 }
 
 /** Send the current track (title, artist, art, play state) to the receiver. */
-export function sendNowPlaying(track: JellyfinItem, isPlaying: boolean): Promise<void> {
+export function sendNowPlaying(track: MediaItem, isPlaying: boolean): Promise<void> {
   return send(nowPlayingMessage(track, isPlaying));
 }
 
 /** Send the live queue (upcoming order + current index) to the receiver. */
-export function sendQueue(tracks: JellyfinItem[], index: number): Promise<void> {
+export function sendQueue(tracks: MediaItem[], index: number): Promise<void> {
   return send(queueMessage(tracks, index));
 }
 

@@ -7,7 +7,7 @@ import { useLikeToggle } from '../library/useLikeToggle';
 import { useDownload } from '../downloads/useDownload';
 import { useToast } from '../toast/useToast';
 import { copyShareLink } from '../share/shareLink';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Editable-playlist row extras threaded into the menu (reorder + remove). */
 export interface RowEdit {
@@ -19,7 +19,7 @@ export interface RowEdit {
  * radio, navigation, copy, and (in an editable playlist) reorder + remove. Kept
  * out of the component so it stays render-only and under the line gate. */
 export function useTrackMenuActions(
-  track: JellyfinItem,
+  track: MediaItem,
   openPicker: () => void,
   edit: RowEdit = {},
 ): { buttons: ReturnType<typeof trackMenuButtons>; add: ReturnType<typeof useAddToPlaylist> } {

@@ -6,9 +6,9 @@ vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite
 import { addFavorite } from '../../lib/jellyfinItems';
 import { LikeButton } from './LikeButton';
 import { renderWithProviders } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track: JellyfinItem = { Id: 't1', Name: 'x', Type: 'Audio', UserData: { IsFavorite: false } };
+const track: MediaItem = { Id: 't1', Name: 'x', Type: 'Audio', UserData: { IsFavorite: false } };
 
 describe('LikeButton', () => {
   afterEach(() => {
@@ -28,8 +28,8 @@ describe('LikeButton', () => {
   it('re-seeds the heart when the track changes under a mounted button', () => {
     // The mini-player + full player keep ONE LikeButton mounted across track
     // changes — the heart must follow the new track's liked state.
-    const likedTrack: JellyfinItem = { ...track, Id: 'a', UserData: { IsFavorite: true } };
-    const unlikedTrack: JellyfinItem = { ...track, Id: 'b', UserData: { IsFavorite: false } };
+    const likedTrack: MediaItem = { ...track, Id: 'a', UserData: { IsFavorite: true } };
+    const unlikedTrack: MediaItem = { ...track, Id: 'b', UserData: { IsFavorite: false } };
     const { rerender } = renderWithProviders(<LikeButton track={likedTrack} />);
     expect(screen.getByTestId('like-button')).toHaveAttribute('aria-pressed', 'true');
     rerender(<LikeButton track={unlikedTrack} />);

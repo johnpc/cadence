@@ -5,10 +5,10 @@ import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
 import { dedupeByName } from './dedupeByName';
 import { dedupeByTitle } from './dedupeByTitle';
-import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
+import type { ItemsResponse, MediaItem } from './navidromeTypes';
 
 /** All albums credited to an artist, newest first. */
-export async function getArtistAlbums(artistId: string, limit = 100): Promise<JellyfinItem[]> {
+export async function getArtistAlbums(artistId: string, limit = 100): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     AlbumArtistIds: artistId,
@@ -27,7 +27,7 @@ export async function getArtistAlbums(artistId: string, limit = 100): Promise<Je
 /** The user's followed artists (Jellyfin favorites), alphabetically. Uses the
  * dedicated /Artists endpoint — the generic /Items?IncludeItemTypes=MusicArtist
  * favorites filter silently returns nothing for artists on this server. */
-export async function getFavoriteArtists(limit = 200): Promise<JellyfinItem[]> {
+export async function getFavoriteArtists(limit = 200): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     Filters: 'IsFavorite',
@@ -41,17 +41,17 @@ export async function getFavoriteArtists(limit = 200): Promise<JellyfinItem[]> {
 
 /** Hydrate a set of artist ids into full items (name + image), preserving the
  * caller's order. Turns ranked related-artist ids into display cards. */
-export async function getArtistsByIds(ids: string[]): Promise<JellyfinItem[]> {
+export async function getArtistsByIds(ids: string[]): Promise<MediaItem[]> {
   if (ids.length === 0) return [];
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({ Ids: ids.join(','), Fields: 'Genres', userId });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
   const byId = new Map(res.Items.map((a) => [a.Id, a]));
-  return ids.map((id) => byId.get(id)).filter((a): a is JellyfinItem => a !== undefined);
+  return ids.map((id) => byId.get(id)).filter((a): a is MediaItem => a !== undefined);
 }
 
 /** An artist's most-played tracks ("Popular"). */
-export async function getArtistTopTracks(artistId: string, limit = 5): Promise<JellyfinItem[]> {
+export async function getArtistTopTracks(artistId: string, limit = 5): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   // Over-fetch so we can collapse cross-album duplicates (a song + its live /
   // remaster / single copies) and still fill `limit` distinct tracks. The
@@ -76,7 +76,7 @@ export async function getArtistTopTracks(artistId: string, limit = 5): Promise<J
 /** Every track by an artist, A–Z — the "See all" list behind the Popular
  * section's short preview. Sorted by name (a full alphabetical catalogue reads
  * better than play-count for browsing). */
-export async function getArtistTracks(artistId: string, limit = 500): Promise<JellyfinItem[]> {
+export async function getArtistTracks(artistId: string, limit = 500): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     ArtistIds: artistId,

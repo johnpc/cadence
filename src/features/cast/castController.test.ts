@@ -22,9 +22,9 @@ vi.mock('../../lib/jellyfinStream', () => ({
 
 import { isCastAvailable, castTrack, castToggle, castSeek, stopCast } from './castController';
 import { getCastState, setCastState } from './castStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = { Id: 't1', Name: 'Song', Artists: ['A'] } as JellyfinItem;
+const track = { Id: 't1', Name: 'Song', Artists: ['A'] } as MediaItem;
 const DISCONNECTED = { connected: false, deviceName: '', playing: false };
 
 describe('castController', () => {

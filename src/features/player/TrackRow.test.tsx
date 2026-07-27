@@ -5,11 +5,11 @@ import { TrackRow } from './TrackRow';
 import { getPlayContext, setPlayContext } from './playContext';
 import { getRecentPlays } from '../library/recentPlays';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 afterEach(() => localStorage.clear());
 
-const tracks: JellyfinItem[] = [
+const tracks: MediaItem[] = [
   { Id: 'a', Name: 'First', Type: 'Audio', Artists: ['X'] },
   { Id: 'b', Name: 'Second', Type: 'Audio' },
 ];
@@ -124,13 +124,13 @@ it('always renders a single "…" menu as the only trailing control', () => {
 });
 
 it('shows the track duration when the run time is known', () => {
-  const withTime: JellyfinItem = { ...tracks[0], RunTimeTicks: 75 * 10_000_000 };
+  const withTime: MediaItem = { ...tracks[0], RunTimeTicks: 75 * 10_000_000 };
   renderWithProviders(<TrackRow track={withTime} queue={[withTime]} index={0} />);
   expect(screen.getByTestId('track-duration')).toHaveTextContent('1:15');
 });
 
 it('shows the track number instead of art when showNumber is set', () => {
-  const numbered: JellyfinItem = { ...tracks[0], IndexNumber: 4 };
+  const numbered: MediaItem = { ...tracks[0], IndexNumber: 4 };
   renderWithProviders(<TrackRow track={numbered} queue={[numbered]} index={0} showNumber />);
   expect(screen.getByTestId('track-number')).toHaveTextContent('4');
 });

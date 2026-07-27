@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useMediaSessionSync } from './useMediaSessionSync';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Queue-derived transport (next/prev/shuffle/repeat) from usePlayerQueue. */
 interface QueueControls {
@@ -25,7 +25,7 @@ interface AudioControls {
  * Kept out of PlayerProvider for the line gate; both only act while a track is
  * loaded. */
 export function usePlayerIntegrations(
-  current: JellyfinItem | null,
+  current: MediaItem | null,
   isPlaying: boolean,
   qc: QueueControls,
   ac: AudioControls,

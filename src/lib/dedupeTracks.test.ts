@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { dedupeTracks } from './dedupeTracks';
-import type { JellyfinItem } from './jellyfinTypes';
+import type { MediaItem } from './navidromeTypes';
 
-const t = (over: Partial<JellyfinItem>): JellyfinItem => ({
+const t = (over: Partial<MediaItem>): MediaItem => ({
   Id: Math.random().toString(36),
   Name: 'X',
   Type: 'Audio',

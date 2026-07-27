@@ -1,7 +1,7 @@
 import { audioStreamUrl, imageUrl } from '../../lib/jellyfinStream';
 import { addToIndex, removeFromIndex, readIndex } from './downloadIndex';
 import { selectBlobStore } from './blobStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * Persistent offline audio. The track's bytes go to a platform-appropriate blob
@@ -41,7 +41,7 @@ export async function localArtUrl(id: string): Promise<string | null> {
 
 /** Best-effort: fetch + cache the track's cover art so it shows offline. Never
  * throws — art is a nicety, so a failed art fetch must not fail the download. */
-async function cacheArt(item: JellyfinItem): Promise<void> {
+async function cacheArt(item: MediaItem): Promise<void> {
   const url = imageUrl(item, 200);
   if (!url) return;
   try {
@@ -57,7 +57,7 @@ async function cacheArt(item: JellyfinItem): Promise<void> {
  * once can drop the odd connection, and one blip shouldn't permanently fail a
  * track. Throws only if both attempts fail. Also caches the cover art
  * (best-effort) so downloads render offline. */
-export async function downloadTrack(item: JellyfinItem): Promise<void> {
+export async function downloadTrack(item: MediaItem): Promise<void> {
   let lastErr: unknown;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {

@@ -4,9 +4,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../lib/jellyfinItems', () => ({ getInstantMix: vi.fn() }));
 import { getInstantMix } from '../../lib/jellyfinItems';
 import { useEndlessPlay } from './useEndlessPlay';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const t = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const t = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 describe('useEndlessPlay', () => {
   afterEach(() => {

@@ -3,7 +3,7 @@
  * feature (authClient/resolveSession) stays declarative and testable.
  */
 import { request, Unauthenticated } from './jellyfinFetch';
-import type { AuthResult, JellyfinUser, Session } from './jellyfinTypes';
+import type { AuthResult, JellyfinUser, Session } from './navidromeTypes';
 
 /** Sign in with a Jellyfin username + password → the session token + userId. */
 export async function authenticateByName(username: string, password: string): Promise<Session> {

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { rankSimilarAlbumIds, SIMILAR_LIMIT } from './rankSimilar';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (albumId?: string): JellyfinItem => ({
+const track = (albumId?: string): MediaItem => ({
   Id: `t-${albumId ?? 'none'}`,
   Name: 'Track',
   Type: 'Audio',

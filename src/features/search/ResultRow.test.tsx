@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import { ResultRow } from './ResultRow';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album: JellyfinItem = { Id: 'al', Name: 'An Album', Type: 'MusicAlbum' };
+const album: MediaItem = { Id: 'al', Name: 'An Album', Type: 'MusicAlbum' };
 
 it('renders the item and calls onSelect when tapped', async () => {
   const onSelect = vi.fn();

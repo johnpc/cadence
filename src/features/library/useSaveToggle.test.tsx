@@ -7,7 +7,7 @@ vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite
 import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
 import { useSaveToggle } from './useSaveToggle';
 import { ToastContext } from '../toast/ToastContext';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const toast = vi.fn();
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -16,14 +16,14 @@ const wrapper = ({ children }: { children: ReactNode }) => (
   </QueryClientProvider>
 );
 
-const album = (fav: boolean): JellyfinItem => ({
+const album = (fav: boolean): MediaItem => ({
   Id: 'al1',
   Name: 'x',
   Type: 'MusicAlbum',
   UserData: { IsFavorite: fav },
 });
 
-const artist = (fav: boolean): JellyfinItem => ({
+const artist = (fav: boolean): MediaItem => ({
   Id: 'ar1',
   Name: 'x',
   Type: 'MusicArtist',

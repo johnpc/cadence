@@ -8,9 +8,9 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
 }));
 import { SaveQueueButton } from './SaveQueueButton';
 import { renderWithProviders } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const queue: JellyfinItem[] = [
+const queue: MediaItem[] = [
   { Id: 'a', Name: 'One', Type: 'Audio' },
   { Id: 'b', Name: 'Two', Type: 'Audio' },
 ];

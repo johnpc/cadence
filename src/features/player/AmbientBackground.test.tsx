@@ -8,9 +8,9 @@ vi.mock('../color/useDominantColor', () => ({
 }));
 
 import { AmbientBackground } from './AmbientBackground';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const item: JellyfinItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
+const item: MediaItem = { Id: 'i', Name: 'x', Type: 'Audio', ImageTags: { Primary: 'p' } };
 
 describe('AmbientBackground', () => {
   afterEach(() => {

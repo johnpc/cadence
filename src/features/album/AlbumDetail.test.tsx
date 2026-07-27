@@ -19,9 +19,9 @@ import { AlbumDetail } from './AlbumDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
 import type { PlayerContextValue } from '../player/types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album: JellyfinItem = {
+const album: MediaItem = {
   Id: 'al',
   Name: 'Great Album',
   Type: 'MusicAlbum',
@@ -30,7 +30,7 @@ const album: JellyfinItem = {
   ProductionYear: 2015,
   Genres: ['Rock'],
 };
-const tracks: JellyfinItem[] = [
+const tracks: MediaItem[] = [
   { Id: 'a', Name: 'Track A', Type: 'Audio', Artists: ['Band'], IndexNumber: 1 },
   { Id: 'b', Name: 'Track B', Type: 'Audio', IndexNumber: 2 },
 ];

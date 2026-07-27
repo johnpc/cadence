@@ -5,9 +5,9 @@ vi.mock('../../lib/jellyfinStream', () => ({
 }));
 
 import { artworkFor } from './mediaArtwork';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (over: Partial<JellyfinItem> = {}): JellyfinItem => ({
+const track = (over: Partial<MediaItem> = {}): MediaItem => ({
   Id: 't1',
   Name: 'x',
   Type: 'Audio',

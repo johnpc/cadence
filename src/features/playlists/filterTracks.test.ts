@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { filterTracks } from './filterTracks';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const tracks: JellyfinItem[] = [
+const tracks: MediaItem[] = [
   {
     Id: '1',
     Name: 'Paranoid Android',

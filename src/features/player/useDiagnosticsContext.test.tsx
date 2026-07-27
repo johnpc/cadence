@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useDiagnosticsContext } from './useDiagnosticsContext';
 import * as store from '../../lib/diagnostics/diagnosticsStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 vi.mock('../../lib/platform', () => ({ isIos: () => false }));
 vi.mock('../auth/useAuth', () => ({ useAuth: () => ({ username: 'john' }) }));
@@ -13,8 +13,8 @@ beforeEach(() => {
   window.location.hash = '#/playlist/42';
 });
 
-const track = (Id: string, Name: string): JellyfinItem =>
-  ({ Id, Name, Artists: ['An Artist'], Album: 'An Album' }) as JellyfinItem;
+const track = (Id: string, Name: string): MediaItem =>
+  ({ Id, Name, Artists: ['An Artist'], Album: 'An Album' }) as MediaItem;
 
 afterEach(() => {
   vi.restoreAllMocks();

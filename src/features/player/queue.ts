@@ -3,25 +3,25 @@
  * and this is exhaustively unit-testable. A queue is an ordered list of tracks
  * plus the current index; shuffle reorders keeping the current track first.
  */
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 export interface QueueState {
-  tracks: JellyfinItem[];
+  tracks: MediaItem[];
   index: number;
   /** The order before shuffle was turned on, so toggling shuffle OFF can restore
    * it (Spotify-style). Set by shuffleRest, cleared by unshuffle. */
-  unshuffled?: JellyfinItem[];
+  unshuffled?: MediaItem[];
 }
 
 export const EMPTY_QUEUE: QueueState = { tracks: [], index: 0 };
 
 /** The currently-selected track, or null on an empty queue. */
-export function currentTrack(q: QueueState): JellyfinItem | null {
+export function currentTrack(q: QueueState): MediaItem | null {
   return q.tracks[q.index] ?? null;
 }
 
 /** Start a fresh queue from a list at a chosen index (clamped). */
-export function startQueue(tracks: JellyfinItem[], startIndex = 0): QueueState {
+export function startQueue(tracks: MediaItem[], startIndex = 0): QueueState {
   const index = Math.max(0, Math.min(startIndex, tracks.length - 1));
   return { tracks, index: tracks.length ? index : 0 };
 }
@@ -57,12 +57,12 @@ export function peekNextId(q: QueueState, wrap = false): string | null {
 }
 
 /** Append tracks to the end of the queue (used for radio / instant-mix). */
-export function append(q: QueueState, tracks: JellyfinItem[]): QueueState {
+export function append(q: QueueState, tracks: MediaItem[]): QueueState {
   return { ...q, tracks: [...q.tracks, ...tracks] };
 }
 
 /** Insert a track right after the current one ("play next"). */
-export function enqueueNext(q: QueueState, track: JellyfinItem): QueueState {
+export function enqueueNext(q: QueueState, track: MediaItem): QueueState {
   if (!q.tracks.length) return { tracks: [track], index: 0 };
   const tracks = [...q.tracks];
   tracks.splice(q.index + 1, 0, track);

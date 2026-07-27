@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useIdlePrefetch } from './useIdlePrefetch';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const item = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'MusicAlbum' });
+const item = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'MusicAlbum' });
 
 afterEach(() => {
   vi.unstubAllGlobals();

@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** How many recommendations show at once. Dismissing one reveals the next
  * unused candidate from the pool, so the pool is fetched larger than this. */
@@ -8,13 +8,13 @@ export const REC_VISIBLE = 5;
  * playlist, haven't been dismissed, and haven't just been added — de-duped and
  * capped to `limit`. Pure so the ranking stays unit-testable. */
 export function selectRecommendations(
-  candidates: JellyfinItem[],
+  candidates: MediaItem[],
   existingIds: Set<string>,
   hiddenIds: Set<string>,
   limit = REC_VISIBLE,
-): JellyfinItem[] {
+): MediaItem[] {
   const seen = new Set<string>();
-  const out: JellyfinItem[] = [];
+  const out: MediaItem[] = [];
   for (const track of candidates) {
     if (!track.Id) continue;
     if (existingIds.has(track.Id) || hiddenIds.has(track.Id) || seen.has(track.Id)) continue;

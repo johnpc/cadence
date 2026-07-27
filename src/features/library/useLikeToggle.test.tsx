@@ -7,7 +7,7 @@ vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite
 import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
 import { useLikeToggle } from './useLikeToggle';
 import { ToastContext } from '../toast/ToastContext';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const toast = vi.fn();
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -16,7 +16,7 @@ const wrapper = ({ children }: { children: ReactNode }) => (
   </QueryClientProvider>
 );
 
-const track = (fav: boolean): JellyfinItem => ({
+const track = (fav: boolean): MediaItem => ({
   Id: 't1',
   Name: 'x',
   Type: 'Audio',

@@ -6,9 +6,9 @@ import type { ReactNode } from 'react';
 vi.mock('./searchSource', () => ({ searchSource: vi.fn() }));
 import { searchSource } from './searchSource';
 import { useSearch } from './useSearch';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const song: JellyfinItem = { Id: 's', Name: 'Song', Type: 'Audio' };
+const song: MediaItem = { Id: 's', Name: 'Song', Type: 'Audio' };
 
 function wrapper({ children }: { children: ReactNode }) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });

@@ -3,7 +3,7 @@ import { LoadState } from '../../components/LoadState';
 import { CardGridSkeleton } from '../../components/Skeleton';
 import { TrackArt } from '../player/TrackArt';
 import { groupDiscography } from './albumType';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The artist's discography, split Spotify-style into Albums → Singles & EPs →
  * Compilations (empty sections omitted). The first section keeps the
@@ -14,7 +14,7 @@ export function ArtistAlbums({
   isError,
   onRetry,
 }: {
-  albums: JellyfinItem[];
+  albums: MediaItem[];
   isLoading: boolean;
   isError: boolean;
   onRetry: () => void;

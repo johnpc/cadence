@@ -15,9 +15,9 @@ vi.mock('./useLyrics', () => ({ useLyrics: vi.fn() }));
 import { useLyrics } from './useLyrics';
 import { LyricsSheet } from './LyricsSheet';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const song: JellyfinItem = { Id: 's1', Name: 'Anthem', Type: 'Audio' };
+const song: MediaItem = { Id: 's1', Name: 'Anthem', Type: 'Audio' };
 
 describe('LyricsSheet', () => {
   beforeEach(() => {

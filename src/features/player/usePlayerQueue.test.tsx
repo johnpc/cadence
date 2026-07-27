@@ -1,9 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { usePlayerQueue } from './usePlayerQueue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const tracks: JellyfinItem[] = ['a', 'b', 'c'].map((id) => ({ Id: id, Name: id, Type: 'Audio' }));
+const tracks: MediaItem[] = ['a', 'b', 'c'].map((id) => ({ Id: id, Name: id, Type: 'Audio' }));
 
 describe('usePlayerQueue', () => {
   afterEach(() => localStorage.clear());

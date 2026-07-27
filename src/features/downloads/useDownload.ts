@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { downloadTrack, removeDownload, isDownloaded, onDownloadsChange } from './downloadStore';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 export type DownloadState = 'none' | 'downloading' | 'downloaded';
 
@@ -13,7 +13,7 @@ export type DownloadState = 'none' | 'downloading' | 'downloaded';
  * in flight, and toasts + rolls back on failure — otherwise a failed download
  * would silently look done. Mirrors useLikeToggle.
  */
-export function useDownload(track: JellyfinItem) {
+export function useDownload(track: MediaItem) {
   const toast = useToast();
   const [state, setState] = useState<DownloadState>(() =>
     isDownloaded(track.Id) ? 'downloaded' : 'none',

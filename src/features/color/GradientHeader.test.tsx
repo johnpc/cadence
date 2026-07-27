@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { GradientHeader } from './GradientHeader';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album: JellyfinItem = {
+const album: MediaItem = {
   Id: 'al1',
   Name: 'Album',
   Type: 'MusicAlbum',

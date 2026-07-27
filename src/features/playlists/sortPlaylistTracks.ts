@@ -1,5 +1,5 @@
 import { artistLine } from '../player/playerFormat';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** How a playlist's tracks are displayed. 'custom' (default) is the user's
  * saved order (drag-reorderable); 'title'/'artist' are display-only sorts. */
@@ -16,7 +16,7 @@ const byName = (a: string, b: string) => a.localeCompare(b, undefined, { sensiti
 /** Sort tracks for display. 'custom' returns them unchanged (the saved order);
  * 'title'/'artist' sort alphabetically. Pure + stable. Reorder is only offered
  * for 'custom' (sorting a reorderable list is meaningless), enforced by the UI. */
-export function sortPlaylistTracks(tracks: JellyfinItem[], sort: PlaylistSort): JellyfinItem[] {
+export function sortPlaylistTracks(tracks: MediaItem[], sort: PlaylistSort): MediaItem[] {
   if (sort === 'custom') return tracks;
   const keyed = tracks.map((t, i) => ({ t, i }));
   keyed.sort((a, b) => {

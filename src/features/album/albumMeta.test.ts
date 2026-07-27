@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { albumMeta } from './albumMeta';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album = (over: Partial<JellyfinItem>): JellyfinItem => ({
+const album = (over: Partial<MediaItem>): MediaItem => ({
   Id: 'al',
   Name: 'A',
   Type: 'MusicAlbum',

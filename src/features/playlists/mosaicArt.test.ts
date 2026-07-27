@@ -1,26 +1,26 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { mosaicUrls } from './mosaicArt';
 import { setServerUrl } from '../../lib/serverUrlStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 // imageUrl() builds `${serverUrl}/Items/{id}/Images/Primary?...`, so point the
 // store at a known base and assert the returned tiles reference the right ids.
 setServerUrl('https://jf.test');
 afterEach(() => setServerUrl('https://jf.test'));
 
-const withOwnArt = (id: string): JellyfinItem => ({
+const withOwnArt = (id: string): MediaItem => ({
   Id: id,
   Name: id,
   Type: 'Audio',
   ImageTags: { Primary: 'tag' },
 });
-const withAlbum = (id: string, albumId: string): JellyfinItem => ({
+const withAlbum = (id: string, albumId: string): MediaItem => ({
   Id: id,
   Name: id,
   Type: 'Audio',
   AlbumId: albumId,
 });
-const noArt = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const noArt = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 describe('mosaicUrls', () => {
   it('returns up to 4 cover URLs from the tracks', () => {

@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import { pinnedRows } from './pinnedRows';
 
 /** Which section of the library is shown. */
@@ -21,7 +21,7 @@ export interface LibraryRow {
   to: string;
   round: boolean;
   /** The backing item for cover art (null for the synthetic Liked Songs row). */
-  item: JellyfinItem | null;
+  item: MediaItem | null;
   /** True for the pinned Liked Songs pseudo-playlist (renders a heart tile). */
   liked?: boolean;
   /** True for the pinned Downloads pseudo-playlist (renders a download tile). */
@@ -36,9 +36,9 @@ export interface LibraryRow {
 export function buildLibraryRows(
   filter: LibraryFilter,
   data: {
-    playlists: JellyfinItem[];
-    albums: JellyfinItem[];
-    artists: JellyfinItem[];
+    playlists: MediaItem[];
+    albums: MediaItem[];
+    artists: MediaItem[];
     likedCount: number;
     downloadsCount: number;
   },

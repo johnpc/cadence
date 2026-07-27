@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { buildDailyMixes, artistsFromTracks, MIX_COUNT } from './dailyMix';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const artist = (id: string, name = `Artist ${id}`): JellyfinItem => ({
+const artist = (id: string, name = `Artist ${id}`): MediaItem => ({
   Id: id,
   Name: name,
   Type: 'MusicArtist',
 });
-const track = (id: string, artists: { Id: string; Name: string }[]): JellyfinItem => ({
+const track = (id: string, artists: { Id: string; Name: string }[]): MediaItem => ({
   Id: id,
   Name: `Track ${id}`,
   Type: 'Audio',
@@ -28,7 +28,7 @@ describe('buildDailyMixes', () => {
   it('skips artists missing an id or name', () => {
     const mixes = buildDailyMixes([
       { Id: '', Name: 'No id', Type: 'MusicArtist' },
-      { Id: 'x', Type: 'MusicArtist' } as JellyfinItem,
+      { Id: 'x', Type: 'MusicArtist' } as MediaItem,
       artist('ok', 'Real'),
     ]);
     expect(mixes.map((m) => m.title)).toEqual(['Real Mix']);

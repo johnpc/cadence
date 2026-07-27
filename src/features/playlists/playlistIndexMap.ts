@@ -1,11 +1,11 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Map each track to its index in the FULL playlist, in ONE O(n) pass. Rendering
  * a large playlist previously called `tracks.indexOf(track)` per row — O(n²),
  * the real cause of big playlists feeling slow to render/scroll. Callers look up
  * a row's true playlist position in O(1) instead. */
-export function buildPlaylistIndex(tracks: JellyfinItem[]): Map<JellyfinItem, number> {
-  const m = new Map<JellyfinItem, number>();
+export function buildPlaylistIndex(tracks: MediaItem[]): Map<MediaItem, number> {
+  const m = new Map<MediaItem, number>();
   tracks.forEach((t, i) => m.set(t, i));
   return m;
 }

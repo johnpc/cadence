@@ -31,14 +31,14 @@ import {
   usePlaylists,
 } from './playlistsApi';
 import { useCreatePlaylist } from './playlistCreate';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
     {children}
   </QueryClientProvider>
 );
-const pl: JellyfinItem = { Id: 'p', Name: 'PL', Type: 'Playlist' };
+const pl: MediaItem = { Id: 'p', Name: 'PL', Type: 'Playlist' };
 
 describe('playlistsApi', () => {
   afterEach(() => {

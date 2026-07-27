@@ -2,7 +2,7 @@ import { TrackArt } from '../player/TrackArt';
 import { artistLine } from '../player/playerFormat';
 import { useActivateResult } from './useActivateResult';
 import type { RecentItem } from './recentSearchStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './topResult.css';
 
 const KIND: Record<string, string> = {
@@ -18,7 +18,7 @@ export function TopResult({
   item,
   onPick,
 }: {
-  item: JellyfinItem;
+  item: MediaItem;
   onPick: (item: RecentItem) => void;
 }) {
   const activateResult = useActivateResult(onPick);

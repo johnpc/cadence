@@ -2,16 +2,16 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 // RelatedArtists now fetches its own data (deferred via useInView); mock the hook.
-const related: { items: JellyfinItem[] } = { items: [] };
+const related: { items: MediaItem[] } = { items: [] };
 vi.mock('./artistApi', () => ({
   useRelatedArtists: () => ({ related: related.items }),
 }));
 import { RelatedArtists } from './RelatedArtists';
 
-const artists: JellyfinItem[] = [
+const artists: MediaItem[] = [
   { Id: 'a', Name: 'Artist A', Type: 'MusicArtist' },
   { Id: 'b', Name: 'Artist B', Type: 'MusicArtist' },
 ];

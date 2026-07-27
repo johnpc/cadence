@@ -2,14 +2,14 @@ import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { FullPlayerTitle } from './FullPlayerTitle';
 import { renderWithProviders } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 vi.mock('../library/useLikeToggle', () => ({
   useLikeToggle: () => ({ liked: false, toggle: vi.fn(), busy: false }),
 }));
 
-const song: JellyfinItem = { Id: 's1', Name: 'A Song', Type: 'Audio', Artists: ['Band'] };
-const withArtists: JellyfinItem = {
+const song: MediaItem = { Id: 's1', Name: 'A Song', Type: 'Audio', Artists: ['Band'] };
+const withArtists: MediaItem = {
   ...song,
   ArtistItems: [
     { Id: 'ar1', Name: 'First' },

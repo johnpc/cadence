@@ -1,5 +1,5 @@
 import { createItemListCache } from '../../lib/itemListCache';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * Disk cache of the Home shelves (recently-added, suggested, recently-played,
@@ -14,7 +14,7 @@ const homeShelfCache = createItemListCache('cadence.home-shelves');
 export const HOME_SHELVES_CACHE_KEY = homeShelfCache.storageKey;
 
 /** Cached list for a shelf, or undefined when not cached yet. */
-export function getCachedShelf(shelf: string): JellyfinItem[] | undefined {
+export function getCachedShelf(shelf: string): MediaItem[] | undefined {
   return homeShelfCache.get(shelf);
 }
 
@@ -22,7 +22,7 @@ export function getCachedShelf(shelf: string): JellyfinItem[] | undefined {
  * fetcher ignores the id arg — the shelf name is only the cache key. */
 export function fetchAndCacheShelf(
   shelf: string,
-  fetcher: () => Promise<JellyfinItem[]>,
-): Promise<JellyfinItem[]> {
+  fetcher: () => Promise<MediaItem[]>,
+): Promise<MediaItem[]> {
   return homeShelfCache.fetchAndCache(shelf, () => fetcher());
 }

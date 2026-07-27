@@ -4,9 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../lib/jellyfinStream', () => ({ audioStreamUrl: (id: string) => `stream:${id}` }));
 import { useNextTrackPrefetch } from './useNextTrackPrefetch';
 import { startQueue } from './queue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const track = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 const queue = startQueue(['a', 'b', 'c'].map(track), 0);
 
 // A stand-in <audio> capturing what the hook does to it (jsdom has no media).

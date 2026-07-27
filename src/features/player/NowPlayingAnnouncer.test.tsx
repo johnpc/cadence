@@ -2,9 +2,9 @@ import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { NowPlayingAnnouncer } from './NowPlayingAnnouncer';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const song: JellyfinItem = { Id: 's1', Name: 'Test Song', Type: 'Audio', Artists: ['Tester'] };
+const song: MediaItem = { Id: 's1', Name: 'Test Song', Type: 'Audio', Artists: ['Tester'] };
 
 describe('NowPlayingAnnouncer', () => {
   it('is a polite live region', () => {

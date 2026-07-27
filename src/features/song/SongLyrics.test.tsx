@@ -9,9 +9,9 @@ import { SongLyrics } from './SongLyrics';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
 import type { PlayerContextValue } from '../player/types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const song: JellyfinItem = { Id: 's1', Name: 'A Song', Type: 'Audio' };
+const song: MediaItem = { Id: 's1', Name: 'A Song', Type: 'Audio' };
 
 function renderLyrics(player: PlayerContextValue = stubPlayer()) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });

@@ -19,7 +19,7 @@ vi.mock('../../lib/haptics', () => ({ tap: vi.fn() }));
 import { downloadTrack, removeDownload, isDownloaded } from './downloadStore';
 import { useDownload } from './useDownload';
 import { ToastContext } from '../toast/ToastContext';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const toast = vi.fn();
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -27,7 +27,7 @@ const wrapper = ({ children }: { children: ReactNode }) => (
     <ToastContext.Provider value={toast}>{children}</ToastContext.Provider>
   </QueryClientProvider>
 );
-const track = { Id: 't1', Name: 'x' } as JellyfinItem;
+const track = { Id: 't1', Name: 'x' } as MediaItem;
 
 describe('useDownload', () => {
   afterEach(() => {
@@ -93,7 +93,7 @@ describe('useDownload', () => {
     });
     expect(result.current.state).toBe('downloaded');
     vi.mocked(isDownloaded).mockReturnValue(false);
-    rerender({ t: { Id: 't2', Name: 'y' } as JellyfinItem });
+    rerender({ t: { Id: 't2', Name: 'y' } as MediaItem });
     expect(result.current.state).toBe('none');
   });
 });

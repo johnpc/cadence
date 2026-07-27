@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { itemPath, shareUrl, copyShareLink, shareItem } from './shareLink';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const item = (over: Partial<JellyfinItem>): JellyfinItem => ({
+const item = (over: Partial<MediaItem>): MediaItem => ({
   Id: 'x',
   Name: 'x',
   Type: 'Audio',

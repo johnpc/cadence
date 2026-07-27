@@ -21,9 +21,9 @@ import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import { SongDetail } from './SongDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const song: JellyfinItem = {
+const song: MediaItem = {
   Id: 's1',
   Name: 'A Song',
   Type: 'Audio',
@@ -33,12 +33,12 @@ const song: JellyfinItem = {
   RunTimeTicks: 1_800_000_000,
   ProductionYear: 1985,
 };
-const album: JellyfinItem = { Id: 'al1', Name: 'The Album', Type: 'MusicAlbum' };
-const artist: JellyfinItem = { Id: 'ar1', Name: 'The Artist', Type: 'MusicArtist' };
+const album: MediaItem = { Id: 'al1', Name: 'The Album', Type: 'MusicAlbum' };
+const artist: MediaItem = { Id: 'ar1', Name: 'The Artist', Type: 'MusicArtist' };
 
 /** getItem serves the song, its album, and its artist by id — the page fetches
  * all three to build the rich context cards. */
-function itemById(id: string): Promise<JellyfinItem> {
+function itemById(id: string): Promise<MediaItem> {
   if (id === 'al1') return Promise.resolve(album);
   if (id === 'ar1') return Promise.resolve(artist);
   return Promise.resolve(song);
@@ -90,8 +90,8 @@ describe('SongDetail', () => {
   });
 
   it('shows a skeleton while the song loads', async () => {
-    let resolve: (v: JellyfinItem) => void = () => {};
-    vi.mocked(getItem).mockReturnValue(new Promise<JellyfinItem>((r) => (resolve = r)));
+    let resolve: (v: MediaItem) => void = () => {};
+    vi.mocked(getItem).mockReturnValue(new Promise<MediaItem>((r) => (resolve = r)));
     renderSong();
     expect(screen.getByTestId('song-skeleton')).toBeInTheDocument();
     resolve(song);
@@ -135,7 +135,7 @@ describe('SongDetail', () => {
 
   it('shows a "not found" empty state (not a blank page) for a missing song', async () => {
     // A resolved-but-null song (deleted/invalid id) must not leave a blank page.
-    vi.mocked(getItem).mockResolvedValue(null as unknown as JellyfinItem);
+    vi.mocked(getItem).mockResolvedValue(null as unknown as MediaItem);
     renderSong();
     await waitFor(() => expect(screen.getByText('Song not found')).toBeInTheDocument());
     expect(screen.queryByTestId('song-detail')).not.toBeInTheDocument();

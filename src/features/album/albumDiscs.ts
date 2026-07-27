@@ -1,18 +1,18 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** A disc within an album: its number and the tracks on it, each paired with
  * its index in the flat album queue (so playing a row still queues the whole
  * album, not just the disc). */
 export interface AlbumDisc {
   disc: number;
-  tracks: { track: JellyfinItem; index: number }[];
+  tracks: { track: MediaItem; index: number }[];
 }
 
 /** Group an album's (already disc-ordered) tracks by disc number. Returns a
  * single group when the album is one disc — the caller renders disc headers
  * only for genuine multi-disc albums (Spotify-style). Tracks missing a disc
  * number fall into disc 1. */
-export function groupByDisc(tracks: JellyfinItem[]): AlbumDisc[] {
+export function groupByDisc(tracks: MediaItem[]): AlbumDisc[] {
   const discs: AlbumDisc[] = [];
   tracks.forEach((track, index) => {
     const disc = track.ParentIndexNumber ?? 1;

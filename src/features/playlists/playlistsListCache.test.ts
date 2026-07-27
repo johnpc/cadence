@@ -7,9 +7,9 @@ import {
   getCachedPlaylists,
   fetchAndCachePlaylists,
 } from './playlistsListCache';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const pl = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Playlist' });
+const pl = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Playlist' });
 
 afterEach(() => {
   localStorage.clear();

@@ -2,7 +2,7 @@ import { IonIcon } from '@ionic/react';
 import { listOutline, documentTextOutline } from 'ionicons/icons';
 import { NowPlayingMenu } from './NowPlayingMenu';
 import { CastButton } from '../cast/CastButton';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The full player's bottom row: Lyrics, Up next, Cast, and the "…" menu. */
 export function FullPlayerFooter({
@@ -11,7 +11,7 @@ export function FullPlayerFooter({
   onOpenQueue,
   onClose,
 }: {
-  current: JellyfinItem | null;
+  current: MediaItem | null;
   onOpenLyrics: () => void;
   onOpenQueue: () => void;
   onClose: () => void;

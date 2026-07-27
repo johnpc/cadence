@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getItem } from '../../lib/jellyfinItems';
 import { getRecentPlays, subscribeRecentPlays } from '../library/recentPlays';
 import { topRecentIds } from './jumpBackIn';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Hydrate the most-recently-played collections (albums/playlists/artists the
  * user played) into cards for a Spotify-style "Jump back in" shelf. Ids come
@@ -18,9 +18,9 @@ export function useJumpBackIn() {
   const ids = idsKey ? idsKey.split(',') : [];
   const q = useQuery({
     queryKey: ['jump-back-in', ids],
-    queryFn: async (): Promise<JellyfinItem[]> => {
+    queryFn: async (): Promise<MediaItem[]> => {
       const items = await Promise.all(ids.map((id) => getItem(id).catch(() => null)));
-      return items.filter((i): i is JellyfinItem => i !== null);
+      return items.filter((i): i is MediaItem => i !== null);
     },
     enabled: ids.length > 0,
     staleTime: 60_000,

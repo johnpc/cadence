@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { loadQueue, saveQueue, clearPersistedQueue } from './queuePersistence';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const t = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const t = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 describe('queuePersistence', () => {
   afterEach(() => localStorage.clear());

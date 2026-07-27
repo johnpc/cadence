@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { CardShelf } from './CardShelf';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album: JellyfinItem = { Id: 'al1', Name: 'An Album', Type: 'MusicAlbum' };
+const album: MediaItem = { Id: 'al1', Name: 'An Album', Type: 'MusicAlbum' };
 const ready = { isLoading: false, isError: false, refetch: vi.fn() };
 
 const renderShelf = (props: Partial<Parameters<typeof CardShelf>[0]> = {}) =>

@@ -15,9 +15,9 @@ import { touchRecentPlay } from '../library/recentPlays';
 import { History } from './History';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const songs: JellyfinItem[] = [
+const songs: MediaItem[] = [
   { Id: 't1', Name: 'Last Played', Type: 'Audio', Artists: ['A'] },
   { Id: 't2', Name: 'Earlier Song', Type: 'Audio' },
 ];

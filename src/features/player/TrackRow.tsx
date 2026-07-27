@@ -5,7 +5,7 @@ import { trackDuration } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { TrackTitle } from './TrackTitle';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './trackRow.css';
 
 /**
@@ -26,8 +26,8 @@ export function TrackRow({
   showNumber,
   context,
 }: {
-  track: JellyfinItem;
-  queue: JellyfinItem[];
+  track: MediaItem;
+  queue: MediaItem[];
   index: number;
   /** Optional side-effect fired when the row is played (e.g. record a recent). */
   onPlay?: () => void;

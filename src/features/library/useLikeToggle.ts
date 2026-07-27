@@ -4,7 +4,7 @@ import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import { LIKED_SONGS_KEY } from './libraryApi';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * Like/unlike a track. Seeds from the item's UserData.IsFavorite, flips
@@ -12,7 +12,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * failure it rolls the heart back AND toasts — otherwise the like silently
  * reverts and the user can't tell whether it worked.
  */
-export function useLikeToggle(track: JellyfinItem) {
+export function useLikeToggle(track: MediaItem) {
   const queryClient = useQueryClient();
   const toast = useToast();
   const [liked, setLiked] = useState(!!track.UserData?.IsFavorite);

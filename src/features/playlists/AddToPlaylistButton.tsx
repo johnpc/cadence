@@ -7,14 +7,14 @@ import { addToPlaylistButtons } from './trackMenuButtons';
 import { useTrackMenuActions, type RowEdit } from './useTrackMenuActions';
 import { NewPlaylistAlert } from './NewPlaylistAlert';
 import { useToast } from '../toast/useToast';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './addToPlaylist.css';
 
 /** The per-track "…" menu — the single trailing control on every track row. It
  * holds ALL row actions (like, download, play next, add to queue, add to
  * playlist, radio, go to album/artist, copy link, and — in an editable playlist
  * — reorder + remove), so the row itself stays art + title + "…". */
-export function AddToPlaylistButton({ track, edit }: { track: JellyfinItem; edit?: RowEdit }) {
+export function AddToPlaylistButton({ track, edit }: { track: MediaItem; edit?: RowEdit }) {
   const [open, setOpen] = useState(false);
   const [pickOpen, setPickOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);

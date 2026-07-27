@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Spotify-style discography sections. */
 export type AlbumSection = 'albums' | 'singles' | 'compilations';
@@ -12,7 +12,7 @@ export type AlbumSection = 'albums' | 'singles' | 'compilations';
  * - Albums: everything else (a full-length, or a release with unknown length,
  *   which we default to the primary section rather than hiding).
  */
-export function albumType(item: JellyfinItem): AlbumSection {
+export function albumType(item: MediaItem): AlbumSection {
   if ((item.AlbumArtist ?? '').toLowerCase() === 'various artists') return 'compilations';
   const count = item.ChildCount;
   if (typeof count === 'number' && count > 0 && count <= 6) return 'singles';
@@ -22,7 +22,7 @@ export function albumType(item: JellyfinItem): AlbumSection {
 export interface DiscographyGroup {
   section: AlbumSection;
   title: string;
-  albums: JellyfinItem[];
+  albums: MediaItem[];
 }
 
 const TITLES: Record<AlbumSection, string> = {
@@ -37,7 +37,7 @@ const TITLES: Record<AlbumSection, string> = {
  * (already newest-first). Empty sections are omitted so the page shows only what
  * the artist actually has.
  */
-export function groupDiscography(albums: JellyfinItem[]): DiscographyGroup[] {
+export function groupDiscography(albums: MediaItem[]): DiscographyGroup[] {
   const order: AlbumSection[] = ['albums', 'singles', 'compilations'];
   return order
     .map((section) => ({

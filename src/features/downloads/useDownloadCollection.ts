@@ -4,12 +4,12 @@ import { indexedIds } from './downloadIndex';
 import { mapLimit } from './mapLimit';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 export type CollectionState = 'none' | 'partial' | 'downloading' | 'downloaded';
 
 /** How many of `tracks` are already downloaded. */
-function downloadedCount(tracks: JellyfinItem[]): number {
+function downloadedCount(tracks: MediaItem[]): number {
   const ids = indexedIds();
   return tracks.filter((t) => ids.has(t.Id)).length;
 }
@@ -20,7 +20,7 @@ function downloadedCount(tracks: JellyfinItem[]): number {
  * so it stays correct even if individual rows were downloaded one-by-one. While
  * a batch runs it reports {done,total} progress. Failures don't abort the batch.
  */
-export function useDownloadCollection(tracks: JellyfinItem[]) {
+export function useDownloadCollection(tracks: MediaItem[]) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(0);

@@ -5,7 +5,7 @@ import { TrackArt } from '../player/TrackArt';
 import { Shelf } from './Shelf';
 import { buildDailyMixes, artistsFromTracks } from './dailyMix';
 import { usePlayItem } from '../player/usePlayItem';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** "Made for you" — personalised mix cards seeded from the artists you follow
  * AND the artists in what you've been playing, so it's alive even before you
@@ -15,8 +15,8 @@ export function DailyMixShelf({
   artists,
   recentTracks = [],
 }: {
-  artists: JellyfinItem[];
-  recentTracks?: JellyfinItem[];
+  artists: MediaItem[];
+  recentTracks?: MediaItem[];
 }) {
   const playItem = usePlayItem();
   const history = useHistory();

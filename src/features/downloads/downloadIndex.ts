@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * The persisted list of downloaded tracks — the item metadata (title, artist,
@@ -11,12 +11,12 @@ const INDEX_KEY = 'cadence.downloads.index';
 
 /** Read the downloaded-track index. Tolerates absent/corrupt storage (returns
  * []), so a bad write can never blank the screen with a throw. */
-export function readIndex(): JellyfinItem[] {
+export function readIndex(): MediaItem[] {
   try {
     const raw = localStorage.getItem(INDEX_KEY);
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as JellyfinItem[]) : [];
+    return Array.isArray(parsed) ? (parsed as MediaItem[]) : [];
   } catch {
     return [];
   }
@@ -24,7 +24,7 @@ export function readIndex(): JellyfinItem[] {
 
 /** Add a track to the index (newest first), replacing any existing entry with
  * the same id so re-downloading doesn't duplicate the row. */
-export function addToIndex(item: JellyfinItem): void {
+export function addToIndex(item: MediaItem): void {
   const next = [item, ...readIndex().filter((t) => t.Id !== item.Id)];
   localStorage.setItem(INDEX_KEY, JSON.stringify(next));
 }

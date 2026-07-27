@@ -12,7 +12,7 @@ vi.mock('../playlists/playlistCreate', () => ({
 }));
 vi.mock('./usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
 import { NowPlayingMenu } from './NowPlayingMenu';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 // Render the action sheet's buttons inline as clickable rows (jsdom can't run
 // Ionic's overlay), so we can assert navigation from a menu choice.
@@ -39,7 +39,7 @@ vi.mock('@ionic/react', async (importOriginal) => {
   };
 });
 
-const track: JellyfinItem = {
+const track: MediaItem = {
   Id: 't1',
   Name: 'x',
   Type: 'Audio',

@@ -3,7 +3,7 @@ import { musicalNotes } from 'ionicons/icons';
 import { IonIcon } from '@ionic/react';
 import { imageUrl } from '../../lib/jellyfinStream';
 import { useLocalArt } from '../downloads/useLocalArt';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './trackArt.css';
 
 /** Cover art for a track/album/artist, with a note-icon placeholder fallback
@@ -19,7 +19,7 @@ function TrackArtImpl({
   size = 48,
   round = false,
 }: {
-  item: JellyfinItem | null;
+  item: MediaItem | null;
   size?: number;
   round?: boolean;
 }) {

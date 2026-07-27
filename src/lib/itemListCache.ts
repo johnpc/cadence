@@ -1,4 +1,4 @@
-import type { JellyfinItem } from './jellyfinTypes';
+import type { MediaItem } from './navidromeTypes';
 
 /**
  * A namespaced localStorage cache of Jellyfin item lists (a playlist's tracks,
@@ -13,19 +13,16 @@ import type { JellyfinItem } from './jellyfinTypes';
  */
 export interface ItemListCache {
   /** Cached list for an id, or undefined when not cached. */
-  get(id: string): JellyfinItem[] | undefined;
+  get(id: string): MediaItem[] | undefined;
   /** Persist a list, evicting the oldest entries past the cap. */
-  set(id: string, items: JellyfinItem[]): void;
+  set(id: string, items: MediaItem[]): void;
   /** Fetch via `fetcher` then persist — use directly as a query fn. */
-  fetchAndCache(
-    id: string,
-    fetcher: (id: string) => Promise<JellyfinItem[]>,
-  ): Promise<JellyfinItem[]>;
+  fetchAndCache(id: string, fetcher: (id: string) => Promise<MediaItem[]>): Promise<MediaItem[]>;
   /** The localStorage key (so Clear-cache can flush it). */
   readonly storageKey: string;
 }
 
-type Entry = { at: number; items: JellyfinItem[] };
+type Entry = { at: number; items: MediaItem[] };
 type Store = Record<string, Entry>;
 
 export function createItemListCache(storageKey: string, max = 30): ItemListCache {
@@ -38,7 +35,7 @@ export function createItemListCache(storageKey: string, max = 30): ItemListCache
     }
   };
 
-  const set = (id: string, items: JellyfinItem[]): void => {
+  const set = (id: string, items: MediaItem[]): void => {
     try {
       const store = read();
       store[id] = { at: Date.now(), items };

@@ -7,7 +7,7 @@
 import { apiUrl } from './jellyfinConfig';
 import { getSession } from './sessionStore';
 import { currentBitrateCap } from '../features/settings/audioQualityStore';
-import type { JellyfinItem } from './jellyfinTypes';
+import type { MediaItem } from './navidromeTypes';
 
 /** Streamable audio URL for a track, transcoded to a browser-friendly format.
  * Honours the user's audio-quality setting by capping the transcode bitrate
@@ -33,7 +33,7 @@ export function audioStreamUrl(itemId: string): string {
  * then hit the browser cache instead of re-requesting (the per-image request
  * pile-up was the app's top request-count cost). `quality` trims transcode bytes
  * ~55% at the same dimensions with no visible loss. */
-export function imageUrl(item: JellyfinItem, maxSize = 400): string | null {
+export function imageUrl(item: MediaItem, maxSize = 400): string | null {
   const ownArt = !!item.ImageTags?.Primary;
   const id = ownArt ? item.Id : item.AlbumId;
   if (!id) return null;

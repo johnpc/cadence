@@ -11,9 +11,9 @@ vi.mock('./downloadStore', () => ({
 }));
 import { useDownloads } from './useDownloads';
 import { addToIndex } from './downloadIndex';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (Id: string): JellyfinItem => ({ Id, Name: Id }) as JellyfinItem;
+const track = (Id: string): MediaItem => ({ Id, Name: Id }) as MediaItem;
 
 describe('useDownloads', () => {
   afterEach(() => {

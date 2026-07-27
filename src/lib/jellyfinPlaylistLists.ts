@@ -5,13 +5,13 @@
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
 import { dedupeByName } from './dedupeByName';
-import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
+import type { ItemsResponse, MediaItem } from './navidromeTypes';
 
 async function fetchAllPlaylists(
   sortBy: string,
   fields: string,
   sortOrder: 'Ascending' | 'Descending' = 'Ascending',
-): Promise<JellyfinItem[]> {
+): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'Playlist',
@@ -46,9 +46,7 @@ async function isPlaylistOwner(id: string): Promise<boolean> {
  * the owner-only share endpoint — necessary because an ADMIN has `CanDelete`
  * true on every playlist, which would otherwise dump the whole server into their
  * library. Confirmations run in parallel. */
-async function partitionByOwnership(
-  playlists: JellyfinItem[],
-): Promise<[JellyfinItem[], JellyfinItem[]]> {
+async function partitionByOwnership(playlists: MediaItem[]): Promise<[MediaItem[], MediaItem[]]> {
   // Only CanDelete!==false items need the (expensive) owner confirmation;
   // CanDelete===false is a definite "not mine".
   const candidates = playlists.filter((p) => p.CanDelete !== false);
@@ -67,7 +65,7 @@ async function partitionByOwnership(
  * `CanDelete` is true for ALL of them when the user is an admin — so we confirm
  * ownership via the owner-only `/Playlists/{id}/Users` endpoint. Others' public
  * playlists are surfaced on Home, never mixed into "Your Library". */
-export async function getPlaylists(): Promise<JellyfinItem[]> {
+export async function getPlaylists(): Promise<MediaItem[]> {
   const all = await fetchAllPlaylists('SortName', 'CanDelete');
   const [mine] = await partitionByOwnership(all);
   return dedupeByName(mine);
@@ -76,7 +74,7 @@ export async function getPlaylists(): Promise<JellyfinItem[]> {
 /** OTHER users' playlists — the ones getPlaylists excludes from Your Library
  * (not owned by the current user). Surfaced on Home so the user can browse and
  * clone them. Most-recently-added first; ChildCount drives the "N songs" line. */
-export async function getPublicPlaylists(limit = 20): Promise<JellyfinItem[]> {
+export async function getPublicPlaylists(limit = 20): Promise<MediaItem[]> {
   const all = await fetchAllPlaylists('DateCreated', 'CanDelete,ChildCount', 'Descending');
   const [, notMine] = await partitionByOwnership(all);
   return dedupeByName(notMine).slice(0, limit);

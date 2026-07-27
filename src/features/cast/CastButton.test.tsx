@@ -7,9 +7,9 @@ vi.mock('../player/usePlayer', () => ({ usePlayer: vi.fn() }));
 import { useCast } from './useCast';
 import { usePlayer } from '../player/usePlayer';
 import { CastButton } from './CastButton';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = { Id: 't1', Name: 'x' } as JellyfinItem;
+const track = { Id: 't1', Name: 'x' } as MediaItem;
 const useCastMock = (over: Partial<ReturnType<typeof useCast>>) =>
   vi.mocked(useCast).mockReturnValue({
     available: true,

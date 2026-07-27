@@ -4,7 +4,7 @@
  * every xApi call) lets `xApi.ts` signatures stay credential-free — mirrors how
  * stoop never passes creds around.
  */
-import type { Session } from './jellyfinTypes';
+import type { Session } from './navidromeTypes';
 
 let session: Session | null = null;
 const listeners = new Set<() => void>();

@@ -2,10 +2,10 @@ import { act, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { OfflineBanner } from './OfflineBanner';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 // Control the downloaded-tracks list the banner reads.
-let downloaded: JellyfinItem[] = [];
+let downloaded: MediaItem[] = [];
 vi.mock('../downloads/useDownloads', () => ({ useDownloads: () => ({ tracks: downloaded }) }));
 
 function setOnline(value: boolean) {

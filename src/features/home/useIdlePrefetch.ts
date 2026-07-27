@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * During browser idle time after Home settles, warm the single most-likely first
@@ -14,8 +14,8 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * absent (older Safari / jsdom).
  */
 export function useIdlePrefetch(
-  item: JellyfinItem | undefined,
-  prefetch: (i: JellyfinItem) => void,
+  item: MediaItem | undefined,
+  prefetch: (i: MediaItem) => void,
 ): void {
   useEffect(() => {
     if (!item) return;

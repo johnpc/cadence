@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { topRecentIds } from './jumpBackIn';
 import { detailPath } from './itemPath';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 describe('topRecentIds', () => {
   it('orders ids by most-recent timestamp, newest first', () => {
@@ -19,7 +19,7 @@ describe('topRecentIds', () => {
 });
 
 describe('detailPath', () => {
-  const item = (Type: string): JellyfinItem => ({ Id: 'x', Name: 'x', Type });
+  const item = (Type: string): MediaItem => ({ Id: 'x', Name: 'x', Type });
   it('routes each collection type to its detail page', () => {
     expect(detailPath(item('MusicArtist'))).toBe('/artist/x');
     expect(detailPath(item('Playlist'))).toBe('/playlist/x');

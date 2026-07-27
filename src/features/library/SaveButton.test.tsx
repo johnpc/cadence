@@ -7,9 +7,9 @@ import { addFavorite } from '../../lib/jellyfinItems';
 import { SaveButton } from './SaveButton';
 import { ToastContext } from '../toast/ToastContext';
 import { renderWithProviders } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album: JellyfinItem = {
+const album: MediaItem = {
   Id: 'al1',
   Name: 'x',
   Type: 'MusicAlbum',
@@ -39,7 +39,7 @@ describe('SaveButton', () => {
   it('reflects saved state that resolves AFTER mount (item starts null while loading)', () => {
     // Album/artist pages mount SaveButton with item=null, then the data arrives
     // via react-query — the heart must pick up the resolved IsFavorite.
-    const savedAlbum: JellyfinItem = { ...album, UserData: { IsFavorite: true } };
+    const savedAlbum: MediaItem = { ...album, UserData: { IsFavorite: true } };
     const { rerender } = renderWithProviders(<SaveButton item={null} />);
     rerender(<SaveButton item={savedAlbum} />);
     expect(screen.getByTestId('save-button')).toHaveAttribute('aria-pressed', 'true');
@@ -57,7 +57,7 @@ describe('SaveButton', () => {
     await waitFor(() => expect(toast).toHaveBeenCalledWith('Saved to library'));
 
     toast.mockClear();
-    const artist: JellyfinItem = { Id: 'ar1', Name: 'x', Type: 'MusicArtist' };
+    const artist: MediaItem = { Id: 'ar1', Name: 'x', Type: 'MusicArtist' };
     renderWithProviders(
       <ToastContext.Provider value={toast}>
         <SaveButton item={artist} />

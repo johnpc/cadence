@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 export interface NowPlayingMenuActions {
   goToSong: () => void;
@@ -20,10 +20,7 @@ interface SheetButton {
  * seeded on it, go to album/artist (when known), copy link, and a single "Add
  * to playlist…" that opens a dedicated picker (rather than listing every
  * playlist inline). Pure so the ordering/inclusion logic is unit-testable. */
-export function nowPlayingMenuButtons(
-  track: JellyfinItem,
-  a: NowPlayingMenuActions,
-): SheetButton[] {
+export function nowPlayingMenuButtons(track: MediaItem, a: NowPlayingMenuActions): SheetButton[] {
   const artist = track.ArtistItems?.[0];
   return [
     { text: 'Go to song', handler: a.goToSong },

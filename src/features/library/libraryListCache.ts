@@ -1,5 +1,5 @@
 import { createItemListCache } from '../../lib/itemListCache';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * Disk cache of the Your Library lists (liked songs, saved albums, followed
@@ -14,14 +14,14 @@ const libraryListCache = createItemListCache('cadence.library-lists');
 export const LIBRARY_LISTS_CACHE_KEY = libraryListCache.storageKey;
 
 /** Cached list for a kind, or undefined when not cached yet. */
-export function getCachedList(kind: string): JellyfinItem[] | undefined {
+export function getCachedList(kind: string): MediaItem[] | undefined {
   return libraryListCache.get(kind);
 }
 
 /** Fetch a library list via `fetcher` and persist it under `kind` (query fn). */
 export function fetchAndCacheList(
   kind: string,
-  fetcher: () => Promise<JellyfinItem[]>,
-): Promise<JellyfinItem[]> {
+  fetcher: () => Promise<MediaItem[]>,
+): Promise<MediaItem[]> {
   return libraryListCache.fetchAndCache(kind, () => fetcher());
 }

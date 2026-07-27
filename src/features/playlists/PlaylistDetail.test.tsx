@@ -53,9 +53,9 @@ import { PlaylistDetail } from './PlaylistDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
 import type { PlayerContextValue } from '../player/types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const tracks: JellyfinItem[] = [
+const tracks: MediaItem[] = [
   { Id: 'a', Name: 'PL Track A', Type: 'Audio', Artists: ['X'] },
   { Id: 'b', Name: 'PL Track B', Type: 'Audio' },
 ];
@@ -137,7 +137,7 @@ describe('PlaylistDetail', () => {
   });
 
   it('removes a track via its remove button', async () => {
-    const withEntry: JellyfinItem[] = [{ ...tracks[0], PlaylistItemId: 'e1' }];
+    const withEntry: MediaItem[] = [{ ...tracks[0], PlaylistItemId: 'e1' }];
     vi.mocked(getPlaylistItems).mockResolvedValue(withEntry);
     const { removeFromPlaylist } = await import('../../lib/jellyfinPlaylists');
     vi.mocked(removeFromPlaylist).mockResolvedValue();

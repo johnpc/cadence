@@ -8,9 +8,9 @@ import { render } from '@testing-library/react';
 vi.mock('../../lib/jellyfinArtists', () => ({ getArtistAlbums: vi.fn() }));
 import { getArtistAlbums } from '../../lib/jellyfinArtists';
 import { MoreByArtist } from './MoreByArtist';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const albums: JellyfinItem[] = [
+const albums: MediaItem[] = [
   { Id: 'al1', Name: 'This Album', Type: 'MusicAlbum' },
   { Id: 'al2', Name: 'Other Album', Type: 'MusicAlbum' },
 ];

@@ -6,9 +6,9 @@ import {
   setPlayContext,
   subscribePlayContext,
 } from './playContext';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const t = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const t = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 afterEach(() => setPlayContext(null));
 

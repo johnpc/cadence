@@ -1,4 +1,4 @@
-import type { JellyfinItem } from './jellyfinTypes';
+import type { MediaItem } from './navidromeTypes';
 
 /**
  * Some albums are stored in Jellyfin with every track duplicated (two file
@@ -6,9 +6,9 @@ import type { JellyfinItem } from './jellyfinTypes';
  * key on disc+track number when present (ParentIndexNumber/IndexNumber), else
  * on the track name. First occurrence wins, preserving sort order.
  */
-export function dedupeTracks(tracks: JellyfinItem[]): JellyfinItem[] {
+export function dedupeTracks(tracks: MediaItem[]): MediaItem[] {
   const seen = new Set<string>();
-  const out: JellyfinItem[] = [];
+  const out: MediaItem[] = [];
   for (const t of tracks) {
     const key =
       t.IndexNumber != null

@@ -10,7 +10,7 @@ import { nowPlayingMenuButtons } from './nowPlayingMenuButtons';
 import { addToPlaylistButtons } from '../playlists/trackMenuButtons';
 import { useToast } from '../toast/useToast';
 import { copyShareLink } from '../share/shareLink';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The now-playing "…" menu: jump to the current track's song/album/artist,
  * copy its link, or add it to a new or existing playlist, then close the full
@@ -19,7 +19,7 @@ export function NowPlayingMenu({
   track,
   onNavigate,
 }: {
-  track: JellyfinItem;
+  track: MediaItem;
   onNavigate: () => void;
 }) {
   const [open, setOpen] = useState(false);

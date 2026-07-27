@@ -7,7 +7,7 @@ vi.mock('../../lib/jellyfinItems', () => ({ getItem: vi.fn(), getItemTracks: vi.
 vi.mock('../../lib/jellyfinArtists', () => ({ getArtistAlbums: vi.fn() }));
 vi.mock('../../lib/jellyfinPlaylists', () => ({ getPlaylistItems: vi.fn() }));
 import { usePrefetchItem } from './usePrefetchItem';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 function setup() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -29,25 +29,25 @@ afterEach(() => {
 describe('usePrefetchItem', () => {
   it('warms album metadata + tracks for an album', () => {
     const { prefetch, spy } = setup();
-    prefetch({ Id: 'al', Name: 'A', Type: 'MusicAlbum' } as JellyfinItem);
+    prefetch({ Id: 'al', Name: 'A', Type: 'MusicAlbum' } as MediaItem);
     expect(keysOf(spy)).toEqual(['["album","al"]', '["album-tracks","al"]']);
   });
 
   it('warms artist metadata + albums for an artist', () => {
     const { prefetch, spy } = setup();
-    prefetch({ Id: 'ar', Name: 'B', Type: 'MusicArtist' } as JellyfinItem);
+    prefetch({ Id: 'ar', Name: 'B', Type: 'MusicArtist' } as MediaItem);
     expect(keysOf(spy)).toEqual(['["artist","ar"]', '["artist-albums","ar"]']);
   });
 
   it('warms playlist metadata + items for a playlist', () => {
     const { prefetch, spy } = setup();
-    prefetch({ Id: 'pl', Name: 'P', Type: 'Playlist' } as JellyfinItem);
+    prefetch({ Id: 'pl', Name: 'P', Type: 'Playlist' } as MediaItem);
     expect(keysOf(spy)).toEqual(['["playlist","pl"]', '["playlist-items","pl"]']);
   });
 
   it('is a no-op for songs and other types', () => {
     const { prefetch, spy } = setup();
-    prefetch({ Id: 's', Name: 'S', Type: 'Audio' } as JellyfinItem);
+    prefetch({ Id: 's', Name: 'S', Type: 'Audio' } as MediaItem);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -57,7 +57,7 @@ describe('usePrefetchItem', () => {
     const wrapper = ({ children }: { children: ReactNode }) =>
       createElement(QueryClientProvider, { client }, children);
     const { result } = renderHook(() => usePrefetchItem(), { wrapper });
-    const album = { Id: 'al', Name: 'Seeded Album', Type: 'MusicAlbum' } as JellyfinItem;
+    const album = { Id: 'al', Name: 'Seeded Album', Type: 'MusicAlbum' } as MediaItem;
     result.current(album);
     // The header cache holds the tapped item immediately — no wait on getItem.
     expect(client.getQueryData(['album', 'al'])).toEqual(album);

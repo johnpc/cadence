@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { groupResults, isEmptyGroups, previewGroups, topResult } from './searchGroups';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const item = (id: string, Type: string): JellyfinItem => ({ Id: id, Name: id, Type });
-const named = (name: string, Type: string): JellyfinItem => ({ Id: name, Name: name, Type });
+const item = (id: string, Type: string): MediaItem => ({ Id: id, Name: id, Type });
+const named = (name: string, Type: string): MediaItem => ({ Id: name, Name: name, Type });
 
 describe('searchGroups', () => {
   it('splits results into songs, albums, artists, and playlists', () => {

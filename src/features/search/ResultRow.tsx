@@ -1,5 +1,5 @@
 import { TrackArt } from '../player/TrackArt';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './resultRow.css';
 
 /** A non-track search result (album or artist). Tapping is wired by the parent
@@ -9,9 +9,9 @@ export function ResultRow({
   subtitle,
   onSelect,
 }: {
-  item: JellyfinItem;
+  item: MediaItem;
   subtitle: string;
-  onSelect: (item: JellyfinItem) => void;
+  onSelect: (item: MediaItem) => void;
 }) {
   return (
     <button

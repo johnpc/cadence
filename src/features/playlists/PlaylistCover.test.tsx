@@ -2,11 +2,11 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { PlaylistCover } from './PlaylistCover';
 import { setServerUrl } from '../../lib/serverUrlStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 setServerUrl('https://jf.test');
 
-const track = (id: string): JellyfinItem => ({
+const track = (id: string): MediaItem => ({
   Id: id,
   Name: id,
   Type: 'Audio',
@@ -15,7 +15,7 @@ const track = (id: string): JellyfinItem => ({
 
 describe('PlaylistCover', () => {
   it('shows the playlist own art (no mosaic) when it has a cover', () => {
-    const playlist: JellyfinItem = {
+    const playlist: MediaItem = {
       Id: 'p',
       Name: 'Mix',
       Type: 'Playlist',
@@ -31,7 +31,7 @@ describe('PlaylistCover', () => {
   });
 
   it('renders a 4-tile mosaic when the playlist has no art but its tracks do', () => {
-    const playlist: JellyfinItem = { Id: 'p', Name: 'Mix', Type: 'Playlist' };
+    const playlist: MediaItem = { Id: 'p', Name: 'Mix', Type: 'Playlist' };
     render(
       <PlaylistCover
         playlist={playlist}
@@ -43,7 +43,7 @@ describe('PlaylistCover', () => {
   });
 
   it('falls back to the standard cover when there is too little track art for a mosaic', () => {
-    const playlist: JellyfinItem = { Id: 'p', Name: 'Mix', Type: 'Playlist' };
+    const playlist: MediaItem = { Id: 'p', Name: 'Mix', Type: 'Playlist' };
     render(<PlaylistCover playlist={playlist} tracks={[track('a'), track('b')]} />);
     expect(screen.queryByTestId('playlist-mosaic')).not.toBeInTheDocument();
   });

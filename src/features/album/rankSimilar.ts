@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** How many similar albums to show in "Fans also like". */
 export const SIMILAR_LIMIT = 8;
@@ -8,7 +8,7 @@ export const SIMILAR_LIMIT = 8;
  * most frequent are the best "fans also like" picks. Pure so the ranking stays
  * unit-testable without the network. */
 export function rankSimilarAlbumIds(
-  mixTracks: JellyfinItem[],
+  mixTracks: MediaItem[],
   seedAlbumId: string,
   limit = SIMILAR_LIMIT,
 ): string[] {

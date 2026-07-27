@@ -4,7 +4,7 @@ import { audioStreamUrl, imageUrl } from '../../lib/jellyfinStream';
 import { castReceiverAppId } from '../../lib/runtimeConfig';
 import { setCastState, getCastState } from './castStore';
 import { setCastProgress } from './castProgress';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Shape of the MEDIA_UPDATE event payload we read for the receiver's position.
  * (Only the fields we use; the plugin's MediaObject has more.) */
@@ -51,7 +51,7 @@ async function ensureInitialized(): Promise<void> {
 
 /** Start (or retarget) a cast session and load the given track on the TV. Shows
  * the native device picker on the first call. */
-export async function castTrack(track: JellyfinItem): Promise<void> {
+export async function castTrack(track: MediaItem): Promise<void> {
   await ensureInitialized();
   const prev = getCastState();
   if (!prev.connected) {

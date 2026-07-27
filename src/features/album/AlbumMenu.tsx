@@ -6,11 +6,11 @@ import { useSeedRadio } from '../player/useSeedRadio';
 import { albumMenuButtons } from './albumMenuButtons';
 import { useToast } from '../toast/useToast';
 import { copyShareLink } from '../share/shareLink';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The album "…" overflow: start an album radio (instant-mix), jump to the
  * artist, or copy a share link — matching the song/artist overflow menus. */
-export function AlbumMenu({ album }: { album: JellyfinItem }) {
+export function AlbumMenu({ album }: { album: MediaItem }) {
   const [open, setOpen] = useState(false);
   const history = useHistory();
   const seedRadio = useSeedRadio();

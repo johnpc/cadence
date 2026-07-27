@@ -6,9 +6,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../lib/jellyfinItems', () => ({ getItem: vi.fn() }));
 import { getItem } from '../../lib/jellyfinItems';
 import { useJumpBackIn } from './useJumpBackIn';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const item = (id: string, Type = 'MusicAlbum'): JellyfinItem => ({ Id: id, Name: id, Type });
+const item = (id: string, Type = 'MusicAlbum'): MediaItem => ({ Id: id, Name: id, Type });
 
 function setup() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });

@@ -1,7 +1,7 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The in-app route for an item, or null when there's nowhere to link. */
-export function itemPath(item: JellyfinItem): string | null {
+export function itemPath(item: MediaItem): string | null {
   switch (item.Type) {
     case 'MusicAlbum':
       return `/album/${item.Id}`;
@@ -20,13 +20,13 @@ export function itemPath(item: JellyfinItem): string | null {
 
 /** Absolute shareable URL for an item (its detail page — a track links to its
  * own song page). Returns null when there's nowhere to link. */
-export function shareUrl(item: JellyfinItem, origin: string): string | null {
+export function shareUrl(item: MediaItem, origin: string): string | null {
   const path = itemPath(item);
   return path ? `${origin}${path}` : null;
 }
 
 /** Copy the item's share URL to the clipboard. Resolves true on success. */
-export async function copyShareLink(item: JellyfinItem, origin: string): Promise<boolean> {
+export async function copyShareLink(item: MediaItem, origin: string): Promise<boolean> {
   const url = shareUrl(item, origin);
   if (!url || !navigator.clipboard) return false;
   try {
@@ -46,7 +46,7 @@ export type ShareResult = 'shared' | 'copied' | 'failed';
  * dismisses the share sheet (AbortError) gets 'failed' with no error toast at
  * the call site (treat it as a silent cancel there).
  */
-export async function shareItem(item: JellyfinItem, origin: string): Promise<ShareResult> {
+export async function shareItem(item: MediaItem, origin: string): Promise<ShareResult> {
   const url = shareUrl(item, origin);
   if (!url) return 'failed';
   if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {

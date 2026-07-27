@@ -6,7 +6,7 @@ import { GenreChips } from '../../components/GenreChips';
 import { GradientHeader } from '../color/GradientHeader';
 import { SaveButton } from '../library/SaveButton';
 import { ShareButton } from '../share/ShareButton';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The artist header: circular art over an ambient gradient, name, genres, and
  * the primary actions — follow, share, radio, and (when the artist has popular
@@ -16,8 +16,8 @@ export function ArtistHeader({
   topTracks,
   onRadio,
 }: {
-  artist: JellyfinItem | null;
-  topTracks: JellyfinItem[];
+  artist: MediaItem | null;
+  topTracks: MediaItem[];
   onRadio: () => void;
 }) {
   return (

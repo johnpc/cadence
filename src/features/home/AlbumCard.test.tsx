@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { AlbumCard } from './AlbumCard';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album: JellyfinItem = {
+const album: MediaItem = {
   Id: 'al',
   Name: 'Some Album',
   Type: 'MusicAlbum',

@@ -10,9 +10,9 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
 }));
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { renderWithProviders } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track: JellyfinItem = { Id: 't1', Name: 'x', Type: 'Audio' };
+const track: MediaItem = { Id: 't1', Name: 'x', Type: 'Audio' };
 
 describe('AddToPlaylistButton', () => {
   afterEach(() => {

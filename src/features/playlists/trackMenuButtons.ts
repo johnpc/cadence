@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 export interface TrackMenuActions {
   playNext: () => void;
@@ -32,7 +32,7 @@ interface SheetButton {
  * download, play next, add to queue, add to playlist, radio, go to
  * album/artist, copy link, and — only in an editable playlist — move up/down +
  * remove. Pure so the ordering/inclusion logic is unit-testable. */
-export function trackMenuButtons(track: JellyfinItem, a: TrackMenuActions): SheetButton[] {
+export function trackMenuButtons(track: MediaItem, a: TrackMenuActions): SheetButton[] {
   const artist = track.ArtistItems?.[0];
   return [
     { text: a.liked ? 'Remove from Liked Songs' : 'Add to Liked Songs', handler: a.toggleLike },
@@ -63,8 +63,8 @@ export function trackMenuButtons(track: JellyfinItem, a: TrackMenuActions): Shee
  * this track, or add it to any existing playlist. Separated so the primary
  * track menu stays short and the intent is obvious. */
 export function addToPlaylistButtons(
-  playlists: JellyfinItem[],
-  a: { newPlaylist: () => void; addTo: (playlist: JellyfinItem) => void },
+  playlists: MediaItem[],
+  a: { newPlaylist: () => void; addTo: (playlist: MediaItem) => void },
 ): SheetButton[] {
   return [
     { text: 'New playlist…', handler: a.newPlaylist },

@@ -4,7 +4,7 @@ import { moveAt, clearUpcoming } from './queueMove';
 import { loadQueue, saveQueue } from './queuePersistence';
 import { loadModes, saveModes, nextRepeat } from './playerModes';
 import { random } from '../../lib/random';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import type { RepeatMode } from './types';
 
 /**
@@ -25,19 +25,16 @@ export function usePlayerQueue() {
   useEffect(() => saveModes({ shuffle, repeat }), [shuffle, repeat]);
 
   const playQueue = useCallback(
-    (tracks: JellyfinItem[], startIndex = 0) => setQueue(q.startQueue(tracks, startIndex)),
+    (tracks: MediaItem[], startIndex = 0) => setQueue(q.startQueue(tracks, startIndex)),
     [],
   );
-  const playNext = useCallback(
-    (track: JellyfinItem) => setQueue((c) => q.enqueueNext(c, track)),
-    [],
-  );
-  const addToQueue = useCallback((track: JellyfinItem | JellyfinItem[]) => {
+  const playNext = useCallback((track: MediaItem) => setQueue((c) => q.enqueueNext(c, track)), []);
+  const addToQueue = useCallback((track: MediaItem | MediaItem[]) => {
     const items = Array.isArray(track) ? track : [track];
     if (!items.length) return;
     setQueue((c) => (c.tracks.length ? q.append(c, items) : q.startQueue(items, 0)));
   }, []);
-  const playShuffled = useCallback((tracks: JellyfinItem[]) => {
+  const playShuffled = useCallback((tracks: MediaItem[]) => {
     setQueue(q.startShuffled(tracks, random));
     setShuffle(true);
   }, []);

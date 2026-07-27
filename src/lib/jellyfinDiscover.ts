@@ -4,12 +4,12 @@
  */
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
-import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
+import type { ItemsResponse, MediaItem } from './navidromeTypes';
 
 const albumFields = 'AlbumArtist,Artists';
 
 /** Recently-added albums ("Recently added" shelf). */
-export async function getLatestAlbums(limit = 20): Promise<JellyfinItem[]> {
+export async function getLatestAlbums(limit = 20): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'MusicAlbum',
@@ -17,13 +17,13 @@ export async function getLatestAlbums(limit = 20): Promise<JellyfinItem[]> {
     Fields: albumFields,
   });
   // /Users/{id}/Items/Latest returns a bare array, not an Items envelope.
-  return request<JellyfinItem[]>(`/Users/${userId}/Items/Latest?${params.toString()}`);
+  return request<MediaItem[]>(`/Users/${userId}/Items/Latest?${params.toString()}`);
 }
 
 const songFields = 'Artists,AlbumArtist,Album,AlbumId,ArtistItems,RunTimeTicks';
 
 /** Suggested songs ("Suggested for you" shelf). */
-export async function getSuggestedSongs(limit = 20): Promise<JellyfinItem[]> {
+export async function getSuggestedSongs(limit = 20): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     userId,
@@ -36,7 +36,7 @@ export async function getSuggestedSongs(limit = 20): Promise<JellyfinItem[]> {
 }
 
 /** Recently-played songs ("Recently played" shelf), most-recent first. */
-export async function getRecentlyPlayed(limit = 20): Promise<JellyfinItem[]> {
+export async function getRecentlyPlayed(limit = 20): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'Audio',
@@ -55,7 +55,7 @@ export async function getRecentlyPlayed(limit = 20): Promise<JellyfinItem[]> {
 /** Your most-played tracks ("On repeat" shelf) — per-user PlayCount, highest
  * first. Uses the per-user /Users/{id}/Items so PlayCount is the caller's own
  * count (not a server-wide total). Only played tracks qualify (IsPlayed). */
-export async function getOnRepeat(limit = 20): Promise<JellyfinItem[]> {
+export async function getOnRepeat(limit = 20): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'Audio',

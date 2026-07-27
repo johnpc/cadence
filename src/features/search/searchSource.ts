@@ -12,13 +12,13 @@ import { getSession } from '../../lib/sessionStore';
 import { marlinConfigured } from '../../lib/marlinStore';
 import { marlinProxyEnabled } from '../../lib/runtimeConfig';
 import { marlinSearchSource } from './marlinSource';
-import type { ItemsResponse, JellyfinItem } from '../../lib/jellyfinTypes';
+import type { ItemsResponse, MediaItem } from '../../lib/navidromeTypes';
 import type { SearchSource } from './searchTypes';
 
 export type { SearchSource } from './searchTypes';
 export { marlinSearchSource } from './marlinSource';
 
-async function searchItems(query: string, limit: number): Promise<JellyfinItem[]> {
+async function searchItems(query: string, limit: number): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     searchTerm: query,
@@ -32,7 +32,7 @@ async function searchItems(query: string, limit: number): Promise<JellyfinItem[]
   return res.Items;
 }
 
-async function searchArtists(query: string, limit: number): Promise<JellyfinItem[]> {
+async function searchArtists(query: string, limit: number): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     searchTerm: query,
@@ -48,7 +48,7 @@ async function searchArtists(query: string, limit: number): Promise<JellyfinItem
 /** Native Jellyfin playlist search. Exported because marlin can't index/rank
  * playlists well, so the marlin source fetches playlists natively even when it's
  * the active backend (see marlinSource). */
-export async function searchPlaylists(query: string, limit: number): Promise<JellyfinItem[]> {
+export async function searchPlaylists(query: string, limit: number): Promise<MediaItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     searchTerm: query,

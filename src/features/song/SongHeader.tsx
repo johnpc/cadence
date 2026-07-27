@@ -8,7 +8,7 @@ import { ShareButton } from '../share/ShareButton';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
 import { SongLinks } from './SongLinks';
 import { songMetaLine } from './songMeta';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The song page hero: art over an ambient gradient, title, linked artist·album
  * line, year·duration meta, genres, and the play / radio / like / share / add
@@ -18,7 +18,7 @@ export function SongHeader({
   onPlay,
   onRadio,
 }: {
-  song: JellyfinItem;
+  song: MediaItem;
   onPlay: () => void;
   onRadio: () => void;
 }) {

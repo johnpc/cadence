@@ -1,14 +1,14 @@
 import { IonIcon } from '@ionic/react';
 import { checkmarkCircle, addCircleOutline } from 'ionicons/icons';
 import { useSaveToggle } from './useSaveToggle';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './saveButton.css';
 
 /** A save toggle for a whole album/artist (a Spotify "Save"/"Follow"). Shows a
  * filled check when saved, an outline plus when not. The confirmation/error
  * toast is owned by useSaveToggle (fired on the mutation's REAL outcome), so a
  * failed save no longer shows a false-success toast alongside the error one. */
-export function SaveButton({ item, size = 30 }: { item: JellyfinItem | null; size?: number }) {
+export function SaveButton({ item, size = 30 }: { item: MediaItem | null; size?: number }) {
   const { saved, toggle, busy } = useSaveToggle(item);
   const isArtist = item?.Type === 'MusicArtist';
   const label = isArtist

@@ -8,9 +8,9 @@ import {
 } from './mediaSession';
 import { isIos } from '../../lib/platform';
 import { setSession } from '../../lib/sessionStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track: JellyfinItem = {
+const track: MediaItem = {
   Id: 't1',
   Name: 'Song',
   Type: 'Audio',

@@ -11,7 +11,7 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
 import { getItem } from '../../lib/jellyfinItems';
 import { getPlaylists, getPlaylistItems } from '../../lib/jellyfinPlaylists';
 import { useSong, useSongPlaylists } from './songApi';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 function wrapper() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -19,7 +19,7 @@ function wrapper() {
     createElement(QueryClientProvider, { client }, children);
 }
 
-const track: JellyfinItem = { Id: 's1', Name: 'A Song', Type: 'Audio' };
+const track: MediaItem = { Id: 's1', Name: 'A Song', Type: 'Audio' };
 
 afterEach(() => {
   vi.resetAllMocks();

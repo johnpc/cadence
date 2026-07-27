@@ -28,9 +28,9 @@ beforeEach(() => {
 import { getFavoriteSongs } from '../../lib/jellyfinItems';
 import { LikedSongs } from './LikedSongs';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const songs: JellyfinItem[] = [
+const songs: MediaItem[] = [
   { Id: 'a', Name: 'Liked A', Type: 'Audio', Artists: ['X'] },
   { Id: 'b', Name: 'Liked B', Type: 'Audio' },
 ];
@@ -79,7 +79,7 @@ describe('LikedSongs', () => {
   });
 
   it('filters the list via the find box on large libraries', async () => {
-    const many: JellyfinItem[] = Array.from({ length: 12 }, (_, i) => ({
+    const many: MediaItem[] = Array.from({ length: 12 }, (_, i) => ({
       Id: String(i),
       Name: i === 0 ? 'Bohemian Rhapsody' : `Filler ${i}`,
       Type: 'Audio',
@@ -94,7 +94,7 @@ describe('LikedSongs', () => {
   });
 
   it('virtualizes a large liked-songs list — a window + a load-more sentinel', async () => {
-    const many: JellyfinItem[] = Array.from({ length: 120 }, (_, i) => ({
+    const many: MediaItem[] = Array.from({ length: 120 }, (_, i) => ({
       Id: String(i),
       Name: `Song ${i}`,
       Type: 'Audio',

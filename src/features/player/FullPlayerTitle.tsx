@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { artistLine } from './playerFormat';
 import { LikeButton } from '../library/LikeButton';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The full player's title block: the track name links to its own song page,
  * the artist(s) beneath link to their artist pages, and a like toggle sits
@@ -11,7 +11,7 @@ export function FullPlayerTitle({
   track,
   onNavigate,
 }: {
-  track: JellyfinItem | null;
+  track: MediaItem | null;
   onNavigate: () => void;
 }) {
   const artists = (track?.ArtistItems ?? []).filter((a) => a.Id && a.Name);

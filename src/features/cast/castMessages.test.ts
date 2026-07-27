@@ -4,10 +4,10 @@ vi.mock('../../lib/jellyfinStream', () => ({
   imageUrl: (item: { Id: string }) => `https://jf.test/art/${item.Id}`,
 }));
 import { CAST_NAMESPACE, nowPlayingMessage, queueMessage, lyricsMessage } from './castMessages';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (Id: string, Name: string, artists: string[] = []): JellyfinItem =>
-  ({ Id, Name, Type: 'Audio', Artists: artists }) as JellyfinItem;
+const track = (Id: string, Name: string, artists: string[] = []): MediaItem =>
+  ({ Id, Name, Type: 'Audio', Artists: artists }) as MediaItem;
 
 describe('castMessages', () => {
   it('exposes a stable custom namespace', () => {

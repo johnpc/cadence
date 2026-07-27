@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { rankRelatedArtistIds, RELATED_LIMIT } from './rankRelated';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const track = (...artists: [string, string][]): JellyfinItem => ({
+const track = (...artists: [string, string][]): MediaItem => ({
   Id: `t-${artists.map((a) => a[0]).join('')}`,
   Name: 'track',
   Type: 'Audio',
@@ -29,7 +29,7 @@ describe('rankRelatedArtistIds', () => {
   });
 
   it('ignores artist entries without an id', () => {
-    const mix: JellyfinItem[] = [
+    const mix: MediaItem[] = [
       { Id: 't', Name: 'x', Type: 'Audio', ArtistItems: [{ Id: '', Name: 'No id' }] },
     ];
     expect(rankRelatedArtistIds(mix, 'seed')).toEqual([]);

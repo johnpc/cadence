@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** How many related artists to show in "Fans also like". */
 export const RELATED_LIMIT = 8;
@@ -7,7 +7,7 @@ export const RELATED_LIMIT = 8;
  * often they co-occur, excluding the seed itself — the most frequent are the
  * best "fans also like" picks. Pure so the ranking stays unit-testable. */
 export function rankRelatedArtistIds(
-  mixTracks: JellyfinItem[],
+  mixTracks: MediaItem[],
   seedId: string,
   limit = RELATED_LIMIT,
 ): string[] {

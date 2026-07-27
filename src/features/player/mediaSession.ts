@@ -7,7 +7,7 @@
 import { isIos } from '../../lib/platform';
 import { artistLine } from './playerFormat';
 import { artworkFor } from './mediaArtwork';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 export interface MediaSessionHandlers {
   play: () => void;
@@ -19,7 +19,7 @@ export interface MediaSessionHandlers {
 }
 
 /** Publish the current track's metadata to the OS now-playing UI. */
-export function setNowPlaying(track: JellyfinItem | null): void {
+export function setNowPlaying(track: MediaItem | null): void {
   if (!('mediaSession' in navigator)) return;
   if (!track) {
     navigator.mediaSession.metadata = null;

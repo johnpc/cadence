@@ -9,7 +9,7 @@ const toast = vi.fn();
 vi.mock('../toast/useToast', () => ({ useToast: () => toast }));
 vi.mock('../share/shareLink', () => ({ copyShareLink: vi.fn().mockResolvedValue(true) }));
 import { AlbumMenu } from './AlbumMenu';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 // Render the action sheet's buttons inline (jsdom can't run Ionic's overlay).
 vi.mock('@ionic/react', async (importOriginal) => {
@@ -35,7 +35,7 @@ vi.mock('@ionic/react', async (importOriginal) => {
   };
 });
 
-const album: JellyfinItem = {
+const album: MediaItem = {
   Id: 'al1',
   Name: 'Great Album',
   Type: 'MusicAlbum',

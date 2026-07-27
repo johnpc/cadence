@@ -3,9 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ShareButton } from './ShareButton';
 import { ToastContext } from '../toast/ToastContext';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album: JellyfinItem = { Id: 'al1', Name: 'Rec', Type: 'MusicAlbum' };
+const album: MediaItem = { Id: 'al1', Name: 'Rec', Type: 'MusicAlbum' };
 
 describe('ShareButton', () => {
   afterEach(() => {

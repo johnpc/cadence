@@ -2,7 +2,7 @@ import { IonIcon } from '@ionic/react';
 import { play } from 'ionicons/icons';
 import { TrackArt } from '../player/TrackArt';
 import { artistLine } from '../player/playerFormat';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './home.css';
 
 /** A card for a Home shelf. Tapping the card body `onOpen`s the item's detail
@@ -18,10 +18,10 @@ export function AlbumCard({
   onPrefetch,
   round = false,
 }: {
-  item: JellyfinItem;
-  onOpen: (item: JellyfinItem) => void;
-  onPlay: (item: JellyfinItem) => void;
-  onPrefetch?: (item: JellyfinItem) => void;
+  item: MediaItem;
+  onOpen: (item: MediaItem) => void;
+  onPlay: (item: MediaItem) => void;
+  onPrefetch?: (item: MediaItem) => void;
   round?: boolean;
 }) {
   const prefetch = onPrefetch ? () => onPrefetch(item) : undefined;

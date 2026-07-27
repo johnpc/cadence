@@ -1,5 +1,5 @@
 import { artistLine } from '../player/playerFormat';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** How the Liked Songs list is ordered. 'recent' (default) keeps Jellyfin's
  * most-recently-added order; 'title'/'artist' sort alphabetically. */
@@ -16,7 +16,7 @@ const byName = (a: string, b: string) => a.localeCompare(b, undefined, { sensiti
 
 /** Sort liked songs by the chosen order. 'recent' returns the server order
  * unchanged (favorites already come newest-first). Pure + stable. */
-export function sortLikedSongs(songs: JellyfinItem[], sort: LikedSort): JellyfinItem[] {
+export function sortLikedSongs(songs: MediaItem[], sort: LikedSort): MediaItem[] {
   if (sort === 'recent') return songs;
   const keyed = songs.map((s, i) => ({ s, i }));
   keyed.sort((a, b) => {

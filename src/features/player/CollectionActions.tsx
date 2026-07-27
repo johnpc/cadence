@@ -5,7 +5,7 @@ import { useToast } from '../toast/useToast';
 import { touchRecentPlay } from '../library/recentPlays';
 import { setPlayContext } from './playContext';
 import { isActiveQueue } from './isActiveQueue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './collectionActions.css';
 
 /** Play-all, shuffle-all, and add-to-queue for a collection (album, playlist,
@@ -19,7 +19,7 @@ export function CollectionActions({
   collectionId,
   context,
 }: {
-  tracks: JellyfinItem[];
+  tracks: MediaItem[];
   collectionId?: string;
   context?: { kind: string; label: string; path?: string };
 }) {

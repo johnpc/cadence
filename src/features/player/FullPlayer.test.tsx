@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { FullPlayer } from './FullPlayer';
 import type { PlayerContextValue } from './types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 
 // The lyrics sheet fetches lazily when opened; stub the source so no real
@@ -26,7 +26,7 @@ vi.mock('@ionic/react', async (importOriginal) => {
   };
 });
 
-const song: JellyfinItem = { Id: 's1', Name: 'Full Song', Type: 'Audio', Artists: ['Band'] };
+const song: MediaItem = { Id: 's1', Name: 'Full Song', Type: 'Audio', Artists: ['Band'] };
 
 function ctx(overrides: Partial<PlayerContextValue> = {}): PlayerContextValue {
   return stubPlayer({

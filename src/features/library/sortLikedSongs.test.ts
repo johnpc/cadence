@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { sortLikedSongs, LIKED_SORTS } from './sortLikedSongs';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const songs: JellyfinItem[] = [
+const songs: MediaItem[] = [
   { Id: '1', Name: 'Zebra', Type: 'Audio', Artists: ['Muse'] },
   { Id: '2', Name: 'Apple', Type: 'Audio', Artists: ['Radiohead'] },
   { Id: '3', Name: 'Mango', Type: 'Audio', Artists: ['ABBA'] },
@@ -22,7 +22,7 @@ describe('sortLikedSongs', () => {
   });
 
   it('is stable for equal keys and does not mutate its input', () => {
-    const dupes: JellyfinItem[] = [
+    const dupes: MediaItem[] = [
       { Id: 'a', Name: 'Same', Type: 'Audio' },
       { Id: 'b', Name: 'Same', Type: 'Audio' },
     ];

@@ -5,7 +5,7 @@ import { useNextTrackPrefetch } from './useNextTrackPrefetch';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useAutoplay } from '../settings/useAutoplay';
 import type { usePlayerQueue } from './usePlayerQueue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * The player's fire-and-forget integrations — hooks that observe playback and
@@ -16,7 +16,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  */
 export function usePlayerSideEffects(
   qh: ReturnType<typeof usePlayerQueue>,
-  current: JellyfinItem | null,
+  current: MediaItem | null,
   currentId: string | undefined,
   ref: RefObject<HTMLAudioElement | null>,
   isPlaying: boolean,

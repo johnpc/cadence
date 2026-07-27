@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { isActiveQueue } from './isActiveQueue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const t = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const t = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 describe('isActiveQueue', () => {
   it('is true when the queue holds exactly these ids in order', () => {

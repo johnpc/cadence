@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { dedupeByTitle } from './dedupeByTitle';
-import type { JellyfinItem } from './jellyfinTypes';
+import type { MediaItem } from './navidromeTypes';
 
-const t = (id: string, name: string): JellyfinItem => ({ Id: id, Name: name, Type: 'Audio' });
+const t = (id: string, name: string): MediaItem => ({ Id: id, Name: name, Type: 'Audio' });
 
 describe('dedupeByTitle', () => {
   it('collapses the same song across versions, keeping one', () => {

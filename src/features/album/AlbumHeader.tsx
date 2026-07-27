@@ -9,18 +9,12 @@ import { GenreChips } from '../../components/GenreChips';
 import { GradientHeader } from '../color/GradientHeader';
 import { artistLine, collectionSummary } from '../player/playerFormat';
 import { albumMeta } from './albumMeta';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The album header: art, title, artist (linked when we have its id), release
  * meta, song count, genres, and the save/play actions. Always renders once the
  * album metadata is known — even for an album Jellyfin reports 0 tracks for. */
-export function AlbumHeader({
-  album,
-  tracks,
-}: {
-  album: JellyfinItem | null;
-  tracks: JellyfinItem[];
-}) {
+export function AlbumHeader({ album, tracks }: { album: MediaItem | null; tracks: MediaItem[] }) {
   const artistId = album?.ArtistItems?.[0]?.Id;
   const artistText = artistLine(album) || album?.AlbumArtist || '';
   return (

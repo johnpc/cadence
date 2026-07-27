@@ -8,10 +8,10 @@ import { searchSource } from './searchSource';
 import { PlayerContext } from '../player/PlayerContext';
 import { Search } from './Search';
 import type { PlayerContextValue } from '../player/types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const song: JellyfinItem = { Id: 's', Name: 'Found Song', Type: 'Audio', Artists: ['A'] };
-const album: JellyfinItem = { Id: 'al', Name: 'Found Album', Type: 'MusicAlbum' };
+const song: MediaItem = { Id: 's', Name: 'Found Song', Type: 'Audio', Artists: ['A'] };
+const album: MediaItem = { Id: 'al', Name: 'Found Album', Type: 'MusicAlbum' };
 
 function renderSearch() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });

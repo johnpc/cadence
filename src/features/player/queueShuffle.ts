@@ -3,11 +3,11 @@
  * All pure (injected randomness) so they're deterministic in tests.
  */
 import { currentTrack, type QueueState } from './queue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** A fresh queue from a fully-shuffled copy of `tracks` (Fisher–Yates), starting
  * at index 0. `rand` is injected for deterministic tests. */
-export function startShuffled(tracks: JellyfinItem[], rand: () => number): QueueState {
+export function startShuffled(tracks: MediaItem[], rand: () => number): QueueState {
   const shuffled = [...tracks];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));

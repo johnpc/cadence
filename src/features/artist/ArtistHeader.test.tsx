@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ArtistHeader } from './ArtistHeader';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const artist: JellyfinItem = { Id: 'ar', Name: 'The Artist', Type: 'MusicArtist' };
-const top: JellyfinItem[] = [
+const artist: MediaItem = { Id: 'ar', Name: 'The Artist', Type: 'MusicArtist' };
+const top: MediaItem[] = [
   { Id: 'a', Name: 'Hit A', Type: 'Audio' },
   { Id: 'b', Name: 'Hit B', Type: 'Audio' },
 ];

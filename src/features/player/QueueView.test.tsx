@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { QueueView } from './QueueView';
 import { setPlayContext } from './playContext';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 // Render IonModal children inline (jsdom can't run its framework delegate).
 vi.mock('@ionic/react', async (importOriginal) => {
@@ -17,7 +17,7 @@ vi.mock('@ionic/react', async (importOriginal) => {
   };
 });
 
-const queue: JellyfinItem[] = [
+const queue: MediaItem[] = [
   { Id: 'a', Name: 'Queue A', Type: 'Audio' },
   { Id: 'b', Name: 'Queue B', Type: 'Audio' },
 ];

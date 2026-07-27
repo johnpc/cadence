@@ -7,7 +7,7 @@ import { TopResult } from './TopResult';
 import { previewGroups, topResult, type SearchGroups } from './searchGroups';
 import type { RecentItem } from './recentSearchStore';
 import type { SearchFilter } from './SearchFilters';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The grouped Songs / Albums / Artists / Playlists sections, narrowed by the
  * active filter, with a featured Top result under "All". Records taps. */
@@ -32,14 +32,14 @@ export function SearchResults({
   const shown = previewGroups(groups, isAll);
   // prefetch() seeds the detail header synchronously from the result we already
   // hold, so the target page paints its header instantly instead of blank.
-  const go = (item: JellyfinItem, path: string) => {
+  const go = (item: MediaItem, path: string) => {
     onPick(item);
     prefetch(item);
     history.push(path);
   };
-  const goAlbum = (a: JellyfinItem) => go(a, `/album/${a.Id}`);
-  const goArtist = (a: JellyfinItem) => go(a, `/artist/${a.Id}`);
-  const goPlaylist = (p: JellyfinItem) => go(p, `/playlist/${p.Id}`);
+  const goAlbum = (a: MediaItem) => go(a, `/album/${a.Id}`);
+  const goArtist = (a: MediaItem) => go(a, `/artist/${a.Id}`);
+  const goPlaylist = (p: MediaItem) => go(p, `/playlist/${p.Id}`);
   return (
     <div data-testid="search-results">
       {hero && <TopResult item={hero} onPick={onPick} />}

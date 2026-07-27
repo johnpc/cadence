@@ -16,17 +16,17 @@ import { getFavoriteArtists } from '../../lib/jellyfinArtists';
 import { getPlaylists } from '../../lib/jellyfinPlaylists';
 import { Library } from './Library';
 import { renderWithProviders } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const song: JellyfinItem = { Id: 'l1', Name: 'Liked One', Type: 'Audio', Artists: ['A'] };
-const playlist: JellyfinItem = { Id: 'p1', Name: 'Road Trip', Type: 'Playlist' };
-const album: JellyfinItem = {
+const song: MediaItem = { Id: 'l1', Name: 'Liked One', Type: 'Audio', Artists: ['A'] };
+const playlist: MediaItem = { Id: 'p1', Name: 'Road Trip', Type: 'Playlist' };
+const album: MediaItem = {
   Id: 'a1',
   Name: 'OK Computer',
   Type: 'MusicAlbum',
   AlbumArtist: 'RH',
 };
-const artist: JellyfinItem = { Id: 'ar1', Name: 'Radiohead', Type: 'MusicArtist' };
+const artist: MediaItem = { Id: 'ar1', Name: 'Radiohead', Type: 'MusicArtist' };
 
 describe('Library', () => {
   beforeEach(() => {

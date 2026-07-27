@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { imageUrl } from '../../lib/jellyfinStream';
 import { useDominantColor } from './useDominantColor';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './gradientHeader.css';
 
 /** Wraps a detail-page header in a Spotify-style ambient gradient sampled from
@@ -11,7 +11,7 @@ export function GradientHeader({
   item,
   children,
 }: {
-  item: JellyfinItem | null;
+  item: MediaItem | null;
   children: ReactNode;
 }) {
   const src = item ? imageUrl(item, 64) : null;

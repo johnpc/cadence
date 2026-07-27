@@ -4,7 +4,7 @@ import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import { SAVED_ALBUMS_KEY, FOLLOWED_ARTISTS_KEY } from './libraryApi';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * Save/unsave a collection (album or artist) to the library — Jellyfin
@@ -12,7 +12,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * Seeds from UserData.IsFavorite, flips optimistically, invalidates the
  * saved-albums list. On failure it rolls back AND toasts (no silent revert).
  */
-export function useSaveToggle(item: JellyfinItem | null) {
+export function useSaveToggle(item: MediaItem | null) {
   const queryClient = useQueryClient();
   const toast = useToast();
   const [saved, setSaved] = useState(!!item?.UserData?.IsFavorite);

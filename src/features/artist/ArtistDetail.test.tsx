@@ -23,10 +23,10 @@ import { getArtistAlbums, getArtistTopTracks, getArtistsByIds } from '../../lib/
 import { ArtistDetail } from './ArtistDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const artist: JellyfinItem = { Id: 'ar', Name: 'The Artist', Type: 'MusicArtist' };
-const albums: JellyfinItem[] = [
+const artist: MediaItem = { Id: 'ar', Name: 'The Artist', Type: 'MusicArtist' };
+const albums: MediaItem[] = [
   { Id: 'al1', Name: 'First Album', Type: 'MusicAlbum', ProductionYear: 2019 },
   { Id: 'al2', Name: 'Second Album', Type: 'MusicAlbum' },
 ];

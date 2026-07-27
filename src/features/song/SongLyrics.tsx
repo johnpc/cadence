@@ -1,14 +1,14 @@
 import { LoadState } from '../../components/LoadState';
 import { useLyrics } from '../player/useLyrics';
 import { usePlayer } from '../player/usePlayer';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './songLyrics.css';
 
 /** The song's lyrics on its detail page — read them without playing (Spotify
  * shows lyrics on the track page too). Synced (LRC) lines are tappable: tapping
  * one plays the track from that timestamp. Renders nothing when the track has no
  * lyrics, so a song without them doesn't show an empty section. */
-export function SongLyrics({ song }: { song: JellyfinItem }) {
+export function SongLyrics({ song }: { song: MediaItem }) {
   const { lines, isLoading, isError, refetch } = useLyrics(song.Id, true);
   const { playQueue, seek } = usePlayer();
   // Nothing to show and not loading/erroring → omit the section entirely.

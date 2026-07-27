@@ -12,10 +12,10 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
 import { getInstantMix } from '../../lib/jellyfinItems';
 import { addToPlaylist } from '../../lib/jellyfinPlaylists';
 import { RecommendedSongs } from './RecommendedSongs';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const rec = (id: string): JellyfinItem => ({ Id: id, Name: `Rec ${id}`, Type: 'Audio' });
-const existing: JellyfinItem[] = [{ Id: 'have', Name: 'Have it', Type: 'Audio' }];
+const rec = (id: string): MediaItem => ({ Id: id, Name: `Rec ${id}`, Type: 'Audio' });
+const existing: MediaItem[] = [{ Id: 'have', Name: 'Have it', Type: 'Audio' }];
 
 function renderRecs() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });

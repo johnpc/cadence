@@ -1,6 +1,6 @@
 import * as q from './queue';
 import type { usePlayerQueue } from './usePlayerQueue';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import type { PlayerContextValue } from './types';
 import type { SleepMode } from './useSleepTimer';
 
@@ -10,7 +10,7 @@ type QueueHook = ReturnType<typeof usePlayerQueue>;
  * transport bits. Pure mapping, kept out of the provider for the line gate. */
 export function buildPlayerValue(
   qh: QueueHook,
-  current: JellyfinItem | null,
+  current: MediaItem | null,
   transport: {
     isPlaying: boolean;
     waiting: boolean;

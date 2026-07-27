@@ -3,7 +3,7 @@ import { setLogContext, log } from '../../lib/diagnostics/diagnosticsStore';
 import { isIos } from '../../lib/platform';
 import { useAuth } from '../auth/useAuth';
 import { artistLine } from './playerFormat';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The current in-app route for diagnostics. Read from the URL directly (NOT
  * react-router's useLocation) because PlayerProvider mounts OUTSIDE the Router in
@@ -20,7 +20,7 @@ function currentPage(): string {
  * the platform, and the current track (title/artist/id). Without this the logs are
  * bare categories that can't be correlated. Also emits a 'track-change' event with
  * full metadata when the song changes. */
-export function useDiagnosticsContext(current: JellyfinItem | null): void {
+export function useDiagnosticsContext(current: MediaItem | null): void {
   const { username } = useAuth();
   const id = current?.Id;
   useEffect(() => {

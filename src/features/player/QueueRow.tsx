@@ -2,7 +2,7 @@ import { IonIcon, IonReorder } from '@ionic/react';
 import { arrowUp, arrowDown, closeOutline, reorderThreeOutline } from 'ionicons/icons';
 import { artistLine } from './playerFormat';
 import { TrackArt } from './TrackArt';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** One row of the Up Next queue: a drag handle (Spotify-style reorder),
  * jump-to-play, up/down buttons (accessible fallback), and remove. Reorder
@@ -17,7 +17,7 @@ export function QueueRow({
   onMove,
   onRemove,
 }: {
-  track: JellyfinItem;
+  track: MediaItem;
   index: number;
   isCurrent: boolean;
   isFirst: boolean;

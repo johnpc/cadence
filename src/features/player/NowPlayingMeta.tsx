@@ -3,7 +3,7 @@ import { tv } from 'ionicons/icons';
 import { TrackArt } from './TrackArt';
 import { artistLine } from './playerFormat';
 import { useSwipeUp } from './useSwipeUp';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The mini-player's tappable art + title + subtitle. The subtitle shows the
  * artist, or a "casting to <device>" pill when a cast session is active. Tap —
@@ -14,7 +14,7 @@ export function NowPlayingMeta({
   deviceName,
   onOpen,
 }: {
-  track: JellyfinItem;
+  track: MediaItem;
   casting: boolean;
   deviceName: string;
   onOpen: () => void;

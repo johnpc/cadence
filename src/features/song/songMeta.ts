@@ -1,9 +1,9 @@
 import { trackDuration } from '../player/playerFormat';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** The "1985 · 3:45" meta line under a song title: release year (when known)
  * then duration, joined with a middle dot. Empty when neither is known. */
-export function songMetaLine(song: JellyfinItem | null): string {
+export function songMetaLine(song: MediaItem | null): string {
   if (!song) return '';
   const parts: string[] = [];
   if (song.ProductionYear) parts.push(String(song.ProductionYear));

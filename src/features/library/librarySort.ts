@@ -4,7 +4,7 @@ import {
   type LibraryFilter,
   type LibraryRow,
 } from './libraryRows';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** How the library list is ordered. 'recents' (the default) bubbles recently-
  * played items to the top; 'alpha' sorts by name. */
@@ -15,9 +15,9 @@ export type LibrarySort = 'recents' | 'alpha';
 export function composeLibraryRows(
   filter: LibraryFilter,
   data: {
-    playlists: JellyfinItem[];
-    albums: JellyfinItem[];
-    artists: JellyfinItem[];
+    playlists: MediaItem[];
+    albums: MediaItem[];
+    artists: MediaItem[];
     likedCount: number;
     downloadsCount: number;
   },

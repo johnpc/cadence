@@ -1,13 +1,13 @@
 import { IonIcon, IonSpinner } from '@ionic/react';
 import { arrowDownCircleOutline, checkmarkCircle, ellipseOutline } from 'ionicons/icons';
 import { useDownloadCollection } from './useDownloadCollection';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 import './downloadButton.css';
 
 /** Download (or remove) a whole collection — album, playlist, likes — in one
  * tap. Outline arrow when none/partial, a spinner with a live count while
  * downloading, a filled check once every track is saved (tap then removes all). */
-export function DownloadCollectionButton({ tracks }: { tracks: JellyfinItem[] }) {
+export function DownloadCollectionButton({ tracks }: { tracks: MediaItem[] }) {
   const { state, progress, busy, downloadAll, removeAll } = useDownloadCollection(tracks);
   if (tracks.length === 0) return null;
   const downloaded = state === 'downloaded';

@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ArtistAlbums } from './ArtistAlbums';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const album = (over: Partial<JellyfinItem>): JellyfinItem =>
-  ({ Id: over.Id ?? 'x', Name: over.Name ?? 'x', Type: 'MusicAlbum', ...over }) as JellyfinItem;
+const album = (over: Partial<MediaItem>): MediaItem =>
+  ({ Id: over.Id ?? 'x', Name: over.Name ?? 'x', Type: 'MusicAlbum', ...over }) as MediaItem;
 
 function renderAlbums(props: Partial<Parameters<typeof ArtistAlbums>[0]> = {}) {
   return render(

@@ -7,9 +7,9 @@ import { AlbumTracks } from './AlbumTracks';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
 import type { PlayerContextValue } from '../player/types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const t = (id: string, name: string, disc?: number): JellyfinItem => ({
+const t = (id: string, name: string, disc?: number): MediaItem => ({
   Id: id,
   Name: name,
   Type: 'Audio',
@@ -17,7 +17,7 @@ const t = (id: string, name: string, disc?: number): JellyfinItem => ({
   IndexNumber: 1,
 });
 
-function renderTracks(tracks: JellyfinItem[], player: PlayerContextValue = stubPlayer()) {
+function renderTracks(tracks: MediaItem[], player: PlayerContextValue = stubPlayer()) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>

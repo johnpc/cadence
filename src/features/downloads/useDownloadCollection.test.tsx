@@ -17,16 +17,16 @@ import { downloadTrack, removeDownload } from './downloadStore';
 import { indexedIds } from './downloadIndex';
 import { useDownloadCollection } from './useDownloadCollection';
 import { ToastContext } from '../toast/ToastContext';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 const toast = vi.fn();
 const wrapper = ({ children }: { children: ReactNode }) => (
   <ToastContext.Provider value={toast}>{children}</ToastContext.Provider>
 );
-const tracks: JellyfinItem[] = [
-  { Id: 'a', Name: 'A' } as JellyfinItem,
-  { Id: 'b', Name: 'B' } as JellyfinItem,
-  { Id: 'c', Name: 'C' } as JellyfinItem,
+const tracks: MediaItem[] = [
+  { Id: 'a', Name: 'A' } as MediaItem,
+  { Id: 'b', Name: 'B' } as MediaItem,
+  { Id: 'c', Name: 'C' } as MediaItem,
 ];
 
 describe('useDownloadCollection', () => {
@@ -63,7 +63,7 @@ describe('useDownloadCollection', () => {
   });
 
   it('reports a partial count when some downloads fail', async () => {
-    vi.mocked(downloadTrack).mockImplementation((t: JellyfinItem) =>
+    vi.mocked(downloadTrack).mockImplementation((t: MediaItem) =>
       t.Id === 'b' ? Promise.reject(new Error('nope')) : Promise.resolve(),
     );
     const { result } = renderHook(() => useDownloadCollection(tracks), { wrapper });

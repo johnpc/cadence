@@ -6,9 +6,9 @@ import { TopResult } from './TopResult';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';
 import type { PlayerContextValue } from '../player/types';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-function renderTop(item: JellyfinItem, player: PlayerContextValue = stubPlayer()) {
+function renderTop(item: MediaItem, player: PlayerContextValue = stubPlayer()) {
   return render(
     <PlayerContext.Provider value={player}>
       <MemoryRouter initialEntries={['/search']}>
@@ -25,7 +25,7 @@ function renderTop(item: JellyfinItem, player: PlayerContextValue = stubPlayer()
 describe('TopResult', () => {
   it('plays a song top result', async () => {
     const playQueue = vi.fn();
-    const song: JellyfinItem = { Id: 's', Name: 'Hit', Type: 'Audio', Artists: ['A'] };
+    const song: MediaItem = { Id: 's', Name: 'Hit', Type: 'Audio', Artists: ['A'] };
     renderTop(song, stubPlayer({ playQueue }));
     expect(screen.getByText('Hit')).toBeInTheDocument();
     await userEvent.click(screen.getByTestId('top-result'));

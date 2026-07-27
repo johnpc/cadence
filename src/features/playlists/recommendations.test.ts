@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { selectRecommendations, REC_VISIBLE } from './recommendations';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const t = (id: string): JellyfinItem => ({ Id: id, Name: `Track ${id}`, Type: 'Audio' });
+const t = (id: string): MediaItem => ({ Id: id, Name: `Track ${id}`, Type: 'Audio' });
 
 describe('selectRecommendations', () => {
   it('excludes tracks already in the playlist and dismissed/added ones', () => {
@@ -23,7 +23,7 @@ describe('selectRecommendations', () => {
 
   it('skips candidates without an id', () => {
     const out = selectRecommendations(
-      [{ Name: 'no id', Type: 'Audio' } as JellyfinItem, t('a')],
+      [{ Name: 'no id', Type: 'Audio' } as MediaItem, t('a')],
       new Set(),
       new Set(),
     );

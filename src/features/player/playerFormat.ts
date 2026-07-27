@@ -1,4 +1,4 @@
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /** Format seconds as m:ss (e.g. 75 → "1:15"). Negatives/NaN clamp to "0:00". */
 export function formatTime(seconds: number): string {
@@ -10,7 +10,7 @@ export function formatTime(seconds: number): string {
 }
 
 /** The artist line under a track title (joined artists, or the album artist). */
-export function artistLine(item: JellyfinItem | null): string {
+export function artistLine(item: MediaItem | null): string {
   if (!item) return '';
   if (item.Artists?.length) return item.Artists.join(', ');
   return item.AlbumArtist ?? '';
@@ -33,7 +33,7 @@ export function durationWords(totalMinutes: number): string {
 
 /** A collection summary like "12 songs • 48 min" or "463 songs • 27 hr 4 min"
  * (duration dropped when unknown). */
-export function collectionSummary(tracks: JellyfinItem[]): string {
+export function collectionSummary(tracks: MediaItem[]): string {
   const count = tracks.length;
   const label = `${count} ${count === 1 ? 'song' : 'songs'}`;
   const ticks = tracks.reduce((sum, t) => sum + (t.RunTimeTicks ?? 0), 0);

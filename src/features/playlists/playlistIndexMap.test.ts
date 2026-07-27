@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { buildPlaylistIndex, reorderProps, removeHandler } from './playlistIndexMap';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
-const t = (id: string): JellyfinItem => ({ Id: id, Name: id, Type: 'Audio' });
+const t = (id: string): MediaItem => ({ Id: id, Name: id, Type: 'Audio' });
 
 describe('buildPlaylistIndex', () => {
   it('maps each track to its position in the full playlist', () => {

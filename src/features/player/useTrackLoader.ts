@@ -4,7 +4,7 @@ import { getCastState, onCastStateChange } from '../cast/castStore';
 import { castTrack } from '../cast/castController';
 import { startPlayback, resolveTrackSrc } from './startPlayback';
 import { getSession, onSessionChange } from '../../lib/sessionStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { MediaItem } from '../../lib/navidromeTypes';
 
 /**
  * Points the audio element at the current track and plays on change. A track
@@ -22,7 +22,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  */
 export function useTrackLoader(
   ref: RefObject<HTMLAudioElement | null>,
-  current?: JellyfinItem,
+  current?: MediaItem,
   /** Bumped by the error handler to force a re-derive + retry of the same track. */
   reloadNonce = 0,
 ): void {
