@@ -8,10 +8,6 @@ import {
   IonToolbar,
 } from '@ionic/react';
 import { useHistory as useRouterHistory } from 'react-router-dom';
-import { LoadState } from '../../components/LoadState';
-import { TrackListSkeleton } from '../../components/Skeleton';
-import { TrackRow } from '../player/TrackRow';
-import { CollectionActions } from '../player/CollectionActions';
 import { CardShelf } from './CardShelf';
 import { useRecentlyPlayed } from './homeApi';
 import { useJumpBackIn } from './useJumpBackIn';
@@ -20,11 +16,12 @@ import { detailPath } from './itemPath';
 import './history.css';
 
 /** The full "Recently played" history: the albums/playlists/artists you've
- * played (mixed collections, from the local recent-plays store) as a card shelf,
- * then the full scrollable track history (server DatePlayed). Home shows only a
- * preview of each; this page reaches further and unifies both types. */
+ * played (mixed collections, from the local recent-plays store), then the
+ * server-tracked recently-played ALBUMS (Navidrome tracks "recent" at album
+ * grain, not per-song). Home shows only a preview of each; this page reaches
+ * further and unifies both. */
 export function History() {
-  const { songs, isLoading, isError, refetch } = useRecentlyPlayed(100);
+  const { albums, isLoading, isError, refetch } = useRecentlyPlayed(100);
   const collections = useJumpBackIn();
   const playItem = usePlayItem();
   const router = useRouterHistory();
@@ -50,25 +47,13 @@ export function History() {
               onPlay={(item) => void playItem(item)}
             />
           )}
-          <h2 className="cad-kicker history__songs" data-testid="history-songs-title">
-            Songs
-          </h2>
-          <LoadState
-            isLoading={isLoading}
-            isError={isError}
-            onRetry={() => void refetch()}
-            isEmpty={songs.length === 0}
-            emptyTitle="Nothing played yet"
-            emptyMessage="Songs you play will show up here."
-            skeleton={<TrackListSkeleton />}
-          >
-            <>
-              <CollectionActions tracks={songs} />
-              {songs.map((track, index) => (
-                <TrackRow key={track.Id} track={track} queue={songs} index={index} />
-              ))}
-            </>
-          </LoadState>
+          <CardShelf
+            title="Albums"
+            items={albums}
+            state={{ isLoading, isError, refetch }}
+            onOpen={(item) => router.push(`/album/${item.Id}`)}
+            onPlay={(item) => void playItem(item)}
+          />
         </div>
       </IonContent>
     </IonPage>

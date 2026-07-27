@@ -22,7 +22,7 @@ export function isLibraryInaccessible(shelves: Shelves): boolean {
     shelves.albums.albums.length +
     shelves.suggested.songs.length +
     shelves.saved.albums.length +
-    shelves.recent.songs.length +
+    shelves.recent.albums.length +
     shelves.artists.artists.length +
     shelves.jumpBackIn.items.length;
   return counts === 0;

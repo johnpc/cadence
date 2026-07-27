@@ -50,7 +50,7 @@ export function Home() {
           <div className="home__no-access" data-testid="home-no-access">
             <p className="home__no-access-title cad-headline-sm">No music to show</p>
             <p className="cad-meta">
-              You&apos;re signed in, but this account can&apos;t see any music. Ask your Jellyfin
+              You&apos;re signed in, but this account can&apos;t see any music. Ask your Navidrome
               admin to grant it access to the music library.
             </p>
           </div>

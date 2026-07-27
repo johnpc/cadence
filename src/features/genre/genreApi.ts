@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getGenreTracks } from '../../lib/jellyfinGenres';
+import { getGenreTracks } from '../../lib/navidromeGenres';
 
 /** The tracks for a genre page, most-played first. */
 export function useGenreTracks(genre: string) {

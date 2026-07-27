@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinGenres', () => ({ getGenreTracks: vi.fn() }));
-import { getGenreTracks } from '../../lib/jellyfinGenres';
+vi.mock('../../lib/navidromeGenres', () => ({ getGenreTracks: vi.fn() }));
+import { getGenreTracks } from '../../lib/navidromeGenres';
 import { GenreDetail } from './GenreDetail';
 import { PlayerContext } from '../player/PlayerContext';
 import { stubPlayer } from '../../test/renderWithProviders';

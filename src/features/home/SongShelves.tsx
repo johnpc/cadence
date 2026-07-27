@@ -3,37 +3,25 @@ import { CardShelf } from './CardShelf';
 import { usePlayer } from '../player/usePlayer';
 import type { useHomeShelves } from './useHomeShelves';
 
-type Shelf = { songs: import('../../lib/navidromeTypes').MediaItem[] } & {
-  isLoading: boolean;
-  isError: boolean;
-  refetch: () => void;
-};
-
-/** The song-list Home shelves (Recently played, On repeat, Suggested) — each
- * opens a song's page on tap and plays the whole shelf from the tapped track via
- * playQueue. Grouped out of HomeShelves so that page stays a thin composition of
- * shelves under the line limit; they all share the same song-shelf shape. */
+/** The song-list Home shelves ("Suggested for you" — the only remaining
+ * song-grained shelf; "Recently played"/"On repeat" moved to album shelves
+ * in HomeShelves.tsx, since Navidrome tracks those at album grain) — opens a
+ * song's page on tap and plays the whole shelf from the tapped track via
+ * playQueue. Kept in its own file so HomeShelves.tsx stays a thin composition
+ * of shelves under the line limit. */
 export function SongShelves({ shelves }: { shelves: ReturnType<typeof useHomeShelves> }) {
-  const { recent, onRepeat, suggested } = shelves;
+  const { suggested } = shelves;
   const { playQueue } = usePlayer();
   const history = useHistory();
   const openSong = (item: { Id: string }) => history.push(`/song/${item.Id}`);
-  const songShelf = (title: string, s: Shelf, seeAllHref?: string, hideWhenEmpty?: boolean) => (
-    <CardShelf
-      title={title}
-      items={s.songs}
-      state={s}
-      seeAllHref={seeAllHref}
-      hideWhenEmpty={hideWhenEmpty}
-      onOpen={openSong}
-      onPlay={(_i, index) => playQueue(s.songs, index)}
-    />
-  );
   return (
-    <>
-      {recent.songs.length > 0 && songShelf('Recently played', recent, '/history')}
-      {onRepeat.songs.length > 0 && songShelf('On repeat', onRepeat)}
-      {songShelf('Suggested for you', suggested, undefined, true)}
-    </>
+    <CardShelf
+      title="Suggested for you"
+      items={suggested.songs}
+      state={suggested}
+      hideWhenEmpty
+      onOpen={openSong}
+      onPlay={(_i, index) => playQueue(suggested.songs, index)}
+    />
   );
 }

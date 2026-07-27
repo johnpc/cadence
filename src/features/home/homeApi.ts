@@ -4,7 +4,7 @@ import {
   getSuggestedSongs,
   getRecentlyPlayed,
   getOnRepeat,
-} from '../../lib/jellyfinDiscover';
+} from '../../lib/navidromeDiscover';
 import { getPublicPlaylists } from '../../lib/navidromePlaylists';
 import { getCachedShelf, fetchAndCacheShelf } from './homeShelfCache';
 
@@ -56,8 +56,9 @@ export function useSuggestedSongs() {
   return { songs: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
-/** Recently-played songs. `limit` lets the full history page ask for more than
- * the Home shelf's 20. Only the default (20) shelf seeds from disk. */
+/** Recently-played ALBUMS (Navidrome tracks "recent" at album grain, not per
+ * song). `limit` lets the full history page ask for more than the Home
+ * shelf's 20. Only the default (20) shelf seeds from disk. */
 export function useRecentlyPlayed(limit = 20) {
   const q = useQuery({
     queryKey: ['home', 'recently-played', limit],
@@ -68,10 +69,10 @@ export function useRecentlyPlayed(limit = 20) {
     staleTime: 30_000,
     ...(limit === 20 ? seeded('recently-played') : {}),
   });
-  return { songs: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
+  return { albums: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
-/** Your most-played tracks ("On repeat" shelf). Seeded from disk like the others. */
+/** Your most-played ALBUMS ("On repeat" shelf). Seeded from disk like the others. */
 export function useOnRepeat() {
   const q = useQuery({
     queryKey: ['home', 'on-repeat'],
@@ -79,5 +80,5 @@ export function useOnRepeat() {
     staleTime: 5 * 60_000,
     ...seeded('on-repeat'),
   });
-  return { songs: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
+  return { albums: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }

@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/jellyfinDiscover', () => ({
+vi.mock('../../lib/navidromeDiscover', () => ({
   getLatestAlbums: vi.fn(),
   getSuggestedSongs: vi.fn(),
   getRecentlyPlayed: vi.fn().mockResolvedValue([]),
@@ -21,7 +21,7 @@ import {
   getSuggestedSongs,
   getRecentlyPlayed,
   getOnRepeat,
-} from '../../lib/jellyfinDiscover';
+} from '../../lib/navidromeDiscover';
 import { getFavoriteAlbums } from '../../lib/navidromeItems';
 import { getFavoriteArtists } from '../../lib/navidromeArtists';
 import { getPublicPlaylists } from '../../lib/navidromePlaylists';
@@ -55,14 +55,14 @@ describe('Home', () => {
     expect(screen.getByText('Suggested Song')).toBeInTheDocument();
   });
 
-  it('shows an On repeat shelf from your most-played tracks', async () => {
-    const onRepeat: MediaItem = { Id: 'r', Name: 'Looped Song', Type: 'Audio', Artists: ['C'] };
+  it('shows an On repeat shelf from your most-played albums', async () => {
+    const onRepeat: MediaItem = { Id: 'r', Name: 'Looped Album', Type: 'MusicAlbum' };
     vi.mocked(getLatestAlbums).mockResolvedValue([]);
     vi.mocked(getSuggestedSongs).mockResolvedValue([]);
     vi.mocked(getOnRepeat).mockResolvedValue([onRepeat]);
     renderWithProviders(<Home />);
     await waitFor(() => expect(screen.getByText('On repeat')).toBeInTheDocument());
-    expect(screen.getByText('Looped Song')).toBeInTheDocument();
+    expect(screen.getByText('Looped Album')).toBeInTheDocument();
   });
 
   it('shows a From your library shelf when albums are saved', async () => {
@@ -98,10 +98,10 @@ describe('Home', () => {
     expect(screen.getByText('Radiohead')).toBeInTheDocument();
   });
 
-  it('shows a Recently played shelf with a Show all link to the history page', async () => {
+  it('shows a Recently played (albums) shelf with a Show all link to the history page', async () => {
     vi.mocked(getLatestAlbums).mockResolvedValue([]);
     vi.mocked(getSuggestedSongs).mockResolvedValue([]);
-    vi.mocked(getRecentlyPlayed).mockResolvedValue([song]);
+    vi.mocked(getRecentlyPlayed).mockResolvedValue([album]);
     renderWithProviders(<Home />);
     await waitFor(() => expect(screen.getByText('Recently played')).toBeInTheDocument());
     const seeAll = screen.getByTestId('shelf-see-all');
@@ -125,6 +125,7 @@ describe('Home', () => {
     vi.mocked(getLatestAlbums).mockResolvedValue([]);
     vi.mocked(getSuggestedSongs).mockResolvedValue([]);
     vi.mocked(getRecentlyPlayed).mockResolvedValue([]);
+    vi.mocked(getOnRepeat).mockResolvedValue([]);
     vi.mocked(getFavoriteAlbums).mockResolvedValue([]);
     vi.mocked(getFavoriteArtists).mockResolvedValue([]);
     renderWithProviders(<Home />);

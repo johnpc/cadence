@@ -11,7 +11,7 @@ function shelves(overrides: Partial<Record<string, unknown>> = {}): Shelves {
     albums: { ...empty, albums: [] },
     suggested: { ...empty, songs: [] },
     saved: { ...empty, albums: [] },
-    recent: { ...empty, songs: [] },
+    recent: { ...empty, albums: [] },
     artists: { ...empty, artists: [] },
     jumpBackIn: { ...empty, items: [] },
     ...overrides,

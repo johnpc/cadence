@@ -1,6 +1,7 @@
 import { useHistory } from 'react-router-dom';
 import { CardShelf } from './CardShelf';
 import { DailyMixShelf } from './DailyMixShelf';
+import { RecentAlbumShelves } from './RecentAlbumShelves';
 import { SongShelves } from './SongShelves';
 import { useHomeShelves } from './useHomeShelves';
 export { useHomeShelves } from './useHomeShelves';
@@ -40,7 +41,8 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
         onPrefetch={prefetch}
         hideWhenEmpty
       />
-      <DailyMixShelf artists={artists.artists} recentTracks={recent.songs} />
+      <DailyMixShelf artists={artists.artists} recentTracks={recent.albums} />
+      <RecentAlbumShelves shelves={shelves} />
       <SongShelves shelves={shelves} />
       {artists.artists.length > 0 && (
         <CardShelf
