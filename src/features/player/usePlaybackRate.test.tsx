@@ -28,7 +28,7 @@ describe('usePlaybackRate', () => {
 
   it('ignores an unsupported rate (falls back to 1×)', () => {
     const { result } = renderHook(() => usePlaybackRate(audioRef(), 't1'));
-    act(() => result.current.setRate(3));
+    act(() => result.current.setRate(4));
     expect(result.current.rate).toBe(1);
   });
 

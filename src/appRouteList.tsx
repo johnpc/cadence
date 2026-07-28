@@ -26,6 +26,9 @@ export function appRouteList() {
     <Route exact path="/downloads" key="downloads">
       <L.DownloadsPage />
     </Route>,
+    <Route exact path="/audiobooks" key="audiobooks">
+      <L.AudiobooksPage />
+    </Route>,
     <Route exact path="/settings" key="settings">
       <L.Settings />
     </Route>,

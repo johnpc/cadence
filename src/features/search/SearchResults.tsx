@@ -1,8 +1,8 @@
 import { useHistory } from 'react-router-dom';
-import { TrackRow } from '../player/TrackRow';
 import { artistLine } from '../player/playerFormat';
 import { usePrefetchItem } from '../home/usePrefetchItem';
 import { ResultRow } from './ResultRow';
+import { TrackSection } from './TrackSection';
 import { TopResult } from './TopResult';
 import { previewGroups, topResult, type SearchGroups } from './searchGroups';
 import type { RecentItem } from './recentSearchStore';
@@ -43,14 +43,7 @@ export function SearchResults({
   return (
     <div data-testid="search-results">
       {hero && <TopResult item={hero} onPick={onPick} />}
-      {show('songs') && shown.songs.length > 0 && (
-        <section>
-          <h2 className="cad-kicker search__section">Songs</h2>
-          {shown.songs.map((t, i) => (
-            <TrackRow key={t.Id} track={t} queue={shown.songs} index={i} onPlay={() => onPick(t)} />
-          ))}
-        </section>
-      )}
+      <TrackSection show={show('songs')} title="Songs" items={shown.songs} onPick={onPick} />
       {show('albums') && shown.albums.length > 0 && (
         <section data-testid="search-albums">
           <h2 className="cad-kicker search__section">Albums</h2>
@@ -75,6 +68,13 @@ export function SearchResults({
           ))}
         </section>
       )}
+      <TrackSection
+        show={show('audiobooks')}
+        title="Audiobooks"
+        testId="search-audiobooks"
+        items={shown.audiobooks}
+        onPick={onPick}
+      />
     </div>
   );
 }

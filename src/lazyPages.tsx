@@ -34,6 +34,10 @@ export const DownloadsPage = lazyPage(
   () => import('./features/downloads/DownloadsPage'),
   'DownloadsPage',
 );
+export const AudiobooksPage = lazyPage(
+  () => import('./features/audiobook/AudiobooksPage'),
+  'AudiobooksPage',
+);
 export const PlaylistDetail = lazyPage(
   () => import('./features/playlists/PlaylistDetail'),
   'PlaylistDetail',

@@ -12,7 +12,7 @@ import { usePlaybackRate } from './usePlaybackRate';
 import { usePlaybackControls } from './usePlaybackControls';
 import { usePlayerSideEffects } from './usePlayerSideEffects';
 import { usePlayerValue } from './usePlayerValue';
-import { useTrackLoader } from './useTrackLoader';
+import { useTrackPlayback } from './useTrackPlayback';
 import { useTrackReload } from './useTrackReload';
 import { useToast } from '../toast/useToast';
 import { useEffectiveProgress } from '../cast/useEffectiveProgress';
@@ -43,9 +43,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const { volume, setVolume, nudgeVolume, toggleMute } = useVolume(ref, currentId);
   const { rate, setRate } = usePlaybackRate(ref, currentId);
 
-  // Load the current track and play on change (restored tracks stay paused);
-  // reloadNonce forces a re-derive+retry after a load error.
-  useTrackLoader(ref, current ?? undefined, reloadNonce);
+  // Load the current track (restored tracks stay paused; reloadNonce forces a
+  // re-derive+retry after a load error) and, for audiobooks, silently resume.
+  useTrackPlayback(ref, current, reloadNonce);
 
   const hasQueue = qh.queue.tracks.length > 0;
   const { toggle, seek, seekBy, pause, resume } = usePlaybackControls(ref, hasQueue, isPlaying);

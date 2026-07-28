@@ -22,7 +22,7 @@ async function searchItems(query: string, limit: number): Promise<JellyfinItem[]
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     searchTerm: query,
-    IncludeItemTypes: 'Audio,MusicAlbum',
+    IncludeItemTypes: 'Audio,MusicAlbum,AudioBook',
     Recursive: 'true',
     Limit: String(limit),
     Fields: 'Artists,AlbumArtist,Album,AlbumId,RunTimeTicks',
