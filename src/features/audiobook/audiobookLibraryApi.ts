@@ -7,7 +7,9 @@ import { request } from '../../lib/jellyfinFetch';
 import { getSession } from '../../lib/sessionStore';
 import type { ItemsResponse, JellyfinItem } from '../../lib/jellyfinTypes';
 
-const bookFields = 'RunTimeTicks,Overview,Artists';
+// ParentId + Album + AlbumArtist + IndexNumber drive multi-file book grouping
+// (groupBooks); RunTimeTicks/Artists/Overview are for display.
+const bookFields = 'RunTimeTicks,Overview,Artists,AlbumArtist,Album,ParentId,IndexNumber';
 
 /** Every audiobook in the library, alphabetical. */
 export async function getAudiobooks(limit = 500): Promise<JellyfinItem[]> {

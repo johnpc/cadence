@@ -1,13 +1,18 @@
+import { useMemo } from 'react';
 import { LoadState } from '../../components/LoadState';
 import { TrackRow } from '../player/TrackRow';
+import { BookRow } from './BookRow';
+import { groupBooks } from './groupBooks';
 import { useAudiobookLibrary } from './useAudiobookLibrary';
 
-/** The audiobook library browse view: a "Continue listening" section (in-progress
- * books) followed by every book, each a playable row that resumes where you left
- * off (see useAudiobookResume). Books play directly — no album/track drill-in. */
+/** The audiobook library browse view: a "Continue listening" section (the exact
+ * in-progress parts, which resume where you left off — see useAudiobookResume)
+ * followed by every book, with multi-file books collapsed into a single row that
+ * plays all parts in order (groupBooks). */
 export function Audiobooks() {
   const { books, resumable, isLoading, isError, refetch } = useAudiobookLibrary();
   const ctx = { kind: 'audiobooks', label: 'Audiobooks', path: '/audiobooks' };
+  const grouped = useMemo(() => groupBooks(books), [books]);
   return (
     <LoadState
       isLoading={isLoading}
@@ -28,8 +33,8 @@ export function Audiobooks() {
         )}
         <section>
           <h2 className="cad-kicker">All audiobooks</h2>
-          {books.map((b, i) => (
-            <TrackRow key={b.Id} track={b} queue={books} index={i} context={ctx} />
+          {grouped.map((book) => (
+            <BookRow key={book.id} book={book} />
           ))}
         </section>
       </div>

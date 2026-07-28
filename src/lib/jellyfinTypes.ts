@@ -44,6 +44,9 @@ export interface JellyfinItem {
   IndexNumber?: number;
   /** Disc number within a multi-disc album (Audio items). */
   ParentIndexNumber?: number;
+  /** The item's container folder id — the fallback grouping key for multi-file
+   * audiobooks whose parts lack a shared Album tag (see groupBooks). */
+  ParentId?: string;
   /** Release year (albums). */
   ProductionYear?: number;
   /** Number of child items — e.g. track count for an album; used to classify

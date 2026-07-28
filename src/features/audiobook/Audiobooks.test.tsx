@@ -8,7 +8,7 @@ import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders'
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const book = (id: string): JellyfinItem =>
-  ({ Id: id, Name: id, Type: 'AudioBook' }) as JellyfinItem;
+  ({ Id: id, Name: id, Type: 'AudioBook', Album: id }) as JellyfinItem;
 
 const stub = (over: Partial<ReturnType<typeof useAudiobookLibrary>>) =>
   vi.mocked(useAudiobookLibrary).mockReturnValue({
@@ -33,10 +33,21 @@ describe('Audiobooks', () => {
     expect(screen.getByText('No audiobooks')).toBeInTheDocument();
   });
 
-  it('lists all books', () => {
+  it('lists all books as grouped book rows', () => {
     stub({ books: [book('Dune'), book('Sapiens')] });
     render();
-    expect(screen.getAllByTestId('track-row')).toHaveLength(2);
+    expect(screen.getAllByTestId('book-row')).toHaveLength(2);
+  });
+
+  it('collapses a multi-file book into a single row', () => {
+    const parts = [
+      { Id: 'p1', Name: 'Ch 1', Type: 'AudioBook', Album: 'Meditations', IndexNumber: 1 },
+      { Id: 'p2', Name: 'Ch 2', Type: 'AudioBook', Album: 'Meditations', IndexNumber: 2 },
+    ] as JellyfinItem[];
+    stub({ books: parts });
+    render();
+    expect(screen.getAllByTestId('book-row')).toHaveLength(1);
+    expect(screen.getByText(/2 parts/)).toBeInTheDocument();
   });
 
   it('shows a Continue listening section when there are resumable books', () => {
