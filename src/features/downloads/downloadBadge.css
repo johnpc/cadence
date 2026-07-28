@@ -1,0 +1,41 @@
+.dl-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+}
+
+/* Downloaded: solid accent check/arrow glyph. */
+.dl-badge--done {
+  color: var(--cad-accent);
+  font-size: 18px;
+}
+
+/* Downloading: a conic-gradient ring that fills with `--frac` (0..1), with the
+   integer percentage centred inside. Uses a mask so the centre stays hollow. */
+.dl-badge--progress {
+  position: relative;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--cad-accent) calc(var(--frac, 0) * 360deg),
+    var(--cad-hairline) 0
+  );
+}
+
+.dl-badge--progress::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: var(--cad-surface);
+}
+
+.dl-badge__pct {
+  position: relative;
+  font-size: 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--cad-text-secondary);
+}

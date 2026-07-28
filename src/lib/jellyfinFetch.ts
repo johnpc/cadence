@@ -9,6 +9,7 @@
 import { apiUrl, embyAuthHeader } from './jellyfinConfig';
 import { getSession } from './sessionStore';
 import { notifySessionExpired } from './sessionExpiry';
+import { markReachable, markUnreachable } from './reachabilityStore';
 import { Unauthenticated, RequestTimeout, HttpError, REQUEST_TIMEOUT_MS } from './jellyfinErrors';
 
 export { Unauthenticated, RequestTimeout, HttpError } from './jellyfinErrors';
@@ -39,11 +40,17 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
       signal: controller.signal,
     });
   } catch (err) {
+    // Reached no response: either a timeout or a network error → we're offline.
+    markUnreachable();
     if (err instanceof DOMException && err.name === 'AbortError') throw new RequestTimeout();
     throw err;
   } finally {
     clearTimeout(timer);
   }
+
+  // Got a response (ANY status, incl. 401/404) → the server is reachable. This
+  // is what flips the app from offline-first `pending` to confirmed `online`.
+  markReachable();
 
   if (res.status === 401) {
     // Tell the auth layer the token was rejected so it can re-validate / sign

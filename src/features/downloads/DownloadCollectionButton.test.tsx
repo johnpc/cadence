@@ -12,7 +12,7 @@ const tracks = [{ Id: 'a', Name: 'A' }] as JellyfinItem[];
 const stub = (over: Partial<ReturnType<typeof useDownloadCollection>>) =>
   vi.mocked(useDownloadCollection).mockReturnValue({
     state: 'none',
-    progress: { done: 0, total: 1 },
+    progress: { done: 0, total: 1, fraction: 0 },
     busy: false,
     downloadAll: vi.fn(),
     removeAll: vi.fn(),
@@ -38,10 +38,10 @@ describe('DownloadCollectionButton', () => {
     expect(downloadAll).toHaveBeenCalledOnce();
   });
 
-  it('shows a live count while downloading', () => {
-    stub({ state: 'downloading', busy: true, progress: { done: 2, total: 5 } });
+  it('shows a live percentage while downloading', () => {
+    stub({ state: 'downloading', busy: true, progress: { done: 2, total: 5, fraction: 0.4 } });
     renderWithProviders(<DownloadCollectionButton tracks={tracks} />);
-    expect(screen.getByTestId('download-progress')).toHaveTextContent('2/5');
+    expect(screen.getByTestId('download-progress')).toHaveTextContent('40%');
     expect(screen.getByTestId('download-collection')).toBeDisabled();
   });
 
