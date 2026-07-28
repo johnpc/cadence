@@ -11,6 +11,7 @@ import { Appearance } from '../theme/Appearance';
 import { Autoplay } from './Autoplay';
 import { AudioQuality } from './AudioQuality';
 import { SearchBackend } from './SearchBackend';
+import { GrabBackend } from './GrabBackend';
 import { PlaybackSpeed } from './PlaybackSpeed';
 import { SleepTimer } from './SleepTimer';
 import { DownloadsManager } from './DownloadsManager';
@@ -47,6 +48,7 @@ export function Settings() {
           <PlaybackSpeed />
           <SleepTimer />
           <SearchBackend />
+          <GrabBackend />
           <DownloadsManager />
           <InstallButton />
           <section className="settings__storage">

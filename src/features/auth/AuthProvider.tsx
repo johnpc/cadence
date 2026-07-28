@@ -5,6 +5,7 @@ import { resolveSession } from './resolveSession';
 import { ensureDeviceId } from '../../lib/deviceId';
 import { hydrateServerUrl } from '../../lib/serverUrlStore';
 import { hydrateMarlin } from '../../lib/marlinStore';
+import { hydrateMusicGrabber } from '../../lib/musicGrabberStore';
 import { hydratePluginConfig } from '../../lib/pluginConfigStore';
 import { onSessionExpired } from '../../lib/sessionExpiry';
 import { queryClient } from '../../lib/queryClient';
@@ -23,6 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     await hydrateServerUrl();
     await hydrateMarlin(); // optional search backend; no-op when unconfigured
+    await hydrateMusicGrabber(); // optional Grab service; no-op when unconfigured
     await ensureDeviceId();
     const resolved = await resolveSession();
     setState(resolved);
