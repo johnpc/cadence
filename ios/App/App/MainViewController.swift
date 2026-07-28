@@ -2,33 +2,68 @@ import UIKit
 import Capacitor
 import WebKit
 import AVFoundation
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
-/// Capacitor bridge VC that also listens for a one-way message from the web
-/// player ("cadenceAudioSession") posted the moment playback actually starts.
-/// Re-activating the AVAudioSession on each real play — not just once at launch,
-/// before any audio exists — keeps the WKWebView's <audio> alive when the app is
-/// backgrounded or the screen is locked (otherwise iOS suspends it and music
-/// stops). See src/lib/nativeAudioSession.ts.
+/// Capacitor bridge VC that listens for one-way messages from the web layer:
+///  - "cadenceAudioSession": posted when playback starts, so we keep the
+///    AVAudioSession alive for background audio (see src/lib/nativeAudioSession.ts).
+///  - "cadenceWidget": the "Continue listening" snapshot JSON, which we persist to
+///    the shared App Group so the WidgetKit extension can render it (the widget
+///    process can't run any web code). See src/features/widget/.
 class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
+
+    /// App Group shared with the widget extension — the ONLY channel between the
+    /// app and the widget. Must match the extension's entitlement + the id used
+    /// in CadenceWidget.swift.
+    static let appGroup = "group.com.johncorser.cadence"
+    /// Key under which the snapshot JSON string is stored in the shared defaults.
+    static let widgetSnapshotKey = "continueListeningSnapshot"
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Register the one-way handler on the live web view's content controller.
+        // Register the one-way handlers on the live web view's content controller.
         // (Done here rather than by overriding the configuration factory so it
         // doesn't depend on a specific Capacitor override point.)
-        webView?.configuration.userContentController.add(self, name: "cadenceAudioSession")
+        let controller = webView?.configuration.userContentController
+        controller?.add(self, name: "cadenceAudioSession")
+        controller?.add(self, name: "cadenceWidget")
     }
 
     func userContentController(
         _ userContentController: WKUserContentController,
         didReceive message: WKScriptMessage
     ) {
-        guard message.name == "cadenceAudioSession" else { return }
-        reassertAudioSession()
-        webView?.evaluateJavaScript(
-            "window.__cadenceNativeLog && window.__cadenceNativeLog('native-session','reasserted')",
-            completionHandler: nil
-        )
+        switch message.name {
+        case "cadenceAudioSession":
+            reassertAudioSession()
+            webView?.evaluateJavaScript(
+                "window.__cadenceNativeLog && window.__cadenceNativeLog('native-session','reasserted')",
+                completionHandler: nil
+            )
+        case "cadenceWidget":
+            storeWidgetSnapshot(message.body as? String)
+        default:
+            break
+        }
+    }
+
+    /// Persist the "Continue listening" snapshot to the shared App Group and ask
+    /// WidgetKit to refresh. The web app posts a JSON string (or the literal
+    /// "null" to clear); we store it verbatim and the extension decodes it.
+    private func storeWidgetSnapshot(_ json: String?) {
+        guard let defaults = UserDefaults(suiteName: MainViewController.appGroup) else { return }
+        if let json = json, json != "null" {
+            defaults.set(json, forKey: MainViewController.widgetSnapshotKey)
+        } else {
+            defaults.removeObject(forKey: MainViewController.widgetSnapshotKey)
+        }
+        #if canImport(WidgetKit)
+        if #available(iOS 14.0, *) {
+            WidgetCenter.shared.reloadTimelines(ofKind: "CadenceContinueListening")
+        }
+        #endif
     }
 
     private func reassertAudioSession() {

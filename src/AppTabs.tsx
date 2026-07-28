@@ -8,6 +8,8 @@ import { OfflineBanner } from './features/shell/OfflineBanner';
 import { KeyboardShortcutsHelp } from './features/shell/KeyboardShortcutsHelp';
 import { useShellChrome } from './features/shell/useShellChrome';
 import { useScrollToTopOnRetap } from './features/shell/useScrollToTopOnRetap';
+import { useWidgetSync } from './features/widget/useWidgetSync';
+import { useWidgetDeepLink } from './features/widget/useWidgetDeepLink';
 import { appRouteList } from './appRouteList';
 import './appTabs.css';
 
@@ -27,6 +29,10 @@ export function AppTabs() {
   // The Requests tab only appears where the Lidarr proxy is deployed (web); it
   // can't function without it (e.g. native has no config.js → hidden there).
   const canRequest = lidarrProxyEnabled();
+  // Keep the iOS "Continue listening" widget fed + route widget deep-link opens.
+  // Both no-op off native iOS (bridge/Capacitor listener absent).
+  useWidgetSync();
+  useWidgetDeepLink();
   return (
     <>
       <OfflineBanner />
