@@ -1,0 +1,17 @@
+.ab-progress {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--cad-space-3);
+  margin-top: var(--cad-space-1);
+}
+
+.ab-progress__chapter {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ab-progress__book {
+  flex-shrink: 0;
+}

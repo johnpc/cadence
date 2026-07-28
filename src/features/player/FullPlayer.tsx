@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { AmbientBackground } from './AmbientBackground';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
+import { ChapterSheet } from '../audiobook/ChapterSheet';
+import { AudiobookSeekButtons } from '../audiobook/AudiobookSeekButtons';
+import { AudiobookProgress } from '../audiobook/AudiobookProgress';
 import { FullPlayerFooter } from './FullPlayerFooter';
 import { CastingBanner } from '../cast/CastingBanner';
 import { SleepIndicator } from './SleepIndicator';
@@ -28,6 +31,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
   const scrub = useScrubber(position, p.seek);
   const [queueOpen, setQueueOpen] = useState(false);
   const [lyricsOpen, setLyricsOpen] = useState(false);
+  const [chaptersOpen, setChaptersOpen] = useState(false);
   // Swipe the art left/right to skip — a signature now-playing gesture. Guarded
   // by canNext/canPrev so a swipe at the queue's edge is a no-op.
   const swipe = useSwipe(
@@ -69,18 +73,22 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
             <span>{formatTime(scrub.value)}</span>
             <span>{formatTime(duration)}</span>
           </div>
+          <AudiobookProgress />
         </div>
+        <AudiobookSeekButtons />
         <PlayerControls />
         <VolumeSlider volume={p.volume} setVolume={p.setVolume} />
         <FullPlayerFooter
           current={p.current}
           onOpenLyrics={() => setLyricsOpen(true)}
+          onOpenChapters={() => setChaptersOpen(true)}
           onOpenQueue={() => setQueueOpen(true)}
           onClose={onClose}
         />
         <NextUpHint onOpenQueue={() => setQueueOpen(true)} />
         <QueueView open={queueOpen} onClose={() => setQueueOpen(false)} />
         <LyricsSheet open={lyricsOpen} onClose={() => setLyricsOpen(false)} />
+        <ChapterSheet open={chaptersOpen} onClose={() => setChaptersOpen(false)} />
       </div>
     </IonModal>
   );

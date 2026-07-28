@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState, type RefObject } from 'react';
 
 const KEY = 'cadence.playbackRate';
 
-/** The offered speeds (Spotify-style). 1 is normal. */
-export const PLAYBACK_RATES = [0.75, 1, 1.25, 1.5, 2] as const;
+/** The offered speeds. 1 is normal. Extends to 2.5×/3× for audiobook/spoken-word
+ * listeners who commonly want faster-than-music playback. */
+export const PLAYBACK_RATES = [0.75, 1, 1.25, 1.5, 2, 2.5, 3] as const;
 
 function loadRate(): number {
   const raw = Number(localStorage.getItem(KEY));

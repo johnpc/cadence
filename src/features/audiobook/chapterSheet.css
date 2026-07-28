@@ -1,0 +1,71 @@
+.chapters {
+  height: 100%;
+  background: var(--cad-bg);
+  display: flex;
+  flex-direction: column;
+  padding: var(--cad-space-4);
+  padding-top: max(var(--cad-safe-top), var(--cad-space-4));
+}
+
+.chapters__head {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  margin-bottom: var(--cad-space-4);
+}
+
+.chapters__head h2 {
+  margin: 0;
+}
+
+.chapters__close {
+  border: none;
+  background: none;
+  color: var(--cad-text);
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.chapters__body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chapter-row {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  width: 100%;
+  padding: var(--cad-space-3) var(--cad-space-2);
+  border: none;
+  border-bottom: 1px solid var(--cad-hairline);
+  background: none;
+  color: var(--cad-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.chapter-row__num {
+  flex-shrink: 0;
+  min-width: 1.75em;
+  font-variant-numeric: tabular-nums;
+}
+
+.chapter-row__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chapter-row__time {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.chapter-row--active .chapter-row__name,
+.chapter-row--active .chapter-row__num,
+.chapter-row--active .chapter-row__time {
+  color: var(--cad-accent);
+}

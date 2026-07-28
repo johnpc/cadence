@@ -5,6 +5,7 @@ export interface SearchGroups {
   albums: JellyfinItem[];
   artists: JellyfinItem[];
   playlists: JellyfinItem[];
+  audiobooks: JellyfinItem[];
 }
 
 /** Split a flat result list into the Spotify-style sections. */
@@ -14,6 +15,7 @@ export function groupResults(items: JellyfinItem[]): SearchGroups {
     albums: items.filter((i) => i.Type === 'MusicAlbum'),
     artists: items.filter((i) => i.Type === 'MusicArtist'),
     playlists: items.filter((i) => i.Type === 'Playlist'),
+    audiobooks: items.filter((i) => i.Type === 'AudioBook'),
   };
 }
 
@@ -34,7 +36,13 @@ function score(item: JellyfinItem, q: string): number {
 export function topResult(groups: SearchGroups, query: string): JellyfinItem | null {
   const q = query.trim().toLowerCase();
   if (!q) return null;
-  const all = [...groups.artists, ...groups.albums, ...groups.playlists, ...groups.songs];
+  const all = [
+    ...groups.artists,
+    ...groups.albums,
+    ...groups.playlists,
+    ...groups.audiobooks,
+    ...groups.songs,
+  ];
   let best: JellyfinItem | null = null;
   let bestScore = 0;
   for (const item of all) {
@@ -57,6 +65,7 @@ export function previewGroups(groups: SearchGroups, isAll: boolean, limit = 4): 
     albums: groups.albums.slice(0, limit),
     artists: groups.artists.slice(0, limit),
     playlists: groups.playlists.slice(0, limit),
+    audiobooks: groups.audiobooks.slice(0, limit),
   };
 }
 
@@ -66,6 +75,7 @@ export function isEmptyGroups(groups: SearchGroups): boolean {
     !groups.songs.length &&
     !groups.albums.length &&
     !groups.artists.length &&
-    !groups.playlists.length
+    !groups.playlists.length &&
+    !groups.audiobooks.length
   );
 }

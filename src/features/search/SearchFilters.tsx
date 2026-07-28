@@ -1,6 +1,6 @@
 import './searchFilters.css';
 
-export type SearchFilter = 'all' | 'songs' | 'albums' | 'artists' | 'playlists';
+export type SearchFilter = 'all' | 'songs' | 'albums' | 'artists' | 'playlists' | 'audiobooks';
 
 const FILTERS: { value: SearchFilter; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -8,6 +8,7 @@ const FILTERS: { value: SearchFilter; label: string }[] = [
   { value: 'albums', label: 'Albums' },
   { value: 'artists', label: 'Artists' },
   { value: 'playlists', label: 'Playlists' },
+  { value: 'audiobooks', label: 'Audiobooks' },
 ];
 
 /** The All / Songs / Albums / Artists filter chips above search results. */

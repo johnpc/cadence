@@ -20,9 +20,17 @@ describe('searchGroups', () => {
     expect(groups.playlists).toHaveLength(1);
   });
 
+  it('groups audiobooks separately', () => {
+    const groups = groupResults([item('b', 'AudioBook'), item('s', 'Audio')]);
+    expect(groups.audiobooks).toHaveLength(1);
+    expect(groups.audiobooks[0].Id).toBe('b');
+    expect(groups.songs).toHaveLength(1);
+  });
+
   it('detects empty groups', () => {
     expect(isEmptyGroups(groupResults([]))).toBe(true);
     expect(isEmptyGroups(groupResults([item('s', 'Audio')]))).toBe(false);
+    expect(isEmptyGroups(groupResults([item('b', 'AudioBook')]))).toBe(false);
   });
 });
 

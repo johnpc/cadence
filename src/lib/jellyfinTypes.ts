@@ -44,6 +44,9 @@ export interface JellyfinItem {
   IndexNumber?: number;
   /** Disc number within a multi-disc album (Audio items). */
   ParentIndexNumber?: number;
+  /** The item's container folder id — the fallback grouping key for multi-file
+   * audiobooks whose parts lack a shared Album tag (see groupBooks). */
+  ParentId?: string;
   /** Release year (albums). */
   ProductionYear?: number;
   /** Number of child items — e.g. track count for an album; used to classify
@@ -53,8 +56,10 @@ export interface JellyfinItem {
   Genres?: string[];
   /** A prose description / bio (artists/albums), when the server has one. */
   Overview?: string;
-  /** True when the current user has favorited it. */
-  UserData?: { IsFavorite?: boolean };
+  /** Per-user state. `PlaybackPositionTicks` is the saved resume position (.NET
+   * ticks) — Cadence reports it during playback and, for audiobooks, seeks back
+   * to it on load ("continue where you left off"). */
+  UserData?: { IsFavorite?: boolean; PlaybackPositionTicks?: number; Played?: boolean };
   /** True when the current user may delete the item — for playlists this holds
    * only for the OWNER, so it's our signal for "this is my playlist" (Jellyfin
    * doesn't expose OwnerUserId on the /Items response). */
