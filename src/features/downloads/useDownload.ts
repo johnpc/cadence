@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { downloadTrack, removeDownload, isDownloaded, onDownloadsChange } from './downloadStore';
+import { useDownloadProgress } from './useDownloadProgress';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -15,6 +16,7 @@ export type DownloadState = 'none' | 'downloading' | 'downloaded';
  */
 export function useDownload(track: JellyfinItem) {
   const toast = useToast();
+  const progress = useDownloadProgress(track.Id);
   const [state, setState] = useState<DownloadState>(() =>
     isDownloaded(track.Id) ? 'downloaded' : 'none',
   );
@@ -48,6 +50,9 @@ export function useDownload(track: JellyfinItem) {
 
   return {
     state,
+    // Live 0..1 fraction while downloading (undefined otherwise) so a row can
+    // show a percent/ring instead of just a spinner.
+    progress,
     busy: save.isPending || drop.isPending,
     toggle: () => {
       tap();

@@ -29,7 +29,7 @@ export function DownloadCollectionButton({ tracks }: { tracks: JellyfinItem[] })
         <span className="dl-btn__progress">
           <IonSpinner name="crescent" />
           <span className="dl-btn__count" data-testid="download-progress">
-            {progress.done}/{progress.total}
+            {Math.round(progress.fraction * 100)}%
           </span>
         </span>
       ) : (

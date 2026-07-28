@@ -5,6 +5,7 @@ import { trackDuration } from './playerFormat';
 import { TrackArt } from './TrackArt';
 import { TrackTitle } from './TrackTitle';
 import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
+import { TrackDownloadBadge } from '../downloads/TrackDownloadBadge';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './trackRow.css';
 
@@ -77,6 +78,7 @@ export function TrackRow({
         )}
         <TrackTitle track={track} isCurrent={isCurrent} isPlaying={isPlaying} />
       </button>
+      <TrackDownloadBadge id={track.Id} />
       {trackDuration(track.RunTimeTicks) && (
         <span className="track-row__duration cad-meta" data-testid="track-duration">
           {trackDuration(track.RunTimeTicks)}

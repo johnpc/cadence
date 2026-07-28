@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { downloadTrack, removeDownload, onDownloadsChange } from './downloadStore';
 import { indexedIds } from './downloadIndex';
 import { mapLimit } from './mapLimit';
+import { useCollectionFraction } from './useCollectionFraction';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -26,6 +27,9 @@ export function useDownloadCollection(tracks: JellyfinItem[]) {
   const [done, setDone] = useState(0);
   const [have, setHave] = useState(() => downloadedCount(tracks));
   useEffect(() => onDownloadsChange(() => setHave(downloadedCount(tracks))), [tracks]);
+  // Live 0..1 across the collection: already-saved tracks count as full, and
+  // in-flight ones contribute their partial fraction — a smooth bar, not steps.
+  const fraction = useCollectionFraction(tracks, have);
 
   const total = tracks.length;
   const state: CollectionState = busy
@@ -61,5 +65,5 @@ export function useDownloadCollection(tracks: JellyfinItem[]) {
     toast('Removed downloads');
   };
 
-  return { state, progress: { done, total }, busy, downloadAll, removeAll };
+  return { state, progress: { done, total, fraction }, busy, downloadAll, removeAll };
 }
