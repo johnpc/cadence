@@ -6,6 +6,7 @@
 import { authenticateByName, validateToken } from '../../lib/jellyfinAuth';
 import { setSession } from '../../lib/sessionStore';
 import { clearStoredSession, loadStoredSession, storeSession } from '../../lib/sessionPersistence';
+import { readForceOffline } from '../settings/forceOfflineStore';
 
 /**
  * The signed-in user's username, or null on a CONFIRMED no-session. A transient
@@ -15,6 +16,13 @@ import { clearStoredSession, loadStoredSession, storeSession } from '../../lib/s
 export async function currentUsername(): Promise<string | null> {
   const stored = await loadStoredSession();
   if (!stored) return null;
+  // Offline mode: trust the stored session without a server round-trip — that's
+  // the point of offline mode, and validateToken would throw (no network),
+  // stranding launch on the loading splash forever.
+  if (readForceOffline()) {
+    setSession({ token: stored.token, userId: stored.userId });
+    return stored.username;
+  }
   const user = await validateToken({ token: stored.token, userId: stored.userId });
   if (!user) {
     await clearStoredSession();
