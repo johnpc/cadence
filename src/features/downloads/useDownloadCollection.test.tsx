@@ -13,7 +13,12 @@ vi.mock('./downloadStore', () => ({
 }));
 vi.mock('./downloadIndex', () => ({ indexedIds: vi.fn(() => new Set<string>()) }));
 vi.mock('../../lib/haptics', () => ({ tap: vi.fn() }));
+vi.mock('../offline/offlinePlaylistStore', () => ({
+  saveOfflinePlaylist: vi.fn(),
+  removeOfflinePlaylist: vi.fn(),
+}));
 import { downloadTrack, removeDownload } from './downloadStore';
+import { saveOfflinePlaylist, removeOfflinePlaylist } from '../offline/offlinePlaylistStore';
 import { indexedIds } from './downloadIndex';
 import { useDownloadCollection } from './useDownloadCollection';
 import { ToastContext } from '../toast/ToastContext';
@@ -81,6 +86,31 @@ describe('useDownloadCollection', () => {
     });
     expect(removeDownload).toHaveBeenCalledTimes(3);
     expect(toast).toHaveBeenCalledWith('Removed downloads');
+  });
+
+  it('persists a playlist identity on download and forgets it on remove', async () => {
+    const playlist = { id: 'p1', name: 'My Mix' };
+    const { result } = renderHook(() => useDownloadCollection(tracks, playlist), { wrapper });
+    await act(async () => {
+      await result.current.downloadAll();
+    });
+    expect(saveOfflinePlaylist).toHaveBeenCalledWith({
+      id: 'p1',
+      name: 'My Mix',
+      trackIds: ['a', 'b', 'c'],
+    });
+    await act(async () => {
+      await result.current.removeAll();
+    });
+    expect(removeOfflinePlaylist).toHaveBeenCalledWith('p1');
+  });
+
+  it('does NOT persist a playlist identity for a plain collection (album/likes)', async () => {
+    const { result } = renderHook(() => useDownloadCollection(tracks), { wrapper });
+    await act(async () => {
+      await result.current.downloadAll();
+    });
+    expect(saveOfflinePlaylist).not.toHaveBeenCalled();
   });
 
   it('recomputes state when the store emits a change', () => {

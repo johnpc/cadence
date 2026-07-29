@@ -38,6 +38,14 @@ export const AudiobooksPage = lazyPage(
   () => import('./features/audiobook/AudiobooksPage'),
   'AudiobooksPage',
 );
+export const OfflineLibraryPage = lazyPage(
+  () => import('./features/offline/OfflineLibraryPage'),
+  'OfflineLibraryPage',
+);
+export const OfflineGroupPage = lazyPage(
+  () => import('./features/offline/OfflineGroupPage'),
+  'OfflineGroupPage',
+);
 export const PlaylistDetail = lazyPage(
   () => import('./features/playlists/PlaylistDetail'),
   'PlaylistDetail',

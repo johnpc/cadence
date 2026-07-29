@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { request, Unauthenticated, RequestTimeout } from './jellyfinFetch';
 import { setSession } from './sessionStore';
 import { onSessionExpired } from './sessionExpiry';
+import { writeForceOffline } from '../features/settings/forceOfflineStore';
 
 function mockFetch(status: number, body: unknown = {}) {
   return vi.fn().mockResolvedValue({
@@ -14,6 +15,7 @@ function mockFetch(status: number, body: unknown = {}) {
 describe('jellyfinFetch.request', () => {
   afterEach(() => {
     setSession(null);
+    localStorage.clear();
     vi.restoreAllMocks();
   });
 
@@ -87,5 +89,13 @@ describe('jellyfinFetch.request', () => {
     const abortErr = new DOMException('aborted', 'AbortError');
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abortErr));
     await expect(request('/Items')).rejects.toBeInstanceOf(RequestTimeout);
+  });
+
+  it('short-circuits without touching the network when offline mode is forced', async () => {
+    writeForceOffline(true);
+    const f = mockFetch(200, {});
+    vi.stubGlobal('fetch', f);
+    await expect(request('/Items')).rejects.toBeInstanceOf(RequestTimeout);
+    expect(f).not.toHaveBeenCalled();
   });
 });

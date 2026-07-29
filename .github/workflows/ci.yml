@@ -119,6 +119,8 @@ jobs:
             paths: .features-gen/e2e/features/song
           - name: downloads
             paths: .features-gen/e2e/features/downloads
+          - name: offline
+            paths: .features-gen/e2e/features/offline
     steps:
       - uses: actions/checkout@v5
 

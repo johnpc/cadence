@@ -7,8 +7,15 @@ import './downloadButton.css';
 /** Download (or remove) a whole collection — album, playlist, likes — in one
  * tap. Outline arrow when none/partial, a spinner with a live count while
  * downloading, a filled check once every track is saved (tap then removes all). */
-export function DownloadCollectionButton({ tracks }: { tracks: JellyfinItem[] }) {
-  const { state, progress, busy, downloadAll, removeAll } = useDownloadCollection(tracks);
+export function DownloadCollectionButton({
+  tracks,
+  playlist,
+}: {
+  tracks: JellyfinItem[];
+  /** When set, downloading persists this playlist's offline identity too. */
+  playlist?: { id: string; name: string };
+}) {
+  const { state, progress, busy, downloadAll, removeAll } = useDownloadCollection(tracks, playlist);
   if (tracks.length === 0) return null;
   const downloaded = state === 'downloaded';
   const icon =

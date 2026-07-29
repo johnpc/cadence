@@ -10,10 +10,12 @@ vi.mock('../../lib/sessionPersistence', () => ({
   storeSession: vi.fn(),
   clearStoredSession: vi.fn(),
 }));
+vi.mock('../settings/forceOfflineStore', () => ({ readForceOffline: vi.fn(() => false) }));
 
 import { authenticateByName, validateToken } from '../../lib/jellyfinAuth';
 import { setSession } from '../../lib/sessionStore';
 import { clearStoredSession, loadStoredSession, storeSession } from '../../lib/sessionPersistence';
+import { readForceOffline } from '../settings/forceOfflineStore';
 import { currentUsername, signIn, signOut } from './authClient';
 
 describe('authClient', () => {
@@ -35,6 +37,18 @@ describe('authClient', () => {
     });
     vi.mocked(validateToken).mockResolvedValue({ Id: 'u', Name: 'cadence-test' });
     expect(await currentUsername()).toBe('cadence-test');
+    expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u' });
+  });
+
+  it('currentUsername trusts the stored session in offline mode (no validate call)', async () => {
+    vi.mocked(loadStoredSession).mockResolvedValue({
+      token: 't',
+      userId: 'u',
+      username: 'cadence-test',
+    });
+    vi.mocked(readForceOffline).mockReturnValue(true);
+    expect(await currentUsername()).toBe('cadence-test');
+    expect(validateToken).not.toHaveBeenCalled(); // would throw offline; must be skipped
     expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u' });
   });
 
