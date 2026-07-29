@@ -6,6 +6,7 @@ import { SearchResults } from './SearchResults';
 import { SearchFilters, type SearchFilter } from './SearchFilters';
 import { RecentSearches } from './RecentSearches';
 import { RequestPrompt } from './RequestPrompt';
+import { GrabPrompt } from '../grab/GrabPrompt';
 import { GenreTiles } from '../genre/GenreTiles';
 import { useSearch } from './useSearch';
 import { useRecentSearches } from './useRecentSearches';
@@ -65,6 +66,7 @@ export function Search() {
               <SearchResults groups={s.groups} filter={filter} query={s.query} onPick={record} />
             </LoadState>
             <RequestPrompt query={s.query} show={s.isEmpty} />
+            <GrabPrompt query={s.query} show={s.isEmpty} />
           </>
         )}
       </IonContent>
