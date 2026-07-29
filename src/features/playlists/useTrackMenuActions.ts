@@ -2,7 +2,7 @@ import { useHistory } from 'react-router-dom';
 import { useAddToPlaylist } from './playlistsApi';
 import { trackMenuButtons, type TrackMenuActions } from './trackMenuButtons';
 import { usePlayer } from '../player/usePlayer';
-import { usePlayItem } from '../player/usePlayItem';
+import { useSongRadio } from '../player/useSongRadio';
 import { useLikeToggle } from '../library/useLikeToggle';
 import { useDownload } from '../downloads/useDownload';
 import { useToast } from '../toast/useToast';
@@ -24,7 +24,7 @@ export function useTrackMenuActions(
   edit: RowEdit = {},
 ): { buttons: ReturnType<typeof trackMenuButtons>; add: ReturnType<typeof useAddToPlaylist> } {
   const { playNext, addToQueue } = usePlayer();
-  const playItem = usePlayItem();
+  const songRadio = useSongRadio();
   const toast = useToast();
   const history = useHistory();
   const like = useLikeToggle(track);
@@ -43,7 +43,7 @@ export function useTrackMenuActions(
     },
     addToPlaylist: openPicker,
     startRadio: () => {
-      void playItem(track);
+      songRadio(track);
       toast('Starting radio');
     },
     goToAlbum: () => history.push(`/album/${track.AlbumId}`),

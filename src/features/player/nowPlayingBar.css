@@ -95,6 +95,22 @@
   cursor: pointer;
 }
 
+/* Dismiss (hide) the mini-player to browse without it in the way. Reads as
+   secondary, like the skip button. */
+.npbar__dismiss {
+  flex-shrink: 0;
+  width: 36px;
+  height: 40px;
+  border: none;
+  background: none;
+  color: var(--cad-text-secondary);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 /* The skip button reads as secondary next to play/pause, and dims at the queue
    end. */
 .npbar__next {
