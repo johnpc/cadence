@@ -5,7 +5,7 @@ import { useAudioElement } from './useAudioElement';
 import { usePlayerQueue } from './usePlayerQueue';
 import { useSleepTimer } from './useSleepTimer';
 import { useSleepAtTrackEnd } from './useSleepAtTrackEnd';
-import { usePlayerIntegrations } from './usePlayerIntegrations';
+import { usePlayerOsIntegrations } from './usePlayerOsIntegrations';
 import { usePlaybackHandlers } from './usePlaybackHandlers';
 import { useVolume } from './useVolume';
 import { usePlaybackRate } from './usePlaybackRate';
@@ -69,7 +69,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   });
 
   const audioControls = { toggle, seek, seekBy, nudgeVolume, toggleMute };
-  usePlayerIntegrations(current, isPlaying, qc, audioControls, position, duration);
+  // OS integrations sharing now-playing state: MediaSession + Apple Watch remote.
+  usePlayerOsIntegrations(current, isPlaying, qc, audioControls, position, duration);
 
   const value = usePlayerValue(qc, current, {
     isPlaying,
