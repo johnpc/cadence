@@ -129,23 +129,35 @@ Given('I am signed in', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill(PASSWORD as string);
-  // Jellyfin's AuthenticateByName (PBKDF2 + DB) is erratic under CI contention —
-  // measured 0.3s..13s+, and a single submit that spikes past budget, or a
-  // transient tunnel blip that surfaces the inline error, would fail the whole
-  // run. So RE-SUBMIT on each poll until the session token lands: a fresh click
-  // recovers from a dropped click or a transiently-errored attempt, rather than
-  // betting the scenario on one slow request. This is the #1 CI flake lever.
+  // Jellyfin's AuthenticateByName (PBKDF2 + cloudflared cold path) is erratic
+  // under CI load — measured 0.3s..40s against the live server, settling only
+  // after several hits. One submit that spikes past the app's 30s request
+  // timeout, or a transient error, fails the whole run. So RE-SUBMIT — but only
+  // when the previous attempt has DEFINITIVELY finished: either the app surfaced
+  // the inline auth error, or the submit button is idle again (not mid-request).
+  // Firing a fresh click while one is still in flight would stack concurrent
+  // PBKDF2 auths and make the CPU-bound endpoint slower (thundering herd).
   await expect(async () => {
-    if (!(await sessionTokenPresent(page))) {
-      await page
-        .getByTestId('signin-submit')
-        .click()
-        .catch(() => undefined);
-      // Give this attempt a chance before the next poll re-clicks.
-      await page.waitForTimeout(4_000);
-      expect(await sessionTokenPresent(page)).toBe(true);
-    }
-  }).toPass({ timeout: 90_000 });
+    if (await sessionTokenPresent(page)) return;
+    const submit = page.getByTestId('signin-submit');
+    await submit.click().catch(() => undefined);
+    // Wait out a slow-but-succeeding auth (up to the app's 30s timeout) before
+    // this poll is allowed to consider re-submitting.
+    await Promise.race([
+      page
+        .waitForFunction(
+          () => Object.keys(localStorage).some((k) => k.includes('cadence.session')),
+          undefined,
+          { timeout: 32_000 },
+        )
+        .catch(() => undefined),
+      page
+        .getByTestId('signin-error')
+        .waitFor({ timeout: 32_000 })
+        .catch(() => undefined),
+    ]);
+    expect(await sessionTokenPresent(page)).toBe(true);
+  }).toPass({ timeout: 120_000 });
   // The session key is written a beat BEFORE the router replaces /signin with
   // the destination — so waiting on the key alone lets the next step race the
   // route transition (and a cold data fetch) with too small a budget, which
