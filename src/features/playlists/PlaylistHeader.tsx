@@ -47,7 +47,10 @@ export function PlaylistHeader({
               : undefined
           }
         />
-        <DownloadCollectionButton tracks={tracks} />
+        <DownloadCollectionButton
+          tracks={tracks}
+          playlist={playlist ? { id: playlist.Id, name: playlist.Name ?? 'Playlist' } : undefined}
+        />
         <ShareButton item={playlist} />
       </div>
     </>

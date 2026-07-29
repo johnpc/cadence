@@ -1,0 +1,18 @@
+/* iPod-style offline library. Reuses the .album-card tile from the Home shelves
+   (imported by OfflineTile) but lays them out in a wrapping grid rather than a
+   horizontal scroll row, since the offline set is finite and browsable at once. */
+.offline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  padding: 8px 0 24px;
+}
+
+/* In the grid the tile fills its cell (the shelf version is fixed-width). */
+.offline-grid .album-card {
+  width: 100%;
+}
+
+.offline-library ion-segment {
+  margin-bottom: 12px;
+}

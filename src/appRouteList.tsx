@@ -29,6 +29,12 @@ export function appRouteList() {
     <Route exact path="/audiobooks" key="audiobooks">
       <L.AudiobooksPage />
     </Route>,
+    <Route exact path="/offline" key="offline">
+      <L.OfflineLibraryPage />
+    </Route>,
+    <Route exact path="/offline/:kind/:id" key="offline-group">
+      <L.OfflineGroupPage />
+    </Route>,
     <Route exact path="/settings" key="settings">
       <L.Settings />
     </Route>,

@@ -10,6 +10,7 @@ import { apiUrl, embyAuthHeader } from './jellyfinConfig';
 import { getSession } from './sessionStore';
 import { notifySessionExpired } from './sessionExpiry';
 import { markReachable, markUnreachable } from './reachabilityStore';
+import { readForceOffline } from '../features/settings/forceOfflineStore';
 import { Unauthenticated, RequestTimeout, HttpError, REQUEST_TIMEOUT_MS } from './jellyfinErrors';
 
 export { Unauthenticated, RequestTimeout, HttpError } from './jellyfinErrors';
@@ -22,6 +23,12 @@ export interface RequestOptions {
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  // Forced offline mode: never touch the network. Fail fast as unreachable so
+  // callers fall back to downloaded content instead of waiting on a timeout.
+  if (readForceOffline()) {
+    markUnreachable();
+    throw new RequestTimeout();
+  }
   const { method = 'GET', body, token = getSession()?.token } = options;
   const headers: Record<string, string> = {
     'X-Emby-Authorization': embyAuthHeader(token),

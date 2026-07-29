@@ -3,6 +3,7 @@ import { downloadTrack, removeDownload, onDownloadsChange } from './downloadStor
 import { indexedIds } from './downloadIndex';
 import { mapLimit } from './mapLimit';
 import { useCollectionFraction } from './useCollectionFraction';
+import { saveOfflinePlaylist, removeOfflinePlaylist } from '../offline/offlinePlaylistStore';
 import { tap } from '../../lib/haptics';
 import { useToast } from '../toast/useToast';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -21,7 +22,12 @@ function downloadedCount(tracks: JellyfinItem[]): number {
  * so it stays correct even if individual rows were downloaded one-by-one. While
  * a batch runs it reports {done,total} progress. Failures don't abort the batch.
  */
-export function useDownloadCollection(tracks: JellyfinItem[]) {
+export function useDownloadCollection(
+  tracks: JellyfinItem[],
+  /** When set, downloading also persists this playlist's offline identity (its
+   * membership isn't derivable from the per-track index); removing forgets it. */
+  playlist?: { id: string; name: string },
+) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(0);
@@ -56,11 +62,14 @@ export function useDownloadCollection(tracks: JellyfinItem[]) {
       },
     );
     setBusy(false);
+    // Persist the playlist's membership so it's browsable offline (order preserved).
+    if (playlist) saveOfflinePlaylist({ ...playlist, trackIds: tracks.map((t) => t.Id) });
     toast(ok === missing.length ? 'Downloaded' : `Downloaded ${ok} of ${missing.length}`);
   };
 
   const removeAll = async () => {
     tap();
+    if (playlist) removeOfflinePlaylist(playlist.id);
     await mapLimit(tracks, 3, (t) => removeDownload(t.Id));
     toast('Removed downloads');
   };

@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import { Appearance } from '../theme/Appearance';
 import { Autoplay } from './Autoplay';
+import { ForceOffline } from './ForceOffline';
 import { AudioQuality } from './AudioQuality';
 import { SearchBackend } from './SearchBackend';
 import { GrabBackend } from './GrabBackend';
@@ -50,6 +51,7 @@ export function Settings() {
           <SearchBackend />
           <GrabBackend />
           <DownloadsManager />
+          <ForceOffline />
           <InstallButton />
           <section className="settings__storage">
             <h2 className="settings__title cad-kicker">Storage</h2>

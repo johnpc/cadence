@@ -1,13 +1,9 @@
 import { act, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { OfflineBanner } from './OfflineBanner';
 import { markReachable, markUnreachable, __resetReachability } from '../../lib/reachabilityStore';
-import type { JellyfinItem } from '../../lib/jellyfinTypes';
-
-// Control the downloaded-tracks list the banner reads.
-let downloaded: JellyfinItem[] = [];
-vi.mock('../downloads/useDownloads', () => ({ useDownloads: () => ({ tracks: downloaded }) }));
+import { writeForceOffline } from '../settings/forceOfflineStore';
 
 const renderBanner = () =>
   render(
@@ -17,9 +13,8 @@ const renderBanner = () =>
   );
 
 afterEach(() => {
-  vi.restoreAllMocks();
-  downloaded = [];
   __resetReachability();
+  localStorage.clear();
 });
 
 describe('OfflineBanner', () => {
@@ -34,23 +29,18 @@ describe('OfflineBanner', () => {
     expect(screen.queryByTestId('offline-banner')).not.toBeInTheDocument();
   });
 
-  it('shows the banner while offline', () => {
+  it('shows the banner while offline, linking to the offline library', () => {
     renderBanner();
     act(() => markUnreachable());
     expect(screen.getByTestId('offline-banner')).toHaveTextContent(/offline/i);
+    expect(screen.getByTestId('offline-downloads-link')).toHaveAttribute('href', '/offline');
   });
 
-  it('links to downloads when the user has offline tracks', () => {
-    downloaded = [{ Id: 'd1', Name: 'Saved', Type: 'Audio' }];
+  it('shows immediately when offline mode is forced, even while reachable', () => {
+    writeForceOffline(true);
     renderBanner();
-    act(() => markUnreachable());
-    expect(screen.getByTestId('offline-downloads-link')).toHaveAttribute('href', '/downloads');
-  });
-
-  it('omits the downloads link when there are none', () => {
-    renderBanner();
-    act(() => markUnreachable());
-    expect(screen.queryByTestId('offline-downloads-link')).not.toBeInTheDocument();
+    act(() => markReachable());
+    expect(screen.getByTestId('offline-banner')).toHaveTextContent(/offline mode is on/i);
   });
 
   it('appears when a request fails and clears once one succeeds again', () => {
