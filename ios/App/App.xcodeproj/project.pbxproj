@@ -21,6 +21,7 @@
 		540DFAF3143FB561256CCD3F /* CadenceWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = F66FECF45855AB0C18B6DF52 /* CadenceWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5E962226B0035BCE6FA0302C /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397A5C8B4E39BC3D12138D57 /* NowPlayingView.swift */; };
 		68EC28C6B88A30C37E30B3FB /* NowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E778FFB7EE04E8CF416CCF1 /* NowPlaying.swift */; };
+		6D1CEC5F2A9B647AABD214B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7C3A3E40040E3F87E2AB0E7 /* Assets.xcassets */; };
 		7655C22A107A6C1A06F1BEB0 /* ContinueListeningSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F4C3F48EABA90BA2A80CF /* ContinueListeningSnapshot.swift */; };
 		8081D63667A22DC11D497D8B /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59239E0340951BA7C4BA0DE7 /* WatchConnector.swift */; };
 		95B24884DEC5A4FE3B06605D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACDF531C157768DA1A056434 /* Foundation.framework */; };
@@ -100,6 +101,7 @@
 		ACDF531C157768DA1A056434 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
+		B7C3A3E40040E3F87E2AB0E7 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C4C0A762CC16E55DEE2EFC0E /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CAD0000100000000000000A2 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CadenceWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -228,6 +230,7 @@
 				7881036B54209EC3C031AB69 /* WatchConnector.swift */,
 				491E91C975EFE844F1AAD6C8 /* NowPlaying.swift */,
 				88DBF60A5C0D1460BB24F5C5 /* Info.plist */,
+				B7C3A3E40040E3F87E2AB0E7 /* Assets.xcassets */,
 			);
 			name = CadenceWatch;
 			path = CadenceWatch;
@@ -371,6 +374,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D1CEC5F2A9B647AABD214B2 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,7 +507,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JW5SC3NYUV;
-				INFOPLIST_FILE = CadenceWatch/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Cadence;
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.johncorser.cadence;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.johncorser.cadence.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -523,7 +530,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JW5SC3NYUV;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CadenceWidget/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 1.0;
@@ -694,7 +703,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JW5SC3NYUV;
-				INFOPLIST_FILE = CadenceWatch/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Cadence;
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.johncorser.cadence;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.johncorser.cadence.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -715,7 +727,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JW5SC3NYUV;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CadenceWidget/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 1.0;
