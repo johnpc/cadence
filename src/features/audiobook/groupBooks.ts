@@ -9,10 +9,23 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 export interface Book {
   /** Stable id for the group (used as a key + route param). */
   id: string;
-  /** The representative item for title/art/artist. */
+  /** The representative item for art/artist (the first part). */
   book: JellyfinItem;
+  /** The book's display title — the shared Album for multi-part books (so we
+   * show "Astrophysics for People in a Hurry", not the first chapter's name like
+   * "Preface"); the item name for a single-file book. */
+  title: string;
   /** The playable parts, in listening order (one entry for a single-file book). */
   parts: JellyfinItem[];
+}
+
+/** The display title for a grouped book: prefer the shared Album (the real book
+ * name) for a multi-part set whose parts are named per-chapter; fall back to the
+ * representative item's own Name for a single file. Strips a trailing
+ * "(Unabridged)"/"(Abridged)" qualifier for a cleaner shelf label. */
+function bookTitle(rep: JellyfinItem, partCount: number): string {
+  const raw = partCount > 1 && rep.Album ? rep.Album : rep.Name;
+  return raw.replace(/\s*\((un)?abridged\)\s*$/i, '').trim() || raw;
 }
 
 /** Order parts within a book: by IndexNumber, then name (a stable tiebreak). */
@@ -64,6 +77,11 @@ export function groupBooks(items: JellyfinItem[]): Book[] {
   }
   return Array.from(groups.values()).map((parts) => {
     const sorted = [...parts].sort(byPlayOrder);
-    return { id: sorted[0].Id, book: sorted[0], parts: sorted };
+    return {
+      id: sorted[0].Id,
+      book: sorted[0],
+      title: bookTitle(sorted[0], sorted.length),
+      parts: sorted,
+    };
   });
 }

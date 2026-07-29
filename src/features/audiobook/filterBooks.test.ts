@@ -6,6 +6,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 const mk = (name: string, author: string): Book => ({
   id: name,
   book: { Id: name, Name: name, Type: 'AudioBook', AlbumArtist: author } as JellyfinItem,
+  title: name,
   parts: [],
 });
 

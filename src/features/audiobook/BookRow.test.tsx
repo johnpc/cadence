@@ -12,11 +12,13 @@ const part = (id: string, name: string): JellyfinItem =>
 const single: Book = {
   id: 's',
   book: part('s', 'Blade Runner'),
+  title: 'Blade Runner',
   parts: [part('s', 'Blade Runner')],
 };
 const multi: Book = {
   id: 'm1',
   book: part('m1', 'The Little Prince'),
+  title: 'The Little Prince',
   parts: [part('m1', 'Ch 1'), part('m2', 'Ch 2'), part('m3', 'Ch 3')],
 };
 

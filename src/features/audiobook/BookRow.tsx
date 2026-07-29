@@ -17,7 +17,7 @@ export function BookRow({ book }: { book: Book }) {
   const play = () => {
     setPlayContext({
       kind: 'audiobook',
-      label: book.book.Name,
+      label: book.title,
       path: '/audiobooks',
       tracks: book.parts,
     });
@@ -34,11 +34,11 @@ export function BookRow({ book }: { book: Book }) {
         className="track-row__play"
         data-testid="book-row-play"
         onClick={play}
-        aria-label={`Play ${book.book.Name}`}
+        aria-label={`Play ${book.title}`}
       >
         <TrackArt item={book.book} size={44} />
         <span className="track-row__meta">
-          <span className="track-row__title">{book.book.Name}</span>
+          <span className="track-row__title">{book.title}</span>
           <span className="track-row__artist">
             {author}
             {multi && ` · ${book.parts.length} parts`}

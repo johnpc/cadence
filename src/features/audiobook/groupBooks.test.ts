@@ -26,6 +26,33 @@ describe('groupBooks', () => {
     expect(books).toHaveLength(1);
     expect(books[0].parts.map((p) => p.Id)).toEqual(['c1', 'c2', 'c3']);
     expect(books[0].id).toBe('c1'); // first part is the representative
+    // Title = the shared Album, NOT the first chapter's name ("Ch 1").
+    expect(books[0].title).toBe('The Little Prince');
+  });
+
+  it('titles a multi-part book by its Album, not the first chapter name', () => {
+    const books = groupBooks([
+      file({
+        Id: 'p0',
+        Name: 'Preface',
+        Album: 'Astrophysics for People in a Hurry',
+        IndexNumber: 0,
+      }),
+      file({
+        Id: 'p1',
+        Name: 'The Greatest Story',
+        Album: 'Astrophysics for People in a Hurry',
+        IndexNumber: 1,
+      }),
+    ]);
+    expect(books[0].title).toBe('Astrophysics for People in a Hurry');
+  });
+
+  it('uses the item name for a single-file book and strips (Unabridged)', () => {
+    const books = groupBooks([
+      file({ Id: 'c', Name: 'Circe (Unabridged)', Album: 'Circe (Unabridged)' }),
+    ]);
+    expect(books[0].title).toBe('Circe');
   });
 
   it('keeps single-file books separate', () => {

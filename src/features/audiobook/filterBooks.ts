@@ -10,6 +10,6 @@ export function filterBooks(books: Book[], query: string): Book[] {
   if (!q) return books;
   return books.filter((b) => {
     const author = b.book.AlbumArtist ?? b.book.Artists?.[0] ?? '';
-    return `${b.book.Name} ${author}`.toLowerCase().includes(q);
+    return `${b.title} ${author}`.toLowerCase().includes(q);
   });
 }

@@ -11,8 +11,10 @@ import type { ItemsResponse, JellyfinItem } from '../../lib/jellyfinTypes';
 // (groupBooks); RunTimeTicks/Artists/Overview are for display.
 const bookFields = 'RunTimeTicks,Overview,Artists,AlbumArtist,Album,ParentId,IndexNumber';
 
-/** Every audiobook in the library, alphabetical. */
-export async function getAudiobooks(limit = 500): Promise<JellyfinItem[]> {
+/** Every audiobook in the library, alphabetical. The limit must exceed the
+ * library size (900+ files across all books) or later books (e.g. "Circe")
+ * silently drop off the end — grouping needs ALL parts to build each book. */
+export async function getAudiobooks(limit = 5000): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'AudioBook',
