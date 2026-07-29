@@ -122,18 +122,30 @@ Given('I open the app', async ({ page }) => {
   await page.goto('/');
 });
 
+const sessionTokenPresent = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => Object.keys(localStorage).some((k) => k.includes('cadence.session')));
+
 Given('I am signed in', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill(PASSWORD as string);
-  await page.getByTestId('signin-submit').click();
-  // The Jellyfin auth POST can be slow under CI contention — give the session
-  // token a generous window to land before proceeding.
-  await page.waitForFunction(
-    () => Object.keys(localStorage).some((k) => k.includes('cadence.session')),
-    undefined,
-    { timeout: 60_000 },
-  );
+  // Jellyfin's AuthenticateByName (PBKDF2 + DB) is erratic under CI contention —
+  // measured 0.3s..13s+, and a single submit that spikes past budget, or a
+  // transient tunnel blip that surfaces the inline error, would fail the whole
+  // run. So RE-SUBMIT on each poll until the session token lands: a fresh click
+  // recovers from a dropped click or a transiently-errored attempt, rather than
+  // betting the scenario on one slow request. This is the #1 CI flake lever.
+  await expect(async () => {
+    if (!(await sessionTokenPresent(page))) {
+      await page
+        .getByTestId('signin-submit')
+        .click()
+        .catch(() => undefined);
+      // Give this attempt a chance before the next poll re-clicks.
+      await page.waitForTimeout(4_000);
+      expect(await sessionTokenPresent(page)).toBe(true);
+    }
+  }).toPass({ timeout: 90_000 });
   // The session key is written a beat BEFORE the router replaces /signin with
   // the destination — so waiting on the key alone lets the next step race the
   // route transition (and a cold data fetch) with too small a budget, which
