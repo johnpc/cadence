@@ -23,20 +23,12 @@
 		6A95884522E62A3FAA77442A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACDF531C157768DA1A056434 /* Foundation.framework */; };
 		7655C22A107A6C1A06F1BEB0 /* ContinueListeningSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F4C3F48EABA90BA2A80CF /* ContinueListeningSnapshot.swift */; };
 		80ED9925162298A48DCAE93D /* CadenceWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171589B31ECA1A2069F672D1 /* CadenceWatchApp.swift */; };
-		A035F5B5D2EB15A1D63F4535 /* CadenceWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */; };
 		A31C77D6188325D4B1AE2AC4 /* CadenceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3F29B5EA859F1ED43AB847 /* CadenceWidget.swift */; };
 		CAD0000100000000000000A1 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD0000100000000000000A2 /* MainViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		66C7D0C52B223EC13D751334 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 40F4D719C5155D693B4FF597;
-			remoteInfo = CadenceWatch;
-		};
 		B641CE289D8D26CE714A4EA8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
@@ -47,17 +39,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		4BCF7B3126020033E060E3BB /* Embed Watch Content */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
-			dstSubfolderSpec = 16;
-			files = (
-				A035F5B5D2EB15A1D63F4535 /* CadenceWatch.app in Embed Watch Content */,
-			);
-			name = "Embed Watch Content";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		9C991B80D486426D946EF3D9 /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,14 +96,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				414C5494E4BBB78C65CEC6AE /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EFF7D5DB167A9BFBD7E3F6E3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				6A95884522E62A3FAA77442A /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -231,23 +204,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		40F4D719C5155D693B4FF597 /* CadenceWatch */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = D6E2B7EE79A21796DED2FF0E /* Build configuration list for PBXNativeTarget "CadenceWatch" */;
-			buildPhases = (
-				92C0EAD0DE2CC9E416D1A068 /* Sources */,
-				EFF7D5DB167A9BFBD7E3F6E3 /* Frameworks */,
-				761F396FE166B47E6EF4B3CA /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CadenceWatch;
-			productName = CadenceWatch;
-			productReference = E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */;
-			productType = "com.apple.product-type.application";
-		};
 		504EC3031FED79650016851F /* App */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
@@ -259,13 +215,11 @@
 				9592DBEFFC6D2A0C8D5DEB22 /* [CP] Embed Pods Frameworks */,
 				35A3FC36B6AA37D9DB30A39E /* [CP] Copy Pods Resources */,
 				9C991B80D486426D946EF3D9 /* Embed App Extensions */,
-				4BCF7B3126020033E060E3BB /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				82372A3D7E7E9A08C8D2D7E4 /* PBXTargetDependency */,
-				DC21D3FF371A921D1AC81AEA /* PBXTargetDependency */,
 			);
 			name = App;
 			productName = App;
@@ -320,7 +274,6 @@
 			targets = (
 				504EC3031FED79650016851F /* App */,
 				68D6362D61C37F9DC6769C1C /* CadenceWidget */,
-				40F4D719C5155D693B4FF597 /* CadenceWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -336,13 +289,6 @@
 				50379B232058CBB4000EE86E /* capacitor.config.json in Resources */,
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		761F396FE166B47E6EF4B3CA /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -426,17 +372,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		92C0EAD0DE2CC9E416D1A068 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				80ED9925162298A48DCAE93D /* CadenceWatchApp.swift in Sources */,
-				075321A18F4131529FFE021E /* NowPlayingView.swift in Sources */,
-				3B854AD2300EDB8B0F48484B /* WatchConnector.swift in Sources */,
-				4F2B28F0482D1EA3ABFA1276 /* NowPlaying.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -445,12 +380,6 @@
 			name = CadenceWidget;
 			target = 68D6362D61C37F9DC6769C1C /* CadenceWidget */;
 			targetProxy = B641CE289D8D26CE714A4EA8 /* PBXContainerItemProxy */;
-		};
-		DC21D3FF371A921D1AC81AEA /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = CadenceWatch;
-			target = 40F4D719C5155D693B4FF597 /* CadenceWatch */;
-			targetProxy = 66C7D0C52B223EC13D751334 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -734,15 +663,6 @@
 			buildConfigurations = (
 				504EC3171FED79650016851F /* Debug */,
 				504EC3181FED79650016851F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		D6E2B7EE79A21796DED2FF0E /* Build configuration list for PBXNativeTarget "CadenceWatch" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				068037C49A0B612C55384D2A /* Release */,
-				A8EC7F472C02C7BDEC87EB9C /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
