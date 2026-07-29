@@ -109,6 +109,35 @@ describe('usePlaybackHandlers', () => {
     expect(qh.next).toHaveBeenCalled();
   });
 
+  it('onError stays SILENT on a cold-start restore error (playback never started)', () => {
+    const qh = stubQueue();
+    const toast = vi.fn();
+    const requestReload = vi.fn().mockReturnValue(false);
+    const ref = createRef<HTMLAudioElement>();
+    (ref as { current: HTMLAudioElement }).current = { paused: true } as HTMLAudioElement;
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, ref, toast, undefined, requestReload, { current: false }),
+    );
+    result.current.onError();
+    expect(toast).not.toHaveBeenCalled();
+    expect(qh.next).not.toHaveBeenCalled();
+    expect(requestReload).not.toHaveBeenCalled();
+  });
+
+  it('onError reports normally once playback HAS started', () => {
+    const qh = stubQueue();
+    const toast = vi.fn();
+    const requestReload = vi.fn().mockReturnValue(false);
+    const ref = createRef<HTMLAudioElement>();
+    (ref as { current: HTMLAudioElement }).current = { paused: false } as HTMLAudioElement;
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, ref, toast, undefined, requestReload, { current: true }),
+    );
+    result.current.onError();
+    expect(toast).toHaveBeenCalledWith("Couldn't play that track — skipping.");
+    expect(qh.next).toHaveBeenCalled();
+  });
+
   it('onError at the LAST track reports failure without a dead-end "skipping" toast', () => {
     const qh = stubQueue({ queue: { tracks: [{ Id: 'a' }], index: 0 } as never });
     const toast = vi.fn();

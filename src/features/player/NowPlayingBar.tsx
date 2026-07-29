@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { IonIcon, IonSpinner } from '@ionic/react';
-import { play, pause, playSkipForward } from 'ionicons/icons';
+import { play, pause, playSkipForward, chevronDown } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
+import { useNowPlayingDismiss } from './useNowPlayingDismiss';
 import { useCast } from '../cast/useCast';
 import { usePlayerProgress } from './PlayerProgressContext';
 import { useScrubber } from './useScrubber';
-import { formatTime } from './playerFormat';
+import { NowPlayingSeek } from './NowPlayingSeek';
 import { NowPlayingMeta } from './NowPlayingMeta';
 import { FullPlayer } from './FullPlayer';
 import { NowPlayingExtras } from './NowPlayingExtras';
@@ -21,6 +22,8 @@ export function NowPlayingBar() {
   const { position, duration } = usePlayerProgress();
   const scrub = useScrubber(position, seek);
   const [open, setOpen] = useState(false);
+  // Let the user hide the bar to browse; it returns when a new track starts.
+  const { dismissed, dismiss } = useNowPlayingDismiss(current?.Id);
   // While casting to a custom receiver, mirror now-playing + queue + lyrics to
   // the TV.
   useCastSync();
@@ -29,13 +32,11 @@ export function NowPlayingBar() {
   // Flag the document while a track is loaded so scroll views can reserve
   // bottom space and their last row isn't hidden behind the fixed mini-player.
   useEffect(() => {
-    document.body.classList.toggle('has-now-playing', !!current);
+    document.body.classList.toggle('has-now-playing', !!current && !dismissed);
     return () => document.body.classList.remove('has-now-playing');
-  }, [current]);
+  }, [current, dismissed]);
 
-  if (!current) return null;
-
-  const pct = duration > 0 ? Math.min(100, (scrub.value / duration) * 100) : 0;
+  if (!current || dismissed) return null;
 
   return (
     <>
@@ -46,6 +47,14 @@ export function NowPlayingBar() {
           deviceName={deviceName}
           onOpen={() => setOpen(true)}
         />
+        <button
+          className="npbar__dismiss"
+          onClick={dismiss}
+          aria-label="Hide player"
+          data-testid="now-playing-dismiss"
+        >
+          <IonIcon icon={chevronDown} />
+        </button>
         <LikeButton track={current} size={22} />
         <NowPlayingExtras />
         <button
@@ -60,8 +69,7 @@ export function NowPlayingBar() {
             <IonIcon icon={isPlaying ? pause : play} />
           )}
         </button>
-        {/* Skip button — mobile only (desktop has full transport in the extras).
-            Hidden ≥768px via CSS to avoid duplicating NowPlayingExtras. */}
+        {/* Skip — mobile only (hidden ≥768px; desktop uses NowPlayingExtras). */}
         <button
           className="npbar__next"
           onClick={next}
@@ -71,23 +79,7 @@ export function NowPlayingBar() {
         >
           <IonIcon icon={playSkipForward} />
         </button>
-        <div className="npbar__progress" data-testid="now-playing-progress">
-          <div className="npbar__progress-fill" style={{ width: `${pct}%` }} />
-          <input
-            className="npbar__seek"
-            type="range"
-            min={0}
-            max={duration || 0}
-            value={Math.min(scrub.value, duration || 0)}
-            onChange={(e) => scrub.onInput(Number(e.currentTarget.value))}
-            onPointerUp={scrub.onCommit}
-            onKeyUp={scrub.onCommit}
-            onBlur={scrub.onCommit}
-            aria-label="Seek"
-            aria-valuetext={`${formatTime(scrub.value)} of ${formatTime(duration)}`}
-            data-testid="now-playing-seek"
-          />
-        </div>
+        <NowPlayingSeek scrub={scrub} duration={duration} />
       </div>
       <FullPlayer open={open} onClose={() => setOpen(false)} />
     </>

@@ -29,14 +29,16 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // "Stop after this track" sleep timer: the ended-handler reads these refs and
   // pauses+disarms on a natural track end (see useSleepAtTrackEnd).
   const sleepEnd = useSleepAtTrackEnd();
-
   // Reload/retry the current track on a load error (bumps a nonce the loader
   // depends on) before giving up + skipping.
   const { nonce: reloadNonce, requestReload, resetFor } = useTrackReload();
-  const { onEnded, onError } = usePlaybackHandlers(qh, audioRef, toast, sleepEnd, requestReload);
-  const { ref, isPlaying, waiting, position, duration } = useAudioElement(onEnded, onError);
+  // Latches true on the first real playback; suppresses the cold-start restore
+  // error toast (a restored track can error before the session is ready) until then.
+  const playbackStarted = useRef(false);
+  const h = usePlaybackHandlers(qh, audioRef, toast, sleepEnd, requestReload, playbackStarted);
+  const { ref, isPlaying, waiting, position, duration } = useAudioElement(h.onEnded, h.onError);
   audioRef.current = ref.current;
-
+  if (isPlaying) playbackStarted.current = true;
   const current = q.currentTrack(qh.queue);
   const currentId = current?.Id;
   resetFor(currentId); // clear the retry counter when the track changes
@@ -56,7 +58,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   // Smart "previous": restart mid-track, else go to the prior track.
   const qc = { ...qh, prev: useSmartPrev(ref, seek, qh.prev) };
-
   // Fire-and-forget integrations: play reporting, endless radio, next-track
   // prefetch, tab title (see usePlayerSideEffects).
   usePlayerSideEffects(qh, current, currentId, ref, isPlaying);

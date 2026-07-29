@@ -55,6 +55,34 @@ describe('groupBooks', () => {
     expect(books[0].title).toBe('Circe');
   });
 
+  it('titles a single-file book by its Album, not a per-chapter Name', () => {
+    // Real case: the only file for "Heir of Fire" is named "1 - Heir of Fire:
+    // Opening Credits" but its Album is the real book name.
+    const books = groupBooks([
+      file({
+        Id: 'h',
+        Name: '1 - Heir of Fire: Opening Credits',
+        Album: 'Heir of Fire (Unabridged)',
+        IndexNumber: 1,
+      }),
+    ]);
+    expect(books[0].title).toBe('Heir of Fire');
+  });
+
+  it('strips the part suffix from a multi-part book that has no Album', () => {
+    // Real case: "Home Front-Part01".."Part12" share a ParentId but no Album.
+    const books = groupBooks([
+      file({ Id: 'h2', Name: 'Home Front-Part02', ParentId: 'hf', IndexNumber: 2 }),
+      file({ Id: 'h1', Name: 'Home Front-Part01', ParentId: 'hf', IndexNumber: 1 }),
+    ]);
+    expect(books[0].title).toBe('Home Front');
+  });
+
+  it('preserves a numeric single-file title (no spurious suffix strip)', () => {
+    const books = groupBooks([file({ Id: 'o', Name: '1984', Album: '1984' })]);
+    expect(books[0].title).toBe('1984');
+  });
+
   it('keeps single-file books separate', () => {
     const books = groupBooks([
       file({ Id: 'b1', Name: 'Blade Runner', Album: '01 Blade Runner' }),

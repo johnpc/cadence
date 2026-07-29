@@ -19,13 +19,22 @@ export interface Book {
   parts: JellyfinItem[];
 }
 
-/** The display title for a grouped book: prefer the shared Album (the real book
- * name) for a multi-part set whose parts are named per-chapter; fall back to the
- * representative item's own Name for a single file. Strips a trailing
- * "(Unabridged)"/"(Abridged)" qualifier for a cleaner shelf label. */
+/** The display title for a grouped book. The `Album` tag is the canonical book
+ * name in this library (parts are named per-chapter, e.g. "1 - Heir of Fire:
+ * Opening Credits", while the Album is "Heir of Fire"), so prefer it whenever
+ * present — even for a single-file book. When there's no Album AND the set is
+ * multi-part (e.g. "Home Front-Part01".."Part12"), the representative Name still
+ * carries a part suffix, so strip it. A trailing "(Unabridged)"/"(Abridged)"
+ * qualifier is always dropped for a cleaner shelf label. */
 function bookTitle(rep: JellyfinItem, partCount: number): string {
-  const raw = partCount > 1 && rep.Album ? rep.Album : rep.Name;
-  return raw.replace(/\s*\((un)?abridged\)\s*$/i, '').trim() || raw;
+  const raw = rep.Album || rep.Name;
+  let title = raw.replace(/\s*\((un)?abridged\)\s*$/i, '').trim();
+  // Only strip a part/chapter suffix for a genuine multi-part set with no Album
+  // — a single file's Name may legitimately end in a number ("1984", "451").
+  if (!rep.Album && partCount > 1) {
+    title = title.replace(/[-_]?\s*(part|chapter|disc|cd|track)?\s*\d+.*$/i, '').trim();
+  }
+  return title || raw;
 }
 
 /** Order parts within a book: by IndexNumber, then name (a stable tiebreak). */

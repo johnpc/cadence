@@ -27,6 +27,12 @@ export function usePlaybackHandlers(
   /** Attempt to reload + retry the CURRENT track; returns false when the retry
    * budget for this track is spent (then we skip). Wired to useTrackReload. */
   requestReload?: (trackId: string | undefined) => boolean,
+  /** True once the user has actually started playback this session. A track
+   * RESTORED at launch loads (paused) before the async session is ready, so its
+   * stream URL can briefly error (UserId=&api_key= → code 4) — but the user never
+   * pressed play, and useTrackLoader re-derives it once the session lands. Until
+   * playback has started we recover silently, with no "couldn't play" toast. */
+  playbackStarted?: RefObject<boolean>,
 ) {
   const onEnded = useCallback(() => {
     // "Stop after this track" sleep timer: a NATURAL end (not a manual skip)
@@ -57,6 +63,9 @@ export function usePlaybackHandlers(
     // it without the user losing their place. requestReload returns false once the
     // per-track retry budget is spent; only then do we surface it + skip.
     const track = q.currentTrack(qh.queue);
+    // Cold-start restore error: the user hasn't pressed play, and the session-ready
+    // re-derive will fix the URL — stay silent (no toast, no skip).
+    if (playbackStarted && !playbackStarted.current) return;
     if (requestReload?.(track?.Id)) {
       toast('Trouble playing that — retrying…');
       return;
@@ -70,7 +79,7 @@ export function usePlaybackHandlers(
     } else {
       toast("Couldn't play that track.");
     }
-  }, [qh, audioRef, toast, requestReload]);
+  }, [qh, audioRef, toast, requestReload, playbackStarted]);
 
   return { onEnded, onError };
 }

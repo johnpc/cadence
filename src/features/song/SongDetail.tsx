@@ -10,7 +10,7 @@ import {
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { usePlayer } from '../player/usePlayer';
-import { usePlayItem } from '../player/usePlayItem';
+import { useSongRadio } from '../player/useSongRadio';
 import { SongHeader } from './SongHeader';
 import { SongAbout } from './SongAbout';
 import { SongLyrics } from './SongLyrics';
@@ -27,7 +27,7 @@ export function SongDetail() {
   const { album } = useSongAlbum(song?.AlbumId);
   const { artist } = useSongArtist(song?.ArtistItems?.[0]?.Id);
   const { playQueue } = usePlayer();
-  const playItem = usePlayItem();
+  const songRadio = useSongRadio();
 
   return (
     <IonPage>
@@ -54,7 +54,7 @@ export function SongDetail() {
               <SongHeader
                 song={song}
                 onPlay={() => playQueue([song], 0)}
-                onRadio={() => void playItem(song)}
+                onRadio={() => songRadio(song)}
               />
               <SongAbout album={album} artist={artist} />
               <SongLyrics song={song} />
