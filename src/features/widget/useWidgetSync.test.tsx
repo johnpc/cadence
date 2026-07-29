@@ -24,7 +24,7 @@ function setup(opts: { native: boolean; resumable?: JellyfinItem[]; recents?: Je
   vi.mocked(hasWidgetBridge).mockReturnValue(opts.native);
   vi.mocked(useAudiobookLibrary).mockReturnValue({
     books: [],
-    resumable: opts.resumable ?? [],
+    highlights: opts.resumable ?? [],
     isLoading: false,
     isError: false,
     refetch: vi.fn(),

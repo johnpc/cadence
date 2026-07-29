@@ -1,18 +1,24 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { IonSearchbar } from '@ionic/react';
 import { LoadState } from '../../components/LoadState';
 import { TrackRow } from '../player/TrackRow';
 import { BookRow } from './BookRow';
 import { groupBooks } from './groupBooks';
+import { filterBooks } from './filterBooks';
 import { useAudiobookLibrary } from './useAudiobookLibrary';
 
-/** The audiobook library browse view: a "Continue listening" section (the exact
- * in-progress parts, which resume where you left off — see useAudiobookResume)
- * followed by every book, with multi-file books collapsed into a single row that
- * plays all parts in order (groupBooks). */
+/** The audiobook library: a search box, a "Continue listening & favorites" top
+ * section (in-progress + favorited books, resuming where you left off), and the
+ * full book list with multi-file books collapsed into one row (groupBooks). The
+ * search filters the full list; the highlights hide while searching. */
 export function Audiobooks() {
-  const { books, resumable, isLoading, isError, refetch } = useAudiobookLibrary();
+  const { books, highlights, isLoading, isError, refetch } = useAudiobookLibrary();
+  const [query, setQuery] = useState('');
   const ctx = { kind: 'audiobooks', label: 'Audiobooks', path: '/audiobooks' };
   const grouped = useMemo(() => groupBooks(books), [books]);
+  const shown = useMemo(() => filterBooks(grouped, query), [grouped, query]);
+  const searching = query.trim().length > 0;
+
   return (
     <LoadState
       isLoading={isLoading}
@@ -23,19 +29,30 @@ export function Audiobooks() {
       emptyMessage="Add audiobooks to your Jellyfin Books library and they'll appear here."
     >
       <div data-testid="audiobooks">
-        {resumable.length > 0 && (
-          <section data-testid="audiobooks-continue">
-            <h2 className="cad-kicker">Continue listening</h2>
-            {resumable.map((b, i) => (
-              <TrackRow key={b.Id} track={b} queue={resumable} index={i} context={ctx} />
+        <IonSearchbar
+          value={query}
+          onIonInput={(e) => setQuery(e.detail.value ?? '')}
+          placeholder="Find an audiobook"
+          data-testid="audiobook-search"
+        />
+        {!searching && highlights.length > 0 && (
+          <section data-testid="audiobooks-highlights">
+            <h2 className="cad-kicker">Continue listening &amp; favorites</h2>
+            {highlights.map((b, i) => (
+              <TrackRow key={b.Id} track={b} queue={highlights} index={i} context={ctx} />
             ))}
           </section>
         )}
         <section>
-          <h2 className="cad-kicker">All audiobooks</h2>
-          {grouped.map((book) => (
+          <h2 className="cad-kicker">{searching ? 'Results' : 'All audiobooks'}</h2>
+          {shown.map((book) => (
             <BookRow key={book.id} book={book} />
           ))}
+          {searching && shown.length === 0 && (
+            <p className="cad-meta" data-testid="audiobook-no-matches">
+              No audiobooks match “{query.trim()}”.
+            </p>
+          )}
         </section>
       </div>
     </LoadState>

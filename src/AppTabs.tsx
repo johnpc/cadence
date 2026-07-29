@@ -1,5 +1,5 @@
 import { IonRouterOutlet, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
-import { home, search, library, addCircleOutline } from 'ionicons/icons';
+import { home, search, library, addCircleOutline, book } from 'ionicons/icons';
 import { lidarrProxyEnabled } from './lib/runtimeConfig';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import { NowPlayingAnnouncer } from './features/player/NowPlayingAnnouncer';
@@ -56,6 +56,10 @@ export function AppTabs() {
           <IonTabButton tab="library" href="/library" onClick={retap('/library')}>
             <IonIcon aria-hidden="true" icon={library} />
             <IonLabel>Your Library</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="audiobooks" href="/audiobooks" onClick={retap('/audiobooks')}>
+            <IonIcon aria-hidden="true" icon={book} />
+            <IonLabel>Books</IonLabel>
           </IonTabButton>
           {canRequest && (
             <IonTabButton tab="requests" href="/requests" onClick={retap('/requests')}>

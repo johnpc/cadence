@@ -17,8 +17,10 @@ export function audioStreamUrl(itemId: string): string {
   const params = new URLSearchParams({
     UserId: session?.userId ?? '',
     api_key: session?.token ?? '',
-    // Prefer direct-play; let Jellyfin transcode to aac/mp3 when it must.
-    Container: 'opus,mp3,aac,m4a,flac,webma,webm,wav,ogg',
+    // Prefer direct-play; let Jellyfin transcode to aac/mp3 when it must. m4b is
+    // included so AUDIOBOOKS direct-play (they're m4b; without it Jellyfin tries
+    // to transcode the whole book and the stream stalls → "failed to play").
+    Container: 'opus,mp3,aac,m4a,m4b,flac,webma,webm,wav,ogg',
     TranscodingContainer: 'ts',
     AudioCodec: 'aac',
   });

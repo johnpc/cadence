@@ -8,7 +8,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { settingsOutline, cloudDownloadOutline, bookOutline } from 'ionicons/icons';
+import { settingsOutline, cloudDownloadOutline } from 'ionicons/icons';
 import { LibraryList } from './LibraryList';
 import { deezerImportEnabled } from '../../lib/runtimeConfig';
 
@@ -23,9 +23,6 @@ export function Library() {
         <IonToolbar>
           <IonTitle>Your Library</IonTitle>
           <IonButtons slot="end">
-            <IonButton routerLink="/audiobooks" data-testid="library-audiobooks">
-              <IonIcon slot="icon-only" icon={bookOutline} aria-label="Audiobooks" />
-            </IonButton>
             {deezerImportEnabled() && (
               <IonButton routerLink="/import/deezer" data-testid="library-import-deezer">
                 <IonIcon

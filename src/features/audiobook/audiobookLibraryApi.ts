@@ -27,14 +27,14 @@ export async function getAudiobooks(limit = 500): Promise<JellyfinItem[]> {
   return res.Items;
 }
 
-/** In-progress audiobooks (has a saved resume position, not finished), most
- * recently played first — the "Continue listening" row. */
-export async function getResumableAudiobooks(limit = 20): Promise<JellyfinItem[]> {
+/** Audiobooks matching a Jellyfin filter (e.g. IsResumable, IsFavorite), most
+ * recently played first. Shared by the "Continue listening & favorites" section. */
+async function getBooksByFilter(filter: string, limit: number): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     IncludeItemTypes: 'AudioBook',
     Recursive: 'true',
-    Filters: 'IsResumable',
+    Filters: filter,
     SortBy: 'DatePlayed',
     SortOrder: 'Descending',
     Limit: String(limit),
@@ -43,4 +43,15 @@ export async function getResumableAudiobooks(limit = 20): Promise<JellyfinItem[]
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
   return res.Items;
+}
+
+/** In-progress audiobooks (saved resume position, not finished) — most recent
+ * first. The "Continue listening" part of the top section. */
+export function getResumableAudiobooks(limit = 20): Promise<JellyfinItem[]> {
+  return getBooksByFilter('IsResumable', limit);
+}
+
+/** Favorited audiobooks — surfaced in the top section alongside in-progress. */
+export function getFavoriteAudiobooks(limit = 50): Promise<JellyfinItem[]> {
+  return getBooksByFilter('IsFavorite', limit);
 }

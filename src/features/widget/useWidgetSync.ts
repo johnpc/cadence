@@ -15,16 +15,18 @@ import { useJumpBackIn } from '../home/useJumpBackIn';
  */
 export function useWidgetSync(): void {
   const native = hasWidgetBridge();
-  const { resumable } = useAudiobookLibrary();
+  const { highlights } = useAudiobookLibrary();
   const { items: recents } = useJumpBackIn();
   const lastJson = useRef<string | null>(null);
 
   useEffect(() => {
     if (!native) return;
-    const snapshot = buildSnapshot(resumable, recents, (item) => imageUrl(item, 300));
+    // highlights are in-progress/favorite audiobooks (resumable first) — the
+    // widget's preferred "continue listening" candidate, else a recent collection.
+    const snapshot = buildSnapshot(highlights, recents, (item) => imageUrl(item, 300));
     const json = JSON.stringify(snapshot);
     if (json === lastJson.current) return;
     lastJson.current = json;
     pushWidgetSnapshot(snapshot);
-  }, [native, resumable, recents]);
+  }, [native, highlights, recents]);
 }
