@@ -31,12 +31,15 @@ export class HttpError extends Error {
 }
 
 /** Per-request ceiling. Jellyfin is normally sub-second, but a server behind a
- * tunnel/proxy that has gone idle can COLD-START the first request to ~15s
- * (measured on cloudflared) before it warms to sub-second. A 12s ceiling
- * aborted that first request — sign-in would fail on a cold server for a real
- * user, not just in CI — so allow 30s: still bounded (no indefinite hang), but
- * above the cold-start worst case. */
-export const REQUEST_TIMEOUT_MS = 30_000;
+ * tunnel/proxy that has gone idle can COLD-START badly: the first
+ * AuthenticateByName after idle was measured at 30-40s on the live server
+ * (PBKDF2 + cloudflared spin-up) before it warms to a couple of seconds. A 30s
+ * ceiling aborted that first request — sign-in would fail on a cold server for a
+ * real user, not just in CI — so allow 60s: still bounded (no indefinite hang),
+ * but above the cold-start worst case. A dead server / dropped tunnel still
+ * fails within a minute, at which point the UI falls back to the offline
+ * library / an error+retry. */
+export const REQUEST_TIMEOUT_MS = 60_000;
 
 /** True for failures worth retrying: timeouts and 5xx/network errors — but NOT a
  * 401 (a confirmed dead session; retrying hides it) and NOT a 4xx client error
