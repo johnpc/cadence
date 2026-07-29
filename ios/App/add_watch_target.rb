@@ -43,8 +43,11 @@ watch.build_configurations.each do |c|
   s["WATCHOS_DEPLOYMENT_TARGET"] = "9.0"
   s["TARGETED_DEVICE_FAMILY"] = "4" # Apple Watch
   s["SDKROOT"] = "watchos"
-  s["GENERATE_INFOPLIST_FILE"] = "YES"
-  s["SKIP_INSTALL"] = "NO"
+  # Embedded target: must SKIP_INSTALL so it doesn't become a top-level product
+  # in the archive (which makes it a "Generic Xcode Archive" → no App Store
+  # Connect distribution option, only Custom). The app embeds it via Embed Watch
+  # Content. Use the manual Info.plist (below) rather than generating one.
+  s["SKIP_INSTALL"] = "YES"
   s["INFOPLIST_KEY_WKApplication"] = "YES"
   s["INFOPLIST_KEY_WKCompanionAppBundleIdentifier"] = "com.johncorser.cadence"
 end
