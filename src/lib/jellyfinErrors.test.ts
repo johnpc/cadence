@@ -27,6 +27,8 @@ describe('jellyfinErrors', () => {
 
   it('uses a sane per-request timeout', () => {
     expect(REQUEST_TIMEOUT_MS).toBeGreaterThan(0);
-    expect(REQUEST_TIMEOUT_MS).toBeLessThanOrEqual(30_000);
+    // Bounded so a dead server / dropped tunnel can't hang forever, but high
+    // enough to survive the auth cold-start (30-40s on a tunnelled server).
+    expect(REQUEST_TIMEOUT_MS).toBeLessThanOrEqual(60_000);
   });
 });
