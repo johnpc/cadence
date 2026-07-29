@@ -12,7 +12,13 @@ import WidgetKit
 ///  - "cadenceWidget": the "Continue listening" snapshot JSON, which we persist to
 ///    the shared App Group so the WidgetKit extension can render it (the widget
 ///    process can't run any web code). See src/features/widget/.
+///  - "cadenceWatch": now-playing JSON relayed to the paired Apple Watch remote;
+///    the watch's transport commands come back and become cadence:watch:* DOM
+///    events on the web player. See src/features/watch/ + WatchBridge.swift.
 class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
+
+    /// Relays now-playing state to / commands from the paired Apple Watch.
+    private let watch = WatchBridge()
 
     /// App Group shared with the widget extension — the ONLY channel between the
     /// app and the widget. Must match the extension's entitlement + the id used
@@ -29,6 +35,24 @@ class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
         let controller = webView?.configuration.userContentController
         controller?.add(self, name: "cadenceAudioSession")
         controller?.add(self, name: "cadenceWidget")
+        controller?.add(self, name: "cadenceWatch")
+        // A watch command → the matching DOM event on the web player.
+        watch.onCommand = { [weak self] cmd in self?.dispatchWatchCommand(cmd) }
+        watch.activate()
+    }
+
+    /// Map a watch transport command to the `cadence:watch:*` event the web
+    /// player listens for (see src/features/watch/watchTypes.ts).
+    private func dispatchWatchCommand(_ command: String) {
+        let events: [String: String] = [
+            "toggle": "cadence:watch:toggle",
+            "next": "cadence:watch:next",
+            "prev": "cadence:watch:prev",
+            "seekForward": "cadence:watch:seekforward",
+            "seekBack": "cadence:watch:seekback",
+        ]
+        guard let evt = events[command] else { return }
+        webView?.evaluateJavaScript("window.dispatchEvent(new Event('\(evt)'))", completionHandler: nil)
     }
 
     func userContentController(
@@ -44,6 +68,8 @@ class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
             )
         case "cadenceWidget":
             storeWidgetSnapshot(message.body as? String)
+        case "cadenceWatch":
+            if let json = message.body as? String { watch.sendState(json) }
         default:
             break
         }

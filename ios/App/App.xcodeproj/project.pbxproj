@@ -8,21 +8,34 @@
 
 /* Begin PBXBuildFile section */
 		05EB72B361EE94932C9DD101 /* CadenceWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 519962128EBC80DE63B1C0F1 /* CadenceWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		075321A18F4131529FFE021E /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B014422AD610BAAB3D26A69 /* NowPlayingView.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
+		3B854AD2300EDB8B0F48484B /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7881036B54209EC3C031AB69 /* WatchConnector.swift */; };
 		414C5494E4BBB78C65CEC6AE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5876C6A35F186B54F2470C /* Foundation.framework */; };
+		4F2B28F0482D1EA3ABFA1276 /* NowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491E91C975EFE844F1AAD6C8 /* NowPlaying.swift */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
 		504EC30D1FED79650016851F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30B1FED79650016851F /* Main.storyboard */; };
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
+		6A95884522E62A3FAA77442A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACDF531C157768DA1A056434 /* Foundation.framework */; };
 		7655C22A107A6C1A06F1BEB0 /* ContinueListeningSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F4C3F48EABA90BA2A80CF /* ContinueListeningSnapshot.swift */; };
+		80ED9925162298A48DCAE93D /* CadenceWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171589B31ECA1A2069F672D1 /* CadenceWatchApp.swift */; };
+		A035F5B5D2EB15A1D63F4535 /* CadenceWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */; };
 		A31C77D6188325D4B1AE2AC4 /* CadenceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3F29B5EA859F1ED43AB847 /* CadenceWidget.swift */; };
 		CAD0000100000000000000A1 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD0000100000000000000A2 /* MainViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		66C7D0C52B223EC13D751334 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 40F4D719C5155D693B4FF597;
+			remoteInfo = CadenceWatch;
+		};
 		B641CE289D8D26CE714A4EA8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
@@ -33,6 +46,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		4BCF7B3126020033E060E3BB /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				A035F5B5D2EB15A1D63F4535 /* CadenceWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9C991B80D486426D946EF3D9 /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -47,10 +71,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		171589B31ECA1A2069F672D1 /* CadenceWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CadenceWatchApp.swift; sourceTree = "<group>"; };
 		2A3F29B5EA859F1ED43AB847 /* CadenceWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CadenceWidget.swift; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		3A5876C6A35F186B54F2470C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		3D3F4C3F48EABA90BA2A80CF /* ContinueListeningSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContinueListeningSnapshot.swift; sourceTree = "<group>"; };
+		491E91C975EFE844F1AAD6C8 /* NowPlaying.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlaying.swift; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -60,11 +86,16 @@
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
 		519962128EBC80DE63B1C0F1 /* CadenceWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CadenceWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B014422AD610BAAB3D26A69 /* NowPlayingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
+		7881036B54209EC3C031AB69 /* WatchConnector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchConnector.swift; sourceTree = "<group>"; };
+		88DBF60A5C0D1460BB24F5C5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A25E2FA59F5BFAF7676520BE /* CadenceWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = CadenceWidget.entitlements; sourceTree = "<group>"; };
+		ACDF531C157768DA1A056434 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		C4C0A762CC16E55DEE2EFC0E /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CAD0000100000000000000A2 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CadenceWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -85,6 +116,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EFF7D5DB167A9BFBD7E3F6E3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6A95884522E62A3FAA77442A /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -93,6 +132,7 @@
 			children = (
 				AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */,
 				F3EDF254EDFA4E67967221A9 /* iOS */,
+				BDF9FE66B0880626A2C664A5 /* watchOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -105,6 +145,7 @@
 				7F8756D8B27F46E3366F6CEA /* Pods */,
 				27E2DDA53C4D2A4D1A88CE4A /* Frameworks */,
 				746E33964289CC8FF9ED886F /* CadenceWidget */,
+				8BD602D278B18D1481F123B7 /* CadenceWatch */,
 			);
 			sourceTree = "<group>";
 		};
@@ -113,6 +154,7 @@
 			children = (
 				504EC3041FED79650016851F /* App.app */,
 				519962128EBC80DE63B1C0F1 /* CadenceWidget.appex */,
+				E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -154,6 +196,27 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		8BD602D278B18D1481F123B7 /* CadenceWatch */ = {
+			isa = PBXGroup;
+			children = (
+				171589B31ECA1A2069F672D1 /* CadenceWatchApp.swift */,
+				5B014422AD610BAAB3D26A69 /* NowPlayingView.swift */,
+				7881036B54209EC3C031AB69 /* WatchConnector.swift */,
+				491E91C975EFE844F1AAD6C8 /* NowPlaying.swift */,
+				88DBF60A5C0D1460BB24F5C5 /* Info.plist */,
+			);
+			name = CadenceWatch;
+			path = CadenceWatch;
+			sourceTree = "<group>";
+		};
+		BDF9FE66B0880626A2C664A5 /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				ACDF531C157768DA1A056434 /* Foundation.framework */,
+			);
+			name = watchOS;
+			sourceTree = "<group>";
+		};
 		F3EDF254EDFA4E67967221A9 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -165,6 +228,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		40F4D719C5155D693B4FF597 /* CadenceWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D6E2B7EE79A21796DED2FF0E /* Build configuration list for PBXNativeTarget "CadenceWatch" */;
+			buildPhases = (
+				92C0EAD0DE2CC9E416D1A068 /* Sources */,
+				EFF7D5DB167A9BFBD7E3F6E3 /* Frameworks */,
+				761F396FE166B47E6EF4B3CA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CadenceWatch;
+			productName = CadenceWatch;
+			productReference = E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 		504EC3031FED79650016851F /* App */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
@@ -176,11 +256,13 @@
 				9592DBEFFC6D2A0C8D5DEB22 /* [CP] Embed Pods Frameworks */,
 				35A3FC36B6AA37D9DB30A39E /* [CP] Copy Pods Resources */,
 				9C991B80D486426D946EF3D9 /* Embed App Extensions */,
+				4BCF7B3126020033E060E3BB /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				82372A3D7E7E9A08C8D2D7E4 /* PBXTargetDependency */,
+				DC21D3FF371A921D1AC81AEA /* PBXTargetDependency */,
 			);
 			name = App;
 			productName = App;
@@ -235,6 +317,7 @@
 			targets = (
 				504EC3031FED79650016851F /* App */,
 				68D6362D61C37F9DC6769C1C /* CadenceWidget */,
+				40F4D719C5155D693B4FF597 /* CadenceWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -250,6 +333,13 @@
 				50379B232058CBB4000EE86E /* capacitor.config.json in Resources */,
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		761F396FE166B47E6EF4B3CA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,6 +422,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		92C0EAD0DE2CC9E416D1A068 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80ED9925162298A48DCAE93D /* CadenceWatchApp.swift in Sources */,
+				075321A18F4131529FFE021E /* NowPlayingView.swift in Sources */,
+				3B854AD2300EDB8B0F48484B /* WatchConnector.swift in Sources */,
+				4F2B28F0482D1EA3ABFA1276 /* NowPlaying.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -340,6 +441,12 @@
 			name = CadenceWidget;
 			target = 68D6362D61C37F9DC6769C1C /* CadenceWidget */;
 			targetProxy = B641CE289D8D26CE714A4EA8 /* PBXContainerItemProxy */;
+		};
+		DC21D3FF371A921D1AC81AEA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CadenceWatch;
+			target = 40F4D719C5155D693B4FF597 /* CadenceWatch */;
+			targetProxy = 66C7D0C52B223EC13D751334 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -363,6 +470,28 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		068037C49A0B612C55384D2A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JW5SC3NYUV;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CadenceWatch/Info.plist;
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.johncorser.cadence;
+				PRODUCT_BUNDLE_IDENTIFIER = com.johncorser.cadence.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
 		2D11EE5DCE22D73AF90A0021 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -554,6 +683,27 @@
 			};
 			name = Release;
 		};
+		A8EC7F472C02C7BDEC87EB9C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JW5SC3NYUV;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CadenceWatch/Info.plist;
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.johncorser.cadence;
+				PRODUCT_BUNDLE_IDENTIFIER = com.johncorser.cadence.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -580,6 +730,15 @@
 			buildConfigurations = (
 				504EC3171FED79650016851F /* Debug */,
 				504EC3181FED79650016851F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D6E2B7EE79A21796DED2FF0E /* Build configuration list for PBXNativeTarget "CadenceWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				068037C49A0B612C55384D2A /* Release */,
+				A8EC7F472C02C7BDEC87EB9C /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
