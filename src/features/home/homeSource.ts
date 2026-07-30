@@ -10,6 +10,7 @@
  * never sees. The shelves' shapes match the native reads so hooks are agnostic.
  */
 import { request } from '../../lib/jellyfinFetch';
+import { getSession } from '../../lib/sessionStore';
 import { homeShelvesEnabled } from '../../lib/runtimeConfig';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -47,7 +48,10 @@ export function homeSourceEnabled(): boolean {
  * homeSourceEnabled() is true. Throws on network/HTTP error so react-query marks
  * it errored and the caller can fall back. */
 export async function fetchHomeShelves(): Promise<HomeShelvesData> {
-  const res = await request<HomeResponse>('/Cadence/Home');
+  // The plugin scopes the shelves to this user (same convention as the app's other
+  // Jellyfin calls) — it reads the userId from the query string.
+  const userId = getSession()?.userId ?? '';
+  const res = await request<HomeResponse>(`/Cadence/Home?userId=${encodeURIComponent(userId)}`);
   return {
     latestAlbums: arr(res.LatestAlbums),
     suggestedSongs: arr(res.SuggestedSongs),

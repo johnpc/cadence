@@ -1,12 +1,17 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinFetch', () => ({ request: vi.fn() }));
 vi.mock('../../lib/runtimeConfig', () => ({ homeShelvesEnabled: vi.fn() }));
+vi.mock('../../lib/sessionStore', () => ({ getSession: vi.fn() }));
 
 import { request } from '../../lib/jellyfinFetch';
 import { homeShelvesEnabled } from '../../lib/runtimeConfig';
+import { getSession } from '../../lib/sessionStore';
 import { fetchHomeShelves, homeSourceEnabled } from './homeSource';
 
+beforeEach(() => {
+  vi.mocked(getSession).mockReturnValue({ token: 't', userId: 'u1' });
+});
 afterEach(() => {
   vi.resetAllMocks();
 });
@@ -29,7 +34,8 @@ describe('homeSource', () => {
       FollowedArtists: [{ Id: 'ar', Name: 'AR', Type: 'MusicArtist' }],
     });
     const data = await fetchHomeShelves();
-    expect(request).toHaveBeenCalledWith('/Cadence/Home');
+    // Scoped to the signed-in user via the query string.
+    expect(request).toHaveBeenCalledWith('/Cadence/Home?userId=u1');
     expect(data.latestAlbums[0].Id).toBe('a');
     expect(data.suggestedSongs[0].Id).toBe('s');
     expect(data.savedAlbums[0].Id).toBe('sa');
