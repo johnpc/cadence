@@ -1,4 +1,5 @@
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { bookTitle } from './bookTitle';
 
 /**
  * A "book" — one logical audiobook, which may be a single m4b file or many
@@ -11,30 +12,10 @@ export interface Book {
   id: string;
   /** The representative item for art/artist (the first part). */
   book: JellyfinItem;
-  /** The book's display title — the shared Album for multi-part books (so we
-   * show "Astrophysics for People in a Hurry", not the first chapter's name like
-   * "Preface"); the item name for a single-file book. */
+  /** The book's display title — see bookTitle for how Album/Name are reconciled. */
   title: string;
   /** The playable parts, in listening order (one entry for a single-file book). */
   parts: JellyfinItem[];
-}
-
-/** The display title for a grouped book. The `Album` tag is the canonical book
- * name in this library (parts are named per-chapter, e.g. "1 - Heir of Fire:
- * Opening Credits", while the Album is "Heir of Fire"), so prefer it whenever
- * present — even for a single-file book. When there's no Album AND the set is
- * multi-part (e.g. "Home Front-Part01".."Part12"), the representative Name still
- * carries a part suffix, so strip it. A trailing "(Unabridged)"/"(Abridged)"
- * qualifier is always dropped for a cleaner shelf label. */
-function bookTitle(rep: JellyfinItem, partCount: number): string {
-  const raw = rep.Album || rep.Name;
-  let title = raw.replace(/\s*\((un)?abridged\)\s*$/i, '').trim();
-  // Only strip a part/chapter suffix for a genuine multi-part set with no Album
-  // — a single file's Name may legitimately end in a number ("1984", "451").
-  if (!rep.Album && partCount > 1) {
-    title = title.replace(/[-_]?\s*(part|chapter|disc|cd|track)?\s*\d+.*$/i, '').trim();
-  }
-  return title || raw;
 }
 
 /** Order parts within a book: by IndexNumber, then name (a stable tiebreak). */

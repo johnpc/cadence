@@ -83,6 +83,26 @@ describe('groupBooks', () => {
     expect(books[0].title).toBe('1984');
   });
 
+  it('strips a leading track-number prefix from the Album ("01 Blade Runner")', () => {
+    // Real case: Name is clean but the Album folder is track-numbered.
+    const books = groupBooks([
+      file({ Id: 'b', Name: 'Blade Runner', Album: '01 Blade Runner', IndexNumber: 1 }),
+    ]);
+    expect(books[0].title).toBe('Blade Runner');
+  });
+
+  it('strips a leading track number even when the Name also carries it', () => {
+    const books = groupBooks([
+      file({ Id: 's', Name: '01 The Stranger', Album: '01 The Stranger', IndexNumber: 1 }),
+    ]);
+    expect(books[0].title).toBe('The Stranger');
+  });
+
+  it('keeps the Name when the Album is only a bare number ("451")', () => {
+    const books = groupBooks([file({ Id: 'f', Name: 'Fahrenheit 451', Album: '451' })]);
+    expect(books[0].title).toBe('Fahrenheit 451');
+  });
+
   it('keeps single-file books separate', () => {
     const books = groupBooks([
       file({ Id: 'b1', Name: 'Blade Runner', Album: '01 Blade Runner' }),
