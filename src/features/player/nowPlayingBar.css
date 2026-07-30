@@ -95,9 +95,9 @@
   cursor: pointer;
 }
 
-/* Dismiss (hide) the mini-player to browse without it in the way. Reads as
-   secondary, like the skip button. */
-.npbar__dismiss {
+/* Close the mini-player — ends playback + tears down the session (Spotify-style
+   X at the far end). Reads as secondary, like the skip button. */
+.npbar__close {
   flex-shrink: 0;
   width: 36px;
   height: 40px;

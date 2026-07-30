@@ -36,6 +36,15 @@ describe('usePlayerQueue', () => {
     expect(result.current.queue.index).toBe(1);
   });
 
+  it('stop empties the whole queue (no current track)', () => {
+    const { result } = renderHook(() => usePlayerQueue());
+    act(() => result.current.playQueue(tracks, 1));
+    expect(result.current.queue.tracks).toHaveLength(3);
+    act(() => result.current.stop());
+    expect(result.current.queue.tracks).toHaveLength(0);
+    expect(result.current.queue.index).toBe(0);
+  });
+
   it('advance replays the same track on repeat=one', () => {
     const { result } = renderHook(() => usePlayerQueue());
     act(() => result.current.playQueue(tracks, 0));

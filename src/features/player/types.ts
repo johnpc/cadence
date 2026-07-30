@@ -38,6 +38,8 @@ export interface PlayerContextValue {
   moveInQueue: (from: number, to: number) => void;
   /** Drop everything after the current track. */
   clearQueue: () => void;
+  /** Terminate the session: stop the audio + empty the queue (mini-player hides). */
+  stop: () => void;
   /** Seek to a position in seconds. */
   seek: (seconds: number) => void;
   toggleShuffle: () => void;

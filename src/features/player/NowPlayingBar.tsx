@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IonIcon, IonSpinner } from '@ionic/react';
-import { play, pause, playSkipForward, chevronDown } from 'ionicons/icons';
+import { play, pause, playSkipForward, close } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
-import { useNowPlayingDismiss } from './useNowPlayingDismiss';
 import { useCast } from '../cast/useCast';
 import { usePlayerProgress } from './PlayerProgressContext';
 import { useScrubber } from './useScrubber';
@@ -17,13 +16,11 @@ import './nowPlayingBar.css';
 
 /** Persistent mini-player above the tab bar. Tap to open the full player. */
 export function NowPlayingBar() {
-  const { current, isPlaying, waiting, canNext, next, toggle, seek } = usePlayer();
+  const { current, isPlaying, waiting, canNext, next, toggle, seek, stop } = usePlayer();
   const { connected: casting, deviceName } = useCast();
   const { position, duration } = usePlayerProgress();
   const scrub = useScrubber(position, seek);
   const [open, setOpen] = useState(false);
-  // Let the user hide the bar to browse; it returns when a new track starts.
-  const { dismissed, dismiss } = useNowPlayingDismiss(current?.Id);
   // While casting to a custom receiver, mirror now-playing + queue + lyrics to
   // the TV.
   useCastSync();
@@ -32,11 +29,11 @@ export function NowPlayingBar() {
   // Flag the document while a track is loaded so scroll views can reserve
   // bottom space and their last row isn't hidden behind the fixed mini-player.
   useEffect(() => {
-    document.body.classList.toggle('has-now-playing', !!current && !dismissed);
+    document.body.classList.toggle('has-now-playing', !!current);
     return () => document.body.classList.remove('has-now-playing');
-  }, [current, dismissed]);
+  }, [current]);
 
-  if (!current || dismissed) return null;
+  if (!current) return null;
 
   return (
     <>
@@ -47,14 +44,6 @@ export function NowPlayingBar() {
           deviceName={deviceName}
           onOpen={() => setOpen(true)}
         />
-        <button
-          className="npbar__dismiss"
-          onClick={dismiss}
-          aria-label="Hide player"
-          data-testid="now-playing-dismiss"
-        >
-          <IonIcon icon={chevronDown} />
-        </button>
         <LikeButton track={current} size={22} />
         <NowPlayingExtras />
         <button
@@ -78,6 +67,15 @@ export function NowPlayingBar() {
           aria-label="Next"
         >
           <IonIcon icon={playSkipForward} />
+        </button>
+        {/* Close = end playback + tear down the session (far right, Spotify-style). */}
+        <button
+          className="npbar__close"
+          onClick={stop}
+          aria-label="Close player"
+          data-testid="now-playing-close"
+        >
+          <IonIcon icon={close} />
         </button>
         <NowPlayingSeek scrub={scrub} duration={duration} />
       </div>

@@ -33,6 +33,7 @@ export function stubPlayer(overrides: Partial<PlayerContextValue> = {}): PlayerC
     removeFromQueue: vi.fn(),
     moveInQueue: vi.fn(),
     clearQueue: vi.fn(),
+    stop: vi.fn(),
     seek: vi.fn(),
     toggleShuffle: vi.fn(),
     cycleRepeat: vi.fn(),

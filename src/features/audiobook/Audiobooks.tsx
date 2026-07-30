@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { IonSearchbar } from '@ionic/react';
 import { LoadState } from '../../components/LoadState';
-import { TrackRow } from '../player/TrackRow';
 import { BookRow } from './BookRow';
 import { groupBooks } from './groupBooks';
 import { filterBooks } from './filterBooks';
+import { highlightBooks } from './highlightBooks';
 import { useAudiobookLibrary } from './useAudiobookLibrary';
 
 /** The audiobook library: a search box, a "Continue listening & favorites" top
@@ -14,9 +14,11 @@ import { useAudiobookLibrary } from './useAudiobookLibrary';
 export function Audiobooks() {
   const { books, highlights, isLoading, isError, refetch } = useAudiobookLibrary();
   const [query, setQuery] = useState('');
-  const ctx = { kind: 'audiobooks', label: 'Audiobooks', path: '/audiobooks' };
   const grouped = useMemo(() => groupBooks(books), [books]);
   const shown = useMemo(() => filterBooks(grouped, query), [grouped, query]);
+  // Resolve the raw resumable/favorite PART items to their grouped books, so the
+  // top section shows real book rows (not orphan chapter fragments like "Preface").
+  const topBooks = useMemo(() => highlightBooks(highlights, grouped), [highlights, grouped]);
   const searching = query.trim().length > 0;
 
   return (
@@ -35,11 +37,11 @@ export function Audiobooks() {
           placeholder="Find an audiobook"
           data-testid="audiobook-search"
         />
-        {!searching && highlights.length > 0 && (
+        {!searching && topBooks.length > 0 && (
           <section data-testid="audiobooks-highlights">
             <h2 className="cad-kicker">Continue listening &amp; favorites</h2>
-            {highlights.map((b, i) => (
-              <TrackRow key={b.Id} track={b} queue={highlights} index={i} context={ctx} />
+            {topBooks.map((book) => (
+              <BookRow key={book.id} book={book} />
             ))}
           </section>
         )}

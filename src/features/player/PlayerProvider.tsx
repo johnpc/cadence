@@ -26,14 +26,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const qh = usePlayerQueue();
   const toast = useToast();
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  // "Stop after this track" sleep timer: the ended-handler reads these refs and
-  // pauses+disarms on a natural track end (see useSleepAtTrackEnd).
+  // "Stop after this track" sleep timer: ended-handler reads these refs (useSleepAtTrackEnd).
   const sleepEnd = useSleepAtTrackEnd();
-  // Reload/retry the current track on a load error (bumps a nonce the loader
-  // depends on) before giving up + skipping.
+  // Reload/retry the current track on a load error before giving up + skipping.
   const { nonce: reloadNonce, requestReload, resetFor } = useTrackReload();
-  // Latches true on the first real playback; suppresses the cold-start restore
-  // error toast (a restored track can error before the session is ready) until then.
+  // Latches on first real playback; suppresses the cold-start restore error toast.
   const playbackStarted = useRef(false);
   const h = usePlaybackHandlers(qh, audioRef, toast, sleepEnd, requestReload, playbackStarted);
   const { ref, isPlaying, waiting, position, duration } = useAudioElement(h.onEnded, h.onError);
@@ -44,20 +41,23 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   resetFor(currentId); // clear the retry counter when the track changes
   const { volume, setVolume, nudgeVolume, toggleMute } = useVolume(ref, currentId);
   const { rate, setRate } = usePlaybackRate(ref, currentId);
-
   // Load the current track (restored tracks stay paused; reloadNonce forces a
   // re-derive+retry after a load error) and, for audiobooks, silently resume.
   useTrackPlayback(ref, current, reloadNonce);
 
   const hasQueue = qh.queue.tracks.length > 0;
-  const { toggle, seek, seekBy, pause, resume } = usePlaybackControls(ref, hasQueue, isPlaying);
+  // `stop` (audio teardown + queue empty) is composed inside usePlaybackControls.
+  const { toggle, seek, seekBy, pause, resume, stop } = usePlaybackControls(
+    ref,
+    hasQueue,
+    isPlaying,
+    qh.stop,
+  );
   // Recover from an OS audio interruption (Siri / call) if still meant to play.
   useAudioInterruptionResume(isPlaying, resume);
-  // Tag every diagnostic line with the current track + platform (and log changes).
-  useDiagnosticsContext(current);
-
+  useDiagnosticsContext(current); // tag diagnostics with the current track
   // Smart "previous": restart mid-track, else go to the prior track.
-  const qc = { ...qh, prev: useSmartPrev(ref, seek, qh.prev) };
+  const qc = { ...qh, prev: useSmartPrev(ref, seek, qh.prev), stop };
   // Fire-and-forget integrations: play reporting, endless radio, next-track
   // prefetch, tab title (see usePlayerSideEffects).
   usePlayerSideEffects(qh, current, currentId, ref, isPlaying);
