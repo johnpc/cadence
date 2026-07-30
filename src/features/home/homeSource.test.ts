@@ -57,4 +57,11 @@ describe('homeSource', () => {
     const data = await fetchHomeShelves();
     expect(data.latestAlbums).toEqual([]);
   });
+
+  it('sends an empty userId when there is no session (defensive)', async () => {
+    vi.mocked(getSession).mockReturnValue(null);
+    vi.mocked(request).mockResolvedValue({});
+    await fetchHomeShelves();
+    expect(request).toHaveBeenCalledWith('/Cadence/Home?userId=');
+  });
 });
