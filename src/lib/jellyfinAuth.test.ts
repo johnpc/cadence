@@ -18,12 +18,27 @@ describe('jellyfinAuth', () => {
     vi.restoreAllMocks();
   });
 
-  it('authenticateByName returns token + userId', async () => {
+  it('authenticateByName returns token + userId (non-admin)', async () => {
     stub({
       status: 200,
       _body: JSON.stringify({ AccessToken: 'tok', User: { Id: 'uid' } }),
     } as never);
-    expect(await authenticateByName('cadence-test', 'pw')).toEqual({ token: 'tok', userId: 'uid' });
+    expect(await authenticateByName('cadence-test', 'pw')).toEqual({
+      token: 'tok',
+      userId: 'uid',
+      isAdmin: false,
+    });
+  });
+
+  it('authenticateByName flags an admin user', async () => {
+    stub({
+      status: 200,
+      _body: JSON.stringify({
+        AccessToken: 'tok',
+        User: { Id: 'uid', Policy: { IsAdministrator: true } },
+      }),
+    } as never);
+    expect((await authenticateByName('admin', 'pw')).isAdmin).toBe(true);
   });
 
   it('validateToken returns the user on success', async () => {

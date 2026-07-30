@@ -11,7 +11,11 @@ export async function authenticateByName(username: string, password: string): Pr
     method: 'POST',
     body: { Username: username, Pw: password },
   });
-  return { token: result.AccessToken, userId: result.User.Id };
+  return {
+    token: result.AccessToken,
+    userId: result.User.Id,
+    isAdmin: result.User.Policy?.IsAdministrator === true,
+  };
 }
 
 /**

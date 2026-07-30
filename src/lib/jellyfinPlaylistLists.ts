@@ -41,19 +41,30 @@ async function isPlaylistOwner(id: string): Promise<boolean> {
   }
 }
 
-/** Partition playlists into [owned, notOwned]. `CanDelete === false` is a
- * definitive "not mine" (cheap, no extra call). Everything else is CONFIRMED via
- * the owner-only share endpoint — necessary because an ADMIN has `CanDelete`
- * true on every playlist, which would otherwise dump the whole server into their
- * library. Confirmations run in parallel. */
+/** ADMIN-only: confirm which playlists the admin actually owns. `CanDelete===false`
+ * is a definite "not mine" (no probe); every `CanDelete!==false` candidate is
+ * confirmed via the owner-only share endpoint (parallel). Returns the owned ids. */
+async function confirmAdminOwnership(playlists: JellyfinItem[]): Promise<Set<string>> {
+  const candidates = playlists.filter((p) => p.CanDelete !== false);
+  const confirmed = await Promise.all(candidates.map((p) => isPlaylistOwner(p.Id)));
+  return new Set(candidates.filter((_, i) => confirmed[i]).map((p) => p.Id));
+}
+
+/** Partition playlists into [owned, notOwned].
+ *
+ * For a NON-ADMIN, `CanDelete` is exactly the ownership signal — you can only
+ * delete your own playlists — so we partition on it with ZERO extra requests.
+ * For an ADMIN, `CanDelete` is `true` on EVERY playlist (they can delete
+ * anything), so it can't distinguish owned from others'; only then do we fall
+ * back to confirming each `CanDelete!==false` candidate via the owner-only share
+ * endpoint (parallel). This keeps the common path free and confines the O(N)
+ * probe fan-out to the rare admin case — a chatty storm over slow links. */
 async function partitionByOwnership(
   playlists: JellyfinItem[],
 ): Promise<[JellyfinItem[], JellyfinItem[]]> {
-  // Only CanDelete!==false items need the (expensive) owner confirmation;
-  // CanDelete===false is a definite "not mine".
-  const candidates = playlists.filter((p) => p.CanDelete !== false);
-  const confirmed = await Promise.all(candidates.map((p) => isPlaylistOwner(p.Id)));
-  const ownedIds = new Set(candidates.filter((_, i) => confirmed[i]).map((p) => p.Id));
+  const ownedIds = getSession()?.isAdmin
+    ? await confirmAdminOwnership(playlists)
+    : new Set(playlists.filter((p) => p.CanDelete !== false).map((p) => p.Id));
   // Filter the ORIGINAL list so BOTH partitions keep the caller's sort order
   // (e.g. getPublicPlaylists relies on DateCreated-desc — a newly-shared
   // playlist must stay at the front, not sink below the CanDelete:false ones).

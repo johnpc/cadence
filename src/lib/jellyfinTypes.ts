@@ -22,6 +22,11 @@ export interface JellyfinUser {
 export interface Session {
   token: string;
   userId: string;
+  /** True iff this user is a Jellyfin admin. Admins see `CanDelete: true` on
+   * EVERY playlist (they can delete anything), so ownership can't be inferred
+   * from `CanDelete` for them — only they need the per-playlist share-endpoint
+   * probe. For normal users `CanDelete` IS the ownership signal (no probe). */
+  isAdmin?: boolean;
 }
 
 /** A media item (song, album, artist, playlist) — the subset we render. */

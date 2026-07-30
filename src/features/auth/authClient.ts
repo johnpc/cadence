@@ -22,8 +22,8 @@ import { readForceOffline } from '../settings/forceOfflineStore';
 export async function currentUsername(): Promise<string | null> {
   const stored = await loadStoredSession();
   if (!stored) return null;
-  const trust = () => {
-    setSession({ token: stored.token, userId: stored.userId });
+  const trust = (isAdmin = stored.isAdmin) => {
+    setSession({ token: stored.token, userId: stored.userId, isAdmin });
     return stored.username;
   };
   if (readForceOffline()) return trust();
@@ -40,7 +40,11 @@ export async function currentUsername(): Promise<string | null> {
     setSession(null);
     return null;
   }
-  return trust();
+  // Re-read admin status from the freshly-validated user (it may have changed
+  // since sign-in) and re-persist so a later offline launch trusts the right flag.
+  const isAdmin = user.Policy?.IsAdministrator === true;
+  await storeSession({ ...stored, isAdmin });
+  return trust(isAdmin);
 }
 
 /** Sign in with a Jellyfin account; persists the session + primes the store. */
