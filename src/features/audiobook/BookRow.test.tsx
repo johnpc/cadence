@@ -47,4 +47,9 @@ describe('BookRow', () => {
     });
     expect(screen.getByTestId('book-row')).toHaveClass('track-row--current');
   });
+
+  it('offers a download-all control for the whole book', () => {
+    renderWithProviders(<BookRow book={multi} />, { player: stubPlayer() });
+    expect(screen.getByTestId('download-collection')).toBeInTheDocument();
+  });
 });

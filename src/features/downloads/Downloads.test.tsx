@@ -34,4 +34,18 @@ describe('Downloads', () => {
     expect(screen.getByTestId('load-empty')).toBeInTheDocument();
     expect(screen.getByText('No downloads yet')).toBeInTheDocument();
   });
+
+  it('splits downloaded audiobooks into their own Books section', () => {
+    vi.mocked(useDownloads).mockReturnValue({
+      tracks: [
+        { Id: 'a', Name: 'First Down', Type: 'Audio' },
+        { Id: 'bk', Name: 'Circe', Album: 'Circe', Type: 'AudioBook' },
+      ],
+    });
+    renderWithProviders(<Downloads />);
+    expect(screen.getByTestId('downloads-books')).toBeInTheDocument();
+    expect(screen.getByTestId('downloads-songs')).toBeInTheDocument();
+    expect(screen.getByText('Circe')).toBeInTheDocument(); // book row, not a chapter
+    expect(screen.getByText('First Down')).toBeInTheDocument();
+  });
 });

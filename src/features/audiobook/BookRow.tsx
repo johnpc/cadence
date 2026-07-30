@@ -1,7 +1,7 @@
 import { usePlayer } from '../player/usePlayer';
 import { setPlayContext } from '../player/playContext';
 import { TrackArt } from '../player/TrackArt';
-import { TrackDownloadBadge } from '../downloads/TrackDownloadBadge';
+import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import type { Book } from './groupBooks';
 
 /** One book in the audiobook library: art + title + author, plus a part count
@@ -45,7 +45,10 @@ export function BookRow({ book }: { book: Book }) {
           </span>
         </span>
       </button>
-      <TrackDownloadBadge id={book.book.Id} />
+      {/* Download the whole book (all chapter-parts) in one tap — same control
+          as an album/playlist, so it shows a downloaded/downloading state + % and
+          the book then appears in the offline library's Audiobooks section. */}
+      <DownloadCollectionButton tracks={book.parts} />
     </div>
   );
 }
