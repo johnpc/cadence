@@ -5,11 +5,13 @@ vi.mock('../../lib/jellyfinPlayback', () => ({
   reportPlaybackStart: vi.fn(),
   reportPlaybackProgress: vi.fn(),
   reportPlaybackStopped: vi.fn(),
+  savePlaybackPosition: vi.fn(),
 }));
 import {
   reportPlaybackStart,
   reportPlaybackProgress,
   reportPlaybackStopped,
+  savePlaybackPosition,
 } from '../../lib/jellyfinPlayback';
 import { usePlaybackReporting } from './usePlaybackReporting';
 
@@ -45,5 +47,31 @@ describe('usePlaybackReporting', () => {
   it('does nothing without a current track', () => {
     renderHook(() => usePlaybackReporting(undefined, () => 0));
     expect(reportPlaybackStart).not.toHaveBeenCalled();
+  });
+
+  it('also saves the resume position for an audiobook (tick + stop)', () => {
+    let pos = 0;
+    const { rerender, unmount } = renderHook(
+      ({ id }) => usePlaybackReporting(id, () => pos, true),
+      {
+        initialProps: { id: 'book' },
+      },
+    );
+    pos = 30;
+    vi.advanceTimersByTime(10_000);
+    expect(savePlaybackPosition).toHaveBeenCalledWith('book', 30);
+    pos = 90;
+    rerender({ id: 'book2' }); // change → stop → save
+    expect(savePlaybackPosition).toHaveBeenCalledWith('book', 90);
+    unmount(); // don't leak a stop-save into the next test
+  });
+
+  it('does NOT save resume position for music (isAudiobook=false)', () => {
+    let pos = 0;
+    const { unmount } = renderHook(() => usePlaybackReporting('song', () => pos));
+    pos = 20;
+    vi.advanceTimersByTime(10_000);
+    expect(savePlaybackPosition).not.toHaveBeenCalled();
+    unmount();
   });
 });

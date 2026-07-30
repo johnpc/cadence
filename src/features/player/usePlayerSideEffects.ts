@@ -4,6 +4,7 @@ import { useEndlessPlay } from './useEndlessPlay';
 import { useNextTrackPrefetch } from './useNextTrackPrefetch';
 import { useDocumentTitle } from './useDocumentTitle';
 import { useAutoplay } from '../settings/useAutoplay';
+import { isAudiobook } from '../audiobook/isAudiobook';
 import type { usePlayerQueue } from './usePlayerQueue';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -23,7 +24,7 @@ export function usePlayerSideEffects(
 ): void {
   // Report playback to Jellyfin (play counts + Recently Played). Reads position
   // live from the audio element so it doesn't re-fire on every tick.
-  usePlaybackReporting(currentId, () => ref.current?.currentTime ?? 0);
+  usePlaybackReporting(currentId, () => ref.current?.currentTime ?? 0, isAudiobook(current));
 
   // Endless play: append instant-mix radio when the queue ends (unless the user
   // turned Autoplay off, or repeat is on — then the queue loops instead).

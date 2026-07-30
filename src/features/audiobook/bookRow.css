@@ -1,0 +1,20 @@
+/* Slim reading-progress bar under a book's title/author, filled to --frac (0..1).
+   Uses the green accent, matching the download/progress affordances elsewhere. */
+.book-row__bar {
+  display: block;
+  height: 3px;
+  width: 100%;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: var(--cad-surface-2, rgba(255, 255, 255, 0.14));
+  overflow: hidden;
+}
+
+.book-row__bar::before {
+  content: '';
+  display: block;
+  height: 100%;
+  width: calc(var(--frac, 0) * 100%);
+  background: var(--cad-accent);
+  border-radius: 2px;
+}
