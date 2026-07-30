@@ -6,6 +6,7 @@
 import { authenticateByName, validateToken } from '../../lib/jellyfinAuth';
 import { setSession } from '../../lib/sessionStore';
 import { clearStoredSession, loadStoredSession, storeSession } from '../../lib/sessionPersistence';
+import { notifySessionExpired } from '../../lib/sessionExpiry';
 import { readForceOffline } from '../settings/forceOfflineStore';
 
 /**
@@ -45,6 +46,38 @@ export async function currentUsername(): Promise<string | null> {
   const isAdmin = user.Policy?.IsAdministrator === true;
   await storeSession({ ...stored, isAdmin });
   return trust(isAdmin);
+}
+
+/**
+ * OPTIMISTIC launch: if a session is stored, prime it and return the username
+ * IMMEDIATELY — no network wait — so a returning user's shell (and its disk-
+ * cached Home/Library data) paints at once instead of staring at the loading
+ * splash for a 2–15s token-validation round-trip over the tunnel. The token is
+ * validated in the BACKGROUND; a confirmed 401 clears the session and fires the
+ * expiry signal (AuthProvider's onSessionExpired handler → re-validate → bounce
+ * to sign-in), so a truly-dead token is still caught within moments — the user
+ * just isn't blocked on it up front. No stored session → null (show sign-in),
+ * same as before. Forced-offline skips the background validate entirely.
+ */
+export async function currentUsernameOptimistic(): Promise<string | null> {
+  const stored = await loadStoredSession();
+  if (!stored) return null;
+  setSession({ token: stored.token, userId: stored.userId });
+  if (!readForceOffline()) {
+    // Fire-and-forget: only a CONFIRMED bad token (null = 401) signs out; a
+    // transient/offline error is swallowed (the token stays trusted, like the
+    // airplane-mode launch path).
+    void validateToken({ token: stored.token, userId: stored.userId })
+      .then(async (user) => {
+        if (user === null) {
+          await clearStoredSession();
+          setSession(null);
+          notifySessionExpired();
+        }
+      })
+      .catch(() => undefined);
+  }
+  return stored.username;
 }
 
 /** Sign in with a Jellyfin account; persists the session + primes the store. */
