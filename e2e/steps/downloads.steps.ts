@@ -2,7 +2,13 @@ import { createBdd } from 'playwright-bdd';
 import { expect } from '@playwright/test';
 import { DATA_WAIT, DOWNLOAD_WAIT } from './timeouts';
 import { navigate } from './app-shell.steps';
-import { login, createSmallPlaylist, deletePlaylistsByName, type Session } from './jellyfinApi';
+import {
+  login,
+  logout,
+  createSmallPlaylist,
+  deletePlaylistsByName,
+  type Session,
+} from './jellyfinApi';
 
 const { Given, When, Then, After } = createBdd();
 
@@ -24,6 +30,7 @@ After(async () => {
   try {
     const s = owner ?? (await login(USER, PASS));
     await deletePlaylistsByName(s, FIXTURE);
+    await logout(s.token); // don't leave the fixture session lingering
   } catch {
     /* best-effort teardown */
   }

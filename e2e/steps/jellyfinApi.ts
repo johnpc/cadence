@@ -55,6 +55,12 @@ export async function login(username: string, password: string): Promise<Session
   return { token: r.AccessToken, userId: r.User.Id };
 }
 
+/** Revoke a session's token server-side so it doesn't linger. Best-effort —
+ * teardown must never fail a scenario, and a token may already be gone. */
+export async function logout(token: string): Promise<void> {
+  await api('/Sessions/Logout', { method: 'POST', token }).catch(() => undefined);
+}
+
 /** Create a playlist owned by `s`, public or private, and return its id. */
 export async function createPlaylist(s: Session, name: string, isPublic: boolean): Promise<string> {
   const r = await api<{ Id: string }>('/Playlists', {

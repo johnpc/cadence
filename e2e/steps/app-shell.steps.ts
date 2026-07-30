@@ -1,11 +1,34 @@
 import { createBdd } from 'playwright-bdd';
 import { DATA_WAIT } from './timeouts';
 import { expect, type Page } from '@playwright/test';
+import { logout } from './jellyfinApi';
 
-const { Given, When, Then, Before } = createBdd();
+const { Given, When, Then, Before, After } = createBdd();
 
 const USERNAME = process.env.TEST_USERNAME;
 const PASSWORD = process.env.TEST_PASSWORD;
+
+// Revoke the UI session's Jellyfin token after EVERY scenario, so sessions never
+// accumulate server-side. The app persists the session under Capacitor
+// Preferences' localStorage key (CapacitorStorage.cadence.session); read the
+// token from the page and log it out via the API. Best-effort: teardown must
+// never fail a scenario, and the page may already be closed / signed out.
+After(async ({ page }) => {
+  try {
+    const token = await page.evaluate(() => {
+      const raw = localStorage.getItem('CapacitorStorage.cadence.session');
+      if (!raw) return null;
+      try {
+        return (JSON.parse(raw) as { token?: string }).token ?? null;
+      } catch {
+        return null;
+      }
+    });
+    if (token) await logout(token);
+  } catch {
+    /* page gone / navigation in flight — nothing to clean up */
+  }
+});
 
 /** Primary-nav label → sidebar testid (desktop). */
 export const NAV_TESTID: Record<string, string> = {

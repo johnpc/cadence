@@ -3,6 +3,7 @@ import { expect } from '@playwright/test';
 import { DATA_WAIT } from './timeouts';
 import {
   login,
+  logout,
   createPlaylist,
   setPlaylistPublic,
   deletePlaylistsByName,
@@ -35,6 +36,7 @@ After(async () => {
   try {
     const s = user2 ?? (await login(USER2, PASS2));
     await deletePlaylistsByName(s, NAME);
+    await logout(s.token); // don't leave the fixture session lingering
   } catch {
     /* best-effort */
   }
