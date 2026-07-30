@@ -1,15 +1,15 @@
 import { formatTime } from './playerFormat';
-import type { useScrubber } from './useScrubber';
+import { usePlayerProgress } from './PlayerProgressContext';
+import { useScrubber } from './useScrubber';
 
-/** The mini-player's slim progress bar + drag-to-seek range input. Extracted
- * from NowPlayingBar to keep that file within the line budget. */
-export function NowPlayingSeek({
-  scrub,
-  duration,
-}: {
-  scrub: ReturnType<typeof useScrubber>;
-  duration: number;
-}) {
+/** The mini-player's slim progress bar + drag-to-seek range input. Reads the
+ * fast-changing progress (position/duration) HERE — not in NowPlayingBar — so
+ * the ~4Hz `timeupdate` tick during playback re-renders only this small bar, not
+ * the whole mini-player (track art/title/like/buttons) shown on every screen.
+ * Takes just the stable `seek` callback from the parent. */
+export function NowPlayingSeek({ seek }: { seek: (seconds: number) => void }) {
+  const { position, duration } = usePlayerProgress();
+  const scrub = useScrubber(position, seek);
   const pct = duration > 0 ? Math.min(100, (scrub.value / duration) * 100) : 0;
   return (
     <div className="npbar__progress" data-testid="now-playing-progress">
