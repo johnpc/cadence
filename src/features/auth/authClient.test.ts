@@ -52,6 +52,19 @@ describe('authClient', () => {
     expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u' });
   });
 
+  it('currentUsername trusts the stored session when validation fails offline (airplane launch)', async () => {
+    vi.mocked(loadStoredSession).mockResolvedValue({
+      token: 't',
+      userId: 'u',
+      username: 'cadence-test',
+    });
+    vi.mocked(readForceOffline).mockReturnValue(false);
+    vi.mocked(validateToken).mockRejectedValue(new Error('network')); // offline
+    expect(await currentUsername()).toBe('cadence-test'); // resolves, doesn't hang/sign out
+    expect(clearStoredSession).not.toHaveBeenCalled();
+    expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u' });
+  });
+
   it('currentUsername clears a dead token', async () => {
     vi.mocked(loadStoredSession).mockResolvedValue({
       token: 'bad',

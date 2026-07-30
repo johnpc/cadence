@@ -9,28 +9,38 @@ import { clearStoredSession, loadStoredSession, storeSession } from '../../lib/s
 import { readForceOffline } from '../settings/forceOfflineStore';
 
 /**
- * The signed-in user's username, or null on a CONFIRMED no-session. A transient
- * failure (network / cold-start storage) is rethrown so the caller can retry
- * rather than sign the user out. Rehydrates the in-memory session on success.
+ * The signed-in user's username, or null on a CONFIRMED no-session (no stored
+ * session, or a 401 = dead token). Rehydrates the in-memory session on success.
+ *
+ * Offline-first: with a stored session we TRUST it and resolve immediately when
+ * the server can't be reached — either forced offline mode, or a genuine
+ * airplane-mode launch where validateToken throws a network error. Otherwise a
+ * fresh offline launch strands the app on the loading splash forever (no
+ * network to validate, no way to reach offline mode). A truly-dead token is
+ * still caught once back online: the next authed request 401s → sign-out.
  */
 export async function currentUsername(): Promise<string | null> {
   const stored = await loadStoredSession();
   if (!stored) return null;
-  // Offline mode: trust the stored session without a server round-trip — that's
-  // the point of offline mode, and validateToken would throw (no network),
-  // stranding launch on the loading splash forever.
-  if (readForceOffline()) {
+  const trust = () => {
     setSession({ token: stored.token, userId: stored.userId });
     return stored.username;
+  };
+  if (readForceOffline()) return trust();
+  let user;
+  try {
+    user = await validateToken({ token: stored.token, userId: stored.userId });
+  } catch {
+    // Server unreachable (offline / network error) — trust the stored session
+    // so launch completes and the offline library is reachable.
+    return trust();
   }
-  const user = await validateToken({ token: stored.token, userId: stored.userId });
   if (!user) {
     await clearStoredSession();
     setSession(null);
     return null;
   }
-  setSession({ token: stored.token, userId: stored.userId });
-  return stored.username;
+  return trust();
 }
 
 /** Sign in with a Jellyfin account; persists the session + primes the store. */
