@@ -18,7 +18,11 @@ type Shelf<K extends string> = { [P in K]: JellyfinItem[] } & {
 };
 
 /** Wrap precomputed plugin data as a shelf (already loaded, no error). */
-function pluginShelf<K extends string>(key: K, items: JellyfinItem[], refetch: () => void): Shelf<K> {
+function pluginShelf<K extends string>(
+  key: K,
+  items: JellyfinItem[],
+  refetch: () => void,
+): Shelf<K> {
   return { [key]: items, isLoading: false, isError: false, refetch } as Shelf<K>;
 }
 

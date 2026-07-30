@@ -32,7 +32,9 @@ const nativeShelf = (key: string, items: JellyfinItem[] = []) => ({
 });
 
 function mockNative(overrides: Record<string, JellyfinItem[]> = {}) {
-  vi.mocked(homeApi.useLatestAlbums).mockReturnValue(nativeShelf('albums', overrides.albums) as never);
+  vi.mocked(homeApi.useLatestAlbums).mockReturnValue(
+    nativeShelf('albums', overrides.albums) as never,
+  );
   vi.mocked(homeApi.useSuggestedSongs).mockReturnValue(nativeShelf('songs') as never);
   vi.mocked(homeApi.useRecentlyPlayed).mockReturnValue(nativeShelf('songs') as never);
   vi.mocked(homeApi.useOnRepeat).mockReturnValue(nativeShelf('songs') as never);
