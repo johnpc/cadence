@@ -18,6 +18,7 @@ interface PluginConfigResponse {
   CastReceiverAppId?: string;
   LidarrProxy?: boolean;
   DeezerImport?: boolean;
+  HomeShelves?: boolean;
 }
 
 /** Merge a string value into the config only when it's non-empty AND not already
@@ -52,6 +53,9 @@ export async function hydratePluginConfig(): Promise<void> {
     // The Deezer import endpoint lives on the same plugin — flag it so the client
     // routes "Import from Deezer" to /Cadence/Deezer/Import (works on native iOS).
     if (res.DeezerImport === true && !config.deezerImport) config.deezerImport = true;
+    // The precomputed Home-shelves endpoint — flag it so homeSource takes the
+    // fast /Cadence/Home path instead of ~6 slow native per-shelf queries.
+    if (res.HomeShelves === true && !config.homeShelves) config.homeShelves = true;
   } catch {
     /* no plugin / offline / unauthenticated — keep existing config */
   }

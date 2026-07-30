@@ -9,7 +9,7 @@ import './runtimeConfigTypes';
 /** A runtime-config boolean flag — true only for an explicit `true` (guards
  * against truthy strings an injected config might carry). */
 function configFlag(
-  key: 'marlinProxy' | 'lidarrProxy' | 'lidarrPluginProxy' | 'deezerImport',
+  key: 'marlinProxy' | 'lidarrProxy' | 'lidarrPluginProxy' | 'deezerImport' | 'homeShelves',
 ): boolean {
   return window.__CADENCE_CONFIG__?.[key] === true;
 }
@@ -78,4 +78,12 @@ export function lidarrPluginProxyEnabled(): boolean {
  * the "Import from Deezer" screen (deezerApi calls POST /Cadence/Deezer/Import). */
 export function deezerImportEnabled(): boolean {
   return configFlag('deezerImport');
+}
+
+/** True when the CadenceConfig plugin exposes the precomputed Home-shelves
+ * endpoint (GET /Cadence/Home). When true, homeSource fetches all shelves in one
+ * fast call; when false (no plugin / older plugin), it falls back to the native
+ * per-shelf Jellyfin queries — so Home always works, just slower without it. */
+export function homeShelvesEnabled(): boolean {
+  return configFlag('homeShelves');
 }

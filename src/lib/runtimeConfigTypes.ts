@@ -43,6 +43,12 @@ export interface RuntimeConfig {
    * import endpoint (POST /Cadence/Deezer/Import). Set by the plugin-config fetch
    * (pluginConfigStore); gates the "Import from Deezer" screen. */
   deezerImport?: boolean;
+  /** When true, the CadenceConfig Jellyfin plugin exposes a precomputed
+   * Home-shelves endpoint (GET /Cadence/Home) that returns every Home shelf in
+   * ONE fast response — the plugin recomputes them on a schedule so the client
+   * skips ~6 slow recursive library queries. Set by the plugin-config fetch;
+   * the client falls back to native per-shelf queries when absent (homeSource). */
+  homeShelves?: boolean;
 }
 
 declare global {

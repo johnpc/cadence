@@ -34,23 +34,26 @@ export function usePublicPlaylists() {
   };
 }
 
-/** Recently-added albums shelf. */
-export function useLatestAlbums() {
+/** Recently-added albums shelf. `enabled` lets useHomeShelves turn this native
+ * query OFF when the plugin's precomputed Home path is serving instead. */
+export function useLatestAlbums(enabled = true) {
   const q = useQuery({
     queryKey: ['home', 'latest-albums'],
     queryFn: () => fetchAndCacheShelf('latest-albums', () => getLatestAlbums(20)),
     staleTime: 60_000,
+    enabled,
     ...seeded('latest-albums'),
   });
   return { albums: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
 /** Suggested-for-you songs shelf. */
-export function useSuggestedSongs() {
+export function useSuggestedSongs(enabled = true) {
   const q = useQuery({
     queryKey: ['home', 'suggested'],
     queryFn: () => fetchAndCacheShelf('suggested', () => getSuggestedSongs(20)),
     staleTime: 60_000,
+    enabled,
     ...seeded('suggested'),
   });
   return { songs: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
@@ -58,7 +61,7 @@ export function useSuggestedSongs() {
 
 /** Recently-played songs. `limit` lets the full history page ask for more than
  * the Home shelf's 20. Only the default (20) shelf seeds from disk. */
-export function useRecentlyPlayed(limit = 20) {
+export function useRecentlyPlayed(limit = 20, enabled = true) {
   const q = useQuery({
     queryKey: ['home', 'recently-played', limit],
     queryFn: () =>
@@ -66,17 +69,19 @@ export function useRecentlyPlayed(limit = 20) {
         ? fetchAndCacheShelf('recently-played', () => getRecentlyPlayed(limit))
         : getRecentlyPlayed(limit),
     staleTime: 30_000,
+    enabled,
     ...(limit === 20 ? seeded('recently-played') : {}),
   });
   return { songs: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
 }
 
 /** Your most-played tracks ("On repeat" shelf). Seeded from disk like the others. */
-export function useOnRepeat() {
+export function useOnRepeat(enabled = true) {
   const q = useQuery({
     queryKey: ['home', 'on-repeat'],
     queryFn: () => fetchAndCacheShelf('on-repeat', () => getOnRepeat(20)),
     staleTime: 5 * 60_000,
+    enabled,
     ...seeded('on-repeat'),
   });
   return { songs: q.data ?? [], isLoading: q.isLoading, isError: q.isError, refetch: q.refetch };
