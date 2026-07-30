@@ -81,6 +81,13 @@ describe('NowPlayingBar', () => {
     expect(screen.getByTestId('now-playing-next')).toBeDisabled();
   });
 
+  it('closing the mini-player ends playback (stop), not just hides it', async () => {
+    const stop = vi.fn();
+    renderBar(ctx({ current: song, stop }));
+    await userEvent.click(screen.getByTestId('now-playing-close'));
+    expect(stop).toHaveBeenCalledOnce();
+  });
+
   it('offers a like toggle for the current track', () => {
     renderBar(ctx({ current: song }));
     expect(screen.getByTestId('like-button')).toBeInTheDocument();

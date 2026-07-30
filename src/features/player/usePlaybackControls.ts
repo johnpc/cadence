@@ -1,8 +1,18 @@
 import { useCallback, type RefObject } from 'react';
 import { tap } from '../../lib/haptics';
 import { getCastState } from '../cast/castStore';
-import { castToggle, castSeek } from '../cast/castController';
+import { castToggle, castSeek, stopCast } from '../cast/castController';
 import { log } from '../../lib/diagnostics/diagnosticsStore';
+
+/** Stop + unsource the element (nothing left buffered/backgrounded) and end any
+ * TV cast. Module-level so it adds no branches to the hook's CRAP. */
+function tearDownSession(audio: HTMLAudioElement | null): void {
+  if (getCastState().connected) void stopCast().catch(() => undefined);
+  if (!audio) return;
+  audio.pause();
+  audio.removeAttribute('src');
+  audio.load();
+}
 
 /**
  * Transport actions bound to the audio element: toggle (play/pause), seek, and
@@ -13,6 +23,9 @@ export function usePlaybackControls(
   ref: RefObject<HTMLAudioElement | null>,
   hasQueue: boolean,
   isPlaying: boolean,
+  /** Empties the play queue — composed into `stop` so callers get full session
+   * teardown (audio + queue) in one action. */
+  emptyQueue: () => void,
 ) {
   const toggle = useCallback(() => {
     if (!hasQueue) return;
@@ -65,17 +78,21 @@ export function usePlaybackControls(
 
   const pause = useCallback(() => ref.current?.pause(), [ref]);
 
+  // Mini-player close (X): tear down the element + cast, then empty the queue.
+  const stop = useCallback(() => {
+    tearDownSession(ref.current);
+    emptyQueue();
+  }, [ref, emptyQueue]);
+
   // Recover from an OS audio interruption (Siri, a phone call). iOS stops output
-  // at the AUDIO-SESSION level, not the element level, so `audio.paused` often
-  // stays FALSE and no 'pause' event fires — the UI still shows "playing" but no
-  // sound comes out. So we DON'T guard on `.paused` (that check would no-op the
-  // exact broken state); we just call play() unconditionally, which is a safe
-  // no-op if genuinely playing and re-establishes output otherwise. Skipped only
-  // when there's no queue or we're casting (the TV owns playback then).
+  // at the AUDIO-SESSION level, not the element, so `audio.paused` often stays
+  // FALSE with no 'pause' event. So DON'T guard on `.paused` (that would no-op the
+  // broken state) — call play() unconditionally (safe no-op if already playing).
+  // Skipped only with no queue or while casting (the TV owns playback then).
   const resume = useCallback(() => {
     if (!hasQueue || getCastState().connected) return;
     void ref.current?.play().catch(() => undefined);
   }, [ref, hasQueue]);
 
-  return { toggle, seek, seekBy, pause, resume };
+  return { toggle, seek, seekBy, pause, resume, stop };
 }
