@@ -14,14 +14,16 @@ import { getSession } from '../../lib/sessionStore';
 import { homeShelvesEnabled } from '../../lib/runtimeConfig';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** The precomputed shelves, one array per Home shelf. Keys match useHomeShelves. */
+/** The precomputed shelves, one array per Home shelf. Keys match useHomeShelves.
+ * NOTE: no followed-artists shelf — favorite-artist resolution can't be served
+ * by the plugin's item query (returns empty on Jellyfin), so the client always
+ * fetches artists natively via /Artists (see useHomeShelves). */
 export interface HomeShelvesData {
   latestAlbums: JellyfinItem[];
   suggestedSongs: JellyfinItem[];
   savedAlbums: JellyfinItem[];
   recentlyPlayed: JellyfinItem[];
   onRepeat: JellyfinItem[];
-  followedArtists: JellyfinItem[];
 }
 
 /** Raw plugin response — PascalCase per Jellyfin's serializer. Every field is
@@ -33,7 +35,6 @@ interface HomeResponse {
   SavedAlbums?: JellyfinItem[];
   RecentlyPlayed?: JellyfinItem[];
   OnRepeat?: JellyfinItem[];
-  FollowedArtists?: JellyfinItem[];
 }
 
 const arr = (v: JellyfinItem[] | undefined): JellyfinItem[] => (Array.isArray(v) ? v : []);
@@ -58,6 +59,5 @@ export async function fetchHomeShelves(): Promise<HomeShelvesData> {
     savedAlbums: arr(res.SavedAlbums),
     recentlyPlayed: arr(res.RecentlyPlayed),
     onRepeat: arr(res.OnRepeat),
-    followedArtists: arr(res.FollowedArtists),
   };
 }

@@ -30,10 +30,16 @@ function pluginShelf<K extends string>(
  * shell (and pull-to-refresh can refetch them all at once).
  *
  * Two sources: when the CadenceConfig plugin advertises the precomputed endpoint
- * (useHomeSource.active) AND its single call succeeds, every shelf is served
- * from that one fast response and the native per-shelf queries are turned OFF.
- * Otherwise (no plugin, or the plugin call errored) the native queries drive
- * every shelf — Home always works, just with ~6 slower requests. */
+ * (useHomeSource.active) AND its single call succeeds, the album/song shelves are
+ * served from that one fast response and their native per-shelf queries are
+ * turned OFF. Otherwise (no plugin, or the plugin call errored) the native
+ * queries drive every shelf — Home always works, just with more requests.
+ *
+ * Followed ARTISTS are ALWAYS fetched natively (via the dedicated /Artists
+ * endpoint), on both paths: favorite-artist resolution can't be served by the
+ * plugin's item query — the generic MusicArtist+IsFavorite filter returns empty
+ * on Jellyfin, so the plugin deliberately omits it (see HomeShelvesService). One
+ * cheap /Artists call, disk-seeded, keeps the "Your artists" shelf correct. */
 export function useHomeShelves() {
   const src = useHomeSource();
   // Use the plugin data only when it actually arrived; on error/absence fall
@@ -46,7 +52,8 @@ export function useHomeShelves() {
   const saved = useSavedAlbums(native);
   const recent = useRecentlyPlayed(20, native);
   const onRepeat = useOnRepeat(native);
-  const artists = useFollowedArtists(native);
+  // Always native — the plugin can't serve favorite artists (see above).
+  const artists = useFollowedArtists();
   const jumpBackIn = useJumpBackIn();
   const community = usePublicPlaylists();
 
@@ -58,7 +65,7 @@ export function useHomeShelves() {
       saved: pluginShelf('albums', fast.savedAlbums, r),
       recent: pluginShelf('songs', fast.recentlyPlayed, r),
       onRepeat: pluginShelf('songs', fast.onRepeat, r),
-      artists: pluginShelf('artists', fast.followedArtists, r),
+      artists, // always native
       jumpBackIn,
       community,
     };

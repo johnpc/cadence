@@ -16,7 +16,6 @@ const EMPTY = {
   savedAlbums: [],
   recentlyPlayed: [],
   onRepeat: [],
-  followedArtists: [],
 };
 
 function setup() {

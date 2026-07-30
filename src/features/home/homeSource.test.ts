@@ -31,7 +31,6 @@ describe('homeSource', () => {
       SavedAlbums: [{ Id: 'sa', Name: 'SA', Type: 'MusicAlbum' }],
       RecentlyPlayed: [{ Id: 'r', Name: 'R', Type: 'Audio' }],
       OnRepeat: [{ Id: 'o', Name: 'O', Type: 'Audio' }],
-      FollowedArtists: [{ Id: 'ar', Name: 'AR', Type: 'MusicArtist' }],
     });
     const data = await fetchHomeShelves();
     // Scoped to the signed-in user via the query string.
@@ -41,7 +40,6 @@ describe('homeSource', () => {
     expect(data.savedAlbums[0].Id).toBe('sa');
     expect(data.recentlyPlayed[0].Id).toBe('r');
     expect(data.onRepeat[0].Id).toBe('o');
-    expect(data.followedArtists[0].Id).toBe('ar');
   });
 
   it('degrades a partial/empty payload to empty shelves (never throws)', async () => {
@@ -51,7 +49,6 @@ describe('homeSource', () => {
     // Missing fields become [] rather than undefined.
     expect(data.suggestedSongs).toEqual([]);
     expect(data.savedAlbums).toEqual([]);
-    expect(data.followedArtists).toEqual([]);
   });
 
   it('coerces a non-array field to an empty array', async () => {

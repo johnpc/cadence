@@ -40,7 +40,9 @@ function mockNative(overrides: Record<string, JellyfinItem[]> = {}) {
   vi.mocked(homeApi.useOnRepeat).mockReturnValue(nativeShelf('songs') as never);
   vi.mocked(homeApi.usePublicPlaylists).mockReturnValue(nativeShelf('playlists') as never);
   vi.mocked(libApi.useSavedAlbums).mockReturnValue(nativeShelf('albums') as never);
-  vi.mocked(libApi.useFollowedArtists).mockReturnValue(nativeShelf('artists') as never);
+  vi.mocked(libApi.useFollowedArtists).mockReturnValue(
+    nativeShelf('artists', overrides.artists) as never,
+  );
   vi.mocked(useJumpBackIn).mockReturnValue({
     items: [],
     isLoading: false,
@@ -54,8 +56,8 @@ afterEach(() => {
 });
 
 describe('useHomeShelves source selection', () => {
-  it('uses the plugin data and DISABLES native queries when the fast path is healthy', () => {
-    mockNative();
+  it('uses plugin data for album/song shelves, native for artists, on the fast path', () => {
+    mockNative({ artists: [item('native-artist', 'MusicArtist')] });
     vi.mocked(useHomeSource).mockReturnValue({
       active: true,
       data: {
@@ -64,20 +66,20 @@ describe('useHomeShelves source selection', () => {
         savedAlbums: [],
         recentlyPlayed: [],
         onRepeat: [],
-        followedArtists: [item('plugin-artist', 'MusicArtist')],
       },
       isLoading: false,
       isError: false,
       refetch: vi.fn(),
     });
     const { result } = renderHook(() => useHomeShelves());
-    // Data comes from the plugin, not native.
+    // Album/song shelves come from the plugin; those native queries are gated off.
     expect(result.current.albums.albums[0].Id).toBe('plugin-album');
-    expect(result.current.artists.artists[0].Id).toBe('plugin-artist');
-    // Native queries were rendered with enabled=false (the gate).
     expect(homeApi.useLatestAlbums).toHaveBeenCalledWith(false);
-    expect(libApi.useFollowedArtists).toHaveBeenCalledWith(false);
     expect(homeApi.useRecentlyPlayed).toHaveBeenCalledWith(20, false);
+    // Artists are ALWAYS native (plugin can't serve favorite artists) — enabled
+    // with no gate, and the shelf reflects the native result, not the plugin's.
+    expect(result.current.artists.artists[0].Id).toBe('native-artist');
+    expect(libApi.useFollowedArtists).toHaveBeenCalledWith();
   });
 
   it('falls back to native (enabled) when the plugin path is inactive', () => {
@@ -92,7 +94,8 @@ describe('useHomeShelves source selection', () => {
     const { result } = renderHook(() => useHomeShelves());
     expect(result.current.albums.albums[0].Id).toBe('native-album');
     expect(homeApi.useLatestAlbums).toHaveBeenCalledWith(true);
-    expect(libApi.useFollowedArtists).toHaveBeenCalledWith(true);
+    // Artists always native (no enable gate), on this path too.
+    expect(libApi.useFollowedArtists).toHaveBeenCalledWith();
   });
 
   it('falls back to native when the plugin call errored (data null despite active)', () => {
