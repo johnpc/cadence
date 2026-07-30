@@ -92,9 +92,13 @@ jobs:
       # Let every area run even if one fails — a lone failure shouldn't cancel the
       # rest and hide which areas are healthy. Each area is its own check.
       fail-fast: false
-      # NO parallelism limit — areas run fully in parallel. Concurrency problems
-      # are fixed at the source (reliable navigation via Ionic routerLink instead
-      # of raw NavLink; robust step waits) rather than by throttling the matrix.
+      # Serialize the areas: all ~12 hit ONE cloudflared-tunneled Jellyfin, and
+      # running them in parallel stampedes the tunnel — auth throttling / stalled
+      # first-paint that reads as widespread multi-minute timeouts across areas
+      # (even dependency-free `smoke`), while every scenario passes alone. The
+      # tunnel is the bottleneck, not the runners, so a parallelism limit is the
+      # fix, not a workaround. (#330 dropped this and CI went red across the board.)
+      max-parallel: 1
       matrix:
         area:
           - name: smoke
