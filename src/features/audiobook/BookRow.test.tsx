@@ -52,4 +52,23 @@ describe('BookRow', () => {
     renderWithProviders(<BookRow book={multi} />, { player: stubPlayer() });
     expect(screen.getByTestId('download-collection')).toBeInTheDocument();
   });
+
+  it('shows reading progress (% + time left + bar) once started', () => {
+    const SEC = 10_000_000;
+    const started: Book = {
+      id: 'p',
+      book: part('p', 'Progress Book'),
+      title: 'Progress Book',
+      parts: [
+        {
+          ...part('p', 'Progress Book'),
+          RunTimeTicks: 1000 * SEC,
+          UserData: { PlaybackPositionTicks: 250 * SEC },
+        },
+      ],
+    };
+    renderWithProviders(<BookRow book={started} />, { player: stubPlayer() });
+    expect(screen.getByTestId('book-row-progress')).toBeInTheDocument();
+    expect(screen.getByText(/25% ·/)).toBeInTheDocument();
+  });
 });

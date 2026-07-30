@@ -3,6 +3,7 @@ import {
   reportPlaybackStart,
   reportPlaybackProgress,
   reportPlaybackStopped,
+  savePlaybackPosition,
 } from './jellyfinPlayback';
 import { setSession } from './sessionStore';
 
@@ -48,5 +49,22 @@ describe('jellyfinPlayback', () => {
     setSession({ token: 't', userId: 'uid' });
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network')));
     await expect(reportPlaybackStart('song1')).resolves.toBeUndefined();
+  });
+
+  it('savePlaybackPosition writes the resume position to the item UserData', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = okFetch();
+    await savePlaybackPosition('book1', 90);
+    const [url, init] = f.mock.calls[0];
+    expect(url).toContain('/Users/uid/Items/book1/UserData');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(init.body).PlaybackPositionTicks).toBe(900_000_000);
+  });
+
+  it('savePlaybackPosition no-ops without a session (no user id)', async () => {
+    setSession(null);
+    const f = okFetch();
+    await savePlaybackPosition('book1', 90);
+    expect(f).not.toHaveBeenCalled();
   });
 });
