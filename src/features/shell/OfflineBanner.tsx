@@ -23,9 +23,21 @@ export function OfflineBanner() {
         <Link className="offline-banner__link" to="/offline" data-testid="offline-downloads-link">
           downloads
         </Link>
-        {forceOffline
-          ? ', or turn off offline mode in Settings.'
-          : ', or connect to reach your server.'}
+        {forceOffline ? (
+          <>
+            , or turn it off in{' '}
+            <Link
+              className="offline-banner__link"
+              to="/settings"
+              data-testid="offline-settings-link"
+            >
+              Settings
+            </Link>
+            .
+          </>
+        ) : (
+          ', or connect to reach your server.'
+        )}
       </span>
     </div>
   );

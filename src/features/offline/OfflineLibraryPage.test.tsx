@@ -13,4 +13,12 @@ describe('OfflineLibraryPage', () => {
     expect(screen.getByTestId('offline-library')).toBeInTheDocument();
     expect(screen.getByText('Offline')).toBeInTheDocument();
   });
+
+  it('exposes a Settings link so offline mode can be turned back off', () => {
+    // Offline mode hides the Library tab (where Settings usually lives), so the
+    // offline page MUST carry its own Settings gear — otherwise the toggle is a
+    // one-way trap.
+    renderWithProviders(<OfflineLibraryPage />);
+    expect(screen.getByTestId('offline-settings')).toHaveAttribute('router-link', '/settings');
+  });
 });

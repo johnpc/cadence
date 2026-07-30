@@ -43,6 +43,13 @@ describe('OfflineBanner', () => {
     expect(screen.getByTestId('offline-banner')).toHaveTextContent(/offline mode is on/i);
   });
 
+  it('links to Settings when forced offline, so the mode can be turned back off', () => {
+    writeForceOffline(true);
+    renderBanner();
+    act(() => markReachable());
+    expect(screen.getByTestId('offline-settings-link')).toHaveAttribute('href', '/settings');
+  });
+
   it('appears when a request fails and clears once one succeeds again', () => {
     renderBanner();
     act(() => markReachable());
