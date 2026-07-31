@@ -52,6 +52,7 @@ Feature: Playback
     Then I see the playlist tracks
     When I play the playlist
     And I let the current track play a little
+    And I open the full player
     And I tap next
     Then the next track plays from the beginning
 
