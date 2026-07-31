@@ -1,10 +1,16 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { useLocation } from 'react-router-dom';
 import { BookRow } from './BookRow';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 import type { Book } from './groupBooks';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+
+/** Surfaces the router location so a nav assertion can read the pushed path. */
+function LocationSink() {
+  return <span data-testid="loc">{useLocation().pathname}</span>;
+}
 
 const part = (id: string, name: string): JellyfinItem =>
   ({ Id: id, Name: name, Type: 'AudioBook', AlbumArtist: 'Author' }) as JellyfinItem;
@@ -34,11 +40,23 @@ describe('BookRow', () => {
     expect(screen.getByText(/3 parts/)).toBeInTheDocument();
   });
 
-  it('plays all parts as a queue when tapped', async () => {
+  it('plays all parts as a queue when the cover is tapped', async () => {
     const playQueue = vi.fn();
     renderWithProviders(<BookRow book={multi} />, { player: stubPlayer({ playQueue }) });
     await userEvent.click(screen.getByTestId('book-row-play'));
     expect(playQueue).toHaveBeenCalledWith(multi.parts, 0);
+  });
+
+  it('opens the book detail page when the row body is tapped', async () => {
+    renderWithProviders(
+      <>
+        <BookRow book={multi} />
+        <LocationSink />
+      </>,
+      { player: stubPlayer(), route: '/audiobooks' },
+    );
+    await userEvent.click(screen.getByTestId('book-row-open'));
+    expect(screen.getByTestId('loc')).toHaveTextContent('/audiobook/m1');
   });
 
   it('marks the row current when a part is playing', () => {

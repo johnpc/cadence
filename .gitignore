@@ -49,4 +49,4 @@ scripts/perf-audit.mjs
 scripts/perf-*.mjs
 scripts/prod-*.mjs
 scripts/ab-probe.mjs
-scripts/ab-screenshot.png
+scripts/ab-*.png

@@ -1,0 +1,38 @@
+/* Book detail page: a centered cover + title/author + actions header, then the
+   chapter list and description. */
+.book-detail__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--cad-space-2);
+  margin-bottom: var(--cad-space-4);
+}
+
+.book-detail__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  margin-top: var(--cad-space-2);
+}
+
+.book-detail__about {
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+/* Chapter rows: tappable, left-aligned, with breathing room between the number
+   and the title/duration stack (the shared track-row__num is centered for the
+   album view; here it sits beside a two-line meta block). */
+[data-testid='book-parts'] .track-row {
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  padding: var(--cad-space-2);
+}
+
+[data-testid='book-parts'] .track-row__num {
+  width: 28px;
+  text-align: left;
+}

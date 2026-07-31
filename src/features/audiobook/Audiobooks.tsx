@@ -1,21 +1,24 @@
 import { useMemo, useState } from 'react';
-import { IonSearchbar } from '@ionic/react';
 import { LoadState } from '../../components/LoadState';
+import { AudiobookControls } from './AudiobookControls';
 import { BookRow } from './BookRow';
 import { groupBooks } from './groupBooks';
 import { filterBooks } from './filterBooks';
 import { highlightBooks } from './highlightBooks';
+import { sortBooks, type BookSort } from './sortBooks';
 import { useAudiobookLibrary } from './useAudiobookLibrary';
 
-/** The audiobook library: a search box, a "Continue listening & favorites" top
- * section (in-progress + favorited books, resuming where you left off), and the
- * full book list with multi-file books collapsed into one row (groupBooks). The
- * search filters the full list; the highlights hide while searching. */
+/** The audiobook library: a search + sort tools row, a "Continue listening &
+ * favorites" top section (in-progress + favorited books, resuming where you left
+ * off), and the full book list with multi-file books collapsed into one row
+ * (groupBooks). Search filters the full list; sort orders it (A–Z / recently
+ * added / recently played); the highlights hide while searching. */
 export function Audiobooks() {
   const { books, highlights, isLoading, isError, refetch } = useAudiobookLibrary();
   const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<BookSort>('alpha');
   const grouped = useMemo(() => groupBooks(books), [books]);
-  const shown = useMemo(() => filterBooks(grouped, query), [grouped, query]);
+  const shown = useMemo(() => sortBooks(filterBooks(grouped, query), sort), [grouped, query, sort]);
   // Resolve the raw resumable/favorite PART items to their grouped books, so the
   // top section shows real book rows (not orphan chapter fragments like "Preface").
   const topBooks = useMemo(() => highlightBooks(highlights, grouped), [highlights, grouped]);
@@ -31,12 +34,7 @@ export function Audiobooks() {
       emptyMessage="Add audiobooks to your Jellyfin Books library and they'll appear here."
     >
       <div data-testid="audiobooks">
-        <IonSearchbar
-          value={query}
-          onIonInput={(e) => setQuery(e.detail.value ?? '')}
-          placeholder="Find an audiobook"
-          data-testid="audiobook-search"
-        />
+        <AudiobookControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />
         {!searching && topBooks.length > 0 && (
           <section data-testid="audiobooks-highlights">
             <h2 className="cad-kicker">Continue listening &amp; favorites</h2>

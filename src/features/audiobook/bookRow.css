@@ -1,3 +1,18 @@
+/* The cover doubles as a quick PLAY button on a book row (the rest of the row
+   opens the detail page). No flex-grow — it hugs the art. */
+.track-row__art-btn {
+  border: none;
+  background: none;
+  padding: var(--cad-space-2);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.track-row__art-btn:active {
+  background: var(--cad-surface-2);
+  border-radius: var(--cad-radius-thumb);
+}
+
 /* Slim reading-progress bar under a book's title/author, filled to --frac (0..1).
    Uses the green accent, matching the download/progress affordances elsewhere. */
 .book-row__bar {
