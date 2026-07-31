@@ -34,12 +34,15 @@ export function useLikedSongs() {
   };
 }
 
-/** The user's saved albums. */
-export function useSavedAlbums() {
+/** The user's saved albums. `enabled` lets Home turn this native query off when
+ * the plugin's precomputed Home path supplies saved albums instead (the Library
+ * screen always passes the default `true`). */
+export function useSavedAlbums(enabled = true) {
   const query = useQuery({
     queryKey: SAVED_ALBUMS_KEY,
     queryFn: () => fetchAndCacheList('saved-albums', getFavoriteAlbums),
     staleTime: 30_000,
+    enabled,
     ...seeded('saved-albums'),
   });
   return {
@@ -50,12 +53,13 @@ export function useSavedAlbums() {
   };
 }
 
-/** The user's followed artists. */
-export function useFollowedArtists() {
+/** The user's followed artists. `enabled`: see useSavedAlbums. */
+export function useFollowedArtists(enabled = true) {
   const query = useQuery({
     queryKey: FOLLOWED_ARTISTS_KEY,
     queryFn: () => fetchAndCacheList('followed-artists', getFavoriteArtists),
     staleTime: 30_000,
+    enabled,
     ...seeded('followed-artists'),
   });
   return {

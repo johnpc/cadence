@@ -1,0 +1,67 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('../../lib/jellyfinFetch', () => ({ request: vi.fn() }));
+vi.mock('../../lib/runtimeConfig', () => ({ homeShelvesEnabled: vi.fn() }));
+vi.mock('../../lib/sessionStore', () => ({ getSession: vi.fn() }));
+
+import { request } from '../../lib/jellyfinFetch';
+import { homeShelvesEnabled } from '../../lib/runtimeConfig';
+import { getSession } from '../../lib/sessionStore';
+import { fetchHomeShelves, homeSourceEnabled } from './homeSource';
+
+beforeEach(() => {
+  vi.mocked(getSession).mockReturnValue({ token: 't', userId: 'u1' });
+});
+afterEach(() => {
+  vi.resetAllMocks();
+});
+
+describe('homeSource', () => {
+  it('homeSourceEnabled mirrors the plugin config flag', () => {
+    vi.mocked(homeShelvesEnabled).mockReturnValue(true);
+    expect(homeSourceEnabled()).toBe(true);
+    vi.mocked(homeShelvesEnabled).mockReturnValue(false);
+    expect(homeSourceEnabled()).toBe(false);
+  });
+
+  it('maps the PascalCase plugin payload to the shelf shape', async () => {
+    vi.mocked(request).mockResolvedValue({
+      LatestAlbums: [{ Id: 'a', Name: 'A', Type: 'MusicAlbum' }],
+      SuggestedSongs: [{ Id: 's', Name: 'S', Type: 'Audio' }],
+      SavedAlbums: [{ Id: 'sa', Name: 'SA', Type: 'MusicAlbum' }],
+      RecentlyPlayed: [{ Id: 'r', Name: 'R', Type: 'Audio' }],
+      OnRepeat: [{ Id: 'o', Name: 'O', Type: 'Audio' }],
+    });
+    const data = await fetchHomeShelves();
+    // Scoped to the signed-in user via the query string.
+    expect(request).toHaveBeenCalledWith('/Cadence/Home?userId=u1');
+    expect(data.latestAlbums[0].Id).toBe('a');
+    expect(data.suggestedSongs[0].Id).toBe('s');
+    expect(data.savedAlbums[0].Id).toBe('sa');
+    expect(data.recentlyPlayed[0].Id).toBe('r');
+    expect(data.onRepeat[0].Id).toBe('o');
+  });
+
+  it('degrades a partial/empty payload to empty shelves (never throws)', async () => {
+    vi.mocked(request).mockResolvedValue({ LatestAlbums: [{ Id: 'a', Name: 'A', Type: 'x' }] });
+    const data = await fetchHomeShelves();
+    expect(data.latestAlbums).toHaveLength(1);
+    // Missing fields become [] rather than undefined.
+    expect(data.suggestedSongs).toEqual([]);
+    expect(data.savedAlbums).toEqual([]);
+  });
+
+  it('coerces a non-array field to an empty array', async () => {
+    // A malformed payload (wrong type) must not crash the mapper.
+    vi.mocked(request).mockResolvedValue({ LatestAlbums: 'oops' });
+    const data = await fetchHomeShelves();
+    expect(data.latestAlbums).toEqual([]);
+  });
+
+  it('sends an empty userId when there is no session (defensive)', async () => {
+    vi.mocked(getSession).mockReturnValue(null);
+    vi.mocked(request).mockResolvedValue({});
+    await fetchHomeShelves();
+    expect(request).toHaveBeenCalledWith('/Cadence/Home?userId=');
+  });
+});

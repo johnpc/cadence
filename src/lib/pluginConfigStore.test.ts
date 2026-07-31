@@ -22,6 +22,7 @@ describe('hydratePluginConfig', () => {
       CastReceiverAppId: 'ABC123',
       LidarrProxy: true,
       DeezerImport: true,
+      HomeShelves: true,
     });
     await hydratePluginConfig();
     expect(window.__CADENCE_CONFIG__).toMatchObject({
@@ -31,6 +32,7 @@ describe('hydratePluginConfig', () => {
       lidarrProxy: true,
       lidarrPluginProxy: true,
       deezerImport: true,
+      homeShelves: true,
     });
     expect(request).toHaveBeenCalledWith('/Cadence/Config');
   });
@@ -50,12 +52,14 @@ describe('hydratePluginConfig', () => {
       SignupUrl: '',
       LidarrProxy: false,
       DeezerImport: false,
+      HomeShelves: false,
     });
     await hydratePluginConfig();
     expect(window.__CADENCE_CONFIG__?.marlinUrl).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.signupUrl).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.lidarrProxy).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.deezerImport).toBeUndefined();
+    expect(window.__CADENCE_CONFIG__?.homeShelves).toBeUndefined();
   });
 
   it('swallows a fetch failure (no plugin / offline) and leaves config untouched', async () => {

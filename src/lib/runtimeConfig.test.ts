@@ -6,6 +6,7 @@ import {
   lidarrProxyEnabled,
   lidarrPluginProxyEnabled,
   deezerImportEnabled,
+  homeShelvesEnabled,
   marlinProxyEnabled,
   signupUrl,
 } from './runtimeConfig';
@@ -73,6 +74,16 @@ describe('deezerImportEnabled', () => {
   it('is true only when deezerImport: true', () => {
     window.__CADENCE_CONFIG__ = { deezerImport: true };
     expect(deezerImportEnabled()).toBe(true);
+  });
+});
+
+describe('homeShelvesEnabled', () => {
+  it('is false with no config', () => {
+    expect(homeShelvesEnabled()).toBe(false);
+  });
+  it('is true only when homeShelves: true', () => {
+    window.__CADENCE_CONFIG__ = { homeShelves: true };
+    expect(homeShelvesEnabled()).toBe(true);
   });
 });
 
