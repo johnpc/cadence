@@ -47,7 +47,7 @@ describe('useSearch', () => {
     let resolveSecond: (v: JellyfinItem[]) => void = () => {};
     vi.mocked(searchSource)
       .mockResolvedValueOnce([song])
-      .mockImplementationOnce(() => new Promise((r) => (resolveSecond = r)));
+      .mockImplementationOnce(() => new Promise<JellyfinItem[]>((r) => (resolveSecond = r)));
     const { result } = renderHook(() => useSearch(), { wrapper });
     act(() => result.current.setQuery('song'));
     await waitFor(() => expect(result.current.groups.songs).toHaveLength(1));
