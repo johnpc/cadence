@@ -49,7 +49,20 @@ export interface RuntimeConfig {
    * skips ~6 slow recursive library queries. Set by the plugin-config fetch;
    * the client falls back to native per-shelf queries when absent (homeSource). */
   homeShelves?: boolean;
+  /** When true, the CadenceConfig Jellyfin plugin exposes a precomputed
+   * audiobook-library endpoint (GET /Cadence/Audiobooks) that returns the whole
+   * library in ONE fast response — the plugin recomputes it on a schedule so the
+   * client skips the slow recursive AudioBook scan. Set by the plugin-config
+   * fetch; the client falls back to the native scan when absent (audiobookSource). */
+  audiobooks?: boolean;
 }
+
+/** The boolean-valued keys of RuntimeConfig — the set of plugin/deploy feature
+ * flags. Derived so it self-maintains as flags are added (see runtimeConfig's
+ * configFlag), rather than a hand-kept union that drifts. */
+export type BooleanFlag = {
+  [K in keyof RuntimeConfig]-?: RuntimeConfig[K] extends boolean | undefined ? K : never;
+}[keyof RuntimeConfig];
 
 declare global {
   interface Window {

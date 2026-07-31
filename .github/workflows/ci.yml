@@ -125,6 +125,8 @@ jobs:
             paths: .features-gen/e2e/features/downloads
           - name: offline
             paths: .features-gen/e2e/features/offline
+          - name: audiobooks
+            paths: .features-gen/e2e/features/audiobooks
     steps:
       - uses: actions/checkout@v5
 

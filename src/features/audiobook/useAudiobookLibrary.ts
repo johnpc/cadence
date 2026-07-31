@@ -5,6 +5,8 @@ import {
   getFavoriteAudiobooks,
 } from './audiobookLibraryApi';
 import { mergeHighlights } from './mergeHighlights';
+import { overlayProgress } from './overlayProgress';
+import { useAudiobookSource } from './useAudiobookSource';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** Just the "highlights" subset (in-progress + favorited books) — two small
@@ -31,7 +33,13 @@ export function useAudiobookHighlights(enabled = true): JellyfinItem[] {
 
 /** The audiobook library + a "highlights" subset (in-progress + favorited books,
  * most-recent first) for the top section — each query independent so the page
- * renders progressively. */
+ * renders progressively.
+ *
+ * Prefers the plugin's precomputed library (one fast call) over the slow native
+ * recursive scan, falling back to the scan when the plugin is absent or errors
+ * (incl. its 503 cold miss). The plugin caches only the STATIC catalog, so live
+ * reading progress from the (bounded, native) highlights query is overlaid onto
+ * it — a cached UserData never makes a progress bar look stale. */
 export function useAudiobookLibrary(): {
   books: JellyfinItem[];
   highlights: JellyfinItem[];
@@ -39,17 +47,25 @@ export function useAudiobookLibrary(): {
   isError: boolean;
   refetch: () => void;
 } {
+  const src = useAudiobookSource();
+  // Native scan runs ONLY when the plugin path isn't owning the library (absent /
+  // flag off) or errored — so exactly one library source is in flight.
+  const nativeOn = !src.active || src.isError;
   const all = useQuery({
     queryKey: ['audiobooks'],
     queryFn: () => getAudiobooks(),
+    enabled: nativeOn,
     staleTime: 60_000,
   });
+  // In-progress first, then favorites not already shown (deduped by id).
+  const highlights = useAudiobookHighlights();
+  const cached = src.data;
+  const books = cached ? overlayProgress(cached, highlights) : (all.data ?? []);
   return {
-    books: all.data ?? [],
-    // In-progress first, then favorites not already shown (deduped by id).
-    highlights: useAudiobookHighlights(),
-    isLoading: all.isLoading,
-    isError: all.isError,
-    refetch: () => void all.refetch(),
+    books,
+    highlights,
+    isLoading: cached ? false : src.isLoading || (nativeOn && all.isLoading),
+    isError: nativeOn && all.isError,
+    refetch: () => (cached ? src.refetch() : void all.refetch()),
   };
 }

@@ -31,7 +31,15 @@ export function useLikeToggle(track: JellyfinItem) {
       setLiked(!next); // roll back
       toast(next ? "Couldn't save to Liked Songs" : "Couldn't remove from Liked Songs");
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: LIKED_SONGS_KEY }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: LIKED_SONGS_KEY });
+      // A liked item may be an audiobook — refresh the audiobook favorites +
+      // library so the "favorites" section reflects the heart immediately (it
+      // otherwise stayed cached until an app reload). Harmless for plain tracks:
+      // those queries simply aren't mounted / re-fetch cheaply.
+      queryClient.invalidateQueries({ queryKey: ['audiobooks-favorites'] });
+      queryClient.invalidateQueries({ queryKey: ['audiobooks'] });
+    },
   });
 
   return {

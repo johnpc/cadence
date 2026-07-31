@@ -23,6 +23,7 @@ describe('hydratePluginConfig', () => {
       LidarrProxy: true,
       DeezerImport: true,
       HomeShelves: true,
+      Audiobooks: true,
     });
     await hydratePluginConfig();
     expect(window.__CADENCE_CONFIG__).toMatchObject({
@@ -33,6 +34,7 @@ describe('hydratePluginConfig', () => {
       lidarrPluginProxy: true,
       deezerImport: true,
       homeShelves: true,
+      audiobooks: true,
     });
     expect(request).toHaveBeenCalledWith('/Cadence/Config');
   });
@@ -53,6 +55,7 @@ describe('hydratePluginConfig', () => {
       LidarrProxy: false,
       DeezerImport: false,
       HomeShelves: false,
+      Audiobooks: false,
     });
     await hydratePluginConfig();
     expect(window.__CADENCE_CONFIG__?.marlinUrl).toBeUndefined();
@@ -60,6 +63,7 @@ describe('hydratePluginConfig', () => {
     expect(window.__CADENCE_CONFIG__?.lidarrProxy).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.deezerImport).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.homeShelves).toBeUndefined();
+    expect(window.__CADENCE_CONFIG__?.audiobooks).toBeUndefined();
   });
 
   it('swallows a fetch failure (no plugin / offline) and leaves config untouched', async () => {

@@ -10,40 +10,12 @@
  * proxy (see lidarrApi). Runtime values already present (e.g. the web nginx
  * config.js) win, so this only fills gaps — the plugin never overrides a deploy.
  */
-import { useSyncExternalStore } from 'react';
 import { request } from './jellyfinFetch';
+import { markConfigHydrated } from './pluginConfigHydration';
 
-// Whether hydratePluginConfig has run to completion (success OR failure) yet.
-// Consumers that branch on a plugin flag (e.g. homeShelves) must WAIT for this
-// before treating a flag as absent — the flag is only set once the async
-// /Cadence/Config fetch resolves, so reading it at mount would wrongly see the
-// plugin as unavailable and, e.g., fire the native Home queries the fast-path
-// exists to avoid.
-let configHydrated = false;
-const hydrationListeners = new Set<() => void>();
-
-/** True once the plugin config fetch has settled (either way). */
-export function isPluginConfigHydrated(): boolean {
-  return configHydrated;
-}
-
-/** React hook: re-renders when plugin-config hydration settles. */
-export function usePluginConfigHydrated(): boolean {
-  return useSyncExternalStore(
-    (cb) => {
-      hydrationListeners.add(cb);
-      return () => hydrationListeners.delete(cb);
-    },
-    () => configHydrated,
-    () => configHydrated,
-  );
-}
-
-function markConfigHydrated(): void {
-  if (configHydrated) return;
-  configHydrated = true;
-  hydrationListeners.forEach((l) => l());
-}
+// The hydration signal lives in pluginConfigHydration.ts; re-exported so existing
+// consumers can keep importing it from here.
+export { isPluginConfigHydrated, usePluginConfigHydrated } from './pluginConfigHydration';
 
 interface PluginConfigResponse {
   MarlinUrl?: string;
@@ -52,6 +24,7 @@ interface PluginConfigResponse {
   LidarrProxy?: boolean;
   DeezerImport?: boolean;
   HomeShelves?: boolean;
+  Audiobooks?: boolean;
 }
 
 /** Merge a string value into the config only when it's non-empty AND not already
@@ -60,6 +33,17 @@ function fillString(key: 'marlinUrl' | 'signupUrl' | 'castReceiverAppId', value?
   const config = (window.__CADENCE_CONFIG__ ??= {});
   const trimmed = value?.trim();
   if (trimmed && !config[key]) config[key] = trimmed;
+}
+
+/** Merge a boolean plugin-endpoint flag: set it only for an explicit `true` from
+ * the plugin AND only when the deploy hasn't already set it (runtime config.js
+ * wins). Keyed to the boolean flags so it can't target a string field. */
+function fillFlag(
+  config: NonNullable<typeof window.__CADENCE_CONFIG__>,
+  key: 'deezerImport' | 'homeShelves' | 'audiobooks',
+  value?: boolean,
+): void {
+  if (value === true && !config[key]) config[key] = true;
 }
 
 /**
@@ -83,12 +67,13 @@ export async function hydratePluginConfig(): Promise<void> {
       config.lidarrProxy = true;
       config.lidarrPluginProxy = true;
     }
-    // The Deezer import endpoint lives on the same plugin — flag it so the client
-    // routes "Import from Deezer" to /Cadence/Deezer/Import (works on native iOS).
-    if (res.DeezerImport === true && !config.deezerImport) config.deezerImport = true;
-    // The precomputed Home-shelves endpoint — flag it so homeSource takes the
-    // fast /Cadence/Home path instead of ~6 slow native per-shelf queries.
-    if (res.HomeShelves === true && !config.homeShelves) config.homeShelves = true;
+    // Plain plugin-endpoint flags: each tells the client an endpoint is available
+    // so it takes the fast plugin path (routes "Import from Deezer" to
+    // /Cadence/Deezer/Import; homeSource → /Cadence/Home; audiobookSource →
+    // /Cadence/Audiobooks). Only set when the deploy didn't already (config.js wins).
+    fillFlag(config, 'deezerImport', res.DeezerImport);
+    fillFlag(config, 'homeShelves', res.HomeShelves);
+    fillFlag(config, 'audiobooks', res.Audiobooks);
   } catch {
     /* no plugin / offline / unauthenticated — keep existing config */
   } finally {

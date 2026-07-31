@@ -43,6 +43,19 @@ describe('DownloadQueue', () => {
     expect(screen.getByTestId('download-queue-status')).toHaveTextContent('Paused');
   });
 
+  it.each([
+    ['importing', 'Importing…'],
+    ['import failed', 'Import failed'],
+    ['completed', 'Done'],
+  ] as const)('labels a %s grab with a status word', async (status, label) => {
+    vi.mocked(getDownloadQueue).mockResolvedValue([
+      { id: 3, title: 'Boygenius', status, percent: 100 },
+    ]);
+    render(<DownloadQueue />, { wrapper });
+    await waitFor(() => expect(screen.getByText('Boygenius')).toBeInTheDocument());
+    expect(screen.getByTestId('download-queue-status')).toHaveTextContent(label);
+  });
+
   it('renders nothing when the queue is empty (no empty box)', async () => {
     vi.mocked(getDownloadQueue).mockResolvedValue([]);
     const { container } = render(<DownloadQueue />, { wrapper });
