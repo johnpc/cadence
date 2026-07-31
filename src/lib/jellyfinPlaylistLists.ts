@@ -79,7 +79,9 @@ async function partitionByOwnership(
  * ownership via the owner-only `/Playlists/{id}/Users` endpoint. Others' public
  * playlists are surfaced on Home, never mixed into "Your Library". */
 export async function getPlaylists(): Promise<JellyfinItem[]> {
-  const all = await fetchAllPlaylists('SortName', 'CanDelete');
+  // UserData carries IsFavorite so Your Library can bubble hearted playlists to
+  // the top (see sortRows). It rides along on the same fetch — no extra call.
+  const all = await fetchAllPlaylists('SortName', 'CanDelete,UserData');
   const [mine] = await partitionByOwnership(all);
   return dedupeByName(mine);
 }

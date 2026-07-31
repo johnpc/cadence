@@ -8,6 +8,10 @@ import { dedupeTracks } from './dedupeTracks';
 import { dedupeByName } from './dedupeByName';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
+// Favorite mutations moved to jellyfinFavorites (generic over item type, and to
+// keep this file under the line limit); re-exported so existing imports work.
+export { addFavorite, removeFavorite } from './jellyfinFavorites';
+
 const audioFields =
   'Artists,AlbumArtist,Album,AlbumId,ArtistItems,IndexNumber,ParentIndexNumber,RunTimeTicks';
 
@@ -15,9 +19,10 @@ const audioFields =
  * genres + production year for the detail-page meta line. */
 export async function getItem(itemId: string): Promise<JellyfinItem> {
   const userId = getSession()?.userId ?? '';
-  // CanDelete tells us whether the current user OWNS this item (true only for
-  // owners) — the playlist page uses it to offer Clone vs edit/delete.
-  return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}?Fields=Genres,Overview,CanDelete`);
+  // CanDelete = does the user OWN it (Clone vs edit/delete); UserData carries
+  // IsFavorite so the playlist header's heart shows the saved state.
+  const fields = 'Genres,Overview,CanDelete,UserData';
+  return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}?Fields=${fields}`);
 }
 
 /** All audio tracks on an album, in disc+track order. Uses AlbumIds, not
@@ -74,18 +79,6 @@ export async function getFavoriteSongs(limit = 1000): Promise<JellyfinItem[]> {
 /** The user's saved albums, most-recent first. */
 export async function getFavoriteAlbums(limit = 500): Promise<JellyfinItem[]> {
   return dedupeByName(await getFavorites('MusicAlbum', 'AlbumArtist,Artists', limit));
-}
-
-/** Add a track to the user's liked songs. */
-export async function addFavorite(itemId: string): Promise<void> {
-  const userId = getSession()?.userId ?? '';
-  await request(`/Users/${userId}/FavoriteItems/${itemId}`, { method: 'POST' });
-}
-
-/** Remove a track from the user's liked songs. */
-export async function removeFavorite(itemId: string): Promise<void> {
-  const userId = getSession()?.userId ?? '';
-  await request(`/Users/${userId}/FavoriteItems/${itemId}`, { method: 'DELETE' });
 }
 
 /** Hydrate item ids into full items, preserving the caller's order (e.g. ranked similar-album ids). */

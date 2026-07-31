@@ -47,5 +47,9 @@ export function sortRows(
           .map((r, i) => ({ r, i }))
           .sort((a, b) => (plays[b.r.id] ?? 0) - (plays[a.r.id] ?? 0) || a.i - b.i)
           .map((e) => e.r);
-  return [...pinned, ...sorted];
+  // Hearted playlists bubble above the rest (below the pinned pseudo-playlists),
+  // keeping each group's chosen order — a stable partition, not a re-sort.
+  const favorites = sorted.filter((r) => r.favorite);
+  const others = sorted.filter((r) => !r.favorite);
+  return [...pinned, ...favorites, ...others];
 }

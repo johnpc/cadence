@@ -29,6 +29,9 @@ export interface LibraryRow {
   /** True for any pinned pseudo-playlist (Liked Songs / Downloads) kept at the
    * top of the list regardless of sort. */
   pinned?: boolean;
+  /** True when the user has hearted this playlist (Jellyfin favorite) — sorted
+   * above non-favorites, just under the pinned pseudo-playlists. */
+  favorite?: boolean;
 }
 
 /** Build the rows for the active filter. Under "playlists", Liked Songs is
@@ -72,6 +75,7 @@ export function buildLibraryRows(
       to: `/playlist/${p.Id}`,
       round: false,
       item: p,
+      favorite: !!p.UserData?.IsFavorite,
     })),
   ];
 }

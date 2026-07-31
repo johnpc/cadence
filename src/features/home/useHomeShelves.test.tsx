@@ -111,4 +111,26 @@ describe('useHomeShelves source selection', () => {
     expect(result.current.albums.albums[0].Id).toBe('native-fallback');
     expect(homeApi.useLatestAlbums).toHaveBeenCalledWith(true);
   });
+
+  it('does NOT fire native queries while the plugin call is still in flight (no race)', () => {
+    // The bug this guards: gating native on "no data yet" fired ~6 native scans
+    // racing every Home load. Now, plugin active + loading (no data, no error) →
+    // native stays OFF and the shelves report loading (skeleton), not empty.
+    mockNative({ albums: [item('should-not-be-used')] });
+    vi.mocked(useHomeSource).mockReturnValue({
+      active: true,
+      data: null, // not arrived yet
+      isLoading: true,
+      isError: false,
+      refetch: vi.fn(),
+    });
+    const { result } = renderHook(() => useHomeShelves());
+    // Native shelf queries are DISABLED (enabled=false) — no racing scans.
+    expect(homeApi.useLatestAlbums).toHaveBeenCalledWith(false);
+    expect(homeApi.useSuggestedSongs).toHaveBeenCalledWith(false);
+    expect(homeApi.useRecentlyPlayed).toHaveBeenCalledWith(20, false);
+    // Shelves show loading (drives the skeleton), not a false empty state.
+    expect(result.current.albums.isLoading).toBe(true);
+    expect(result.current.albums.albums).toEqual([]);
+  });
 });

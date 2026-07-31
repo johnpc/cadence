@@ -1,4 +1,5 @@
 import { PlaylistCover } from './PlaylistCover';
+import { PlaylistFavoriteButton } from './PlaylistFavoriteButton';
 import { CollectionActions } from '../player/CollectionActions';
 import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import { ShareButton } from '../share/ShareButton';
@@ -47,6 +48,7 @@ export function PlaylistHeader({
               : undefined
           }
         />
+        <PlaylistFavoriteButton playlist={playlist} />
         <DownloadCollectionButton
           tracks={tracks}
           playlist={playlist ? { id: playlist.Id, name: playlist.Name ?? 'Playlist' } : undefined}
