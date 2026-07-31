@@ -3,8 +3,6 @@ import { IonIcon, IonSpinner } from '@ionic/react';
 import { play, pause, playSkipForward, close } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { useCast } from '../cast/useCast';
-import { usePlayerProgress } from './PlayerProgressContext';
-import { useScrubber } from './useScrubber';
 import { NowPlayingSeek } from './NowPlayingSeek';
 import { NowPlayingMeta } from './NowPlayingMeta';
 import { FullPlayer } from './FullPlayer';
@@ -18,8 +16,6 @@ import './nowPlayingBar.css';
 export function NowPlayingBar() {
   const { current, isPlaying, waiting, canNext, next, toggle, seek, stop } = usePlayer();
   const { connected: casting, deviceName } = useCast();
-  const { position, duration } = usePlayerProgress();
-  const scrub = useScrubber(position, seek);
   const [open, setOpen] = useState(false);
   // While casting to a custom receiver, mirror now-playing + queue + lyrics to
   // the TV.
@@ -77,7 +73,7 @@ export function NowPlayingBar() {
         >
           <IonIcon icon={close} />
         </button>
-        <NowPlayingSeek scrub={scrub} duration={duration} />
+        <NowPlayingSeek seek={seek} />
       </div>
       <FullPlayer open={open} onClose={() => setOpen(false)} />
     </>
