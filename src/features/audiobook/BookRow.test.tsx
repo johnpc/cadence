@@ -71,6 +71,11 @@ describe('BookRow', () => {
     expect(screen.getByTestId('download-collection')).toBeInTheDocument();
   });
 
+  it('offers a favorite (heart) control for the book', () => {
+    renderWithProviders(<BookRow book={multi} />, { player: stubPlayer() });
+    expect(screen.getByTestId('like-button')).toBeInTheDocument();
+  });
+
   it('shows reading progress (% + time left + bar) once started', () => {
     const SEC = 10_000_000;
     const started: Book = {

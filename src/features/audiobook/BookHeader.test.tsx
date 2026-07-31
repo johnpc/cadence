@@ -33,6 +33,11 @@ describe('BookHeader', () => {
     expect(playQueue).toHaveBeenCalledWith(unstarted.parts, 0);
   });
 
+  it('offers a favorite (heart) control', () => {
+    renderWithProviders(<BookHeader book={unstarted} />, { player: stubPlayer() });
+    expect(screen.getByTestId('like-button')).toBeInTheDocument();
+  });
+
   it('offers Resume (jumping to the first unfinished part) for a started book', async () => {
     const playQueue = vi.fn();
     const started: Book = {
