@@ -16,6 +16,18 @@ const wrapper = ({ children }: { children: ReactNode }) => (
   </QueryClientProvider>
 );
 
+// A wrapper exposing its QueryClient so a test can spy on invalidateQueries.
+function spyWrapper() {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const spy = vi.spyOn(client, 'invalidateQueries');
+  const w = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={client}>
+      <ToastContext.Provider value={toast}>{children}</ToastContext.Provider>
+    </QueryClientProvider>
+  );
+  return { w, spy };
+}
+
 const track = (fav: boolean): JellyfinItem => ({
   Id: 't1',
   Name: 'x',
@@ -55,5 +67,18 @@ describe('useLikeToggle', () => {
     act(() => result.current.toggle());
     await waitFor(() => expect(result.current.liked).toBe(false)); // rolled back
     expect(toast).toHaveBeenCalledWith("Couldn't save to Liked Songs");
+  });
+
+  it('invalidates the audiobook favorites + library on success (heart shows immediately)', async () => {
+    // A liked item can be an audiobook — the "favorites" section must refresh, not
+    // wait for an app reload. So the like invalidates the audiobook queries too.
+    vi.mocked(addFavorite).mockResolvedValue();
+    const { w, spy } = spyWrapper();
+    const { result } = renderHook(() => useLikeToggle(track(false)), { wrapper: w });
+    act(() => result.current.toggle());
+    await waitFor(() => expect(addFavorite).toHaveBeenCalled());
+    const keys = spy.mock.calls.map((c) => JSON.stringify(c[0]?.queryKey));
+    expect(keys).toContain(JSON.stringify(['audiobooks-favorites']));
+    expect(keys).toContain(JSON.stringify(['audiobooks']));
   });
 });

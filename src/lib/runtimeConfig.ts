@@ -4,13 +4,11 @@
  * Jellyfin plugin at sign-in. The config shape lives in runtimeConfigTypes.ts;
  * everything is optional, so every reader tolerates a missing config.js.
  */
-import './runtimeConfigTypes';
+import type { BooleanFlag } from './runtimeConfigTypes';
 
 /** A runtime-config boolean flag — true only for an explicit `true` (guards
  * against truthy strings an injected config might carry). */
-function configFlag(
-  key: 'marlinProxy' | 'lidarrProxy' | 'lidarrPluginProxy' | 'deezerImport' | 'homeShelves',
-): boolean {
+function configFlag(key: BooleanFlag): boolean {
   return window.__CADENCE_CONFIG__?.[key] === true;
 }
 
@@ -86,4 +84,13 @@ export function deezerImportEnabled(): boolean {
  * per-shelf Jellyfin queries — so Home always works, just slower without it. */
 export function homeShelvesEnabled(): boolean {
   return configFlag('homeShelves');
+}
+
+/** True when the CadenceConfig plugin exposes the precomputed audiobook-library
+ * endpoint (GET /Cadence/Audiobooks). When true, audiobookSource fetches the
+ * whole library in one fast call; when false (no plugin / older plugin), it
+ * falls back to the native recursive AudioBook scan — so the Audiobooks tab
+ * always works, just slower without it. */
+export function audiobooksSourceEnabled(): boolean {
+  return configFlag('audiobooks');
 }
