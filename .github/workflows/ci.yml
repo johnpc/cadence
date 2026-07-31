@@ -154,6 +154,19 @@ jobs:
         # once on the occasional flaky download.
         run: npx playwright install chromium || npx playwright install chromium
 
+      # Provision THIS area's dedicated Jellyfin user (cadence-e2e-<area>) if it
+      # doesn't exist yet, so adding a new acceptance area never fails on a missing
+      # user (the audiobooks area hit exactly that). Idempotent; needs the admin
+      # key; never fails the job. Runs BEFORE warmup/seed/sign-in, which all
+      # authenticate as this user.
+      - name: Ensure this area's Jellyfin user exists
+        env:
+          VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
+          JELLYFIN_ADMIN_KEY: ${{ secrets.JELLYFIN_ADMIN_KEY }}
+          AREA: ${{ matrix.area.name }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+        run: bash scripts/ensure-e2e-users.sh
+
       # Warm up the Jellyfin auth path before the tests. The server sits behind a
       # cloudflared tunnel that goes cold when idle: the FIRST auth after a gap
       # can take 12–15s+ (then it drops to ~0.2s). If that cold hit lands inside
