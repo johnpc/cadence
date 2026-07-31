@@ -96,6 +96,34 @@ When('I tap next', async ({ page }) => {
   await page.getByTestId('full-player-next').click({ force: true });
 });
 
+When('I let the current track play a little', async ({ page }) => {
+  // Advance real playback a few seconds so the element has a non-zero position —
+  // the setup for the "next track starts at the end" regression (a stale
+  // currentTime leaking onto the next, shorter track).
+  await page.waitForFunction(
+    () => {
+      const audio = document.querySelector('audio');
+      return !!audio && !audio.paused && audio.currentTime > 3;
+    },
+    undefined,
+    { timeout: DATA_WAIT },
+  );
+});
+
+Then('the next track plays from the beginning', async ({ page }) => {
+  // After advancing, the new track must start near 0 — not inherit the previous
+  // track's position (which would fire `ended` immediately and skip it).
+  await page.waitForFunction(
+    () => {
+      const audio = document.querySelector('audio');
+      // A fresh track: playing (or about to), position reset toward the start.
+      return !!audio && !audio.ended && audio.currentTime < 3;
+    },
+    undefined,
+    { timeout: DATA_WAIT },
+  );
+});
+
 When('I press the spacebar', async ({ page }) => {
   // Click empty page chrome first so focus isn't in the search input.
   await page.locator('body').click({ position: { x: 5, y: 5 } });

@@ -62,7 +62,17 @@ describe('useNextTrackPrefetch', () => {
       },
     );
     rerender({ i: 1 }); // next id goes b → c
-    expect(created[0].removeAttribute).toHaveBeenCalledWith('src');
+    // One reused element, just re-pointed — NOT torn down on the change. Tearing
+    // it down here cancelled the warm transcode exactly when it became current.
+    expect(created).toHaveLength(1);
     expect(created[0].src).toBe('stream:c');
+    expect(created[0].removeAttribute).not.toHaveBeenCalled();
+  });
+
+  it('releases the detached element on unmount', () => {
+    const { unmount } = renderHook(() => useNextTrackPrefetch(queue, false, true));
+    expect(created[0].removeAttribute).not.toHaveBeenCalled();
+    unmount();
+    expect(created[0].removeAttribute).toHaveBeenCalledWith('src');
   });
 });

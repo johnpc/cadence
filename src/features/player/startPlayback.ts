@@ -30,6 +30,14 @@ export function startPlayback(
 ): () => void {
   if (!isActive()) return () => {};
   audio.src = src;
+  // Reset to the start of the NEW track. Assigning `src` does not reliably zero
+  // currentTime on every engine (notably the iOS WKWebView, where the prior
+  // track's position can persist until the new metadata loads) — a stale
+  // position past the new (shorter) track's duration makes it fire `ended`
+  // immediately, so the next song "starts at the end" and skips instead of
+  // playing. The audiobook-resume hook still seeks afterward (it only resumes
+  // when currentTime <= 1, which this guarantees).
+  audio.currentTime = 0;
   log('track-load', 'set src', { id: currentId, local: String(src.startsWith('blob:')) });
   if (skipAutoPlay.current) {
     skipAutoPlay.current = false;

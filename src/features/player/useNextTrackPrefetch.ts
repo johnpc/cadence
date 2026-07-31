@@ -20,11 +20,26 @@ export function useNextTrackPrefetch(queue: q.QueueState, wrap: boolean, isPlayi
     elRef.current = el;
     el.preload = 'auto';
     el.muted = true;
+    // Just RE-POINT src when the target changes — assigning a new src abandons
+    // the prior request on its own. The earlier version also did
+    // removeAttribute('src')+load() in cleanup, which fired the instant the
+    // prefetched track became current — CANCELLING the warm transcode right when
+    // the main element was about to request it (Jellyfin ties the transcode job
+    // to the connection), defeating the point. Leaving the warm request alone
+    // lets the main element pick up the already-spun-up transcode → faster start.
     el.src = audioStreamUrl(nextId);
     el.load();
-    return () => {
-      el.removeAttribute('src');
-      el.load(); // release the buffered request when the target changes
-    };
   }, [nextId]);
+
+  // Release the detached element only when the player unmounts.
+  useEffect(
+    () => () => {
+      const el = elRef.current;
+      if (el) {
+        el.removeAttribute('src');
+        el.load();
+      }
+    },
+    [],
+  );
 }

@@ -45,6 +45,16 @@ Feature: Playback
     And I open the full player
     Then the full player shows the next-up track
 
+  Scenario: Advancing to the next track starts it from the beginning
+    Given I am signed in
+    When I open the Library tab
+    And I open the first playlist
+    Then I see the playlist tracks
+    When I play the playlist
+    And I let the current track play a little
+    And I tap next
+    Then the next track plays from the beginning
+
   Scenario: The spacebar toggles playback
     Given I am signed in
     When I tap a track from search
