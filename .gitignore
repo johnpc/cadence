@@ -48,3 +48,5 @@ scripts/perf-audit.mjs
 # ad-hoc perf/prod probe scripts (dev-only, never shipped)
 scripts/perf-*.mjs
 scripts/prod-*.mjs
+scripts/ab-probe.mjs
+scripts/ab-screenshot.png
