@@ -8,7 +8,10 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 const KEY = 'cadence.recent-searches';
 const MAX = 12;
 
-export type RecentItem = Pick<JellyfinItem, 'Id' | 'Name' | 'Type' | 'AlbumId' | 'AlbumArtist'> & {
+export type RecentItem = Pick<
+  JellyfinItem,
+  'Id' | 'Name' | 'Type' | 'AlbumId' | 'AlbumArtist' | 'ImageTags'
+> & {
   Artists?: string[];
 };
 
@@ -31,6 +34,10 @@ export function addRecentSearch(item: RecentItem): RecentItem[] {
     AlbumId: item.AlbumId,
     AlbumArtist: item.AlbumArtist,
     Artists: item.Artists,
+    // Persist the art tag so the idle Search list can rebuild the cover URL —
+    // without it, imageUrl() can't form an item's OWN-art link (artists have no
+    // AlbumId to fall back to) and the row shows a blank placeholder.
+    ImageTags: item.ImageTags,
   };
   const next = [entry, ...getRecentSearches().filter((i) => i.Id !== entry.Id)].slice(0, MAX);
   localStorage.setItem(KEY, JSON.stringify(next));
