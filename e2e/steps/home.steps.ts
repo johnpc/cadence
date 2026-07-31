@@ -44,7 +44,8 @@ When('I play the first mix', async ({ page }) => {
 });
 
 When('I play the first album on Home via its play button', async ({ page }) => {
-  const card = page.getByTestId('home-shelves').getByTestId('album-card').first();
+  // Scope to the albums shelf — `album-card` is shared across shelf types.
+  const card = page.getByTestId('album-shelf').getByTestId('album-card').first();
   await expect(card).toBeAttached({ timeout: DATA_WAIT });
   await card.scrollIntoViewIfNeeded();
   await card.hover(); // reveal the hover-only FAB

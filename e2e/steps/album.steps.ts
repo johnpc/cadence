@@ -9,7 +9,10 @@ When('I open the first album on Home', async ({ page }) => {
   // The card body (its __hit button) navigates; the hover FAB plays. Click-and-
   // VERIFY: an Ionic route push from the card can be dropped, leaving the test on
   // Home so the album-detail assertion times out — re-issue until /album/ lands.
-  const card = page.getByTestId('home-shelves').getByTestId('album-card').first();
+  // Scope to an ALBUM shelf: `album-card` is shared by song/artist/playlist
+  // shelves too, so a bare .first() can land on a song card (→ /song/) when a
+  // song shelf renders above the albums (a user with play history).
+  const card = page.getByTestId('album-shelf').getByTestId('album-card').first();
   await expect(card).toBeAttached({ timeout: DATA_WAIT });
   await expect(async () => {
     await card

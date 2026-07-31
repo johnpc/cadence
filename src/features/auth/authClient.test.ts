@@ -37,7 +37,23 @@ describe('authClient', () => {
     });
     vi.mocked(validateToken).mockResolvedValue({ Id: 'u', Name: 'cadence-test' });
     expect(await currentUsername()).toBe('cadence-test');
-    expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u' });
+    // Non-admin (no Policy.IsAdministrator) → isAdmin false, and re-persisted so
+    // a later offline launch trusts the right flag.
+    expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u', isAdmin: false });
+    expect(storeSession).toHaveBeenCalledWith(
+      expect.objectContaining({ token: 't', userId: 'u', isAdmin: false }),
+    );
+  });
+
+  it('currentUsername records admin status from the validated user', async () => {
+    vi.mocked(loadStoredSession).mockResolvedValue({ token: 't', userId: 'u', username: 'admin' });
+    vi.mocked(validateToken).mockResolvedValue({
+      Id: 'u',
+      Name: 'admin',
+      Policy: { IsAdministrator: true },
+    });
+    expect(await currentUsername()).toBe('admin');
+    expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u', isAdmin: true });
   });
 
   it('currentUsername trusts the stored session in offline mode (no validate call)', async () => {

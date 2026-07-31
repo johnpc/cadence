@@ -51,10 +51,30 @@ describe('jellyfinPlaylists', () => {
     vi.restoreAllMocks();
   });
 
-  it('getPlaylists returns only playlists the user OWNS (confirmed via the share endpoint)', async () => {
-    setSession({ token: 't', userId: 'uid' });
-    // 'mine' + 'admincandelete' both have CanDelete true (admin sees that on
-    // everything), but only 'mine' passes the owner-only /Users check.
+  it('getPlaylists (non-admin) partitions on CanDelete with NO ownership probes', async () => {
+    // A normal user can only delete their OWN playlists, so CanDelete IS the
+    // ownership signal — no per-playlist /Users fan-out (the perf storm on Home).
+    setSession({ token: 't', userId: 'uid', isAdmin: false });
+    const f = stubOwnership(
+      [
+        { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
+        { Id: 'theirs', Name: 'Someone Else', Type: 'Playlist', CanDelete: false },
+      ],
+      [], // no probe should ever be made
+    );
+    const items = await getPlaylists();
+    expect(items.map((p) => p.Id)).toEqual(['mine']);
+    expect(f.mock.calls[0][0]).toContain('Fields=CanDelete');
+    // Zero owner-probe requests — that's the whole point of this path.
+    expect(f.mock.calls.some(([url]: [string]) => /\/Playlists\/[^/]+\/Users/.test(url))).toBe(
+      false,
+    );
+  });
+
+  it('getPlaylists (ADMIN) confirms ownership via the share endpoint', async () => {
+    // An admin sees CanDelete:true on EVERY playlist, so we must probe: 'mine' +
+    // 'admincandelete' both have CanDelete true, but only 'mine' passes /Users.
+    setSession({ token: 't', userId: 'uid', isAdmin: true });
     const f = stubOwnership(
       [
         { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
@@ -65,12 +85,14 @@ describe('jellyfinPlaylists', () => {
     );
     const items = await getPlaylists();
     expect(items.map((p) => p.Id)).toEqual(['mine']);
-    expect(f.mock.calls[0][0]).toContain('IncludeItemTypes=Playlist');
-    expect(f.mock.calls[0][0]).toContain('Fields=CanDelete');
+    expect(f.mock.calls.some(([url]: [string]) => /\/Playlists\/[^/]+\/Users/.test(url))).toBe(
+      true,
+    );
   });
 
   it('getPublicPlaylists returns others playlists NEWEST-FIRST (Descending)', async () => {
-    setSession({ token: 't', userId: 'uid' });
+    // Admin path exercises ownership confirmation + order preservation together.
+    setSession({ token: 't', userId: 'uid', isAdmin: true });
     const f = stubOwnership(
       [
         // Server returns these in DateCreated-Descending order (newest first).
@@ -88,6 +110,22 @@ describe('jellyfinPlaylists', () => {
     // Must request newest-first, or the shelf's slice(limit) truncates new shares.
     expect(f.mock.calls[0][0]).toContain('SortBy=DateCreated');
     expect(f.mock.calls[0][0]).toContain('SortOrder=Descending');
+  });
+
+  it('getPublicPlaylists (non-admin) excludes own playlists using CanDelete alone', async () => {
+    setSession({ token: 't', userId: 'uid', isAdmin: false });
+    const f = stubOwnership(
+      [
+        { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
+        { Id: 'theirs', Name: 'Community', Type: 'Playlist', CanDelete: false },
+      ],
+      [],
+    );
+    const items = await getPublicPlaylists();
+    expect(items.map((p) => p.Id)).toEqual(['theirs']);
+    expect(f.mock.calls.some(([url]: [string]) => /\/Playlists\/[^/]+\/Users/.test(url))).toBe(
+      false,
+    );
   });
 
   it('getPlaylistItems reads a playlist’s tracks', async () => {

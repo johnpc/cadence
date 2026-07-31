@@ -13,6 +13,7 @@ export function Shelf({
   onRetry,
   isEmpty,
   seeAllHref,
+  testId = 'shelf',
   children,
 }: {
   title: string;
@@ -21,10 +22,13 @@ export function Shelf({
   onRetry: () => void;
   isEmpty: boolean;
   seeAllHref?: string;
+  /** Overrides the section's data-testid so a specific shelf (e.g. the albums
+   * shelf) is addressable — the card testid alone is shared across shelf types. */
+  testId?: string;
   children: ReactNode;
 }) {
   return (
-    <section className="shelf" data-testid="shelf">
+    <section className="shelf" data-testid={testId}>
       <div className="shelf__head">
         <h2 className="shelf__title cad-headline">{title}</h2>
         {seeAllHref && (

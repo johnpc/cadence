@@ -21,6 +21,7 @@ export function CardShelf({
   round = false,
   seeAllHref,
   hideWhenEmpty = false,
+  testId,
 }: {
   title: string;
   items: JellyfinItem[];
@@ -33,6 +34,8 @@ export function CardShelf({
   /** Hide the whole shelf once it has loaded empty (Spotify-style — no bare
    * "nothing here" box on Home). The loading skeleton + error/retry still show. */
   hideWhenEmpty?: boolean;
+  /** A distinct section testid (the card testid is shared across shelf types). */
+  testId?: string;
 }) {
   if (hideWhenEmpty && !state.isLoading && !state.isError && items.length === 0) return null;
   return (
@@ -43,6 +46,7 @@ export function CardShelf({
       onRetry={() => void state.refetch()}
       isEmpty={items.length === 0}
       seeAllHref={seeAllHref}
+      testId={testId}
     >
       {items.map((item, index) => (
         <AlbumCard
