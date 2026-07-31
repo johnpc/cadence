@@ -51,6 +51,7 @@ export const PlaylistDetail = lazyPage(
   'PlaylistDetail',
 );
 export const AlbumDetail = lazyPage(() => import('./features/album/AlbumDetail'), 'AlbumDetail');
+export const BookDetail = lazyPage(() => import('./features/audiobook/BookDetail'), 'BookDetail');
 export const ArtistDetail = lazyPage(
   () => import('./features/artist/ArtistDetail'),
   'ArtistDetail',

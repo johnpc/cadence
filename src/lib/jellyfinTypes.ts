@@ -70,7 +70,14 @@ export interface JellyfinItem {
   /** Per-user state. `PlaybackPositionTicks` is the saved resume position (.NET
    * ticks) — Cadence reports it during playback and, for audiobooks, seeks back
    * to it on load ("continue where you left off"). */
-  UserData?: { IsFavorite?: boolean; PlaybackPositionTicks?: number; Played?: boolean };
+  UserData?: {
+    IsFavorite?: boolean;
+    PlaybackPositionTicks?: number;
+    Played?: boolean;
+    /** When the user last played the item (ISO string) — used for the audiobook
+     * "Recently played" sort. */
+    LastPlayedDate?: string;
+  };
   /** True when the current user may delete the item — for playlists this holds
    * only for the OWNER, so it's our signal for "this is my playlist" (Jellyfin
    * doesn't expose OwnerUserId on the /Items response). */

@@ -15,3 +15,10 @@ Feature: Audiobooks library
     Then I see the audiobook library with books
     When I search the audiobooks for a book that exists
     Then I see at least one matching book
+
+  Scenario: Opening a book shows its detail page
+    Given I am signed in
+    When I open the Audiobooks tab
+    Then I see the audiobook library with books
+    When I open the first book
+    Then I see the book detail page
