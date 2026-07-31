@@ -145,11 +145,23 @@ Given('I open the app', async ({ page }) => {
   await page.goto('/');
 });
 
-const sessionTokenPresent = (page: import('@playwright/test').Page) =>
+const sessionTokenPresent = (page: Page) =>
   page.evaluate(() => Object.keys(localStorage).some((k) => k.includes('cadence.session')));
 
-Given('I am signed in', async ({ page }) => {
-  await page.goto('/');
+/**
+ * Sign the test user in from the current page IF the sign-in form is showing.
+ * Idempotent — a no-op when already signed in. Reused by the "I am signed in"
+ * background AND by any step that does a full reload (page.goto), because the
+ * reload's optimistic session validate can transiently 401 under tunnel load and
+ * bounce back to sign-in; re-authenticating in place recovers deterministically.
+ */
+export async function ensureSignedIn(page: Page): Promise<void> {
+  if (
+    (await page.getByTestId('signin-submit').count()) === 0 &&
+    (await sessionTokenPresent(page))
+  ) {
+    return;
+  }
   await page.getByTestId('signin-username').fill(USERNAME as string);
   await page.getByTestId('signin-password').fill(PASSWORD as string);
   // Jellyfin's AuthenticateByName (PBKDF2 + cloudflared cold path) is erratic
@@ -164,8 +176,6 @@ Given('I am signed in', async ({ page }) => {
     if (await sessionTokenPresent(page)) return;
     const submit = page.getByTestId('signin-submit');
     await submit.click().catch(() => undefined);
-    // Wait out a slow-but-succeeding auth (up to the app's 30s timeout) before
-    // this poll is allowed to consider re-submitting.
     await Promise.race([
       page
         .waitForFunction(
@@ -183,10 +193,13 @@ Given('I am signed in', async ({ page }) => {
   }).toPass({ timeout: 120_000 });
   // The session key is written a beat BEFORE the router replaces /signin with
   // the destination — so waiting on the key alone lets the next step race the
-  // route transition (and a cold data fetch) with too small a budget, which
-  // flaked intermittently. Wait for the sign-in form to actually go away so
-  // downstream assertions start from the signed-in app, not mid-navigation.
+  // route transition. Wait for the sign-in form to actually go away.
   await expect(page.getByTestId('signin-submit')).toHaveCount(0, { timeout: DATA_WAIT });
+}
+
+Given('I am signed in', async ({ page }) => {
+  await page.goto('/');
+  await ensureSignedIn(page);
 });
 
 Then('I see the sign-in screen', async ({ page }) => {
