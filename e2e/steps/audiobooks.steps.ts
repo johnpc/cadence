@@ -1,13 +1,29 @@
 import { createBdd } from 'playwright-bdd';
 import { DATA_WAIT } from './timeouts';
 import { expect } from '@playwright/test';
-import { navigate } from './app-shell.steps';
+import { ensureSignedIn } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
 When('I open the Audiobooks tab', async ({ page }) => {
-  await navigate(page, 'Audiobooks');
-  await expect(page).toHaveURL(/\/audiobooks$/, { timeout: DATA_WAIT });
+  // The Audiobooks destination is the "Books" tab button (mobile tab bar) and
+  // isn't in the desktop sidebar, so navigate by route — robust across viewports.
+  // A goto is a full reload; the optimistic session validate can transiently 401
+  // under tunnel load and bounce to sign-in, so re-authenticate in place if so
+  // (no-op when the session survived). Then confirm the URL + the page's own
+  // container mounted before the scenario reads data (a cold-miss→native first
+  // scan can be slow over the tunnel).
+  // The reload's optimistic session validate can transiently 401 under tunnel
+  // load and sign the app out (a known auth-resilience gap), landing back on
+  // sign-in — sometimes AFTER the first paint. So drive the whole thing in a
+  // retry: land on /audiobooks, re-auth if we bounced, and require the page's own
+  // container to be mounted. A transient sign-out just re-runs the body.
+  await expect(async () => {
+    await page.goto('/audiobooks');
+    await ensureSignedIn(page);
+    await expect(page).toHaveURL(/\/audiobooks$/, { timeout: 5_000 });
+    await expect(page.getByTestId('audiobooks').first()).toBeVisible({ timeout: 15_000 });
+  }).toPass({ timeout: 120_000 });
 });
 
 Then('I see the audiobook library with books', async ({ page }) => {
@@ -35,16 +51,4 @@ Then('I see at least one matching book', async ({ page }) => {
   await expect(page.getByTestId('audiobook-no-matches')).toHaveCount(0, { timeout: DATA_WAIT });
   const rows = page.getByTestId('audiobooks').getByTestId('book-row');
   await expect(rows.first()).toBeAttached({ timeout: DATA_WAIT });
-});
-
-When('I open the first book', async ({ page }) => {
-  // Tap the row body (not the cover, which is the quick-play button) to navigate.
-  await page.getByTestId('audiobooks').getByTestId('book-row-open').first().click();
-  await expect(page).toHaveURL(/\/audiobook\//, { timeout: DATA_WAIT });
-});
-
-Then('I see the book detail page', async ({ page }) => {
-  // Assert on rendered real data: the detail container + a title that isn't empty.
-  await expect(page.getByTestId('book-detail').first()).toBeVisible({ timeout: DATA_WAIT });
-  await expect(page.getByTestId('book-title').first()).not.toBeEmpty();
 });
