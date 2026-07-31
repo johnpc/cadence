@@ -44,11 +44,23 @@ export interface LidarrQueueItem {
   size?: number;
   sizeleft?: number;
   artistId?: number;
+  /** Present with `includeArtist=true` — the requested artist (what the user
+   * actually asked for), used as the row label instead of the release title. */
+  artist?: { artistName?: string };
 }
 
-/** The queue as shown to the user: the release title + a 0–100 progress %. */
+/** A queue row's human-readable state, from Lidarr's status +
+ * trackedDownloadState — so a stalled row reads "Paused", not a frozen bar. */
+export type DownloadStatus = 'downloading' | 'paused' | 'importing' | 'import failed' | 'completed';
+
+/** The queue as shown to the user: the ARTIST name (what was requested), a
+ * human status, a 0–100 progress %, and the raw release title as a subtitle. */
 export interface DownloadProgress {
   id: number;
+  /** Artist name (falls back to the release title when the artist is absent). */
   title: string;
+  /** The raw Lidarr release/torrent name, shown small under the artist. */
+  release?: string;
+  status: DownloadStatus;
   percent: number;
 }
