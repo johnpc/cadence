@@ -1,3 +1,4 @@
+import { orderPlaylistsForPicker } from './playlistPickerOrder';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 export interface TrackMenuActions {
@@ -60,15 +61,21 @@ export function trackMenuButtons(track: JellyfinItem, a: TrackMenuActions): Shee
 }
 
 /** The SECOND sheet reached via "Add to playlist…": create a new playlist with
- * this track, or add it to any existing playlist. Separated so the primary
- * track menu stays short and the intent is obvious. */
+ * this track, or add it to any existing playlist. Playlists are ordered
+ * favorites-first, then recently-used (orderPlaylistsForPicker), so the common
+ * target sits at the top instead of buried in a long alphabetical list.
+ * Separated so the primary track menu stays short and the intent is obvious. */
 export function addToPlaylistButtons(
   playlists: JellyfinItem[],
   a: { newPlaylist: () => void; addTo: (playlist: JellyfinItem) => void },
+  recentAdds: Record<string, number> = {},
 ): SheetButton[] {
   return [
     { text: 'New playlist…', handler: a.newPlaylist },
-    ...playlists.map((pl) => ({ text: pl.Name ?? 'Playlist', handler: () => a.addTo(pl) })),
+    ...orderPlaylistsForPicker(playlists, recentAdds).map((pl) => ({
+      text: pl.Name ?? 'Playlist',
+      handler: () => a.addTo(pl),
+    })),
     { text: 'Cancel', role: 'cancel' as const },
   ];
 }

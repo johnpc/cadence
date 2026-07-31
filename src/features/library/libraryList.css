@@ -33,6 +33,18 @@
   color: var(--cad-accent);
 }
 
+/* The sort dropdown: a compact IonSelect that shows the active order and opens
+ * a popover of all options. Sized to sit inline with the search + view toggle. */
+.library-list__sort {
+  flex-shrink: 0;
+  min-width: 0;
+  max-width: 44%;
+  font-size: 13px;
+  color: var(--cad-text-secondary);
+  --padding-start: var(--cad-space-2);
+  --padding-end: var(--cad-space-1);
+}
+
 /* Grid view: a responsive grid of cover tiles (Spotify's Library grid). */
 .library-list--grid {
   display: grid;

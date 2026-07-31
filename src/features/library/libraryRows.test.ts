@@ -164,4 +164,37 @@ describe('sortRows', () => {
       'Zed',
     ]);
   });
+
+  const dated = () =>
+    buildLibraryRows('playlists', {
+      playlists: [
+        {
+          Id: 'old',
+          Name: 'Old',
+          Type: 'Playlist',
+          DateCreated: '2020-01-01',
+          DateLastMediaAdded: '2020-06-01',
+        },
+        {
+          Id: 'new',
+          Name: 'New',
+          Type: 'Playlist',
+          DateCreated: '2024-01-01',
+          DateLastMediaAdded: '2020-01-01',
+        },
+      ],
+      albums: [],
+      artists: [],
+      likedCount: 0,
+      downloadsCount: 0,
+    });
+
+  it("'added' sorts by DateCreated, newest first (Liked Songs stays pinned)", () => {
+    expect(sortRows(dated(), 'added').map((r) => r.name)).toEqual(['Liked Songs', 'New', 'Old']);
+  });
+
+  it("'updated' sorts by DateLastMediaAdded, newest first", () => {
+    // 'Old' was updated (2020-06) after 'New' (2020-01), so it leads under 'updated'.
+    expect(sortRows(dated(), 'updated').map((r) => r.name)).toEqual(['Liked Songs', 'Old', 'New']);
+  });
 });

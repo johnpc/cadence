@@ -4,6 +4,7 @@ import { ellipsisHorizontal } from 'ionicons/icons';
 import { usePlaylists } from './playlistsApi';
 import { addToPlaylistWithToast } from './addWithToast';
 import { addToPlaylistButtons } from './trackMenuButtons';
+import { getRecentPlaylistAdds, touchPlaylistAdd } from './recentPlaylistAdds';
 import { useTrackMenuActions, type RowEdit } from './useTrackMenuActions';
 import { NewPlaylistAlert } from './NewPlaylistAlert';
 import { useToast } from '../toast/useToast';
@@ -22,10 +23,17 @@ export function AddToPlaylistButton({ track, edit }: { track: JellyfinItem; edit
   const toast = useToast();
   const { buttons, add } = useTrackMenuActions(track, () => setPickOpen(true), edit);
 
-  const pickButtons = addToPlaylistButtons(playlists, {
-    newPlaylist: () => setNewOpen(true),
-    addTo: (pl) => addToPlaylistWithToast(add, toast, pl.Id, track.Id, pl.Name ?? 'playlist'),
-  });
+  const pickButtons = addToPlaylistButtons(
+    playlists,
+    {
+      newPlaylist: () => setNewOpen(true),
+      addTo: (pl) => {
+        touchPlaylistAdd(pl.Id, Date.now()); // bubble this playlist up next time
+        addToPlaylistWithToast(add, toast, pl.Id, track.Id, pl.Name ?? 'playlist');
+      },
+    },
+    getRecentPlaylistAdds(),
+  );
 
   return (
     <>
