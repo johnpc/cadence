@@ -16,6 +16,9 @@ vi.mock('../../lib/jellyfinPlaylists', () => ({
   getPublicPlaylists: vi.fn().mockResolvedValue([]),
 }));
 vi.mock('../player/usePlayItem', () => ({ usePlayItem: () => vi.fn() }));
+// No CadenceConfig plugin in this suite → config hydration is "settled" and the
+// homeShelves flag is off, so Home takes the native path these tests exercise.
+vi.mock('../../lib/pluginConfigStore', () => ({ usePluginConfigHydrated: () => true }));
 import {
   getLatestAlbums,
   getSuggestedSongs,

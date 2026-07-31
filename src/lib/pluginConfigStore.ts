@@ -10,7 +10,40 @@
  * proxy (see lidarrApi). Runtime values already present (e.g. the web nginx
  * config.js) win, so this only fills gaps — the plugin never overrides a deploy.
  */
+import { useSyncExternalStore } from 'react';
 import { request } from './jellyfinFetch';
+
+// Whether hydratePluginConfig has run to completion (success OR failure) yet.
+// Consumers that branch on a plugin flag (e.g. homeShelves) must WAIT for this
+// before treating a flag as absent — the flag is only set once the async
+// /Cadence/Config fetch resolves, so reading it at mount would wrongly see the
+// plugin as unavailable and, e.g., fire the native Home queries the fast-path
+// exists to avoid.
+let configHydrated = false;
+const hydrationListeners = new Set<() => void>();
+
+/** True once the plugin config fetch has settled (either way). */
+export function isPluginConfigHydrated(): boolean {
+  return configHydrated;
+}
+
+/** React hook: re-renders when plugin-config hydration settles. */
+export function usePluginConfigHydrated(): boolean {
+  return useSyncExternalStore(
+    (cb) => {
+      hydrationListeners.add(cb);
+      return () => hydrationListeners.delete(cb);
+    },
+    () => configHydrated,
+    () => configHydrated,
+  );
+}
+
+function markConfigHydrated(): void {
+  if (configHydrated) return;
+  configHydrated = true;
+  hydrationListeners.forEach((l) => l());
+}
 
 interface PluginConfigResponse {
   MarlinUrl?: string;
@@ -58,5 +91,9 @@ export async function hydratePluginConfig(): Promise<void> {
     if (res.HomeShelves === true && !config.homeShelves) config.homeShelves = true;
   } catch {
     /* no plugin / offline / unauthenticated — keep existing config */
+  } finally {
+    // Either way, the plugin flags are now as final as they'll get — let
+    // consumers (useHomeSource) stop waiting and read them.
+    markConfigHydrated();
   }
 }

@@ -1,11 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
+import { usePluginConfigHydrated } from '../../lib/pluginConfigStore';
 import { fetchHomeShelves, homeSourceEnabled, type HomeShelvesData } from './homeSource';
 
-/** The precomputed Home shelves from the plugin, or null when the fast path is
- * off (no plugin) or the single call is still loading / errored — in which case
- * useHomeShelves falls back to the native per-shelf queries. `active` reflects
- * whether the plugin path is even enabled, so callers can gate their native
- * queries (exactly one source fetches). */
+/** The precomputed Home shelves from the plugin. `active` = the plugin path owns
+ * Home (so useHomeShelves must NOT fire native queries): true while the plugin
+ * config is still hydrating (we don't yet know if the plugin exists — assume it
+ * might, to avoid racing native scans against it), and true once hydrated iff the
+ * homeShelves flag is set. Only when hydration has SETTLED and the flag is off
+ * (or the /Cadence/Home call errors) does `active` go false / `isError` go true,
+ * letting the caller fall back to native. This closes the mount-time race where
+ * the flag isn't set yet (it's populated by the async /Cadence/Config fetch). */
 export function useHomeSource(): {
   active: boolean;
   data: HomeShelvesData | null;
@@ -13,20 +17,24 @@ export function useHomeSource(): {
   isError: boolean;
   refetch: () => void;
 } {
-  const active = homeSourceEnabled();
+  const hydrated = usePluginConfigHydrated();
+  const enabledByFlag = hydrated && homeSourceEnabled();
+  // Before hydration settles, keep the path "active" so native stays off.
+  const active = !hydrated || enabledByFlag;
   const q = useQuery({
     queryKey: ['home', 'plugin-shelves'],
     queryFn: fetchHomeShelves,
-    enabled: active,
+    enabled: enabledByFlag, // only fetch once we KNOW the plugin serves this
     staleTime: 60_000,
   });
   return {
     active,
-    // Only surface data on the fast path; a failed call yields null so callers
+    // Data only on the confirmed fast path; a failed call yields null so callers
     // fall back to native (isError drives that decision).
-    data: active && !q.isError ? (q.data ?? null) : null,
-    isLoading: active && q.isLoading,
-    isError: active && q.isError,
+    data: enabledByFlag && !q.isError ? (q.data ?? null) : null,
+    // "Loading" while hydration hasn't settled OR the enabled query is fetching.
+    isLoading: !hydrated || (enabledByFlag && q.isLoading),
+    isError: enabledByFlag && q.isError,
     refetch: () => void q.refetch(),
   };
 }

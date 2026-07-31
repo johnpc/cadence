@@ -13,6 +13,7 @@ function fakeAudio() {
   return {
     src: '',
     paused: true,
+    currentTime: 0,
     play: vi.fn().mockResolvedValue(undefined),
     addEventListener: vi.fn((e: string, cb: () => void) => {
       (listeners[e] ??= []).push(cb);
@@ -60,6 +61,13 @@ describe('startPlayback', () => {
     expect(audio.src).toBe('u');
     expect(audio.play).not.toHaveBeenCalled();
     expect(skip.current).toBe(false); // consumed
+  });
+
+  it('resets currentTime to 0 so the next track starts from the beginning', () => {
+    const audio = fakeAudio();
+    (audio as unknown as { currentTime: number }).currentTime = 240; // prior track's end
+    startPlayback(audio, 'u', 't1', () => true, { current: false });
+    expect(audio.currentTime).toBe(0);
   });
 
   it('plays and retries on canplay if still paused', () => {

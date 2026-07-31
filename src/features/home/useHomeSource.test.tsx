@@ -1,13 +1,15 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement, type ReactNode } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('./homeSource', () => ({
   homeSourceEnabled: vi.fn(),
   fetchHomeShelves: vi.fn(),
 }));
+vi.mock('../../lib/pluginConfigStore', () => ({ usePluginConfigHydrated: vi.fn(() => true) }));
 import { homeSourceEnabled, fetchHomeShelves } from './homeSource';
+import { usePluginConfigHydrated } from '../../lib/pluginConfigStore';
 import { useHomeSource } from './useHomeSource';
 
 const EMPTY = {
@@ -25,11 +27,26 @@ function setup() {
   return renderHook(() => useHomeSource(), { wrapper });
 }
 
+beforeEach(() => {
+  vi.mocked(usePluginConfigHydrated).mockReturnValue(true); // config settled unless a test says otherwise
+});
 afterEach(() => {
   vi.resetAllMocks();
 });
 
 describe('useHomeSource', () => {
+  it('stays active + loading (native suppressed) while plugin config has not hydrated', () => {
+    vi.mocked(usePluginConfigHydrated).mockReturnValue(false);
+    vi.mocked(homeSourceEnabled).mockReturnValue(false); // flag not set yet either
+    const { result } = setup();
+    // Before hydration we do NOT know the plugin is absent — keep the path active
+    // (so useHomeShelves won't race native queries) and report loading, no fetch.
+    expect(result.current.active).toBe(true);
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.isError).toBe(false);
+    expect(fetchHomeShelves).not.toHaveBeenCalled();
+  });
+
   it('is inactive and never fetches when the plugin flag is off', () => {
     vi.mocked(homeSourceEnabled).mockReturnValue(false);
     const { result } = setup();
