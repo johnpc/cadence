@@ -35,6 +35,7 @@ export const NAV_TESTID: Record<string, string> = {
   Home: 'nav-home',
   Search: 'nav-search',
   'Your Library': 'nav-library',
+  Audiobooks: 'nav-audiobooks',
 };
 
 /** Click a primary-nav destination, working in both layouts: the desktop
@@ -55,6 +56,7 @@ const NAV_PATH: Record<string, RegExp> = {
   Home: /\/home$/,
   Search: /\/search$/,
   'Your Library': /\/library/,
+  Audiobooks: /\/audiobooks$/,
 };
 
 export async function navigate(page: Page, label: string): Promise<void> {

@@ -3,6 +3,7 @@ import {
   home,
   search,
   library,
+  book,
   addCircleOutline,
   chevronBack,
   chevronForward,
@@ -17,6 +18,9 @@ const NAV = [
   { to: '/home', icon: home, label: 'Home', testid: 'nav-home' },
   { to: '/search', icon: search, label: 'Search', testid: 'nav-search' },
   { to: '/library', icon: library, label: 'Your Library', testid: 'nav-library' },
+  // Audiobooks: mirror the mobile tab bar's "Books" entry so the tab is reachable
+  // at desktop width too (it was previously mobile-tab-only, unreachable here).
+  { to: '/audiobooks', icon: book, label: 'Books', testid: 'nav-audiobooks' },
 ];
 
 // "Requests" is only reachable when the deploy enables the Lidarr proxy — mirror

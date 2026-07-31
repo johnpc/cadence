@@ -1,29 +1,20 @@
 import { createBdd } from 'playwright-bdd';
 import { DATA_WAIT } from './timeouts';
 import { expect } from '@playwright/test';
-import { ensureSignedIn } from './app-shell.steps';
+import { navigate } from './app-shell.steps';
 
 const { When, Then } = createBdd();
 
 When('I open the Audiobooks tab', async ({ page }) => {
-  // The Audiobooks destination is the "Books" tab button (mobile tab bar) and
-  // isn't in the desktop sidebar, so navigate by route — robust across viewports.
-  // A goto is a full reload; the optimistic session validate can transiently 401
-  // under tunnel load and bounce to sign-in, so re-authenticate in place if so
-  // (no-op when the session survived). Then confirm the URL + the page's own
-  // container mounted before the scenario reads data (a cold-miss→native first
-  // scan can be slow over the tunnel).
-  // The reload's optimistic session validate can transiently 401 under tunnel
-  // load and sign the app out (a known auth-resilience gap), landing back on
-  // sign-in — sometimes AFTER the first paint. So drive the whole thing in a
-  // retry: land on /audiobooks, re-auth if we bounced, and require the page's own
-  // container to be mounted. A transient sign-out just re-runs the body.
-  await expect(async () => {
-    await page.goto('/audiobooks');
-    await ensureSignedIn(page);
-    await expect(page).toHaveURL(/\/audiobooks$/, { timeout: 5_000 });
-    await expect(page.getByTestId('audiobooks').first()).toBeVisible({ timeout: 15_000 });
-  }).toPass({ timeout: 120_000 });
+  // Navigate IN-APP via the "Books" nav entry (desktop sidebar / mobile tab) — no
+  // page reload, so the session is never re-resolved and can't bounce to sign-in
+  // (unlike a page.goto reload, which was the old flake source). navigate() clicks
+  // and verifies the route settled, re-issuing on Ionic's dropped-click race.
+  await navigate(page, 'Audiobooks');
+  await expect(page).toHaveURL(/\/audiobooks$/, { timeout: DATA_WAIT });
+  // Wait for the page's own container to mount before the scenario reads data — a
+  // cold-miss→native fallback first scan can be slow over the tunnel.
+  await expect(page.getByTestId('audiobooks').first()).toBeVisible({ timeout: DATA_WAIT });
 });
 
 Then('I see the audiobook library with books', async ({ page }) => {

@@ -31,13 +31,17 @@ describe('DesktopSidebar', () => {
     delete window.__CADENCE_CONFIG__;
   });
 
-  it('shows primary nav links to Home, Search, and Your Library', () => {
+  it('shows primary nav links to Home, Search, Your Library, and Books', () => {
     renderWithProviders(<DesktopSidebar />);
     // IonRouterLink drives IonRouterOutlet via routerLink (not a raw href) — assert
     // the links render by their testids; the actual navigation is covered by e2e.
     expect(screen.getByTestId('nav-home')).toBeInTheDocument();
     expect(screen.getByTestId('nav-search')).toBeInTheDocument();
     expect(screen.getByTestId('nav-library')).toBeInTheDocument();
+    // Audiobooks is reachable at desktop width (was mobile-tab-only before).
+    const books = screen.getByTestId('nav-audiobooks');
+    expect(books).toBeInTheDocument();
+    expect(books).toHaveAttribute('href', '/audiobooks');
   });
 
   it('hides the Requests link when the Lidarr proxy is not enabled', () => {
