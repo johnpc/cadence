@@ -2,6 +2,7 @@ import { useHistory } from 'react-router-dom';
 import { playBook } from './playBook';
 import { usePlayer } from '../player/usePlayer';
 import { TrackArt } from '../player/TrackArt';
+import { LikeButton } from '../library/LikeButton';
 import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import { bookProgress } from './bookProgress';
 import { bookProgressLabel } from './bookProgressLabel';
@@ -58,6 +59,7 @@ export function BookRow({ book }: { book: Book }) {
       {/* Download the whole book (all chapter-parts) in one tap — same control
           as an album/playlist, so it shows a downloaded/downloading state + % and
           the book then appears in the offline library's Audiobooks section. */}
+      <LikeButton track={book.book} size={20} />
       <DownloadCollectionButton tracks={book.parts} />
     </div>
   );

@@ -1,6 +1,7 @@
 import { IonButton, IonIcon } from '@ionic/react';
 import { play, playSkipForward } from 'ionicons/icons';
 import { TrackArt } from '../player/TrackArt';
+import { LikeButton } from '../library/LikeButton';
 import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import { playBook } from './playBook';
 import { bookProgress } from './bookProgress';
@@ -39,6 +40,10 @@ export function BookHeader({ book }: { book: Book }) {
           <IonIcon slot="start" icon={started ? playSkipForward : play} />
           {started ? 'Resume' : 'Play'}
         </IonButton>
+        {/* Favorite the book — targets its representative item (the first part),
+            which getFavoriteAudiobooks/highlightBooks resolve back to this book,
+            so it appears in the "Continue listening & favorites" section. */}
+        <LikeButton track={book.book} />
         <DownloadCollectionButton tracks={book.parts} />
       </div>
     </header>
