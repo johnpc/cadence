@@ -17,13 +17,30 @@ afterEach(() => {
 });
 
 describe('DownloadQueue', () => {
-  it('shows a progress row per active download', async () => {
-    vi.mocked(getDownloadQueue).mockResolvedValue([{ id: 1, title: 'In Rainbows', percent: 60 }]);
+  it('labels a downloading row with the artist + release subtitle + %', async () => {
+    vi.mocked(getDownloadQueue).mockResolvedValue([
+      {
+        id: 1,
+        title: 'Radiohead',
+        release: 'Radiohead-In.Rainbows',
+        status: 'downloading',
+        percent: 60,
+      },
+    ]);
     render(<DownloadQueue />, { wrapper });
-    await waitFor(() => expect(screen.getByText('In Rainbows')).toBeInTheDocument());
-    expect(screen.getByTestId('download-queue-row')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Radiohead')).toBeInTheDocument());
+    expect(screen.getByText('Radiohead-In.Rainbows')).toBeInTheDocument();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '60');
-    expect(screen.getByText('60%')).toBeInTheDocument();
+    expect(screen.getByTestId('download-queue-status')).toHaveTextContent('60%');
+  });
+
+  it('shows a status word (not %) for a paused grab', async () => {
+    vi.mocked(getDownloadQueue).mockResolvedValue([
+      { id: 2, title: 'A Day to Remember', status: 'paused', percent: 52 },
+    ]);
+    render(<DownloadQueue />, { wrapper });
+    await waitFor(() => expect(screen.getByText('A Day to Remember')).toBeInTheDocument());
+    expect(screen.getByTestId('download-queue-status')).toHaveTextContent('Paused');
   });
 
   it('renders nothing when the queue is empty (no empty box)', async () => {

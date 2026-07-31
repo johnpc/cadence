@@ -50,12 +50,23 @@
   padding: var(--cad-space-1) 0;
 }
 
-.download-queue__name {
+.download-queue__meta {
   flex: 1 1 40%;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.download-queue__name,
+.download-queue__release {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* The raw release/torrent name, small + dim, under the artist. */
+.download-queue__release {
+  font-size: 11px;
 }
 
 .download-queue__bar {
@@ -70,6 +81,12 @@
   height: 100%;
   background: var(--cad-accent);
   transition: width 0.4s ease;
+}
+
+/* Paused/failed rows dim the bar so a stalled grab doesn't look active. */
+.download-queue__fill--paused,
+.download-queue__fill--import-failed {
+  background: var(--cad-text-secondary);
 }
 
 .download-queue__pct {
