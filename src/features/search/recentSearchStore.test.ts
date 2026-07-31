@@ -45,4 +45,16 @@ describe('recentSearchStore', () => {
     localStorage.setItem('cadence.recent-searches', '{not json');
     expect(getRecentSearches()).toEqual([]);
   });
+
+  it('persists ImageTags so the idle list can render cover art', () => {
+    // Artists have no AlbumId to fall back to — without the persisted art tag
+    // their recent-search row shows a blank placeholder (the reported bug).
+    addRecentSearch({
+      Id: 'ar1',
+      Name: 'The Beatles',
+      Type: 'MusicArtist',
+      ImageTags: { Primary: 'abc123' },
+    });
+    expect(getRecentSearches()[0].ImageTags).toEqual({ Primary: 'abc123' });
+  });
 });

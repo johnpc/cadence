@@ -137,6 +137,19 @@ Then('I see it in recent searches', async ({ page }) => {
   await expect(recents.getByTestId('result-row').first()).toBeAttached();
 });
 
+Then('the recent search shows its cover art', async ({ page }) => {
+  // The recent row must render a real Jellyfin image (not the note-icon
+  // placeholder): the store dropped ImageTags, so imageUrl() couldn't build the
+  // cover URL and rows showed blank. Assert the <img> exists, points at a
+  // Jellyfin image, and actually decoded (naturalWidth > 0).
+  const img = page.getByTestId('recent-searches').locator('.track-art__img').first();
+  await expect(img).toBeAttached({ timeout: DATA_WAIT });
+  await expect(img).toHaveAttribute('src', /\/Images\/Primary/, { timeout: DATA_WAIT });
+  await expect
+    .poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth), { timeout: DATA_WAIT })
+    .toBeGreaterThan(0);
+});
+
 When('I open the {string} genre tile', async ({ page }, name: string) => {
   // The genre grid lives on the Search idle screen (no query typed). Click the
   // tile BUTTON itself (filtering by its label), not the inner text node — a
