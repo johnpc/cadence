@@ -44,3 +44,7 @@ yarn-error.log*
 .lighthouseci/
 dev-dist
 scripts/perf-audit.mjs
+
+# ad-hoc perf/prod probe scripts (dev-only, never shipped)
+scripts/perf-*.mjs
+scripts/prod-*.mjs
