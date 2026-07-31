@@ -1,6 +1,5 @@
 /// <reference types="vitest" />
 
-import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { readFileSync } from 'node:fs';
@@ -13,7 +12,11 @@ export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [
     react(),
-    legacy(),
+    // No @vitejs/plugin-legacy: Cadence ships to iOS Capacitor (WKWebView, iOS
+    // deployment target 15 = modern ES2020+) and a self-hosted modern-browser
+    // PWA — neither runs the ES5 legacy/nomodule bundle. It was scaffold default
+    // boilerplate that added ~446KB gzipped of dead JS (52% of what the PWA
+    // Workbox precache carried), ignored by every browser in our audience.
     // Precache the FULL build (entry + vendor + every lazy route chunk + CSS)
     // via Workbox so the PWA opens instantly on repeat visits and boots OFFLINE
     // — the passthrough SW cached nothing, so the app was blank with no network.
