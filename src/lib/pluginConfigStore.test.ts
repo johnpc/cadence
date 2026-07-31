@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const request = vi.fn();
 vi.mock('./jellyfinFetch', () => ({ request: (path: string) => request(path) }));
 
-import { hydratePluginConfig } from './pluginConfigStore';
+import { hydratePluginConfig, isPluginConfigHydrated } from './pluginConfigStore';
 
 beforeEach(() => {
   request.mockReset();
@@ -67,6 +67,14 @@ describe('hydratePluginConfig', () => {
     request.mockRejectedValue(new Error('404'));
     await hydratePluginConfig();
     expect(window.__CADENCE_CONFIG__).toEqual({ serverUrl: 'https://jf' });
+  });
+
+  it('marks config hydrated once the fetch settles (so consumers stop waiting)', async () => {
+    request.mockResolvedValue({});
+    await hydratePluginConfig();
+    // Signals to useHomeSource that plugin flags are final — even a failure counts,
+    // which is why the flag is set in a finally, not only on success.
+    expect(isPluginConfigHydrated()).toBe(true);
   });
 
   it('creates the config object when absent', async () => {
