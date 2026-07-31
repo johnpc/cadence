@@ -11,12 +11,17 @@ vi.mock('../../lib/sessionPersistence', () => ({
   clearStoredSession: vi.fn(),
 }));
 vi.mock('../settings/forceOfflineStore', () => ({ readForceOffline: vi.fn(() => false) }));
+vi.mock('../../lib/sessionExpiry', () => ({ notifySessionExpired: vi.fn() }));
 
 import { authenticateByName, validateToken } from '../../lib/jellyfinAuth';
 import { setSession } from '../../lib/sessionStore';
 import { clearStoredSession, loadStoredSession, storeSession } from '../../lib/sessionPersistence';
+import { notifySessionExpired } from '../../lib/sessionExpiry';
 import { readForceOffline } from '../settings/forceOfflineStore';
-import { currentUsername, signIn, signOut } from './authClient';
+import { currentUsername, currentUsernameOptimistic, signIn, signOut } from './authClient';
+
+/** Let the fire-and-forget background validate settle (it's a microtask chain). */
+const flush = () => new Promise((r) => setTimeout(r, 0));
 
 describe('authClient', () => {
   afterEach(() => {
@@ -108,5 +113,48 @@ describe('authClient', () => {
     await signOut();
     expect(setSession).toHaveBeenCalledWith(null);
     expect(clearStoredSession).toHaveBeenCalled();
+  });
+
+  describe('currentUsernameOptimistic', () => {
+    it('returns null when nothing is stored (show sign-in)', async () => {
+      vi.mocked(loadStoredSession).mockResolvedValue(null);
+      expect(await currentUsernameOptimistic()).toBeNull();
+      expect(setSession).not.toHaveBeenCalled();
+    });
+
+    it('primes the session and returns the username IMMEDIATELY, before validation', async () => {
+      vi.mocked(loadStoredSession).mockResolvedValue({ token: 't', userId: 'u', username: 'me' });
+      // A validate that never resolves — the return must NOT wait on it.
+      vi.mocked(validateToken).mockReturnValue(new Promise(() => {}));
+      expect(await currentUsernameOptimistic()).toBe('me');
+      expect(setSession).toHaveBeenCalledWith({ token: 't', userId: 'u' });
+    });
+
+    it('signs out in the background on a confirmed 401 (validate → null)', async () => {
+      vi.mocked(loadStoredSession).mockResolvedValue({ token: 'bad', userId: 'u', username: 'me' });
+      vi.mocked(validateToken).mockResolvedValue(null);
+      expect(await currentUsernameOptimistic()).toBe('me'); // still optimistic up front
+      await flush();
+      expect(clearStoredSession).toHaveBeenCalled();
+      expect(setSession).toHaveBeenLastCalledWith(null);
+      expect(notifySessionExpired).toHaveBeenCalled(); // bounces to sign-in
+    });
+
+    it('keeps trusting the session when the background validate errors (offline)', async () => {
+      vi.mocked(loadStoredSession).mockResolvedValue({ token: 't', userId: 'u', username: 'me' });
+      vi.mocked(validateToken).mockRejectedValue(new Error('offline'));
+      expect(await currentUsernameOptimistic()).toBe('me');
+      await flush();
+      expect(clearStoredSession).not.toHaveBeenCalled();
+      expect(notifySessionExpired).not.toHaveBeenCalled();
+    });
+
+    it('skips the background validate entirely in forced-offline mode', async () => {
+      vi.mocked(loadStoredSession).mockResolvedValue({ token: 't', userId: 'u', username: 'me' });
+      vi.mocked(readForceOffline).mockReturnValue(true);
+      expect(await currentUsernameOptimistic()).toBe('me');
+      await flush();
+      expect(validateToken).not.toHaveBeenCalled();
+    });
   });
 });
