@@ -62,7 +62,7 @@ export function LibraryList() {
         query={query}
         onQuery={setQuery}
         sort={sort}
-        onToggleSort={() => setSort((s) => (s === 'alpha' ? 'recents' : 'alpha'))}
+        onSort={setSort}
         view={view}
         onToggleView={toggleView}
       />

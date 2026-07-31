@@ -54,6 +54,12 @@ export interface JellyfinItem {
   ParentId?: string;
   /** Release year (albums). */
   ProductionYear?: number;
+  /** When the item was created on the server (ISO string) — playlist creation
+   * date, used for the "Recently added" library sort. */
+  DateCreated?: string;
+  /** When media was last added to the item (ISO string) — a playlist's last
+   * track add, used for the "Recently updated" library sort. */
+  DateLastMediaAdded?: string;
   /** Number of child items — e.g. track count for an album; used to classify
    * albums vs EPs vs singles on the artist page. */
   ChildCount?: number;

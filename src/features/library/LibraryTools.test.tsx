@@ -8,7 +8,7 @@ function renderTools(over: Partial<Parameters<typeof LibraryTools>[0]> = {}) {
     query: '',
     onQuery: vi.fn(),
     sort: 'recents' as const,
-    onToggleSort: vi.fn(),
+    onSort: vi.fn(),
     view: 'list' as const,
     onToggleView: vi.fn(),
     ...over,
@@ -18,12 +18,6 @@ function renderTools(over: Partial<Parameters<typeof LibraryTools>[0]> = {}) {
 }
 
 describe('LibraryTools', () => {
-  it('toggles sort when the sort button is tapped', async () => {
-    const p = renderTools();
-    await userEvent.click(screen.getByTestId('library-sort'));
-    expect(p.onToggleSort).toHaveBeenCalledOnce();
-  });
-
   it('toggles the view when the view button is tapped', async () => {
     const p = renderTools();
     await userEvent.click(screen.getByTestId('library-view'));
@@ -36,7 +30,7 @@ describe('LibraryTools', () => {
         query=""
         onQuery={() => {}}
         sort="recents"
-        onToggleSort={() => {}}
+        onSort={() => {}}
         view="list"
         onToggleView={() => {}}
       />,
@@ -47,7 +41,7 @@ describe('LibraryTools', () => {
         query=""
         onQuery={() => {}}
         sort="recents"
-        onToggleSort={() => {}}
+        onSort={() => {}}
         view="grid"
         onToggleView={() => {}}
       />,
@@ -55,8 +49,8 @@ describe('LibraryTools', () => {
     expect(screen.getByTestId('library-view')).toHaveAttribute('aria-label', 'Switch to list view');
   });
 
-  it('reflects the active sort in aria-pressed', () => {
-    renderTools({ sort: 'alpha' });
-    expect(screen.getByTestId('library-sort')).toHaveAttribute('aria-pressed', 'true');
+  it('exposes the active sort as a data attribute for the dropdown control', () => {
+    renderTools({ sort: 'added' });
+    expect(screen.getByTestId('library-sort')).toHaveAttribute('data-sort', 'added');
   });
 });

@@ -108,9 +108,11 @@ describe('Library', () => {
     await userEvent.click(getByTestId('library-filter-albums'));
     await findByText('Zebra');
     const sort = getByTestId('library-sort');
-    expect(sort).toHaveAttribute('aria-pressed', 'false');
-    await userEvent.click(sort);
-    await waitFor(() => expect(sort).toHaveAttribute('aria-pressed', 'true'));
+    expect(sort).toHaveAttribute('data-sort', 'recents');
+    // Pick "A–Z" from the sort dropdown (jsdom can't open IonSelect's popover,
+    // so fire its ionChange directly — the pattern used in PlaylistTracks.test).
+    fireEvent(sort, new CustomEvent('ionChange', { detail: { value: 'alpha' } }));
+    await waitFor(() => expect(sort).toHaveAttribute('data-sort', 'alpha'));
     const names = getByTestId('library-list').querySelectorAll('.library-row__name');
     expect([...names].map((n) => n.textContent)).toEqual(['Apple', 'Zebra']);
   });

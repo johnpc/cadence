@@ -1,22 +1,23 @@
-import { IonSearchbar, IonIcon } from '@ionic/react';
-import { swapVertical, gridOutline, listOutline } from 'ionicons/icons';
-import type { LibrarySort } from './librarySort';
+import { IonSearchbar, IonIcon, IonSelect, IonSelectOption } from '@ionic/react';
+import { gridOutline, listOutline } from 'ionicons/icons';
+import { LIBRARY_SORTS, type LibrarySort } from './librarySort';
 import type { LibraryView } from './libraryViewStore';
 
-/** The library toolbar: text filter, A–Z/recents sort toggle, and a list/grid
- * view toggle. Extracted from LibraryList to keep that component thin. */
+/** The library toolbar: text filter, a sort dropdown (Recently played / A–Z /
+ * Recently added / Recently updated), and a list/grid view toggle. Extracted
+ * from LibraryList to keep that component thin. */
 export function LibraryTools({
   query,
   onQuery,
   sort,
-  onToggleSort,
+  onSort,
   view,
   onToggleView,
 }: {
   query: string;
   onQuery: (q: string) => void;
   sort: LibrarySort;
-  onToggleSort: () => void;
+  onSort: (sort: LibrarySort) => void;
   view: LibraryView;
   onToggleView: () => void;
 }) {
@@ -30,18 +31,21 @@ export function LibraryTools({
         onIonInput={(e) => onQuery(e.detail.value ?? '')}
         data-testid="library-search"
       />
-      <button
-        type="button"
-        className={
-          sort === 'alpha' ? 'library-list__tool library-list__tool--on' : 'library-list__tool'
-        }
+      <IonSelect
+        className="library-list__sort"
+        value={sort}
+        interface="popover"
+        aria-label="Sort Your Library"
         data-testid="library-sort"
-        aria-label={sort === 'alpha' ? 'Sorted A–Z; tap for recents' : 'Sort A–Z'}
-        aria-pressed={sort === 'alpha'}
-        onClick={onToggleSort}
+        data-sort={sort}
+        onIonChange={(e) => onSort(e.detail.value as LibrarySort)}
       >
-        <IonIcon icon={swapVertical} />
-      </button>
+        {LIBRARY_SORTS.map((s) => (
+          <IonSelectOption key={s.value} value={s.value}>
+            {s.label}
+          </IonSelectOption>
+        ))}
+      </IonSelect>
       <button
         type="button"
         className="library-list__tool"
