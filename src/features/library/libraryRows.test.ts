@@ -132,4 +132,36 @@ describe('sortRows', () => {
     const recents = sortRows(rows, 'recents', { p: 999 });
     expect([recents[0].liked, recents[1].downloads]).toEqual([true, true]);
   });
+
+  it('marks hearted playlists as favorite from UserData', () => {
+    const rows = buildLibraryRows('playlists', {
+      playlists: [{ Id: 'p', Name: 'Faves', Type: 'Playlist', UserData: { IsFavorite: true } }],
+      albums: [],
+      artists: [],
+      likedCount: 0,
+      downloadsCount: 0,
+    });
+    expect(rows.find((r) => r.id === 'p')?.favorite).toBe(true);
+  });
+
+  it('bubbles hearted playlists above non-hearted (under any pins), keeping sort within groups', () => {
+    const rows = buildLibraryRows('playlists', {
+      playlists: [
+        { Id: 'z', Name: 'Zed', Type: 'Playlist' },
+        { Id: 'f', Name: 'Whatever', Type: 'Playlist', UserData: { IsFavorite: true } },
+        { Id: 'a', Name: 'Able', Type: 'Playlist' },
+      ],
+      albums: [],
+      artists: [],
+      likedCount: 1,
+      downloadsCount: 0,
+    });
+    // alpha: Liked Songs pinned, then the favorite, then non-faves alphabetically.
+    expect(sortRows(rows, 'alpha').map((r) => r.name)).toEqual([
+      'Liked Songs',
+      'Whatever',
+      'Able',
+      'Zed',
+    ]);
+  });
 });

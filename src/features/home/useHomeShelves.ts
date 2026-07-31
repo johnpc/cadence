@@ -17,13 +17,16 @@ type Shelf<K extends string> = { [P in K]: JellyfinItem[] } & {
   refetch: () => void;
 };
 
-/** Wrap precomputed plugin data as a shelf (already loaded, no error). */
+/** Wrap plugin fast-path state as a shelf: the precomputed items once they've
+ * arrived, or a loading placeholder while the single /Cadence/Home call is still
+ * in flight (so Home shows its skeleton, not a false "empty", during the wait). */
 function pluginShelf<K extends string>(
   key: K,
   items: JellyfinItem[],
+  loading: boolean,
   refetch: () => void,
 ): Shelf<K> {
-  return { [key]: items, isLoading: false, isError: false, refetch } as Shelf<K>;
+  return { [key]: items, isLoading: loading, isError: false, refetch } as Shelf<K>;
 }
 
 /** The Home recommendation shelves' data. Grouped so Home.tsx stays a thin page
@@ -42,10 +45,15 @@ function pluginShelf<K extends string>(
  * cheap /Artists call, disk-seeded, keeps the "Your artists" shelf correct. */
 export function useHomeShelves() {
   const src = useHomeSource();
-  // Use the plugin data only when it actually arrived; on error/absence fall
-  // back to native (native stays enabled whenever the fast data isn't present).
   const fast = src.data;
-  const native = !fast;
+  // Only fetch the native shelves when the plugin fast-path is NOT going to
+  // provide data: it's disabled (no plugin), or its call errored (e.g. a cold-
+  // miss 503). Crucially we do NOT fire native queries merely because the plugin
+  // response hasn't arrived YET — that raced ~6 slow native scans against every
+  // Home load and defeated the fast-path's whole point. While the plugin query
+  // is in flight, native stays OFF and Home paints from the plugin (~50ms warm)
+  // the moment it lands; only a real plugin error falls back to native.
+  const native = !src.active || src.isError;
 
   const albums = useLatestAlbums(native);
   const suggested = useSuggestedSongs(native);
@@ -57,14 +65,19 @@ export function useHomeShelves() {
   const jumpBackIn = useJumpBackIn();
   const community = usePublicPlaylists();
 
-  if (fast) {
+  // Plugin fast-path (active + not errored): serve its shelves — the precomputed
+  // data once it lands, or a loading placeholder while /Cadence/Home is in flight
+  // (native queries stayed OFF, so nothing raced). Only `native` (disabled or
+  // errored) falls through to the live per-shelf queries below.
+  if (!native) {
     const r = src.refetch;
+    const loading = src.isLoading || !fast;
     return {
-      albums: pluginShelf('albums', fast.latestAlbums, r),
-      suggested: pluginShelf('songs', fast.suggestedSongs, r),
-      saved: pluginShelf('albums', fast.savedAlbums, r),
-      recent: pluginShelf('songs', fast.recentlyPlayed, r),
-      onRepeat: pluginShelf('songs', fast.onRepeat, r),
+      albums: pluginShelf('albums', fast?.latestAlbums ?? [], loading, r),
+      suggested: pluginShelf('songs', fast?.suggestedSongs ?? [], loading, r),
+      saved: pluginShelf('albums', fast?.savedAlbums ?? [], loading, r),
+      recent: pluginShelf('songs', fast?.recentlyPlayed ?? [], loading, r),
+      onRepeat: pluginShelf('songs', fast?.onRepeat ?? [], loading, r),
       artists, // always native
       jumpBackIn,
       community,
