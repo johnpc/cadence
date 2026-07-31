@@ -21,6 +21,7 @@ import { Diagnostics } from './Diagnostics';
 import { InstallButton } from './InstallButton';
 import { SignOutButton } from './SignOutButton';
 import { ClearCacheButton } from './ClearCacheButton';
+import { RefreshHomeButton } from './RefreshHomeButton';
 import { useAuth } from '../auth/useAuth';
 import './settings.css';
 
@@ -59,6 +60,7 @@ export function Settings() {
               Reload everything from your Jellyfin server if something looks stale or out of date.
             </p>
             <ClearCacheButton />
+            <RefreshHomeButton />
           </section>
           <Feedback />
           <Diagnostics />
