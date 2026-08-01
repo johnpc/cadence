@@ -49,7 +49,6 @@ and songs you've saved. Cadence brings that shape to the music you already own o
 <p align="center">
   <img src="assets/screenshots/cadence-04-album.png" alt="Rich album pages with one-tap play, shuffle, and offline downloads" width="30%" />
   <img src="assets/screenshots/cadence-05-library.png" alt="Your library — liked songs, smart mixes, and every playlist" width="30%" />
-  <img src="assets/screenshots/cadence-06-audiobooks.png" alt="Audiobooks alongside your music, synced across devices" width="30%" />
 </p>
 
 ### On the big screen
