@@ -37,6 +37,33 @@ Spotify's magic isn't the size of the catalog — it's that you never see the ca
 things worth playing right now**: recommendations tuned to you, a fast search box, and the playlists
 and songs you've saved. Cadence brings that shape to the music you already own on Jellyfin.
 
+## Screenshots
+
+### On your phone
+
+<p align="center">
+  <img src="assets/screenshots/cadence-01-home.png" alt="Home — recommendations, recently added, and made-for-you mixes" width="30%" />
+  <img src="assets/screenshots/cadence-02-now-playing.png" alt="Full-screen player with album art, scrubbing, shuffle and repeat" width="30%" />
+  <img src="assets/screenshots/cadence-03-search.png" alt="Search across songs, albums, and artists, or browse by genre" width="30%" />
+</p>
+<p align="center">
+  <img src="assets/screenshots/cadence-04-album.png" alt="Rich album pages with one-tap play, shuffle, and offline downloads" width="30%" />
+  <img src="assets/screenshots/cadence-05-library.png" alt="Your library — liked songs, smart mixes, and every playlist" width="30%" />
+  <img src="assets/screenshots/cadence-06-audiobooks.png" alt="Audiobooks alongside your music, synced across devices" width="30%" />
+</p>
+
+### On the big screen
+
+The same app scales to a roomy desktop layout in any web browser.
+
+<p align="center">
+  <img src="assets/screenshots/cadence-desktop-01.png" alt="Cadence on desktop — full sidebar, recommendations, and made-for-you mixes" width="80%" />
+</p>
+<p align="center">
+  <img src="assets/screenshots/cadence-desktop-02.png" alt="Rich album pages with a roomy, responsive desktop layout" width="49%" />
+  <img src="assets/screenshots/cadence-desktop-03.png" alt="Browse by genre and search across everything you own" width="49%" />
+</p>
+
 ## Architecture
 
 Cadence is a **static PWA** (Ionic 8 + React 19 + TypeScript, built with Vite, wrapped with
