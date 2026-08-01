@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index,follow" />
+    <title>Cadence — Privacy Policy</title>
+    <style>
+      :root {
+        --bg: #121212;
+        --surface: #181818;
+        --text: #ffffff;
+        --muted: #b3b3b3;
+        --accent: #1db954;
+        --border: #282828;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 48px 24px 80px;
+      }
+      h1 {
+        font-size: 2rem;
+        margin: 0 0 4px;
+        letter-spacing: -0.02em;
+      }
+      h2 {
+        font-size: 1.15rem;
+        margin: 40px 0 8px;
+        color: #fff;
+      }
+      p,
+      li {
+        color: var(--muted);
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .updated {
+        color: #7a7a7a;
+        font-size: 0.9rem;
+        margin-top: 0;
+      }
+      .lede {
+        color: #fff;
+        font-size: 1.05rem;
+      }
+      ul {
+        padding-left: 20px;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 40px 0;
+      }
+      .accent {
+        color: var(--accent);
+      }
+      footer {
+        color: #7a7a7a;
+        font-size: 0.85rem;
+        margin-top: 48px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Cadence <span class="accent">Privacy Policy</span></h1>
+      <p class="updated">Last updated: August 1, 2026</p>
+
+      <p class="lede">
+        Cadence is a music player for your own self-hosted Jellyfin server. It is built to keep your
+        data yours: it has no backend of its own, shows no ads, and does not track you or sell your
+        information to anyone.
+      </p>
+
+      <h2>The short version</h2>
+      <ul>
+        <li>
+          Cadence connects <strong>only</strong> to the Jellyfin server you tell it to. Your music,
+          playlists, and listening data live on <em>your</em> server, under your control.
+        </li>
+        <li>
+          The only things Cadence stores on your device are your Jellyfin session (so you stay
+          signed in) and your app preferences (such as theme and playback settings).
+        </li>
+        <li>There are no ads, no analytics SDKs, and no third-party trackers.</li>
+      </ul>
+
+      <h2>Information you provide</h2>
+      <p>
+        To use Cadence you enter your <strong>Jellyfin server address</strong> and your
+        <strong>Jellyfin username and password</strong> on the sign-in screen. These are sent
+        directly to your Jellyfin server to authenticate you. Cadence stores the resulting session
+        token on your device so you don't have to sign in every time; it is never transmitted to us
+        or to any third party.
+      </p>
+
+      <h2>How your music and data are handled</h2>
+      <p>
+        Your library, playlists, liked songs, play history, and audio all stream directly between
+        your device and your Jellyfin server. Cadence is a front end only — it does not route your
+        music or listening activity through any server operated by us, and it keeps no copy of your
+        library. Music you choose to download for offline listening is stored locally on your device
+        and can be removed at any time from within the app.
+      </p>
+
+      <h2>Data stored on your device</h2>
+      <p>Cadence keeps the following locally on your device (and nowhere else):</p>
+      <ul>
+        <li>Your Jellyfin session token and the server address you entered.</li>
+        <li>App preferences: theme, playback speed, sort choices, recent searches, and similar.</li>
+        <li>Any songs, albums, or playlists you explicitly download for offline listening.</li>
+      </ul>
+      <p>Clearing the app's data, or signing out, removes this information from your device.</p>
+
+      <h2>Optional diagnostics</h2>
+      <p>
+        Cadence includes an <strong>opt-in</strong> diagnostics feature (off by default) that can
+        record playback events on your device to help troubleshoot playback problems. It does nothing
+        unless you enable it in <em>Settings → Diagnostics</em>. Uploading those diagnostic logs for
+        support is a <strong>separate, explicit action</strong> you take — nothing is sent
+        automatically. The logs contain technical playback information (such as track ids, timing, and
+        error codes), not personal content, and are used solely to diagnose issues.
+      </p>
+
+      <h2>Third parties</h2>
+      <p>
+        Cadence does not include advertising or third-party analytics. When you request missing music
+        or search, those requests go to services you have configured on your own server (for example,
+        Jellyfin's search or a music-request backend you run). Cadence itself does not share your data
+        with any third party.
+      </p>
+
+      <h2>Children's privacy</h2>
+      <p>
+        Cadence is a general-audience utility for accessing your own media server and does not
+        knowingly collect personal information from children.
+      </p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        If this policy changes, the updated version will be posted at this page with a revised date
+        above.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this policy? Reach out via the project on
+        <a href="https://github.com/johnpc/cadence">GitHub</a>.
+      </p>
+
+      <hr />
+      <footer>Cadence — your music, your server.</footer>
+    </main>
+  </body>
+</html>
