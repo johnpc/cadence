@@ -1,12 +1,15 @@
 import { useCallback, type RefObject } from 'react';
 import { tap } from '../../lib/haptics';
 import { getCastState } from '../cast/castStore';
-import { castToggle, castSeek, stopCast } from '../cast/castController';
+import { castSeek, stopCast } from '../cast/castController';
+import { setPlayIntent } from './playIntentStore';
+import { playAudio, pauseAudio } from './playbackActions';
 import { log } from '../../lib/diagnostics/diagnosticsStore';
 
 /** Stop + unsource the element (nothing left buffered/backgrounded) and end any
  * TV cast. Module-level so it adds no branches to the hook's CRAP. */
 function tearDownSession(audio: HTMLAudioElement | null): void {
+  setPlayIntent(false); // deliberate stop — never auto-resume after this
   if (getCastState().connected) void stopCast().catch(() => undefined);
   if (!audio) return;
   audio.pause();
@@ -30,28 +33,25 @@ export function usePlaybackControls(
   const toggle = useCallback(() => {
     if (!hasQueue) return;
     tap();
-    if (getCastState().connected) {
-      void castToggle().catch(() => undefined);
-      return;
-    }
     const audio = ref.current;
-    if (!audio) return;
     // Decide from isPlaying (what the button SHOWS), not audio.paused. On iOS a
     // background/interruption leaves audio.paused === false with no 'pause' event,
     // so the two disagree — deciding on audio.paused made the tap do the opposite
     // of the button (needing two taps to "take"). Acting on the shown state keeps
-    // one tap = the transition the user expects.
-    log('toggle', 'user toggle', { wasPlaying: String(isPlaying), paused: String(audio.paused) });
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      void audio.play().catch((e: unknown) => {
-        log('play-rejected', 'toggle play() rejected', {
-          reason: e instanceof Error ? e.name : 'unknown',
-        });
-      });
-    }
+    // one tap = the transition the user expects. The directional play/pause helpers
+    // keep play-intent (and casting) correct.
+    log('toggle', 'user toggle', { wasPlaying: String(isPlaying), paused: String(audio?.paused) });
+    if (isPlaying) pauseAudio(audio);
+    else playAudio(audio);
   }, [ref, hasQueue, isPlaying]);
+
+  // The OS lock-screen / Bluetooth transport gives an EXPLICIT direction — bind
+  // these (not toggle) so an iOS state desync after an interruption can't make the
+  // "play" button run the pause branch (the "first lock-screen play does nothing"
+  // bug). No-op with no queue.
+  const play = useCallback(() => {
+    if (hasQueue) playAudio(ref.current);
+  }, [ref, hasQueue]);
 
   const seek = useCallback(
     (seconds: number) => {
@@ -76,7 +76,7 @@ export function usePlaybackControls(
     [ref],
   );
 
-  const pause = useCallback(() => ref.current?.pause(), [ref]);
+  const pause = useCallback(() => pauseAudio(ref.current), [ref]);
 
   // Mini-player close (X): tear down the element + cast, then empty the queue.
   const stop = useCallback(() => {
@@ -88,11 +88,12 @@ export function usePlaybackControls(
   // at the AUDIO-SESSION level, not the element, so `audio.paused` often stays
   // FALSE with no 'pause' event. So DON'T guard on `.paused` (that would no-op the
   // broken state) — call play() unconditionally (safe no-op if already playing).
-  // Skipped only with no queue or while casting (the TV owns playback then).
+  // Skipped with no queue or while casting: the TV owns playback then, and an
+  // interruption on the phone must not toggle the receiver.
   const resume = useCallback(() => {
     if (!hasQueue || getCastState().connected) return;
     void ref.current?.play().catch(() => undefined);
   }, [ref, hasQueue]);
 
-  return { toggle, seek, seekBy, pause, resume, stop };
+  return { toggle, play, seek, seekBy, pause, resume, stop };
 }

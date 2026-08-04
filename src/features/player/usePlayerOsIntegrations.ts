@@ -10,6 +10,8 @@ interface QueueControls {
 }
 interface AudioControls {
   toggle: () => void;
+  play: () => void;
+  pause: () => void;
   seek: (seconds: number) => void;
   seekBy: (delta: number) => void;
   nudgeVolume: (delta: number) => void;

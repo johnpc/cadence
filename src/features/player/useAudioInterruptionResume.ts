@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import { getPlayIntent } from './playIntentStore';
 import { log } from '../../lib/diagnostics/diagnosticsStore';
 
 /** The event the native layer dispatches on `window` to nudge the web player to
@@ -14,18 +15,20 @@ export const AUDIO_INTERRUPTION_ENDED = 'cadence:audiointerruptionended';
  * often leaves `audio.paused === false` with no 'pause' event, so the UI still
  * shows "playing" but no sound comes out, and the user must pause+play to fix it.
  *
- * On the native-dispatched event we re-assert playback ONLY when the player still
- * INTENDS to be playing (`isPlaying`) — so we recover the interrupted track but
- * never override a deliberate pause. `isPlaying` is read through a ref so the
- * listener isn't re-subscribed on every play/pause. Inert on the web (no event).
+ * On the native-dispatched event we re-assert playback ONLY when the user still
+ * INTENDS to be playing — so we recover the interrupted track but never override
+ * a deliberate pause. We read PLAY INTENT, not `isPlaying`: the interruption
+ * itself fires a 'pause' that flips `isPlaying` to false, so gating on `isPlaying`
+ * cancelled the very resume it should trigger (music never came back after a
+ * call). Intent is set on real play and cleared only on deliberate pause/stop
+ * (see playIntentStore), so it survives the interruption. Inert on web (no event).
  */
-export function useAudioInterruptionResume(isPlaying: boolean, resume: () => void): void {
-  const intendedRef = useRef(isPlaying);
-  intendedRef.current = isPlaying;
+export function useAudioInterruptionResume(resume: () => void): void {
   useEffect(() => {
     const onEnded = () => {
-      log('interruption', 'native resume nudge', { intended: String(intendedRef.current) });
-      if (intendedRef.current) resume();
+      const intended = getPlayIntent();
+      log('interruption', 'native resume nudge', { intended: String(intended) });
+      if (intended) resume();
     };
     window.addEventListener(AUDIO_INTERRUPTION_ENDED, onEnded);
     return () => window.removeEventListener(AUDIO_INTERRUPTION_ENDED, onEnded);

@@ -47,14 +47,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return
         }
         nativeLog("interruption", "ended")
+        // Reactivate the session on EVERY interruption-end, regardless of
+        // `.shouldResume`. iOS drops the session's active state during the
+        // interruption; if we don't re-activate it, the WKWebView's <audio> can't
+        // produce sound — so even a lock-screen "play" tap did nothing until a
+        // manual pause/play cycle reactivated it. Re-activating here is harmless
+        // when already active and fixes that dead first tap.
+        try? AVAudioSession.sharedInstance().setActive(true)
         let shouldResume: Bool
         if let optsRaw = info[AVAudioSessionInterruptionOptionKey] as? UInt {
             shouldResume = AVAudioSession.InterruptionOptions(rawValue: optsRaw).contains(.shouldResume)
         } else {
             shouldResume = false
         }
+        // Only auto-resume when iOS says we may. The web player still gates on the
+        // user's play intent, so this never overrides a deliberate pause.
         guard shouldResume else { return }
-        try? AVAudioSession.sharedInstance().setActive(true)
         nudgeWebPlayerToResume()
     }
 

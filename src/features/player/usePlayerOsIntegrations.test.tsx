@@ -15,6 +15,8 @@ describe('usePlayerOsIntegrations', () => {
     const qc = { next: vi.fn(), prev: vi.fn(), toggleShuffle: vi.fn(), cycleRepeat: vi.fn() };
     const ac = {
       toggle: vi.fn(),
+      play: vi.fn(),
+      pause: vi.fn(),
       seek: vi.fn(),
       seekBy: vi.fn(),
       nudgeVolume: vi.fn(),

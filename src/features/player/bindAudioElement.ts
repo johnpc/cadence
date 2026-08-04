@@ -1,4 +1,5 @@
 import { notifyNativePlaybackStarted } from '../../lib/nativeAudioSession';
+import { setPlayIntent } from './playIntentStore';
 import { log } from '../../lib/diagnostics/diagnosticsStore';
 
 /** Setters the audio-element effect drives; kept as an interface so the binding
@@ -30,6 +31,12 @@ export function bindAudioElement(audio: HTMLAudioElement, s: AudioElementSinks):
   const onMeta = () => s.setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
   const onPlay = () => {
     s.setIsPlaying(true);
+    // Audio actually started → the user intends to be playing. Intent is NOT
+    // cleared on the matching 'pause' event: an OS interruption (call/Siri)
+    // fires 'pause' too, and clearing here would cancel the auto-resume the
+    // interruption's end triggers. Deliberate pause/stop clear it explicitly
+    // (see usePlaybackControls).
+    setPlayIntent(true);
     log('play', 'audio play', { pos: audio.currentTime.toFixed(1) });
     notifyNativePlaybackStarted();
   };

@@ -46,6 +46,27 @@ describe('usePlaybackControls', () => {
     expect(audio.play).not.toHaveBeenCalled();
   });
 
+  it('play (lock-screen play command) plays the element directly', () => {
+    // The OS play button routes here, NOT through toggle — so an iOS state
+    // desync can't make it run the pause branch.
+    const audio = fakeAudio(false);
+    const { result } = renderHook(() =>
+      usePlaybackControls({ current: audio }, true, true, vi.fn()),
+    );
+    result.current.play();
+    expect(audio.play).toHaveBeenCalled();
+    expect(audio.pause).not.toHaveBeenCalled();
+  });
+
+  it('play is a no-op with an empty queue', () => {
+    const audio = fakeAudio(true);
+    const { result } = renderHook(() =>
+      usePlaybackControls({ current: audio }, false, false, vi.fn()),
+    );
+    result.current.play();
+    expect(audio.play).not.toHaveBeenCalled();
+  });
+
   it('toggle is a no-op with an empty queue', () => {
     const audio = fakeAudio(true);
     const { result } = renderHook(() =>
