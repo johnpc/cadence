@@ -124,6 +124,35 @@ Then('the next track plays from the beginning', async ({ page }) => {
   );
 });
 
+Then('the track is actually playing', async ({ page }) => {
+  // Assert on REAL decoded audio advancing — not just UI state.
+  await page.waitForFunction(
+    () => {
+      const audio = document.querySelector('audio');
+      return !!audio && !audio.paused && audio.currentTime > 0;
+    },
+    undefined,
+    { timeout: DATA_WAIT },
+  );
+});
+
+When('an audio interruption pauses playback', async ({ page }) => {
+  // Reproduce what an OS interruption (a phone call) does to the WKWebView: it
+  // pauses the <audio> at the session level. Pausing the element fires the same
+  // 'pause' event iOS delivers — flipping isPlaying to false — WITHOUT the user
+  // ever choosing to stop, so play-intent must stay set.
+  await page.evaluate(() => document.querySelector('audio')?.pause());
+  await expect(page.getByTestId('now-playing-toggle')).toHaveAttribute('aria-label', 'Play', {
+    timeout: DATA_WAIT,
+  });
+});
+
+When('the interruption ends', async ({ page }) => {
+  // The native layer (AppDelegate) dispatches this exact event on the window when
+  // an interruption ends; fire it to drive the real resume path.
+  await page.evaluate(() => window.dispatchEvent(new Event('cadence:audiointerruptionended')));
+});
+
 When('I press the spacebar', async ({ page }) => {
   // Click empty page chrome first so focus isn't in the search input.
   await page.locator('body').click({ position: { x: 5, y: 5 } });

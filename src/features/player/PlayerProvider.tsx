@@ -47,14 +47,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const hasQueue = qh.queue.tracks.length > 0;
   // `stop` (audio teardown + queue empty) is composed inside usePlaybackControls.
-  const { toggle, seek, seekBy, pause, resume, stop } = usePlaybackControls(
+  const { toggle, play, seek, seekBy, pause, resume, stop } = usePlaybackControls(
     ref,
     hasQueue,
     isPlaying,
     qh.stop,
   );
   // Recover from an OS audio interruption (Siri / call) if still meant to play.
-  useAudioInterruptionResume(isPlaying, resume);
+  useAudioInterruptionResume(resume);
   useDiagnosticsContext(current); // tag diagnostics with the current track
   // Smart "previous": restart mid-track, else go to the prior track.
   const qc = { ...qh, prev: useSmartPrev(ref, seek, qh.prev), stop };
@@ -69,7 +69,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     armSleep(null);
   });
 
-  const audioControls = { toggle, seek, seekBy, nudgeVolume, toggleMute };
+  const audioControls = { toggle, play, pause, seek, seekBy, nudgeVolume, toggleMute };
   // OS integrations sharing now-playing state: MediaSession + Apple Watch remote.
   usePlayerOsIntegrations(current, isPlaying, qc, audioControls, position, duration);
 

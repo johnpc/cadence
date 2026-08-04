@@ -14,6 +14,8 @@ interface QueueControls {
 /** Audio-element controls from usePlaybackControls + useVolume. */
 interface AudioControls {
   toggle: () => void;
+  play: () => void;
+  pause: () => void;
   seek: (seconds: number) => void;
   seekBy: (delta: number) => void;
   nudgeVolume: (delta: number) => void;
@@ -32,13 +34,14 @@ export function usePlayerIntegrations(
   position: number,
   duration: number,
 ): void {
-  const { toggle, seek, seekBy, nudgeVolume, toggleMute } = ac;
+  const { toggle, play, pause, seek, seekBy, nudgeVolume, toggleMute } = ac;
   const { next, prev, toggleShuffle, cycleRepeat } = qc;
 
-  const media = useMemo(
-    () => ({ play: toggle, pause: toggle, next, prev, seek }),
-    [toggle, next, prev, seek],
-  );
+  // Bind the OS transport to DIRECTIONAL play/pause (not a single toggle): the
+  // lock screen sends an explicit command, and routing both through toggle let an
+  // iOS post-interruption state desync run the wrong branch — so its "play" button
+  // appeared dead until a manual pause resynced. Distinct handlers can't misfire.
+  const media = useMemo(() => ({ play, pause, next, prev, seek }), [play, pause, next, prev, seek]);
   useMediaSessionSync(current, isPlaying, media, position, duration);
 
   const keys = useMemo(

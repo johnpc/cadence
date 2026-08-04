@@ -56,6 +56,23 @@ Feature: Playback
     And I tap next
     Then the next track plays from the beginning
 
+  Scenario: Playback auto-resumes after an OS audio interruption ends
+    Given I am signed in
+    When I tap a track from search
+    And the track is actually playing
+    And an audio interruption pauses playback
+    And the interruption ends
+    Then the track is actually playing
+
+  Scenario: A deliberate pause is not overridden when an interruption ends
+    Given I am signed in
+    When I tap a track from search
+    And the track is actually playing
+    And I press the spacebar
+    Then playback is paused
+    When the interruption ends
+    Then playback is paused
+
   Scenario: The spacebar toggles playback
     Given I am signed in
     When I tap a track from search
