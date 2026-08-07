@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { formatTime } from '../player/playerFormat';
+import { chapterTimestamp } from '../player/playerFormat';
 import type { AudiobookChapter } from './audiobookTypes';
 
 /** One chapter in the chapter list: title + timestamp, tappable to seek. The
@@ -19,7 +19,7 @@ export const ChapterRow = forwardRef<
     >
       <span className="chapter-row__num cad-meta">{index + 1}</span>
       <span className="chapter-row__name">{chapter.name}</span>
-      <span className="chapter-row__time cad-meta">{formatTime(chapter.start)}</span>
+      <span className="chapter-row__time cad-meta">{chapterTimestamp(chapter.start)}</span>
     </button>
   );
 });

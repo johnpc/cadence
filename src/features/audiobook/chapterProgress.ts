@@ -16,20 +16,24 @@ export function formatRemaining(seconds: number): string {
 /**
  * The two audiobook "time left" readouts for a position: remaining in the current
  * CHAPTER (bounded by the next chapter's start, or the book end for the last
- * chapter) and remaining in the whole BOOK. Returns null for chapter when there
- * are no chapters. Pure so it's unit-testable.
+ * chapter) and remaining in the whole BOOK. `rate` is the playback speed — the
+ * wall-clock time left is the media-seconds left divided by the speed, so at 2×
+ * a 60-minute book shows "30m left". Returns null for chapter when there are no
+ * chapters. Pure so it's unit-testable.
  */
 export function remaining(
   chapters: AudiobookChapter[],
   position: number,
   duration: number,
+  rate = 1,
 ): { chapter: string | null; book: string } {
-  const book = formatRemaining(duration - position);
+  const speed = rate > 0 ? rate : 1;
+  const book = formatRemaining((duration - position) / speed);
   const idx = chapterIndexAt(chapters, position);
   if (idx < 0 || chapters.length === 0) {
     return { chapter: null, book };
   }
   const next = chapters[idx + 1];
   const chapterEnd = next ? next.start : duration;
-  return { chapter: formatRemaining(chapterEnd - position), book };
+  return { chapter: formatRemaining((chapterEnd - position) / speed), book };
 }

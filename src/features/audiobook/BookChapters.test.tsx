@@ -18,24 +18,34 @@ afterEach(() => {
 });
 
 describe('BookChapters', () => {
-  it('lists embedded chapters for a single-file book and plays from a tapped chapter', async () => {
+  it('is collapsed by default and expands on the header toggle, with human timestamps', async () => {
     vi.mocked(fetchChapters).mockResolvedValue([
       { name: 'One', start: 0 },
-      { name: 'Two', start: 600 },
+      { name: 'Two', start: 5430 }, // 1h30m30s
     ]);
     const playQueue = vi.fn();
     renderWithProviders(<BookChapters book={single} />, { player: stubPlayer({ playQueue }) });
 
-    const rows = await screen.findAllByTestId('book-chapter');
+    // Collapsed: the toggle shows the count, no rows yet.
+    const toggle = await screen.findByTestId('book-chapters-toggle');
+    expect(toggle).toHaveTextContent('2 chapters');
+    expect(screen.queryAllByTestId('book-chapter')).toHaveLength(0);
+
+    await userEvent.click(toggle);
+    const rows = screen.getAllByTestId('book-chapter');
     expect(rows).toHaveLength(2);
     expect(rows[1]).toHaveTextContent('Two');
-    expect(rows[1]).toHaveTextContent('10:00');
+    expect(rows[1]).toHaveTextContent('1h30m'); // not "90:30"
 
     await userEvent.click(rows[1]);
     expect(playQueue).toHaveBeenCalledWith(single.parts, 0);
+
+    // Collapses back.
+    await userEvent.click(toggle);
+    expect(screen.queryAllByTestId('book-chapter')).toHaveLength(0);
   });
 
-  it('marks the currently-playing chapter', async () => {
+  it('marks the currently-playing chapter (once expanded)', async () => {
     vi.mocked(fetchChapters).mockResolvedValue([
       { name: 'One', start: 0 },
       { name: 'Two', start: 600 },
@@ -44,7 +54,8 @@ describe('BookChapters', () => {
       player: stubPlayer({ current: part('b') }),
       progress: { position: 700, duration: 3600 },
     });
-    const rows = await screen.findAllByTestId('book-chapter');
+    await userEvent.click(await screen.findByTestId('book-chapters-toggle'));
+    const rows = screen.getAllByTestId('book-chapter');
     expect(rows[1].className).toContain('track-row--current');
     expect(rows[0].className).not.toContain('track-row--current');
   });

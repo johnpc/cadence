@@ -28,6 +28,7 @@ export function Home() {
       shelves.recent.refetch(),
       shelves.artists.refetch(),
       shelves.jumpBackIn.refetch(),
+      shelves.favorites.refetch(),
     ]);
     await e.detail.complete();
   };

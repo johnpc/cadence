@@ -1,0 +1,21 @@
+/* Audiobook playback-speed slider row: label · range · "1.5×" readout, sized to
+   sit under the transport like the volume slider. */
+.speed-slider {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  width: 100%;
+  padding: var(--cad-space-1) var(--cad-space-2);
+}
+
+.speed-slider input[type='range'] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--cad-accent);
+}
+
+.speed-slider__value {
+  min-width: 2.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

@@ -41,4 +41,15 @@ describe('remaining', () => {
     expect(r.chapter).toBeNull();
     expect(r.book).toBe('55m left');
   });
+
+  it('scales remaining by playback speed', () => {
+    // 55 media-min left; at 2× that's ~27m of wall-clock, chapter 5m → ~2-3m.
+    const r = remaining(chapters, 300, 3600, 2);
+    expect(r.book).toBe('28m left'); // round(3300/2/60) = 28
+    expect(r.chapter).toBe('3m left'); // round(300/2/60) = 3 (2.5 → 3)
+  });
+
+  it('treats a non-positive rate as 1×', () => {
+    expect(remaining(chapters, 300, 3600, 0).book).toBe('55m left');
+  });
 });

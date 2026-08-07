@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
 
 const prefetch = vi.fn();
@@ -23,6 +24,18 @@ function renderRow(r: LibraryRow) {
     <MemoryRouter>
       <LibraryRowItem row={r} />
     </MemoryRouter>,
+  );
+}
+
+/** Wrap in a QueryClient too — a playlist row's heart uses a react-query mutation. */
+function renderInProviders(r: LibraryRow) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter>
+        <LibraryRowItem row={r} />
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -60,5 +73,22 @@ describe('LibraryRowItem', () => {
     });
     fireEvent.mouseEnter(screen.getByTestId('library-row'));
     expect(prefetch).not.toHaveBeenCalled();
+  });
+
+  it('shows a favorite heart on a real playlist row, but not on a pinned pseudo-row', () => {
+    const { unmount } = renderInProviders({ ...row, isPlaylist: true });
+    expect(screen.getByTestId('like-button')).toBeInTheDocument();
+    unmount();
+    renderInProviders({
+      id: 'liked',
+      name: 'Liked Songs',
+      subtitle: 'Playlist',
+      to: '/liked',
+      round: false,
+      item: null,
+      liked: true,
+      pinned: true,
+    });
+    expect(screen.queryByTestId('like-button')).toBeNull();
   });
 });
