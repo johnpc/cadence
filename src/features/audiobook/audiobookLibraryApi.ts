@@ -8,8 +8,10 @@ import { getSession } from '../../lib/sessionStore';
 import type { ItemsResponse, JellyfinItem } from '../../lib/jellyfinTypes';
 
 // ParentId + Album + AlbumArtist + IndexNumber drive multi-file book grouping
-// (groupBooks); RunTimeTicks/Artists/Overview are for display.
-const bookFields = 'RunTimeTicks,Overview,Artists,AlbumArtist,Album,ParentId,IndexNumber';
+// (groupBooks); the rest are for display — RunTimeTicks/Artists/Overview plus
+// Genres/ProductionYear/DateCreated for the detail page's facts + chips.
+const bookFields =
+  'RunTimeTicks,Overview,Artists,AlbumArtist,Album,ParentId,IndexNumber,Genres,ProductionYear,DateCreated';
 
 /** Every audiobook in the library, alphabetical. The limit must exceed the
  * library size (900+ files across all books) or later books (e.g. "Circe")

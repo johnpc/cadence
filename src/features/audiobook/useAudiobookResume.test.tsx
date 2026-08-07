@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { useRef } from 'react';
 import { describe, expect, it } from 'vitest';
 import { useAudiobookResume } from './useAudiobookResume';
+import { setPendingSeek, takePendingSeek } from '../player/pendingSeek';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const S = 10_000_000;
@@ -74,5 +75,22 @@ describe('useAudiobookResume', () => {
     const audio = fakeAudio(1);
     run(book(0), audio);
     expect(audio.currentTime).toBe(0);
+  });
+
+  it('honours a pending chapter seek over the saved position', () => {
+    const audio = fakeAudio(1);
+    setPendingSeek('b', 900);
+    run(book(3600 * S), audio);
+    expect(audio.currentTime).toBe(900);
+  });
+
+  it('applies a pending chapter seek even when playback already moved', () => {
+    const audio = fakeAudio(1);
+    audio.currentTime = 500; // past the 1s resume guard
+    setPendingSeek('b', 1200);
+    run(book(0), audio);
+    expect(audio.currentTime).toBe(1200);
+    // consumed
+    expect(takePendingSeek('b')).toBeNull();
   });
 });

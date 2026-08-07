@@ -43,3 +43,36 @@ Then('I see at least one matching book', async ({ page }) => {
   const rows = page.getByTestId('audiobooks').getByTestId('book-row');
   await expect(rows.first()).toBeAttached({ timeout: DATA_WAIT });
 });
+
+When("I open the first book's detail page", async ({ page }) => {
+  // Tap the first real book row's open button (the art button plays instead) and
+  // wait for the detail route + its own container so the scenario reads real data.
+  await page
+    .getByTestId('audiobooks')
+    .getByTestId('book-row')
+    .first()
+    .getByTestId('book-row-open')
+    .click();
+  await expect(page).toHaveURL(/\/audiobook\//, { timeout: DATA_WAIT });
+  await expect(page.getByTestId('book-detail')).toBeVisible({ timeout: DATA_WAIT });
+});
+
+Then("I see the book's title and a details block", async ({ page }) => {
+  // Real rendered data: a non-empty title, and the facts block (which always
+  // carries at least the Parts fact) with at least one labelled fact.
+  const title = page.getByTestId('book-title');
+  await expect(title).toBeVisible({ timeout: DATA_WAIT });
+  expect((await title.innerText()).trim().length).toBeGreaterThan(0);
+  await expect(page.getByTestId('book-facts')).toBeVisible({ timeout: DATA_WAIT });
+  expect(await page.getByTestId('book-fact').count()).toBeGreaterThan(0);
+});
+
+Then("I see the book's chapter or part list", async ({ page }) => {
+  // A book lists EITHER its parts (multi-file) OR embedded chapters (single m4b
+  // with markers). Assert at least one such row is shown for the opened book.
+  const parts = page.getByTestId('book-part');
+  const chapters = page.getByTestId('book-chapter');
+  await expect
+    .poll(async () => (await parts.count()) + (await chapters.count()), { timeout: DATA_WAIT })
+    .toBeGreaterThan(0);
+});
