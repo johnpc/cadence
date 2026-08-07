@@ -18,3 +18,14 @@ Feature: Audiobooks library
     When I open the first book's detail page
     Then I see the book's title and a details block
     And I see the book's chapter or part list
+
+  Scenario: An audiobook offers a playback-speed slider in the player
+    Given I am signed in
+    When I open the Audiobooks tab
+    Then I see the audiobook library with books
+    When I open the first book's detail page
+    And I play the book from its detail page
+    And I open the full player
+    Then I see the playback-speed control
+    When I set the playback speed to 1.5x
+    Then the playback speed reads "1.5×"
