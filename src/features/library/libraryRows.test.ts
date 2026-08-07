@@ -141,7 +141,12 @@ describe('sortRows', () => {
       likedCount: 0,
       downloadsCount: 0,
     });
-    expect(rows.find((r) => r.id === 'p')?.favorite).toBe(true);
+    const pRow = rows.find((r) => r.id === 'p');
+    expect(pRow?.favorite).toBe(true);
+    // Real playlists are flagged isPlaylist so the row renders a heart toggle;
+    // the pinned Liked Songs pseudo-row is not.
+    expect(pRow?.isPlaylist).toBe(true);
+    expect(rows.find((r) => r.liked)?.isPlaylist).toBeUndefined();
   });
 
   it('bubbles hearted playlists above non-hearted (under any pins), keeping sort within groups', () => {

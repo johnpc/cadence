@@ -21,6 +21,32 @@
   line-height: 1.5;
 }
 
+/* "Show more / Show less" toggle under a truncated description — a plain accent
+   text button, no chrome. */
+.book-detail__more {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: var(--cad-space-1) 0;
+  color: var(--cad-accent);
+  font-family: var(--cad-font-sans);
+  font-weight: 600;
+}
+
+/* Collapsible section header (Chapters): a full-width row with a chevron that
+   rotates via the swapped icon, and the kicker label beside it. */
+.book-detail__section-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: var(--cad-space-2) 0;
+  color: var(--cad-text);
+}
+
 /* Facts block: a two-column label/value grid (label muted, value emphasised),
    each row a "Length · 12 hr 4 min"-style pair. */
 .book-detail__facts {

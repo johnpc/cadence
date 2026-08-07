@@ -2,6 +2,8 @@ import { IonIcon } from '@ionic/react';
 import { heart, arrowDownCircle } from 'ionicons/icons';
 import { Link } from 'react-router-dom';
 import { TrackArt } from '../player/TrackArt';
+import { LikeButton } from './LikeButton';
+import { PLAYLISTS_KEY } from '../playlists/playlistsKeys';
 import { usePrefetchItem } from '../home/usePrefetchItem';
 import type { LibraryRow } from './libraryRows';
 import './libraryList.css';
@@ -44,6 +46,14 @@ export function LibraryRowItem({
         <span className="library-row__name">{row.name}</span>
         <span className="library-row__subtitle">{row.subtitle}</span>
       </span>
+      {row.isPlaylist && row.item && (
+        <LikeButton
+          track={row.item}
+          size={20}
+          extraKeys={[PLAYLISTS_KEY]}
+          noun="favorite playlists"
+        />
+      )}
     </Link>
   );
 }

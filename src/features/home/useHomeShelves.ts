@@ -8,6 +8,8 @@ import {
 import { useJumpBackIn } from './useJumpBackIn';
 import { useSavedAlbums, useFollowedArtists } from '../library/libraryApi';
 import { useHomeSource } from './useHomeSource';
+import { usePlaylists } from '../playlists/playlistsApi';
+import { favoritePlaylists } from './favoritePlaylists';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** A shelf slice in the shape Home components expect (data + load flags). */
@@ -64,6 +66,15 @@ export function useHomeShelves() {
   const artists = useFollowedArtists();
   const jumpBackIn = useJumpBackIn();
   const community = usePublicPlaylists();
+  // Favorited (hearted) playlists — always native (the owned-playlists query
+  // already carries UserData.IsFavorite; no plugin path needed). Shaped as a shelf.
+  const pl = usePlaylists();
+  const favorites: Shelf<'playlists'> = {
+    playlists: favoritePlaylists(pl.playlists),
+    isLoading: pl.isLoading,
+    isError: pl.isError,
+    refetch: () => void pl.refetch(),
+  };
 
   // Plugin fast-path (active + not errored): serve its shelves — the precomputed
   // data once it lands, or a loading placeholder while /Cadence/Home is in flight
@@ -81,7 +92,8 @@ export function useHomeShelves() {
       artists, // always native
       jumpBackIn,
       community,
+      favorites,
     };
   }
-  return { albums, suggested, saved, recent, onRepeat, artists, jumpBackIn, community };
+  return { albums, suggested, saved, recent, onRepeat, artists, jumpBackIn, community, favorites };
 }

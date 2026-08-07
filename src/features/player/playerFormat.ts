@@ -9,6 +9,20 @@ export function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+/** A chapter start as a compact human label — "1h30m" / "45m" / "12s" — instead
+ * of m:ss (so a 90-minute mark reads "1h30m", not "90:00"). Drops zero parts;
+ * negatives/NaN clamp to "0s". */
+export function chapterTimestamp(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0s';
+  const total = Math.floor(seconds);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return m > 0 ? `${h}h${m}m` : `${h}h`;
+  if (m > 0) return s > 0 ? `${m}m${s}s` : `${m}m`;
+  return `${s}s`;
+}
+
 /** The artist line under a track title (joined artists, or the album artist). */
 export function artistLine(item: JellyfinItem | null): string {
   if (!item) return '';

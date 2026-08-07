@@ -7,12 +7,13 @@ import { LIKED_SONGS_KEY } from './libraryApi';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /**
- * Like/unlike a track. Seeds from the item's UserData.IsFavorite, flips
- * optimistically, and invalidates the liked-songs list so it re-fetches. On
- * failure it rolls the heart back AND toasts — otherwise the like silently
- * reverts and the user can't tell whether it worked.
+ * Like/unlike any favoritable item (track, audiobook, playlist). Seeds from the
+ * item's UserData.IsFavorite, flips optimistically, and invalidates the affected
+ * lists so they re-fetch (and re-order). On failure it rolls the heart back AND
+ * toasts — otherwise the like silently reverts and the user can't tell whether it
+ * worked. `extraKeys` lets a caller refresh its own list too (e.g. playlists).
  */
-export function useLikeToggle(track: JellyfinItem) {
+export function useLikeToggle(track: JellyfinItem, extraKeys: readonly unknown[][] = []) {
   const queryClient = useQueryClient();
   const toast = useToast();
   const [liked, setLiked] = useState(!!track.UserData?.IsFavorite);
@@ -39,6 +40,9 @@ export function useLikeToggle(track: JellyfinItem) {
       // those queries simply aren't mounted / re-fetch cheaply.
       queryClient.invalidateQueries({ queryKey: ['audiobooks-favorites'] });
       queryClient.invalidateQueries({ queryKey: ['audiobooks'] });
+      // Caller-supplied lists (e.g. the playlists list, so a hearted playlist
+      // re-orders to the top immediately instead of after a reload).
+      for (const key of extraKeys) queryClient.invalidateQueries({ queryKey: key });
     },
   });
 

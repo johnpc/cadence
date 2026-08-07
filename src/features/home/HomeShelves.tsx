@@ -10,7 +10,7 @@ import { useIdlePrefetch } from './useIdlePrefetch';
 import { detailPath } from './itemPath';
 
 export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShelves> }) {
-  const { albums, saved, recent, artists, jumpBackIn, community } = shelves;
+  const { albums, saved, recent, artists, jumpBackIn, community, favorites } = shelves;
   const playItem = usePlayItem();
   const prefetch = usePrefetchItem();
   const history = useHistory();
@@ -41,6 +41,18 @@ export function HomeShelves({ shelves }: { shelves: ReturnType<typeof useHomeShe
         hideWhenEmpty
         testId="album-shelf"
       />
+      {favorites.playlists.length > 0 && (
+        <CardShelf
+          title="Your favorite playlists"
+          items={favorites.playlists}
+          state={favorites}
+          seeAllHref="/library?filter=playlists"
+          onOpen={openPlaylist}
+          onPlay={(item) => void playItem(item)}
+          onPrefetch={prefetch}
+          testId="favorite-playlists-shelf"
+        />
+      )}
       <DailyMixShelf artists={artists.artists} recentTracks={recent.songs} />
       <SongShelves shelves={shelves} />
       {artists.artists.length > 0 && (

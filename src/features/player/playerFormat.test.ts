@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   artistLine,
+  chapterTimestamp,
   collectionSummary,
   durationWords,
   formatTime,
@@ -30,6 +31,26 @@ describe('formatTime', () => {
   it('clamps NaN / negatives', () => {
     expect(formatTime(NaN)).toBe('0:00');
     expect(formatTime(-5)).toBe('0:00');
+  });
+});
+
+describe('chapterTimestamp', () => {
+  it('shows compact hours+minutes (not m:ss) past an hour', () => {
+    expect(chapterTimestamp(5400)).toBe('1h30m'); // 90 min → "1h30m", not "90:00"
+    expect(chapterTimestamp(3600)).toBe('1h'); // exact hour drops minutes
+    expect(chapterTimestamp(7325)).toBe('2h2m'); // seconds dropped past an hour
+  });
+  it('shows minutes+seconds under an hour', () => {
+    expect(chapterTimestamp(600)).toBe('10m');
+    expect(chapterTimestamp(75)).toBe('1m15s');
+  });
+  it('shows seconds under a minute', () => {
+    expect(chapterTimestamp(0)).toBe('0s');
+    expect(chapterTimestamp(42)).toBe('42s');
+  });
+  it('clamps NaN / negatives', () => {
+    expect(chapterTimestamp(NaN)).toBe('0s');
+    expect(chapterTimestamp(-5)).toBe('0s');
   });
 });
 

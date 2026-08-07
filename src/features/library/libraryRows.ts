@@ -32,6 +32,9 @@ export interface LibraryRow {
   /** True when the user has hearted this playlist (Jellyfin favorite) — sorted
    * above non-favorites, just under the pinned pseudo-playlists. */
   favorite?: boolean;
+  /** True for a real (non-pseudo) playlist row — gets a heart toggle to add/
+   * remove it from favorites right in the list. */
+  isPlaylist?: boolean;
 }
 
 /** Build the rows for the active filter. Under "playlists", Liked Songs is
@@ -76,6 +79,7 @@ export function buildLibraryRows(
       round: false,
       item: p,
       favorite: !!p.UserData?.IsFavorite,
+      isPlaylist: true,
     })),
   ];
 }

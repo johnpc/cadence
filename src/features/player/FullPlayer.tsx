@@ -7,6 +7,7 @@ import { LyricsSheet } from './LyricsSheet';
 import { ChapterSheet } from '../audiobook/ChapterSheet';
 import { AudiobookSeekButtons } from '../audiobook/AudiobookSeekButtons';
 import { AudiobookProgress } from '../audiobook/AudiobookProgress';
+import { SpeedSlider } from '../audiobook/SpeedSlider';
 import { FullPlayerFooter } from './FullPlayerFooter';
 import { CastingBanner } from '../cast/CastingBanner';
 import { SleepIndicator } from './SleepIndicator';
@@ -77,6 +78,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         </div>
         <AudiobookSeekButtons />
         <PlayerControls />
+        <SpeedSlider />
         <VolumeSlider volume={p.volume} setVolume={p.setVolume} />
         <FullPlayerFooter
           current={p.current}

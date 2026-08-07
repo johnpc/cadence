@@ -12,6 +12,7 @@ import { LoadState } from '../../components/LoadState';
 import { GenreChips } from '../../components/GenreChips';
 import { BookHeader } from './BookHeader';
 import { BookFacts } from './BookFacts';
+import { BookAbout } from './BookAbout';
 import { BookParts } from './BookParts';
 import { BookChapters } from './BookChapters';
 import { useBook } from './useBook';
@@ -50,12 +51,7 @@ export function BookDetail() {
             <div data-testid="book-detail">
               <BookHeader book={book} />
               <GenreChips genres={book.book.Genres} />
-              {book.book.Overview && (
-                <section data-testid="book-about">
-                  <h2 className="cad-kicker">About</h2>
-                  <p className="cad-meta book-detail__about">{book.book.Overview}</p>
-                </section>
-              )}
+              <BookAbout overview={book.book.Overview} />
               <BookFacts book={book} />
               <BookParts book={book} />
               <BookChapters book={book} />

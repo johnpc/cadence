@@ -15,11 +15,13 @@ vi.mock('../library/libraryApi', () => ({
 }));
 vi.mock('./useJumpBackIn', () => ({ useJumpBackIn: vi.fn() }));
 vi.mock('./useHomeSource', () => ({ useHomeSource: vi.fn() }));
+vi.mock('../playlists/playlistsApi', () => ({ usePlaylists: vi.fn() }));
 
 import * as homeApi from './homeApi';
 import * as libApi from '../library/libraryApi';
 import { useJumpBackIn } from './useJumpBackIn';
 import { useHomeSource } from './useHomeSource';
+import { usePlaylists } from '../playlists/playlistsApi';
 import { useHomeShelves } from './useHomeShelves';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -45,6 +47,12 @@ function mockNative(overrides: Record<string, JellyfinItem[]> = {}) {
   );
   vi.mocked(useJumpBackIn).mockReturnValue({
     items: [],
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+  } as never);
+  vi.mocked(usePlaylists).mockReturnValue({
+    playlists: overrides.playlists ?? [],
     isLoading: false,
     isError: false,
     refetch: vi.fn(),
@@ -110,6 +118,24 @@ describe('useHomeShelves source selection', () => {
     const { result } = renderHook(() => useHomeShelves());
     expect(result.current.albums.albums[0].Id).toBe('native-fallback');
     expect(homeApi.useLatestAlbums).toHaveBeenCalledWith(true);
+  });
+
+  it('exposes only hearted playlists in the favorites shelf', () => {
+    mockNative({
+      playlists: [
+        { Id: 'fav', Name: 'Fav', Type: 'Playlist', UserData: { IsFavorite: true } },
+        { Id: 'plain', Name: 'Plain', Type: 'Playlist' },
+      ],
+    });
+    vi.mocked(useHomeSource).mockReturnValue({
+      active: false,
+      data: null,
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+    const { result } = renderHook(() => useHomeShelves());
+    expect(result.current.favorites.playlists.map((p) => p.Id)).toEqual(['fav']);
   });
 
   it('does NOT fire native queries while the plugin call is still in flight (no race)', () => {
