@@ -1,14 +1,15 @@
-/* The Audiobooks tools row: search box + sort selector on one line. Mirrors the
-   Liked Songs tools row (.liked__tools). */
+/* The Audiobooks tools row. Mobile-first: the search box takes the full width on
+   its own line, with the sort selector dropping to a second line beneath it.
+   From the tablet breakpoint up, both sit on a single line (search + sort). */
 .ab-tools {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: var(--cad-space-2);
   margin-bottom: var(--cad-space-3);
 }
 
 .ab-tools__search {
-  flex: 1;
   min-width: 0;
   --background: var(--cad-elevated);
   --border-radius: var(--cad-radius);
@@ -16,8 +17,24 @@
 }
 
 .ab-tools__sort {
-  flex-shrink: 0;
-  max-width: 44%;
+  align-self: flex-start;
   color: var(--cad-text-secondary);
   font-family: var(--cad-font-sans);
+}
+
+@media (min-width: 768px) {
+  .ab-tools {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .ab-tools__search {
+    flex: 1;
+  }
+
+  .ab-tools__sort {
+    flex-shrink: 0;
+    align-self: auto;
+    max-width: 44%;
+  }
 }

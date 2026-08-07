@@ -21,10 +21,32 @@
   line-height: 1.5;
 }
 
+/* Facts block: a two-column label/value grid (label muted, value emphasised),
+   each row a "Length · 12 hr 4 min"-style pair. */
+.book-detail__facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--cad-space-1) var(--cad-space-3);
+  margin: 0;
+}
+
+.book-detail__fact {
+  display: contents;
+}
+
+.book-detail__fact dt {
+  margin: 0;
+}
+
+.book-detail__fact dd {
+  margin: 0;
+}
+
 /* Chapter rows: tappable, left-aligned, with breathing room between the number
    and the title/duration stack (the shared track-row__num is centered for the
    album view; here it sits beside a two-line meta block). */
-[data-testid='book-parts'] .track-row {
+[data-testid='book-parts'] .track-row,
+[data-testid='book-chapters'] .track-row {
   border: none;
   background: none;
   cursor: pointer;
@@ -32,7 +54,8 @@
   padding: var(--cad-space-2);
 }
 
-[data-testid='book-parts'] .track-row__num {
+[data-testid='book-parts'] .track-row__num,
+[data-testid='book-chapters'] .track-row__num {
   width: 28px;
   text-align: left;
 }
