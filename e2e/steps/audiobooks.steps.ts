@@ -67,9 +67,35 @@ Then("I see the book's title and a details block", async ({ page }) => {
   expect(await page.getByTestId('book-fact').count()).toBeGreaterThan(0);
 });
 
+When('I play the book from its detail page', async ({ page }) => {
+  // The detail header's primary action starts the whole book (Play/Resume). Wait
+  // for the now-playing bar so the full-player open step has something to expand.
+  const play = page.getByTestId('book-play');
+  await expect(play).toBeVisible({ timeout: DATA_WAIT });
+  await play.click();
+  await expect(page.getByTestId('now-playing-bar')).toBeAttached({ timeout: DATA_WAIT });
+});
+
+Then('I see the playback-speed control', async ({ page }) => {
+  // Books get a speed slider in the player (music does not) — assert it rendered.
+  await expect(page.getByTestId('speed-slider')).toBeVisible({ timeout: DATA_WAIT });
+});
+
+When('I set the playback speed to {float}x', async ({ page }, speed: number) => {
+  const range = page.getByTestId('speed-slider').locator('input[type="range"]');
+  await range.fill(String(speed));
+});
+
+Then('the playback speed reads {string}', async ({ page }, label: string) => {
+  await expect(page.getByTestId('speed-value')).toHaveText(label, { timeout: DATA_WAIT });
+});
+
 Then("I see the book's chapter or part list", async ({ page }) => {
-  // A book lists EITHER its parts (multi-file) OR embedded chapters (single m4b
-  // with markers). Assert at least one such row is shown for the opened book.
+  // A book lists EITHER its parts (multi-file, always shown) OR embedded chapters
+  // (single m4b with markers, behind a collapsed-by-default toggle). Expand the
+  // chapters section first when it's present, then assert at least one row shows.
+  const toggle = page.getByTestId('book-chapters-toggle');
+  if (await toggle.count()) await toggle.first().click();
   const parts = page.getByTestId('book-part');
   const chapters = page.getByTestId('book-chapter');
   await expect
