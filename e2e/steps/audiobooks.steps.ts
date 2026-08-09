@@ -90,6 +90,37 @@ Then('the playback speed reads {string}', async ({ page }, label: string) => {
   await expect(page.getByTestId('speed-value')).toHaveText(label, { timeout: DATA_WAIT });
 });
 
+When('the book plays past its saved-position threshold', async ({ page }) => {
+  // Resume ignores a position under 5s (barely started). Play well past that so a
+  // real, resumable position gets saved. The position is persisted to the server
+  // on the 10s progress tick AND on stop (a reload unmounts → stop-save), so once
+  // the element is comfortably past the threshold there's a position to resume to.
+  await page.waitForFunction(
+    () => {
+      const audio = document.querySelector('audio');
+      return !!audio && !audio.paused && audio.currentTime > 12;
+    },
+    undefined,
+    { timeout: DATA_WAIT },
+  );
+});
+
+Then('the book resumes from where I left off', async ({ page }) => {
+  // After a reload the queue is restored PAUSED (browsers block autoplay), so we
+  // assert on the seeked position, not that it's playing. The resume hook reads
+  // the LIVE server position and seeks there once metadata loads — so currentTime
+  // lands well past the 5s "barely started" threshold, NOT back at 0 (the pre-fix
+  // restart-from-the-beginning bug this scenario guards against).
+  await page.waitForFunction(
+    () => {
+      const audio = document.querySelector('audio');
+      return !!audio && audio.currentTime > 5;
+    },
+    undefined,
+    { timeout: DATA_WAIT },
+  );
+});
+
 Then("I see the book's chapter or part list", async ({ page }) => {
   // A book lists EITHER its parts (multi-file, always shown) OR embedded chapters
   // (single m4b with markers, behind a collapsed-by-default toggle). Expand the
