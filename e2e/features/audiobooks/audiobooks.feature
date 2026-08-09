@@ -29,3 +29,13 @@ Feature: Audiobooks library
     Then I see the playback-speed control
     When I set the playback speed to 1.5x
     Then the playback speed reads "1.5×"
+
+  Scenario: A book resumes where you left off after a reload, not from the start
+    Given I am signed in
+    When I open the Audiobooks tab
+    Then I see the audiobook library with books
+    When I open the first book's detail page
+    And I play the book from its detail page
+    And the book plays past its saved-position threshold
+    And I reload the app
+    Then the book resumes from where I left off
