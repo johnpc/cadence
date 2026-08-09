@@ -11,6 +11,7 @@
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		31C7FB382C2071A57A8C9CBB /* CadenceWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4AA906D0B31C43C856A1AA /* CadenceWatchApp.swift */; };
 		350F3B9DF6F8AF3CD4465228 /* WatchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84EEBC9D31C11133109D470 /* WatchBridge.swift */; };
+		CAD0000300000000000000A3 /* NowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD0000200000000000000A2 /* NowPlayingBridge.swift */; };
 		414C5494E4BBB78C65CEC6AE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5876C6A35F186B54F2470C /* Foundation.framework */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
@@ -98,6 +99,7 @@
 		9360C97C34E467F29E851D74 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A25E2FA59F5BFAF7676520BE /* CadenceWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = CadenceWidget.entitlements; sourceTree = "<group>"; };
 		A84EEBC9D31C11133109D470 /* WatchBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchBridge.swift; sourceTree = "<group>"; };
+		CAD0000200000000000000A2 /* NowPlayingBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingBridge.swift; sourceTree = "<group>"; };
 		ACDF531C157768DA1A056434 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
 				A84EEBC9D31C11133109D470 /* WatchBridge.swift */,
+				CAD0000200000000000000A2 /* NowPlayingBridge.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -439,6 +442,7 @@
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				CAD0000100000000000000A1 /* MainViewController.swift in Sources */,
 				350F3B9DF6F8AF3CD4465228 /* WatchBridge.swift in Sources */,
+				CAD0000300000000000000A3 /* NowPlayingBridge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

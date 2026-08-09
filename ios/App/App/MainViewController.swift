@@ -15,10 +15,19 @@ import WidgetKit
 ///  - "cadenceWatch": now-playing JSON relayed to the paired Apple Watch remote;
 ///    the watch's transport commands come back and become cadence:watch:* DOM
 ///    events on the web player. See src/features/watch/ + WatchBridge.swift.
+///  - "cadenceNowPlaying": now-playing JSON mirrored onto MPNowPlayingInfoCenter +
+///    MPRemoteCommandCenter so Cadence stays the durable OS Now Playing app; the
+///    lock-screen / Bluetooth transport commands come back as cadence:nowplaying:*
+///    DOM events. See src/features/nowplaying/ + NowPlayingBridge.swift.
 class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
 
     /// Relays now-playing state to / commands from the paired Apple Watch.
     private let watch = WatchBridge()
+
+    /// Registers Cadence as the durable OS Now Playing app (MPNowPlayingInfoCenter
+    /// + MPRemoteCommandCenter) so a Bluetooth reconnect resumes THIS app, not
+    /// Apple Podcasts/Music. See NowPlayingBridge.swift.
+    private let nowPlaying = NowPlayingBridge()
 
     /// App Group shared with the widget extension — the ONLY channel between the
     /// app and the widget. Must match the extension's entitlement + the id used
@@ -36,9 +45,14 @@ class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
         controller?.add(self, name: "cadenceAudioSession")
         controller?.add(self, name: "cadenceWidget")
         controller?.add(self, name: "cadenceWatch")
+        controller?.add(self, name: "cadenceNowPlaying")
         // A watch command → the matching DOM event on the web player.
         watch.onCommand = { [weak self] cmd in self?.dispatchWatchCommand(cmd) }
         watch.activate()
+        // A lock-screen / Bluetooth remote command → the matching DOM event.
+        nowPlaying.onCommand = { [weak self] cmd in self?.dispatchNowPlayingCommand(cmd) }
+        nowPlaying.onSeek = { [weak self] seconds in self?.dispatchNowPlayingSeek(seconds) }
+        nowPlaying.activate()
     }
 
     /// Map a watch transport command to the `cadence:watch:*` event the web
@@ -70,9 +84,45 @@ class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
             storeWidgetSnapshot(message.body as? String)
         case "cadenceWatch":
             if let json = message.body as? String { watch.sendState(json) }
+        case "cadenceNowPlaying":
+            updateNowPlaying(message.body as? String)
         default:
             break
         }
+    }
+
+    /// Decode the web player's now-playing JSON and mirror it onto the OS Now
+    /// Playing info center (via NowPlayingBridge). A malformed / missing body is
+    /// ignored — the last good state stays on the lock screen.
+    private func updateNowPlaying(_ json: String?) {
+        guard
+            let json = json,
+            let data = json.data(using: .utf8),
+            let snapshot = try? JSONDecoder().decode(NowPlayingSnapshot.self, from: data)
+        else { return }
+        nowPlaying.update(snapshot)
+    }
+
+    /// Map a native remote-transport command to the `cadence:nowplaying:*` event
+    /// the web player listens for (see src/features/nowplaying/nowPlayingTypes.ts).
+    private func dispatchNowPlayingCommand(_ command: String) {
+        let events: [String: String] = [
+            "play": "cadence:nowplaying:play",
+            "pause": "cadence:nowplaying:pause",
+            "next": "cadence:nowplaying:next",
+            "prev": "cadence:nowplaying:prev",
+        ]
+        guard let evt = events[command] else { return }
+        webView?.evaluateJavaScript("window.dispatchEvent(new Event('\(evt)'))", completionHandler: nil)
+    }
+
+    /// The lock-screen scrubber's absolute seek → a CustomEvent carrying the
+    /// target seconds (useNowPlayingCommands reads `detail`).
+    private func dispatchNowPlayingSeek(_ seconds: Double) {
+        webView?.evaluateJavaScript(
+            "window.dispatchEvent(new CustomEvent('cadence:nowplaying:seek', { detail: \(seconds) }))",
+            completionHandler: nil
+        )
     }
 
     /// Persist the "Continue listening" snapshot to the shared App Group and ask

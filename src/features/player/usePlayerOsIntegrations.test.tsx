@@ -3,8 +3,10 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./usePlayerIntegrations', () => ({ usePlayerIntegrations: vi.fn() }));
 vi.mock('../watch/useWatchRemote', () => ({ useWatchRemote: vi.fn() }));
+vi.mock('../nowplaying/useNativeNowPlaying', () => ({ useNativeNowPlaying: vi.fn() }));
 import { usePlayerIntegrations } from './usePlayerIntegrations';
 import { useWatchRemote } from '../watch/useWatchRemote';
+import { useNativeNowPlaying } from '../nowplaying/useNativeNowPlaying';
 import { usePlayerOsIntegrations } from './usePlayerOsIntegrations';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -24,6 +26,19 @@ describe('usePlayerOsIntegrations', () => {
     };
     renderHook(() => usePlayerOsIntegrations(track, true, qc, ac, 5, 100));
     expect(usePlayerIntegrations).toHaveBeenCalledWith(track, true, qc, ac, 5, 100);
+    expect(useNativeNowPlaying).toHaveBeenCalledWith(
+      expect.objectContaining({
+        current: track,
+        isPlaying: true,
+        position: 5,
+        duration: 100,
+        play: ac.play,
+        pause: ac.pause,
+        next: qc.next,
+        prev: qc.prev,
+        seek: ac.seek,
+      }),
+    );
     expect(useWatchRemote).toHaveBeenCalledWith(
       expect.objectContaining({
         current: track,
