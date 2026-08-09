@@ -42,4 +42,25 @@ describe('useMediaSessionSync', () => {
     expect(setActionHandler).toHaveBeenCalled();
     expect(setPositionState).toHaveBeenCalledWith({ duration: 100, position: 30 });
   });
+
+  it('STANDS DOWN when the native Now Playing bridge owns the OS surface', () => {
+    // On the native app the MPNowPlayingInfoCenter bridge is the single owner, so
+    // the WKWebView's MediaSession must publish nothing (no two owners answering
+    // the same lock-screen button).
+    (window as unknown as { webkit?: unknown }).webkit = {
+      messageHandlers: { cadenceNowPlaying: { postMessage: vi.fn() } },
+    };
+    const setActionHandler = vi.fn();
+    const setPositionState = vi.fn();
+    Object.defineProperty(navigator, 'mediaSession', {
+      value: { metadata: null, playbackState: 'none', setActionHandler, setPositionState },
+      configurable: true,
+    });
+    renderHook(() => useMediaSessionSync(track, true, handlers, 30, 100));
+    expect(navigator.mediaSession.metadata).toBeNull();
+    expect(navigator.mediaSession.playbackState).toBe('none');
+    expect(setActionHandler).not.toHaveBeenCalled();
+    expect(setPositionState).not.toHaveBeenCalled();
+    delete (window as unknown as { webkit?: unknown }).webkit;
+  });
 });
