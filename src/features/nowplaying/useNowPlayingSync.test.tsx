@@ -21,13 +21,13 @@ afterEach(() => {
 describe('useNowPlayingSync', () => {
   it('does nothing off native (no bridge)', () => {
     vi.mocked(hasNowPlayingBridge).mockReturnValue(false);
-    renderHook(() => useNowPlayingSync(track, true, 10, 200));
+    renderHook(() => useNowPlayingSync(track, true, 10, 200, 0, 5));
     expect(pushNowPlayingState).not.toHaveBeenCalled();
   });
 
-  it('pushes now-playing state on native, position rounded', () => {
+  it('pushes now-playing state on native, position rounded, with queue index/count', () => {
     vi.mocked(hasNowPlayingBridge).mockReturnValue(true);
-    renderHook(() => useNowPlayingSync(track, true, 10.4, 200));
+    renderHook(() => useNowPlayingSync(track, true, 10.4, 200, 2, 7));
     expect(pushNowPlayingState).toHaveBeenCalledWith({
       title: 'Song',
       artist: 'The Band',
@@ -37,20 +37,31 @@ describe('useNowPlayingSync', () => {
       position: 10,
       duration: 200,
       hasTrack: true,
+      queueIndex: 2,
+      queueCount: 7,
     });
   });
 
   it('clears to an empty state when no track is loaded', () => {
     vi.mocked(hasNowPlayingBridge).mockReturnValue(true);
-    renderHook(() => useNowPlayingSync(null, false, 0, 0));
+    renderHook(() => useNowPlayingSync(null, false, 0, 0, 0, 0));
     expect(pushNowPlayingState).toHaveBeenCalledWith(
-      expect.objectContaining({ title: '', artUrl: null, hasTrack: false }),
+      expect.objectContaining({ title: '', artUrl: null, hasTrack: false, queueCount: 0 }),
     );
+  });
+
+  it('re-pushes when the queue index changes (next track), even at the same second', () => {
+    vi.mocked(hasNowPlayingBridge).mockReturnValue(true);
+    const { rerender } = renderHook(({ i }) => useNowPlayingSync(track, true, 10, 200, i, 7), {
+      initialProps: { i: 2 },
+    });
+    rerender({ i: 3 }); // advanced to the next track — index change must push
+    expect(pushNowPlayingState).toHaveBeenCalledTimes(2);
   });
 
   it('does not re-push identical state (dedup by value)', () => {
     vi.mocked(hasNowPlayingBridge).mockReturnValue(true);
-    const { rerender } = renderHook(({ p }) => useNowPlayingSync(track, true, p, 200), {
+    const { rerender } = renderHook(({ p }) => useNowPlayingSync(track, true, p, 200, 0, 5), {
       initialProps: { p: 10.1 },
     });
     // Same rounded second → no second push.

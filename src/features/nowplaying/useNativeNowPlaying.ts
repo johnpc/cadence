@@ -9,6 +9,10 @@ interface NowPlayingDeps {
   isPlaying: boolean;
   position: number;
   duration: number;
+  /** Current track's queue index + the queue length — published so iOS shows the
+   * prev/next TRACK buttons (see NowPlayingState.queueIndex/queueCount). */
+  queueIndex: number;
+  queueCount: number;
   play: () => void;
   pause: () => void;
   next: () => void;
@@ -25,7 +29,7 @@ interface NowPlayingDeps {
  * no-op off native iOS (no bridge / events never fire).
  */
 export function useNativeNowPlaying(d: NowPlayingDeps): void {
-  useNowPlayingSync(d.current, d.isPlaying, d.position, d.duration);
+  useNowPlayingSync(d.current, d.isPlaying, d.position, d.duration, d.queueIndex, d.queueCount);
   useNowPlayingCommands({
     play: d.play,
     pause: d.pause,

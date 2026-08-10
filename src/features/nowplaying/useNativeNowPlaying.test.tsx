@@ -20,6 +20,8 @@ describe('useNativeNowPlaying', () => {
       isPlaying: true,
       position: 5,
       duration: 100,
+      queueIndex: 1,
+      queueCount: 4,
       play: vi.fn(),
       pause: vi.fn(),
       next: vi.fn(),
@@ -27,7 +29,7 @@ describe('useNativeNowPlaying', () => {
       seek: vi.fn(),
     };
     renderHook(() => useNativeNowPlaying(deps));
-    expect(useNowPlayingSync).toHaveBeenCalledWith(track, true, 5, 100);
+    expect(useNowPlayingSync).toHaveBeenCalledWith(track, true, 5, 100, 1, 4);
     expect(useNowPlayingCommands).toHaveBeenCalledWith(
       expect.objectContaining({ play: deps.play, pause: deps.pause, seek: deps.seek }),
     );

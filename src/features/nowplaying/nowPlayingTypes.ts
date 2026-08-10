@@ -33,6 +33,12 @@ export interface NowPlayingState {
   duration: number;
   /** True when a track is loaded — native clears Now Playing when false. */
   hasTrack: boolean;
+  /** The current track's 0-based index in the queue and the queue's total length.
+   * Native publishes these as MPNowPlayingInfoPropertyPlaybackQueueIndex/Count so
+   * iOS/CarPlay/Bluetooth shows the prev/next TRACK buttons — without a queue count
+   * some heads gray them out (the "lost next/prev" symptom). */
+  queueIndex: number;
+  queueCount: number;
 }
 
 /** Transport commands native (MPRemoteCommandCenter) can send back to the player. */

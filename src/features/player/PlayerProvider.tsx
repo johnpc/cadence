@@ -70,8 +70,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   });
 
   const audioControls = { toggle, play, pause, seek, seekBy, nudgeVolume, toggleMute };
-  // OS integrations sharing now-playing state: MediaSession + Apple Watch remote.
-  usePlayerOsIntegrations(current, isPlaying, qc, audioControls, position, duration);
+  // OS integrations (MediaSession / native Now Playing / Watch); queue → prev/next.
+  usePlayerOsIntegrations(current, isPlaying, qc, audioControls, position, duration, qh.queue);
 
   const value = usePlayerValue(qc, current, {
     isPlaying,
