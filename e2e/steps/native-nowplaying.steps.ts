@@ -40,7 +40,7 @@ Given('the native now-playing bridge is present', async ({ page }) => {
 });
 
 When('I play a playlist', async ({ page }) => {
-  await navigate(page, 'Library');
+  await navigate(page, 'Your Library');
   const rows = page.getByTestId('library-list').getByTestId('library-row');
   await expect(rows.first()).toBeVisible({ timeout: DATA_WAIT });
   const row = rows.filter({ hasNotText: 'Liked Songs' }).first();
