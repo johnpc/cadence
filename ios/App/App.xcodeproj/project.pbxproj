@@ -11,8 +11,9 @@
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		31C7FB382C2071A57A8C9CBB /* CadenceWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4AA906D0B31C43C856A1AA /* CadenceWatchApp.swift */; };
 		350F3B9DF6F8AF3CD4465228 /* WatchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84EEBC9D31C11133109D470 /* WatchBridge.swift */; };
-		CAD0000300000000000000A3 /* NowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD0000200000000000000A2 /* NowPlayingBridge.swift */; };
+		3E3056C85FFA6B3F9CA84220 /* NowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A59A34A80A879CE4B8DEE72 /* NowPlayingBridge.swift */; };
 		414C5494E4BBB78C65CEC6AE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5876C6A35F186B54F2470C /* Foundation.framework */; };
+		4D978A0E5C6F38FDAC29B74A /* NowPlayingBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0163BDF99D0259F77F142360 /* NowPlayingBridgeTests.swift */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
 		504EC30D1FED79650016851F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30B1FED79650016851F /* Main.storyboard */; };
@@ -29,6 +30,8 @@
 		A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */; };
 		A31C77D6188325D4B1AE2AC4 /* CadenceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3F29B5EA859F1ED43AB847 /* CadenceWidget.swift */; };
 		CAD0000100000000000000A1 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD0000100000000000000A2 /* MainViewController.swift */; };
+		CAD0000300000000000000A3 /* NowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD0000200000000000000A2 /* NowPlayingBridge.swift */; };
+		D6ACF6F3D9EB618CD7B39C59 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5876C6A35F186B54F2470C /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +77,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0163BDF99D0259F77F142360 /* NowPlayingBridgeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NowPlayingBridgeTests.swift; path = AppTests/NowPlayingBridgeTests.swift; sourceTree = "<group>"; };
 		171589B31ECA1A2069F672D1 /* CadenceWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CadenceWatchApp.swift; sourceTree = "<group>"; };
 		2A3F29B5EA859F1ED43AB847 /* CadenceWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CadenceWidget.swift; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -94,24 +98,34 @@
 		5B014422AD610BAAB3D26A69 /* NowPlayingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
 		6A4AA906D0B31C43C856A1AA /* CadenceWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CadenceWatchApp.swift; sourceTree = "<group>"; };
 		7881036B54209EC3C031AB69 /* WatchConnector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchConnector.swift; sourceTree = "<group>"; };
+		7A59A34A80A879CE4B8DEE72 /* NowPlayingBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NowPlayingBridge.swift; path = App/NowPlayingBridge.swift; sourceTree = "<group>"; };
 		7E778FFB7EE04E8CF416CCF1 /* NowPlaying.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlaying.swift; sourceTree = "<group>"; };
 		88DBF60A5C0D1460BB24F5C5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9360C97C34E467F29E851D74 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A25E2FA59F5BFAF7676520BE /* CadenceWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = CadenceWidget.entitlements; sourceTree = "<group>"; };
 		A84EEBC9D31C11133109D470 /* WatchBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchBridge.swift; sourceTree = "<group>"; };
-		CAD0000200000000000000A2 /* NowPlayingBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingBridge.swift; sourceTree = "<group>"; };
 		ACDF531C157768DA1A056434 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		B7C3A3E40040E3F87E2AB0E7 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C4C0A762CC16E55DEE2EFC0E /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CAD0000100000000000000A2 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		CAD0000200000000000000A2 /* NowPlayingBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingBridge.swift; sourceTree = "<group>"; };
 		E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CadenceWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F05076A09667A7FF9215BC3C /* AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F66FECF45855AB0C18B6DF52 /* CadenceWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CadenceWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		24710CC9DEC15E358D43EC17 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6ACF6F3D9EB618CD7B39C59 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		335F31EE134DEA783BB74BAE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -159,6 +173,7 @@
 				746E33964289CC8FF9ED886F /* CadenceWidget */,
 				8BD602D278B18D1481F123B7 /* CadenceWatch */,
 				865D8728F10CE1CF1D0C06E5 /* CadenceWatch */,
+				CCF100514F8914F0F3B6C052 /* AppTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -169,6 +184,7 @@
 				519962128EBC80DE63B1C0F1 /* CadenceWidget.appex */,
 				E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */,
 				F66FECF45855AB0C18B6DF52 /* CadenceWatch.app */,
+				F05076A09667A7FF9215BC3C /* AppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -247,6 +263,15 @@
 			name = watchOS;
 			sourceTree = "<group>";
 		};
+		CCF100514F8914F0F3B6C052 /* AppTests */ = {
+			isa = PBXGroup;
+			children = (
+				7A59A34A80A879CE4B8DEE72 /* NowPlayingBridge.swift */,
+				0163BDF99D0259F77F142360 /* NowPlayingBridgeTests.swift */,
+			);
+			name = AppTests;
+			sourceTree = "<group>";
+		};
 		F3EDF254EDFA4E67967221A9 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -316,6 +341,23 @@
 			productReference = F66FECF45855AB0C18B6DF52 /* CadenceWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B0B4B5E9D85BDC74CAAA2BB0 /* AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F9AFBA9810BC1B94DE8D9E85 /* Build configuration list for PBXNativeTarget "AppTests" */;
+			buildPhases = (
+				BCBC0AE58DFD615DCAD65C98 /* Sources */,
+				24710CC9DEC15E358D43EC17 /* Frameworks */,
+				CEFD08CFC452461E64E571C7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AppTests;
+			productName = AppTests;
+			productReference = F05076A09667A7FF9215BC3C /* AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -348,6 +390,7 @@
 				504EC3031FED79650016851F /* App */,
 				68D6362D61C37F9DC6769C1C /* CadenceWidget */,
 				AF445D8D2B8ED166A97AEACF /* CadenceWatch */,
+				B0B4B5E9D85BDC74CAAA2BB0 /* AppTests */,
 			);
 		};
 /* End PBXProject section */
@@ -378,6 +421,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				6D1CEC5F2A9B647AABD214B2 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEFD08CFC452461E64E571C7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -463,6 +513,15 @@
 				5E962226B0035BCE6FA0302C /* NowPlayingView.swift in Sources */,
 				8081D63667A22DC11D497D8B /* WatchConnector.swift in Sources */,
 				68EC28C6B88A30C37E30B3FB /* NowPlaying.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BCBC0AE58DFD615DCAD65C98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3E3056C85FFA6B3F9CA84220 /* NowPlayingBridge.swift in Sources */,
+				4D978A0E5C6F38FDAC29B74A /* NowPlayingBridgeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -747,6 +806,35 @@
 			};
 			name = Release;
 		};
+		B3B8C72CC0ACA6B130356077 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.johncorser.cadence.AppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D12BC57387987F7766468446 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.johncorser.cadence.AppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -782,6 +870,15 @@
 			buildConfigurations = (
 				504EC3171FED79650016851F /* Debug */,
 				504EC3181FED79650016851F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F9AFBA9810BC1B94DE8D9E85 /* Build configuration list for PBXNativeTarget "AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D12BC57387987F7766468446 /* Release */,
+				B3B8C72CC0ACA6B130356077 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

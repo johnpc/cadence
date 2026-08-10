@@ -24,7 +24,8 @@ describe('usePlayerOsIntegrations', () => {
       nudgeVolume: vi.fn(),
       toggleMute: vi.fn(),
     };
-    renderHook(() => usePlayerOsIntegrations(track, true, qc, ac, 5, 100));
+    const queue = { tracks: [track, track, track, track, track, track], index: 2 };
+    renderHook(() => usePlayerOsIntegrations(track, true, qc, ac, 5, 100, queue));
     expect(usePlayerIntegrations).toHaveBeenCalledWith(track, true, qc, ac, 5, 100);
     expect(useNativeNowPlaying).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -32,6 +33,8 @@ describe('usePlayerOsIntegrations', () => {
         isPlaying: true,
         position: 5,
         duration: 100,
+        queueIndex: 2,
+        queueCount: 6,
         play: ac.play,
         pause: ac.pause,
         next: qc.next,

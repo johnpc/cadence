@@ -82,6 +82,44 @@ jobs:
           path: coverage/
           retention-days: 7
 
+  ios-tests:
+    # Native Swift unit tests for the iOS now-playing bridge (MPNowPlayingInfoCenter
+    # + MPRemoteCommandCenter). Host-less (compiles NowPlayingBridge.swift straight
+    # into the bundle — no Capacitor/Pods link), so it's a quick simulator run that
+    # guards the durable-Now-Playing + prev/next-track behavior that can't be caught
+    # by the JS suite. Complements the native-playback Gherkin area (JS half).
+    name: iOS Swift Tests
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      # The Podfile references pods by path under node_modules/@capacitor/*, so the
+      # JS deps must be present before pod install / the xcodebuild resolves them.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install CocoaPods
+        run: cd ios/App && pod install
+
+      # Add the AppTests target + shared scheme to the (generated) xcodeproj.
+      # Idempotent, so a committed target is fine too.
+      - name: Ensure AppTests target
+        run: cd ios/App && ruby add_test_target.rb
+
+      - name: Run Swift unit tests
+        run: |
+          cd ios/App
+          xcodebuild test \
+            -workspace App.xcworkspace \
+            -scheme AppTests \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -quiet
+
   acceptance:
     # One job per feature area, each its own independent check. Splitting isolates
     # a flaky area from the rest. Tests hit the real Jellyfin server (base URL is
@@ -127,6 +165,8 @@ jobs:
             paths: .features-gen/e2e/features/offline
           - name: audiobooks
             paths: .features-gen/e2e/features/audiobooks
+          - name: native-playback
+            paths: .features-gen/e2e/features/native-playback
     steps:
       - uses: actions/checkout@v5
 

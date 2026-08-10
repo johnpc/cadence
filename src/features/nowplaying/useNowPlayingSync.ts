@@ -17,6 +17,8 @@ export function useNowPlayingSync(
   isPlaying: boolean,
   position: number,
   duration: number,
+  queueIndex: number,
+  queueCount: number,
 ): void {
   const native = hasNowPlayingBridge();
   const last = useRef<string>('');
@@ -32,10 +34,12 @@ export function useNowPlayingSync(
       position: Math.round(position),
       duration: Math.round(duration),
       hasTrack: !!current,
+      queueIndex,
+      queueCount,
     };
     const key = JSON.stringify(state);
     if (key === last.current) return;
     last.current = key;
     pushNowPlayingState(state);
-  }, [native, current, isPlaying, position, duration]);
+  }, [native, current, isPlaying, position, duration, queueIndex, queueCount]);
 }

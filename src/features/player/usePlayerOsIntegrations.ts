@@ -1,6 +1,7 @@
 import { usePlayerIntegrations } from './usePlayerIntegrations';
 import { useWatchRemote } from '../watch/useWatchRemote';
 import { useNativeNowPlaying } from '../nowplaying/useNativeNowPlaying';
+import type { QueueState } from './queue';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 interface QueueControls {
@@ -40,6 +41,7 @@ export function usePlayerOsIntegrations(
   ac: AudioControls,
   position: number,
   duration: number,
+  queue: QueueState,
 ): void {
   usePlayerIntegrations(current, isPlaying, qc, ac, position, duration);
   useNativeNowPlaying({
@@ -47,6 +49,8 @@ export function usePlayerOsIntegrations(
     isPlaying,
     position,
     duration,
+    queueIndex: queue.index,
+    queueCount: queue.tracks.length,
     play: ac.play,
     pause: ac.pause,
     next: qc.next,

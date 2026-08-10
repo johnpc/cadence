@@ -11,6 +11,8 @@ const state: NowPlayingState = {
   position: 12,
   duration: 200,
   hasTrack: true,
+  queueIndex: 0,
+  queueCount: 3,
 };
 
 afterEach(() => {

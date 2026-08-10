@@ -41,6 +41,12 @@ final class NowPlayingBridge: NSObject {
         }
         center.nextTrackCommand.addTarget { [weak self] _ in self?.forward("next") ?? .commandFailed }
         center.previousTrackCommand.addTarget { [weak self] _ in self?.forward("prev") ?? .commandFailed }
+        // Explicitly enable track skip. addTarget enables a command implicitly, but
+        // asserting it here guards against any later OS/state reset silently
+        // disabling it — the skip buttons are the whole point of a music player's
+        // lock screen, and we saw them disappear on device.
+        center.nextTrackCommand.isEnabled = true
+        center.previousTrackCommand.isEnabled = true
         // Absolute scrubber seek (lock screen / CarPlay).
         center.changePlaybackPositionCommand.addTarget { [weak self] event in
             guard let e = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
@@ -79,6 +85,12 @@ final class NowPlayingBridge: NSObject {
             MPNowPlayingInfoPropertyElapsedPlaybackTime: state.position,
             // Rate drives the lock screen's interpolated scrubber between updates.
             MPNowPlayingInfoPropertyPlaybackRate: state.isPlaying ? 1.0 : 0.0,
+            // Queue position/length: without these iOS (and especially CarPlay /
+            // some Bluetooth heads) treats the app as having no queue and GRAYS OUT
+            // the prev/next-track buttons — the "lost next/prev" symptom. The web
+            // player is the source of truth for the queue; we just mirror its shape.
+            MPNowPlayingInfoPropertyPlaybackQueueCount: state.queueCount,
+            MPNowPlayingInfoPropertyPlaybackQueueIndex: state.queueIndex,
         ]
         if let art = currentArtwork(for: state.artUrl) { info[MPMediaItemPropertyArtwork] = art }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
@@ -130,4 +142,6 @@ struct NowPlayingSnapshot: Decodable {
     let position: Double
     let duration: Double
     let hasTrack: Bool
+    let queueIndex: Int
+    let queueCount: Int
 }
