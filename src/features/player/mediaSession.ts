@@ -7,6 +7,7 @@
 import { isIos } from '../../lib/platform';
 import { artistLine } from './playerFormat';
 import { artworkFor } from './mediaArtwork';
+import { log } from '../../lib/diagnostics/diagnosticsStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 export interface MediaSessionHandlers {
@@ -47,11 +48,19 @@ const SEEK_STEP = 10; // seconds, for the ±skip lock-screen buttons
 export function bindMediaSessionHandlers(h: MediaSessionHandlers): void {
   if (!('mediaSession' in navigator)) return;
   const ms = navigator.mediaSession;
-  ms.setActionHandler('play', h.play);
-  ms.setActionHandler('pause', h.pause);
-  ms.setActionHandler('nexttrack', h.next);
-  ms.setActionHandler('previoustrack', h.prev);
+  // Log every command BEFORE acting (mirrors useNowPlayingCommands): the device
+  // diagnostics must show which owner (web MediaSession vs native bridge) a
+  // lock-screen/Bluetooth press actually reached.
+  const logged = (cmd: string, fn: () => void) => () => {
+    log('remote-command', cmd, { via: 'mediasession' });
+    fn();
+  };
+  ms.setActionHandler('play', logged('play', h.play));
+  ms.setActionHandler('pause', logged('pause', h.pause));
+  ms.setActionHandler('nexttrack', logged('next', h.next));
+  ms.setActionHandler('previoustrack', logged('prev', h.prev));
   ms.setActionHandler('seekto', (e) => {
+    log('remote-command', 'seek', { via: 'mediasession', to: String(e.seekTime) });
     if (typeof e.seekTime === 'number') h.seek(e.seekTime);
   });
   // iOS's lock screen shows EITHER prev/next-track OR the ±skip (seek) buttons,

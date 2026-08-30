@@ -14,13 +14,17 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * setPositionState — they tick fast, but it's a cheap native call and no React
  * re-render happens here.
  *
- * STANDS DOWN on the native iOS app: when the native Now Playing bridge is
- * present it owns MPNowPlayingInfoCenter + MPRemoteCommandCenter (the durable
- * registration that survives pause/background and wins the Bluetooth-reconnect
- * resume). Publishing to the WKWebView's MediaSession too would give the OS two
- * owners answering the same lock-screen button — so on native we skip entirely
- * and let the native bridge be the single source. The PWA (no bridge) is
- * unchanged. */
+ * On the native iOS app, METADATA publishing stands down: the native Now
+ * Playing bridge owns MPNowPlayingInfoCenter (the durable registration that
+ * survives pause/background and wins the Bluetooth-reconnect resume), and the
+ * web MediaSession writing metadata/position too would clobber it. But the
+ * HANDLERS stay bound even on native: WebKit auto-registers its own Now Playing
+ * claim whenever the <audio> element plays (that can't be disabled), so the OS
+ * has two candidate owners and races them — and when WebKit's claim wins, the
+ * lock-screen buttons route to the WEB MediaSession handlers. Leaving those
+ * unbound made the buttons land on nothing (the "next/prev sometimes dead"
+ * bug). Both owners drive the same player and iOS delivers each press to only
+ * one of them, so double handling can't occur. */
 export function useMediaSessionSync(
   current: JellyfinItem | null,
   isPlaying: boolean,
@@ -38,9 +42,8 @@ export function useMediaSessionSync(
     setPlaybackState(isPlaying);
   }, [native, isPlaying]);
   useEffect(() => {
-    if (native) return;
     bindMediaSessionHandlers(handlers);
-  }, [native, handlers]);
+  }, [handlers]);
   useEffect(() => {
     if (native) return;
     setPositionState(position, duration);

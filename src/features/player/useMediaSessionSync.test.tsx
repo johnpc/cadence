@@ -43,10 +43,12 @@ describe('useMediaSessionSync', () => {
     expect(setPositionState).toHaveBeenCalledWith({ duration: 100, position: 30 });
   });
 
-  it('STANDS DOWN when the native Now Playing bridge owns the OS surface', () => {
-    // On the native app the MPNowPlayingInfoCenter bridge is the single owner, so
-    // the WKWebView's MediaSession must publish nothing (no two owners answering
-    // the same lock-screen button).
+  it('publishes no metadata but STILL binds handlers when native owns Now Playing', () => {
+    // On the native app MPNowPlayingInfoCenter owns the metadata (publishing here
+    // would clobber it) — but WebKit auto-registers its own Now Playing claim
+    // whenever the <audio> plays, and when that claim wins the race the lock-screen
+    // buttons route to the WEB MediaSession. Handlers must stay bound so those
+    // presses land on a live player action instead of nothing.
     (window as unknown as { webkit?: unknown }).webkit = {
       messageHandlers: { cadenceNowPlaying: { postMessage: vi.fn() } },
     };
@@ -59,7 +61,7 @@ describe('useMediaSessionSync', () => {
     renderHook(() => useMediaSessionSync(track, true, handlers, 30, 100));
     expect(navigator.mediaSession.metadata).toBeNull();
     expect(navigator.mediaSession.playbackState).toBe('none');
-    expect(setActionHandler).not.toHaveBeenCalled();
+    expect(setActionHandler).toHaveBeenCalled();
     expect(setPositionState).not.toHaveBeenCalled();
     delete (window as unknown as { webkit?: unknown }).webkit;
   });
