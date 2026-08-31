@@ -6,7 +6,6 @@ import {
   setPositionState,
   type MediaSessionHandlers,
 } from './mediaSession';
-import { hasNowPlayingBridge } from '../nowplaying/nowPlayingBridge';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** Keep the OS now-playing UI in sync with the player, and bind its controls.
@@ -14,17 +13,19 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  * setPositionState — they tick fast, but it's a cheap native call and no React
  * re-render happens here.
  *
- * On the native iOS app, METADATA publishing stands down: the native Now
- * Playing bridge owns MPNowPlayingInfoCenter (the durable registration that
- * survives pause/background and wins the Bluetooth-reconnect resume), and the
- * web MediaSession writing metadata/position too would clobber it. But the
- * HANDLERS stay bound even on native: WebKit auto-registers its own Now Playing
- * claim whenever the <audio> element plays (that can't be disabled), so the OS
- * has two candidate owners and races them — and when WebKit's claim wins, the
- * lock-screen buttons route to the WEB MediaSession handlers. Leaving those
- * unbound made the buttons land on nothing (the "next/prev sometimes dead"
- * bug). Both owners drive the same player and iOS delivers each press to only
- * one of them, so double handling can't occur. */
+ * Publishes EVERYTHING even on the native iOS app (where NowPlayingBridge also
+ * writes MPNowPlayingInfoCenter). An app has one Now Playing surface and BOTH
+ * writers hit it: WebKit auto-writes whenever the <audio> plays and that cannot
+ * be disabled. The previous "stand down on native" made WebKit's write SPARSE
+ * (no metadata, no state, no handlers' worth of context) — so when it landed
+ * after the native bridge's full dict, the lock screen lost the queue fields
+ * and hid next/prev entirely (observed on device: no skip buttons, zero
+ * remote-command events). Publishing fully from the web side too means
+ * whichever write lands last, the registration is complete: correct title/art,
+ * live skip handlers, a scrubber. Both writers describe the SAME player state,
+ * so their racing is invisible; each button press is delivered once. The
+ * native bridge still provides the durable registration that survives
+ * pause/background and wins the Bluetooth-reconnect resume. */
 export function useMediaSessionSync(
   current: JellyfinItem | null,
   isPlaying: boolean,
@@ -32,20 +33,16 @@ export function useMediaSessionSync(
   position: number,
   duration: number,
 ) {
-  const native = hasNowPlayingBridge();
   useEffect(() => {
-    if (native) return;
     setNowPlaying(current);
-  }, [native, current]);
+  }, [current]);
   useEffect(() => {
-    if (native) return;
     setPlaybackState(isPlaying);
-  }, [native, isPlaying]);
+  }, [isPlaying]);
   useEffect(() => {
     bindMediaSessionHandlers(handlers);
   }, [handlers]);
   useEffect(() => {
-    if (native) return;
     setPositionState(position, duration);
-  }, [native, position, duration]);
+  }, [position, duration]);
 }
