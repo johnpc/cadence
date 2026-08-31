@@ -88,6 +88,28 @@ final class NowPlayingBridgeTests: XCTestCase {
         XCTAssertFalse(center.skipBackwardCommand.isEnabled)
     }
 
+    func testEveryUpdateReassertsTrackSkipOverIntervalSkip() {
+        // WebKit re-enables the ±seek commands on the SHARED command center every
+        // time its media session takes over (each <audio> play), and iOS prefers
+        // seek buttons over next/prev when they're enabled — the "±10s instead of
+        // track skip" lock-screen regression. A one-time disable in activate() is
+        // not durable; every state push must re-assert the preference.
+        bridge.activate()
+        let center = MPRemoteCommandCenter.shared()
+        // Simulate WebKit flipping the commands after activation.
+        center.skipForwardCommand.isEnabled = true
+        center.skipBackwardCommand.isEnabled = true
+        center.nextTrackCommand.isEnabled = false
+        center.previousTrackCommand.isEnabled = false
+
+        bridge.update(snapshot())
+
+        XCTAssertTrue(center.nextTrackCommand.isEnabled)
+        XCTAssertTrue(center.previousTrackCommand.isEnabled)
+        XCTAssertFalse(center.skipForwardCommand.isEnabled)
+        XCTAssertFalse(center.skipBackwardCommand.isEnabled)
+    }
+
     func testSnapshotDecodesFromWebPayload() throws {
         // The exact JSON shape the web layer posts (see nowPlayingTypes.ts).
         let json = """
