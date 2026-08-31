@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { usePlaybackHandlers } from './usePlaybackHandlers';
+import { takePendingSeek } from './pendingSeek';
 import type { usePlayerQueue } from './usePlayerQueue';
 
 type QueueHook = ReturnType<typeof usePlayerQueue>;
@@ -93,6 +94,40 @@ describe('usePlaybackHandlers', () => {
     expect(requestReload).toHaveBeenCalledWith('a'); // the current track id
     expect(toast).toHaveBeenCalledWith('Trouble playing that — retrying…');
     expect(qh.next).not.toHaveBeenCalled();
+  });
+
+  it('onError preserves the playback position across the reload (pendingSeek)', () => {
+    // The reload path resets the element to 0 (startPlayback) — a stall deep in
+    // an audiobook must come back at the same spot, not the start, or the 10s
+    // progress tick persists 0 to the server and the place is lost for good.
+    const qh = stubQueue();
+    const requestReload = vi.fn().mockReturnValue(true);
+    const ref = createRef<HTMLAudioElement>();
+    (ref as { current: HTMLAudioElement }).current = {
+      paused: false,
+      currentTime: 4321,
+    } as HTMLAudioElement;
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, ref, vi.fn(), undefined, requestReload),
+    );
+    result.current.onError();
+    expect(takePendingSeek('a')).toBe(4321);
+  });
+
+  it('onError leaves NO pending seek when the track is skipped (budget spent)', () => {
+    const qh = stubQueue();
+    const requestReload = vi.fn().mockReturnValue(false);
+    const ref = createRef<HTMLAudioElement>();
+    (ref as { current: HTMLAudioElement }).current = {
+      paused: false,
+      currentTime: 4321,
+    } as HTMLAudioElement;
+    const { result } = renderHook(() =>
+      usePlaybackHandlers(qh, ref, vi.fn(), undefined, requestReload),
+    );
+    result.current.onError();
+    // A stale seek must not fire on a later deliberate replay of the track.
+    expect(takePendingSeek('a')).toBeNull();
   });
 
   it('onError skips once the retry budget is spent (requestReload → false)', () => {

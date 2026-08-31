@@ -129,4 +129,24 @@ describe('useAudiobookResume', () => {
     // consumed
     expect(takePendingSeek('b')).toBeNull();
   });
+
+  it('re-arms on a reload of the SAME track so the saved position is restored', () => {
+    // A stall/error reload re-derives the src for the same track: the error
+    // handler stashes the pre-reload position as a pending seek and bumps the
+    // reload nonce. The one-shot `done` latch from the first load must not
+    // swallow that restore.
+    const audio = fakeAudio(1);
+    const item = book(0);
+    const { rerender } = renderHook(
+      ({ nonce }) => {
+        const ref = useRef<HTMLAudioElement | null>(audio);
+        useAudiobookResume(ref, item, nonce);
+      },
+      { initialProps: { nonce: 0 } },
+    );
+    // The reload wiped the element to 0; the handler saved where we were.
+    setPendingSeek('b', 4321);
+    rerender({ nonce: 1 });
+    expect(audio.currentTime).toBe(4321);
+  });
 });
