@@ -78,13 +78,18 @@ describe('mediaSession', () => {
     expect(navigator.mediaSession.playbackState).toBe('paused');
   });
 
-  it('binds the transport + seek handlers', () => {
+  it('binds the transport + seek handlers (wrapped to log the remote command)', () => {
     const handlers = { play: vi.fn(), pause: vi.fn(), next: vi.fn(), prev: vi.fn(), seek: vi.fn() };
     bindMediaSessionHandlers(handlers);
     const set = navigator.mediaSession.setActionHandler as ReturnType<typeof vi.fn>;
-    expect(set).toHaveBeenCalledWith('play', handlers.play);
-    expect(set).toHaveBeenCalledWith('nexttrack', handlers.next);
-    // seekto/seekbackward/seekforward are wired (as functions, not the raw fn).
+    // Every handler is a logging wrapper (diagnostics show which owner a
+    // lock-screen press reached), so assert it CALLS THROUGH, not identity.
+    const bound = (action: string) =>
+      set.mock.calls.find((c) => c[0] === action)?.[1] as (() => void) | undefined;
+    bound('play')?.();
+    expect(handlers.play).toHaveBeenCalled();
+    bound('nexttrack')?.();
+    expect(handlers.next).toHaveBeenCalled();
     for (const action of ['seekto', 'seekbackward', 'seekforward']) {
       expect(set.mock.calls.some((c) => c[0] === action && typeof c[1] === 'function')).toBe(true);
     }

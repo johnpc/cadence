@@ -30,22 +30,39 @@ UID_=$(printf '%s' "$AUTH" | python3 -c 'import sys,json;print(json.load(sys.std
 if [ -z "$TOK" ]; then echo "seed: auth failed — skipping (tests will retry)"; exit 0; fi
 WTOK="$XEMBY, Token=\"$TOK\""
 
-owned_count() {
-  curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Playlist&Recursive=true&userId=$UID_&Fields=CanDelete&Limit=200" \
-    -H "X-Emby-Authorization: $WTOK" \
-    | python3 -c 'import sys,json;print(len([x for x in json.load(sys.stdin).get("Items",[]) if x.get("CanDelete")]))' 2>/dev/null || echo 0
+# Owned playlists split by content. EMPTY owned playlists are poison, not just
+# useless: a past run created one while its song-fetch failed, it sorts first
+# under the library's "Recently played" order, and every playlist scenario then
+# clicks into "This playlist is empty" (no play-all) — while the old existence
+# check said "nothing to do" forever. So: DELETE owned empty playlists always,
+# then ensure a non-empty owned one exists.
+owned_playlists() {
+  curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Playlist&Recursive=true&userId=$UID_&Fields=CanDelete,ChildCount&Limit=200" \
+    -H "X-Emby-Authorization: $WTOK"
 }
 
-if [ "$(owned_count)" -ge 1 ]; then
-  echo "seed: cadence-test already owns a playlist — nothing to do"
+EMPTY_IDS=$(owned_playlists | python3 -c 'import sys,json;print(" ".join(x["Id"] for x in json.load(sys.stdin).get("Items",[]) if x.get("CanDelete") and (x.get("ChildCount") or 0)==0))' 2>/dev/null || true)
+for pid in $EMPTY_IDS; do
+  code=$(curl -s --max-time 30 -o /dev/null -w '%{http_code}' -X DELETE "$URL/Items/$pid" \
+    -H "X-Emby-Authorization: $WTOK")
+  echo "seed: deleted empty owned playlist $pid (HTTP $code)"
+done
+
+NONEMPTY=$(owned_playlists | python3 -c 'import sys,json;print(len([x for x in json.load(sys.stdin).get("Items",[]) if x.get("CanDelete") and (x.get("ChildCount") or 0)>0]))' 2>/dev/null || echo 0)
+if [ "$NONEMPTY" -ge 1 ]; then
+  echo "seed: user already owns a non-empty playlist — nothing to do"
 else
   IDS=$(curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Audio&Recursive=true&Limit=15&userId=$UID_&SortBy=Random" \
     -H "X-Emby-Authorization: $WTOK" \
     | python3 -c 'import sys,json;print(",".join("\""+x["Id"]+"\"" for x in json.load(sys.stdin).get("Items",[])))' 2>/dev/null || true)
-  code=$(curl -s --max-time 45 -o /dev/null -w '%{http_code}' -X POST "$URL/Playlists" \
-    -H "X-Emby-Authorization: $WTOK" -H 'Content-Type: application/json' \
-    -d "{\"Name\":\"Cadence Test Mix\",\"UserId\":\"$UID_\",\"MediaType\":\"Audio\",\"Ids\":[$IDS]}")
-  echo "seed: created owned playlist (HTTP $code)"
+  if [ -z "$IDS" ]; then
+    echo "seed: could not fetch songs — skipping playlist seed (tests will retry)"
+  else
+    code=$(curl -s --max-time 45 -o /dev/null -w '%{http_code}' -X POST "$URL/Playlists" \
+      -H "X-Emby-Authorization: $WTOK" -H 'Content-Type: application/json' \
+      -d "{\"Name\":\"Cadence Test Mix\",\"UserId\":\"$UID_\",\"MediaType\":\"Audio\",\"Ids\":[$IDS]}")
+    echo "seed: created owned playlist (HTTP $code)"
+  fi
 fi
 
 # Ensure a followed artist exists (Made-for-you / Your artists shelves).

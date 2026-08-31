@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { bindAudioElement } from './bindAudioElement';
+import { useStallWatchdog } from './useStallWatchdog';
+import { adoptPlaybackAudioSession } from '../../lib/webAudioSession';
+import { log } from '../../lib/diagnostics/diagnosticsStore';
 
 /**
  * Owns one long-lived HTMLAudioElement (survives route/modal changes — a JSX
@@ -27,6 +30,11 @@ export function useAudioElement(onEnded: () => void, onError: () => void = () =>
   useEffect(() => {
     const audio = ref.current;
     if (!audio) return;
+    // Declare this page a playback app to WebKit (iOS 17+) so the WKWebView
+    // survives the silent gap between tracks while backgrounded — without it,
+    // a slow next-track start (~10s of silence) suspends the whole app and
+    // Cadence loses the Now Playing slot (see webAudioSession.ts).
+    log('audio-session', 'adopt playback', { ok: String(adoptPlaybackAudioSession()) });
     // Attach to the DOM so platform media controls + e2e can see the element.
     if (typeof document !== 'undefined' && !audio.parentNode) {
       audio.setAttribute('hidden', '');
@@ -41,6 +49,10 @@ export function useAudioElement(onEnded: () => void, onError: () => void = () =>
       onError: () => errorRef.current(),
     });
   }, []);
+
+  // A stream that stalls forever fires no 'error' — route it into the same
+  // reload-then-skip recovery so background playback can't die in silence.
+  useStallWatchdog(waiting, position, () => errorRef.current());
 
   return { ref, isPlaying, waiting, position, duration };
 }

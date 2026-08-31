@@ -57,6 +57,21 @@ When("I open the first book's detail page", async ({ page }) => {
   await expect(page.getByTestId('book-detail')).toBeVisible({ timeout: DATA_WAIT });
 });
 
+When("I open a multi-part book's detail page", async ({ page }) => {
+  // The chapters scenario needs a book that HAS a part list. A single-file book
+  // with no embedded chapter markers renders (correctly) no list, and whichever
+  // book happens to sort first changes as the library grows — so pick by DATA:
+  // a row whose real subtitle advertises "· N parts" (only multi-part books do).
+  const multiPart = page
+    .getByTestId('audiobooks')
+    .getByTestId('book-row')
+    .filter({ hasText: /\d+ parts/ });
+  await expect(multiPart.first()).toBeAttached({ timeout: DATA_WAIT });
+  await multiPart.first().getByTestId('book-row-open').click();
+  await expect(page).toHaveURL(/\/audiobook\//, { timeout: DATA_WAIT });
+  await expect(page.getByTestId('book-detail')).toBeVisible({ timeout: DATA_WAIT });
+});
+
 Then("I see the book's title and a details block", async ({ page }) => {
   // Real rendered data: a non-empty title, and the facts block (which always
   // carries at least the Parts fact) with at least one labelled fact.
