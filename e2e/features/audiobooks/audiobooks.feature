@@ -15,7 +15,7 @@ Feature: Audiobooks library
     Given I am signed in
     When I open the Audiobooks tab
     Then I see the audiobook library with books
-    When I open the first book's detail page
+    When I open a multi-part book's detail page
     Then I see the book's title and a details block
     And I see the book's chapter or part list
 
