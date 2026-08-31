@@ -30,6 +30,6 @@ Feature: Native iOS Now Playing bridge
     When native sends a seek command to 42 seconds
     Then the audio position is about 42 seconds
 
-  Scenario: The web MediaSession stands down so native is the sole OS owner
+  Scenario: The web MediaSession publishes alongside the native bridge
     When I play a playlist
-    Then the web MediaSession publishes no metadata
+    Then the web MediaSession publishes the current track's metadata

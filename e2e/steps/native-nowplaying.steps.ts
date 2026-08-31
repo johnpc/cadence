@@ -111,12 +111,21 @@ Then('the audio position is about {int} seconds', async ({ page }, seconds: numb
     .toBeGreaterThan(seconds - 5);
 });
 
-Then('the web MediaSession publishes no metadata', async ({ page }) => {
-  // On native the WKWebView MediaSession stands down — no metadata is set, so the
-  // OS has a single owner (the native bridge). jsdom-free: real Chromium has the API.
-  const meta = await page.evaluate(() => {
-    const ms = navigator.mediaSession as MediaSession | undefined;
-    return ms ? ms.metadata : undefined;
-  });
-  expect(meta ?? null).toBeNull();
+Then("the web MediaSession publishes the current track's metadata", async ({ page }) => {
+  // WebKit auto-writes the OS Now Playing surface whenever the <audio> plays —
+  // the web MediaSession can't opt out, so it must publish FULLY even with the
+  // native bridge present. Suppressing it left WebKit's auto-write sparse, and
+  // when that write landed last the lock screen lost the queue context and hid
+  // next/prev (observed on device). Assert the metadata matches the shown track.
+  const title = (await page.getByTestId('now-playing-title').innerText()).trim();
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const ms = navigator.mediaSession as MediaSession | undefined;
+          return ms?.metadata?.title ?? null;
+        }),
+      { timeout: DATA_WAIT },
+    )
+    .toBe(title);
 });
