@@ -1,5 +1,6 @@
 import { useCallback, type RefObject } from 'react';
 import * as q from './queue';
+import { preserveReloadPosition } from './preserveReloadPosition';
 import type { usePlayerQueue } from './usePlayerQueue';
 
 type QueueHook = ReturnType<typeof usePlayerQueue>;
@@ -67,6 +68,11 @@ export function usePlaybackHandlers(
     // re-derive will fix the URL — stay silent (no toast, no skip).
     if (playbackStarted && !playbackStarted.current) return;
     if (requestReload?.(track?.Id)) {
+      // The reload wipes the element to 0 — stash the position first so the
+      // fresh load resumes in place (see preserveReloadPosition). Only when a
+      // reload is actually scheduled: a skipped track must not leave a stale
+      // seek behind for a later deliberate replay.
+      preserveReloadPosition(track?.Id, audioRef.current);
       toast('Trouble playing that — retrying…');
       return;
     }

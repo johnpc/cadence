@@ -17,5 +17,5 @@ export function useTrackPlayback(
   reloadNonce: number,
 ): void {
   useTrackLoader(ref, current ?? undefined, reloadNonce);
-  useAudiobookResume(ref, current);
+  useAudiobookResume(ref, current, reloadNonce);
 }

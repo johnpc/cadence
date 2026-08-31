@@ -34,8 +34,9 @@ export function useNowPlayingCommands(actions: NowPlayingActions): void {
     };
     const onSeek = (e: Event) => {
       const seconds = (e as CustomEvent<number>).detail;
+      if (typeof seconds !== 'number') return;
       log('remote-command', 'seek', { via: 'native', to: String(seconds) });
-      if (typeof seconds === 'number') seek(seconds);
+      seek(seconds);
     };
     const handlers: Array<[string, EventListener]> = [
       [NOW_PLAYING_EVENT.play, logged('play', play)],

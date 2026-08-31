@@ -52,7 +52,7 @@ export function useAudioElement(onEnded: () => void, onError: () => void = () =>
 
   // A stream that stalls forever fires no 'error' — route it into the same
   // reload-then-skip recovery so background playback can't die in silence.
-  useStallWatchdog(waiting, position, () => errorRef.current());
+  useStallWatchdog(ref, waiting, position, () => errorRef.current());
 
   return { ref, isPlaying, waiting, position, duration };
 }

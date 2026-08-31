@@ -23,6 +23,11 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 export function useAudiobookResume(
   ref: RefObject<HTMLAudioElement | null>,
   current: JellyfinItem | null | undefined,
+  /** Bumped when the SAME track is reloaded after an error/stall. Re-arms the
+   * one-shot resume so the pending seek saved by the error handler (the
+   * listener's pre-reload position) is applied to the fresh load — without it
+   * the `done` latch from the first load would swallow the restore. */
+  reloadNonce = 0,
 ): void {
   const id = current?.Id;
   useEffect(() => {
@@ -55,5 +60,5 @@ export function useAudiobookResume(
     if (audio.readyState >= 1) tryResume(); // metadata already available
     audio.addEventListener('loadedmetadata', tryResume);
     return () => audio.removeEventListener('loadedmetadata', tryResume);
-  }, [ref, current, id]);
+  }, [ref, current, id, reloadNonce]);
 }

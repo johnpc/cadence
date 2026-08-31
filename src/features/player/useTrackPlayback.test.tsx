@@ -18,7 +18,9 @@ describe('useTrackPlayback', () => {
       useTrackPlayback(ref, book, 2);
     });
     expect(useTrackLoader).toHaveBeenCalledWith(expect.anything(), book, 2);
-    expect(useAudiobookResume).toHaveBeenCalledWith(expect.anything(), book);
+    // The reload nonce reaches the resume too, so a reload re-arms the one-shot
+    // resume and the pending position seek applies to the fresh load.
+    expect(useAudiobookResume).toHaveBeenCalledWith(expect.anything(), book, 2);
   });
 
   it('passes undefined (not null) to the loader when there is no track', () => {
