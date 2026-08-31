@@ -66,10 +66,26 @@ final class NowPlayingBridge: NSObject {
         return .success
     }
 
+    /// Re-assert which transport commands the lock screen offers. iOS shows
+    /// EITHER prev/next-track OR the ±seek buttons and PREFERS seek when those
+    /// commands are enabled — and WebKit RE-ENABLES them on the shared
+    /// MPRemoteCommandCenter whenever its media session takes over (every time
+    /// the <audio> element starts playing). A one-time disable in activate() is
+    /// not durable against that, which is how the lock screen regressed to ±10s
+    /// buttons with no next/prev. Cheap to call on every state push.
+    private func assertCommandPreferences() {
+        let center = MPRemoteCommandCenter.shared()
+        center.nextTrackCommand.isEnabled = true
+        center.previousTrackCommand.isEnabled = true
+        center.skipForwardCommand.isEnabled = false
+        center.skipBackwardCommand.isEnabled = false
+    }
+
     /// Update MPNowPlayingInfoCenter from the web player's state. Clears Now
     /// Playing when no track is loaded. Artwork is fetched off the main thread and
     /// only when the URL actually changes (cached otherwise).
     func update(_ state: NowPlayingSnapshot) {
+        assertCommandPreferences()
         isPlaying = state.isPlaying
         guard state.hasTrack else {
             MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
