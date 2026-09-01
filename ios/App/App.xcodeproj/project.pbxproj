@@ -25,6 +25,7 @@
 		68EC28C6B88A30C37E30B3FB /* NowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E778FFB7EE04E8CF416CCF1 /* NowPlaying.swift */; };
 		6D1CEC5F2A9B647AABD214B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7C3A3E40040E3F87E2AB0E7 /* Assets.xcassets */; };
 		7655C22A107A6C1A06F1BEB0 /* ContinueListeningSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F4C3F48EABA90BA2A80CF /* ContinueListeningSnapshot.swift */; };
+		7D401D2C26D67B9DEB8927BE /* NowPlayingShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DB857EA324E7196D451C21 /* NowPlayingShape.swift */; };
 		8081D63667A22DC11D497D8B /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59239E0340951BA7C4BA0DE7 /* WatchConnector.swift */; };
 		95B24884DEC5A4FE3B06605D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACDF531C157768DA1A056434 /* Foundation.framework */; };
 		A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */; };
@@ -113,6 +114,7 @@
 		CAD0000200000000000000A2 /* NowPlayingBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingBridge.swift; sourceTree = "<group>"; };
 		E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CadenceWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F05076A09667A7FF9215BC3C /* AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3DB857EA324E7196D451C21 /* NowPlayingShape.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingShape.swift; sourceTree = "<group>"; };
 		F66FECF45855AB0C18B6DF52 /* CadenceWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CadenceWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -203,6 +205,7 @@
 				50B271D01FEDC1A000F3C39B /* public */,
 				A84EEBC9D31C11133109D470 /* WatchBridge.swift */,
 				CAD0000200000000000000A2 /* NowPlayingBridge.swift */,
+				F3DB857EA324E7196D451C21 /* NowPlayingShape.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -493,6 +496,7 @@
 				CAD0000100000000000000A1 /* MainViewController.swift in Sources */,
 				350F3B9DF6F8AF3CD4465228 /* WatchBridge.swift in Sources */,
 				CAD0000300000000000000A3 /* NowPlayingBridge.swift in Sources */,
+				7D401D2C26D67B9DEB8927BE /* NowPlayingShape.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

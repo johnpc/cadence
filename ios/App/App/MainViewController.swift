@@ -46,6 +46,17 @@ class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
         controller?.add(self, name: "cadenceWidget")
         controller?.add(self, name: "cadenceWatch")
         controller?.add(self, name: "cadenceNowPlaying")
+        // Force the WEBVIEW's MediaSession into the track-skip shape (see
+        // NowPlayingShape.swift). WebKit's GPU process registers its OWN Now
+        // Playing client and iOS elects it over our NowPlayingBridge because it
+        // owns the audio ("selectionReason=is playing" in mediaremoted) — so the
+        // lock screen shows WHATEVER WebKit registers. Without this, that's the
+        // default element controls: ±skip and no next/prev.
+        controller?.addUserScript(WKUserScript(
+            source: NowPlayingShape.script,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: true
+        ))
         // A watch command → the matching DOM event on the web player.
         watch.onCommand = { [weak self] cmd in self?.dispatchWatchCommand(cmd) }
         watch.activate()
