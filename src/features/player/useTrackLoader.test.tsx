@@ -1,5 +1,5 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useRef } from 'react';
 import { useTrackLoader } from './useTrackLoader';
 
@@ -15,6 +15,7 @@ vi.mock('../cast/castController', () => ({ castTrack: vi.fn().mockResolvedValue(
 import { localAudioUrl, isDownloaded } from '../downloads/downloadStore';
 import { getCastState } from '../cast/castStore';
 import { castTrack } from '../cast/castController';
+import { setSession } from '../../lib/sessionStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** A fake audio element exposing just what the loader touches. Captures canplay
@@ -47,12 +48,33 @@ function useLoader(current: JellyfinItem | undefined, audio: HTMLAudioElement) {
 }
 
 describe('useTrackLoader', () => {
+  beforeEach(() => {
+    // The loader refuses to build a stream URL without a session (the launch
+    // race that produced UserId=&api_key= URLs) — prime one for the tests.
+    setSession({ token: 'tok', userId: 'u1' });
+  });
   afterEach(() => {
+    setSession(null);
     vi.resetAllMocks();
     vi.mocked(getCastState).mockReturnValue({ connected: false } as ReturnType<
       typeof getCastState
     >);
     vi.mocked(castTrack).mockResolvedValue(undefined);
+  });
+
+  it('does NOT load while the session is missing, then loads once it lands', async () => {
+    // Launch restore: the queue rehydrates synchronously but the token is read
+    // from device storage asynchronously. Loading before the session lands
+    // built a credential-less URL that failed with code 4 and burned the retry
+    // budget — the "Couldn't play that track" toasts for perfectly good songs.
+    setSession(null);
+    vi.mocked(isDownloaded).mockReturnValue(false);
+    const audio = fakeAudio();
+    renderHook(() => useLoader(track('t1'), audio));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(audio.src).toBe(''); // nothing loaded credential-less
+    act(() => setSession({ token: 'tok', userId: 'u1' })); // session lands
+    await waitFor(() => expect(audio.src).toBe('https://jf.test/Audio/t1/universal'));
   });
 
   it('streams from Jellyfin when the track is not downloaded', async () => {

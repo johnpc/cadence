@@ -55,6 +55,16 @@ export function useTrackLoader(
       wasCasting.current = false;
       skipAutoPlay.current = false;
     }
+    // No session yet (launch restore: the queue rehydrates instantly but the
+    // token is read from device storage ASYNCHRONOUSLY) → don't load at all.
+    // A URL built now would carry empty credentials (…universal?UserId=) and
+    // fail with code 4 — burning the retry budget and skipping tracks with
+    // "Couldn't play that track" for songs that are perfectly fine. This
+    // effect re-runs the moment the session lands (the `userId` subscription
+    // below), so the track loads with real credentials instead. Downloaded
+    // tracks don't need credentials, but they're the async path anyway and
+    // the session always lands first in practice — keep one simple rule.
+    if (!userId) return;
     // Resolve the src (local blob or stream) then play with the iOS-reliable
     // canplay retry + diagnostics — both extracted (startPlayback/resolveTrackSrc)
     // so this effect stays simple. `cleanup` removes the canplay listener on change.
