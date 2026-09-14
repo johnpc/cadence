@@ -5,9 +5,9 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import type { AudiobookChapter } from './audiobookTypes';
 
 /**
- * Embedded chapters for the current track, fetched from the CadenceConfig plugin
- * — but ONLY for audiobook items (`Type: AudioBook`), so a normal music track
- * never triggers the plugin call. A file's chapters never change, so they're
+ * Embedded chapters for the current track, fetched from Jellyfin 12's native
+ * chapters API — but ONLY for audiobook items (`Type: AudioBook`), so a normal
+ * music track never triggers the extra item fetch. A file's chapters never change, so they're
  * cached aggressively. An empty list (or a fetch error, treated as empty) simply
  * means "no chapter navigation".
  */
