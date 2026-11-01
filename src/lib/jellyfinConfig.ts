@@ -25,6 +25,18 @@ export function embyAuthHeader(token?: string): string {
   return `MediaBrowser ${parts.join(', ')}`;
 }
 
+/**
+ * The auth headers for every JSON request. Jellyfin 12 REMOVED the legacy
+ * `X-Emby-Authorization` header: a request carrying only it is a 400 (sign-in
+ * "Error processing request."). The full MediaBrowser header (client + device +
+ * token) must ride in the standard `Authorization` header — supported since
+ * 10.8. The legacy header is still sent alongside for older servers.
+ */
+export function authHeaders(token?: string): Record<string, string> {
+  const value = embyAuthHeader(token);
+  return { Authorization: value, 'X-Emby-Authorization': value };
+}
+
 /** Absolute URL for an API path (path must start with '/'), against the active
  * (runtime-configured) server. */
 export function apiUrl(path: string): string {

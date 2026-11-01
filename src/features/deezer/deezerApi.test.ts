@@ -37,9 +37,8 @@ describe('importDeezerPlaylist', () => {
     expect(url).toContain('url=908622995'); // parsed to the bare id
     expect((init as RequestInit).method).toBe('POST');
     // Auth rides in the header, never a query param.
-    expect((init as RequestInit).headers).toMatchObject({
-      Authorization: 'MediaBrowser Token="tok"',
-    });
+    const headers = (init as RequestInit).headers as Record<string, string>;
+    expect(headers.Authorization).toContain('Token="tok"');
     expect(result).toEqual(body);
   });
 

@@ -31,7 +31,7 @@ export function useTrackLoader(
   // Re-run when casting connects/disconnects so playback hands off to/from the TV.
   const casting = useSyncExternalStore(onCastStateChange, () => getCastState().connected);
   // Re-run when the session's userId becomes available: a track restored at launch
-  // can load BEFORE the async session is ready, producing a UserId=&api_key= stream
+  // can load BEFORE the async session is ready, producing a UserId=&ApiKey= stream
   // URL that fails (code 4). Re-deriving once the session lands fixes that.
   const userId = useSyncExternalStore(onSessionChange, () => getSession()?.userId ?? '');
   const wasCasting = useRef(casting);

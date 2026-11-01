@@ -199,10 +199,14 @@ Non-obvious things that have cost real time — check here before rediscovering 
   (including admins)**. `partitionByOwnership` (jellyfinPlaylistLists) uses `CanDelete === false` as a
   cheap definite "not mine", then confirms the rest in parallel via the share endpoint. "Your Library"
   shows owned; others surface as a "From the community" Home shelf you can clone.
-- **Jellyfin writes need a FRESH token via `X-Emby-Authorization`** (with `Token="..."`). A token that's
-  only done GETs — or a slightly stale one — returns **401 on POST** (`/Playlists`, `FavoriteItems`).
-  The app's `jellyfinFetch` sends both `X-Emby-Authorization` (client+token) and `Authorization`; match
-  that in scripts. Symptom of getting it wrong: reads work, writes 401.
+- **Jellyfin 12 removed the legacy auth spellings — `X-Emby-Authorization` and `api_key`.** A request
+  whose only auth header is `X-Emby-Authorization` is a **400** ("Error processing request." — sign-in
+  dies), and a stream URL with `api_key=` is a **401** (every song: "Couldn't play that track"). The full
+  `MediaBrowser Client=…, Device=…, DeviceId=…, Version=…, Token=…` value must ride in the standard
+  **`Authorization`** header (10.8+), and the stream/query token must be **`ApiKey=`**. Use
+  `authHeaders(token)` (jellyfinConfig) for every fetch — it sends both headers with the same value —
+  and mirror it in scripts (`-H "Authorization: $H" -H "X-Emby-Authorization: $H"`). Writes also need a
+  FRESH token: a stale one returns 401 on POST while reads still work.
 - **iOS is not the browser.** `HTMLMediaElement.volume` is **read-only on iOS** (hardware buttons only)
   — hide software volume there (`lib/platform.ts` `hasSoftwareVolume()`). iOS lock-screen shows EITHER
   prev/next-track OR ±seek buttons and prefers seek when registered — so on iOS leave

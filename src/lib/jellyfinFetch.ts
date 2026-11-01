@@ -6,7 +6,7 @@
  * from a transient failure. Every request is bounded by REQUEST_TIMEOUT_MS so a
  * stalled server fails fast (→ retryable) instead of hanging the UI forever.
  */
-import { apiUrl, embyAuthHeader } from './jellyfinConfig';
+import { apiUrl, authHeaders } from './jellyfinConfig';
 import { getSession } from './sessionStore';
 import { notifySessionExpired } from './sessionExpiry';
 import { markReachable, markUnreachable } from './reachabilityStore';
@@ -30,10 +30,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     throw new RequestTimeout();
   }
   const { method = 'GET', body, token = getSession()?.token } = options;
-  const headers: Record<string, string> = {
-    'X-Emby-Authorization': embyAuthHeader(token),
-  };
-  if (token) headers['Authorization'] = `MediaBrowser Token="${token}"`;
+  const headers: Record<string, string> = authHeaders(token);
   if (body !== undefined) headers['Content-Type'] = 'application/json';
 
   const controller = new AbortController();

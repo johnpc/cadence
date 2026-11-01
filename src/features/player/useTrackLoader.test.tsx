@@ -50,7 +50,7 @@ function useLoader(current: JellyfinItem | undefined, audio: HTMLAudioElement) {
 describe('useTrackLoader', () => {
   beforeEach(() => {
     // The loader refuses to build a stream URL without a session (the launch
-    // race that produced UserId=&api_key= URLs) — prime one for the tests.
+    // race that produced UserId=&ApiKey= URLs) — prime one for the tests.
     setSession({ token: 'tok', userId: 'u1' });
   });
   afterEach(() => {

@@ -28,7 +28,7 @@ FAST_MS=5000
 for attempt in $(seq 1 10); do
   ms=$(curl -s -o /dev/null -w '%{time_total}' --max-time 45 \
     -X POST "$URL/Users/AuthenticateByName" \
-    -H 'Content-Type: application/json' -H "X-Emby-Authorization: $AUTH" \
+    -H 'Content-Type: application/json' -H "Authorization: $AUTH" -H "X-Emby-Authorization: $AUTH" \
     -d "$BODY" | awk '{printf "%d", $1 * 1000}')
   echo "warmup attempt $attempt: ${ms}ms"
   if [ -n "$ms" ] && [ "$ms" -gt 0 ] && [ "$ms" -lt "$FAST_MS" ]; then

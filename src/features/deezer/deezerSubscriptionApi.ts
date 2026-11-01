@@ -3,7 +3,7 @@
  * current library on read, so an artist Lidarr has filled in since import is
  * already gone. Runs against Jellyfin itself with the Emby auth header; a 404
  * (the playlist isn't a Deezer subscription) yields null — not an error. */
-import { apiUrl, embyAuthHeader } from '../../lib/jellyfinConfig';
+import { apiUrl, authHeaders } from '../../lib/jellyfinConfig';
 import { getSession } from '../../lib/sessionStore';
 
 /** The plugin's subscription status (PascalCase — .NET serialization). */
@@ -24,8 +24,7 @@ export async function getDeezerSubscription(
   try {
     const res = await fetch(apiUrl(path), {
       headers: {
-        'X-Emby-Authorization': embyAuthHeader(session.token),
-        Authorization: `MediaBrowser Token="${session.token}"`,
+        ...authHeaders(session.token),
       },
     });
     if (!res.ok) return null; // 404 = not a Deezer playlist; anything else → hide

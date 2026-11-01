@@ -26,7 +26,8 @@ describe('jellyfinFetch.request', () => {
     expect(result).toEqual({ Name: 'cadence-test' });
     const [, init] = f.mock.calls[0];
     expect(init.headers['X-Emby-Authorization']).toContain('Token="tok"');
-    expect(init.headers['Authorization']).toBe('MediaBrowser Token="tok"');
+    expect(init.headers['Authorization']).toContain('Token="tok"');
+    expect(init.headers['Authorization']).toContain('Client="Cadence"');
   });
 
   it('JSON-encodes a POST body', async () => {
@@ -74,7 +75,7 @@ describe('jellyfinFetch.request', () => {
     vi.stubGlobal('fetch', f);
     await request('/Items');
     const [, init] = f.mock.calls[0];
-    expect(init.headers['Authorization']).toBe('MediaBrowser Token="stored"');
+    expect(init.headers['Authorization']).toContain('Token="stored"');
   });
 
   it('passes an abort signal so the request is bounded by a timeout', async () => {

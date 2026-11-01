@@ -27,11 +27,11 @@ async function api<T>(
   const res = await fetch(`${BASE}${path}`, {
     method: opts.method ?? 'GET',
     headers: {
+      // Jellyfin 12 removed X-Emby-Authorization (400 when it's the only auth
+      // header); the full MediaBrowser header must ride in `Authorization`.
+      // Mirror the app's jellyfinFetch: send both, same value.
+      Authorization: authHeader(opts.token),
       'X-Emby-Authorization': authHeader(opts.token),
-      // Jellyfin writes (and a token that's only done GETs) can 401 unless the
-      // bare Authorization header carries the token too — mirror the app's
-      // jellyfinFetch, which sends both. Reads work with either; writes need both.
-      ...(opts.token ? { Authorization: `MediaBrowser Token="${opts.token}"` } : {}),
       ...(opts.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
     },
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
