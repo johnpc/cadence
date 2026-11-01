@@ -2,7 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinConfig', () => ({
   apiUrl: (path: string) => `https://jf.example.com${path}`,
-  embyAuthHeader: (token?: string) => `MediaBrowser Token="${token ?? ''}"`,
+  authHeaders: (token?: string) => {
+    const value = `MediaBrowser Token="${token ?? ''}"`;
+    return { Authorization: value, 'X-Emby-Authorization': value };
+  },
 }));
 vi.mock('../../lib/sessionStore', () => ({ getSession: () => ({ token: 'tok-1', userId: 'u1' }) }));
 

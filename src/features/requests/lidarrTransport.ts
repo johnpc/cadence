@@ -6,7 +6,7 @@
  *  - the CadenceConfig Jellyfin plugin `/Cadence/Lidarr/*` (native iOS — no nginx),
  *    reached against the Jellyfin server with the Emby auth header attached.
  */
-import { apiUrl, embyAuthHeader } from '../../lib/jellyfinConfig';
+import { apiUrl, authHeaders } from '../../lib/jellyfinConfig';
 import { getSession } from '../../lib/sessionStore';
 import { lidarrPluginProxyEnabled } from '../../lib/runtimeConfig';
 
@@ -29,8 +29,7 @@ function send(method: 'GET' | 'POST', path: string, body?: unknown): Promise<Res
 
   if (lidarrPluginProxyEnabled()) {
     const token = getSession()?.token;
-    headers['X-Emby-Authorization'] = embyAuthHeader(token);
-    if (token) headers['Authorization'] = `MediaBrowser Token="${token}"`;
+    Object.assign(headers, authHeaders(token));
     return fetch(apiUrl(`${PLUGIN_BASE}${path}`), {
       method,
       headers,

@@ -77,6 +77,13 @@ Then('the audio element is loaded with a Jellyfin stream', async ({ page }) => {
     const audio = document.querySelector('audio');
     return !!audio?.src && audio.src.includes('/Audio/') && audio.src.includes('/universal');
   });
+  // And the server must ACCEPT that URL. The src string alone looked fine while
+  // Jellyfin 12 was 401-ing every stream (legacy `api_key=` query param) — so
+  // every song errored in the app with a green CI. Fetch the first bytes from
+  // Node (the token rides in the URL; no CORS) and require a 2xx.
+  const src = await page.evaluate(() => document.querySelector('audio')?.src ?? '');
+  const res = await page.request.get(src, { headers: { Range: 'bytes=0-1023' } });
+  expect(res.status(), `stream URL rejected: HTTP ${res.status()}`).toBeLessThan(300);
 });
 
 When('I open the full player', async ({ page }) => {

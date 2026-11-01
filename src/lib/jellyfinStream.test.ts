@@ -16,7 +16,7 @@ describe('jellyfinStream', () => {
     setSession({ token: 'tok', userId: 'uid' });
     const url = audioStreamUrl('song1');
     expect(url.startsWith(`${getServerUrl()}/Audio/song1/universal?`)).toBe(true);
-    expect(url).toContain('api_key=tok');
+    expect(url).toContain('ApiKey=tok');
     expect(url).toContain('UserId=uid');
   });
 

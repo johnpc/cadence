@@ -16,7 +16,9 @@ export function audioStreamUrl(itemId: string): string {
   const session = getSession();
   const params = new URLSearchParams({
     UserId: session?.userId ?? '',
-    api_key: session?.token ?? '',
+    // `ApiKey` (not the legacy `api_key`): Jellyfin 12 dropped the old name and
+    // 401s every stream that uses it. Both spellings work on 10.8+.
+    ApiKey: session?.token ?? '',
     // Prefer direct-play; let Jellyfin transcode to aac/mp3 when it must. m4b is
     // included so AUDIOBOOKS direct-play (they're m4b; without it Jellyfin tries
     // to transcode the whole book and the stream stalls → "failed to play").

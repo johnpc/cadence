@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { apiUrl, embyAuthHeader } from './jellyfinConfig';
+import { apiUrl, authHeaders, embyAuthHeader } from './jellyfinConfig';
 import { getServerUrl } from './serverUrlStore';
 
 describe('jellyfinConfig', () => {
@@ -17,5 +17,14 @@ describe('jellyfinConfig', () => {
 
   it('includes the token when provided', () => {
     expect(embyAuthHeader('abc123')).toContain('Token="abc123"');
+  });
+
+  it('sends the FULL header in both Authorization and the legacy X-Emby-Authorization', () => {
+    // Jellyfin 12 400s a request whose only auth header is X-Emby-Authorization.
+    const headers = authHeaders('abc123');
+    expect(headers.Authorization).toContain('Client="Cadence"');
+    expect(headers.Authorization).toContain('Token="abc123"');
+    expect(headers['X-Emby-Authorization']).toBe(headers.Authorization);
+    expect(authHeaders().Authorization).not.toContain('Token=');
   });
 });

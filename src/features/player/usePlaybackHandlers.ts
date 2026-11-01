@@ -30,7 +30,7 @@ export function usePlaybackHandlers(
   requestReload?: (trackId: string | undefined) => boolean,
   /** True once the user has actually started playback this session. A track
    * RESTORED at launch loads (paused) before the async session is ready, so its
-   * stream URL can briefly error (UserId=&api_key= → code 4) — but the user never
+   * stream URL can briefly error (UserId=&ApiKey= → code 4) — but the user never
    * pressed play, and useTrackLoader re-derives it once the session lands. Until
    * playback has started we recover silently, with no "couldn't play" toast. */
   playbackStarted?: RefObject<boolean>,
@@ -60,7 +60,7 @@ export function usePlaybackHandlers(
   const onError = useCallback(() => {
     // A track failed to load. First attempt a full RELOAD of the same track: the
     // usual cause is a stream URL built before the session was ready at launch
-    // (UserId=&api_key= → code 4) or a transient blip — re-deriving the src fixes
+    // (UserId=&ApiKey= → code 4) or a transient blip — re-deriving the src fixes
     // it without the user losing their place. requestReload returns false once the
     // per-track retry budget is spent; only then do we surface it + skip.
     const track = q.currentTrack(qh.queue);

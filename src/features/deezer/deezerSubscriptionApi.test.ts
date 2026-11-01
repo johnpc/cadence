@@ -25,9 +25,8 @@ describe('getDeezerSubscription', () => {
     expect(url).toContain('/Cadence/Deezer/Subscription');
     expect(url).toContain('userId=user-1');
     expect(url).toContain('playlistId=pl1');
-    expect((init as RequestInit).headers).toMatchObject({
-      Authorization: 'MediaBrowser Token="tok"',
-    });
+    const headers = (init as RequestInit).headers as Record<string, string>;
+    expect(headers.Authorization).toContain('Token="tok"');
     expect(result).toEqual(body);
   });
 

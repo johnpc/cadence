@@ -4,7 +4,7 @@
  * API needs no key). The import is a heavy server operation — page the Deezer
  * playlist, then match every track against a 20k+ item library — so it uses its
  * OWN long timeout rather than jellyfinFetch's short interactive bound. */
-import { apiUrl, embyAuthHeader } from '../../lib/jellyfinConfig';
+import { apiUrl, authHeaders } from '../../lib/jellyfinConfig';
 import { getSession } from '../../lib/sessionStore';
 import { parseDeezerPlaylistId } from './deezerUrl';
 import type { DeezerImportResult } from './deezerTypes';
@@ -29,8 +29,7 @@ export async function importDeezerPlaylist(raw: string): Promise<DeezerImportRes
     const res = await fetch(apiUrl(path), {
       method: 'POST',
       headers: {
-        'X-Emby-Authorization': embyAuthHeader(session.token),
-        Authorization: `MediaBrowser Token="${session.token}"`,
+        ...authHeaders(session.token),
       },
       signal: controller.signal,
     });

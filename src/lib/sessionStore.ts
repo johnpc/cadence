@@ -20,7 +20,7 @@ export function getSession(): Session | null {
 
 /** Subscribe to session changes. Used by the player to (re)build stream URLs once
  * the session is restored at launch — a track restored before the session was
- * ready would otherwise get a UserId=&api_key= URL that fails to load (code 4).
+ * ready would otherwise get a UserId=&ApiKey= URL that fails to load (code 4).
  * Returns an unsubscribe. */
 export function onSessionChange(listener: () => void): () => void {
   listeners.add(listener);

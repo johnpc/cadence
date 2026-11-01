@@ -23,7 +23,7 @@ fi
 
 XEMBY='MediaBrowser Client="seed", Device="ci", DeviceId="cadence-e2e-seed", Version="1"'
 AUTH=$(curl -s --max-time 30 -X POST "$URL/Users/AuthenticateByName" \
-  -H 'Content-Type: application/json' -H "X-Emby-Authorization: $XEMBY" \
+  -H 'Content-Type: application/json' -H "Authorization: $XEMBY" -H "X-Emby-Authorization: $XEMBY" \
   -d "$(printf '{"Username":"%s","Pw":"%s"}' "$TEST_USERNAME" "$TEST_PASSWORD")")
 TOK=$(printf '%s' "$AUTH" | python3 -c 'import sys,json;print(json.load(sys.stdin).get("AccessToken",""))' 2>/dev/null || true)
 UID_=$(printf '%s' "$AUTH" | python3 -c 'import sys,json;print(json.load(sys.stdin).get("User",{}).get("Id",""))' 2>/dev/null || true)
@@ -36,30 +36,42 @@ WTOK="$XEMBY, Token=\"$TOK\""
 # clicks into "This playlist is empty" (no play-all) — while the old existence
 # check said "nothing to do" forever. So: DELETE owned empty playlists always,
 # then ensure a non-empty owned one exists.
+# Ownership: NOT `CanDelete` — Jellyfin 12 reports it true for EVERY playlist
+# in the bulk list (so the old filter saw 30+ "owned" playlists, deleted none
+# (401) and never seeded). The owner-only `GET /Playlists/{id}/Users` is the
+# reliable signal: 200 for the owner, 403 for everyone else.
 owned_playlists() {
-  curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Playlist&Recursive=true&userId=$UID_&Fields=CanDelete,ChildCount&Limit=200" \
-    -H "X-Emby-Authorization: $WTOK"
+  curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Playlist&Recursive=true&userId=$UID_&Fields=ChildCount&Limit=200" \
+    -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" \
+    | python3 -c 'import sys,json;print("\n".join(x["Id"]+" "+str(x.get("ChildCount") or 0) for x in json.load(sys.stdin).get("Items",[])))' 2>/dev/null \
+    | while read -r pid count; do
+        code=$(curl -s --max-time 30 -o /dev/null -w '%{http_code}' "$URL/Playlists/$pid/Users" \
+          -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK")
+        [ "$code" = "200" ] && echo "$pid $count"
+      done
 }
+OWNED=$(owned_playlists)
+echo "seed: owns $(printf '%s\n' "$OWNED" | grep -c .) playlist(s)"
 
-EMPTY_IDS=$(owned_playlists | python3 -c 'import sys,json;print(" ".join(x["Id"] for x in json.load(sys.stdin).get("Items",[]) if x.get("CanDelete") and (x.get("ChildCount") or 0)==0))' 2>/dev/null || true)
+EMPTY_IDS=$(printf '%s\n' "$OWNED" | awk '$2==0 {print $1}')
 for pid in $EMPTY_IDS; do
   code=$(curl -s --max-time 30 -o /dev/null -w '%{http_code}' -X DELETE "$URL/Items/$pid" \
-    -H "X-Emby-Authorization: $WTOK")
+    -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK")
   echo "seed: deleted empty owned playlist $pid (HTTP $code)"
 done
 
-NONEMPTY=$(owned_playlists | python3 -c 'import sys,json;print(len([x for x in json.load(sys.stdin).get("Items",[]) if x.get("CanDelete") and (x.get("ChildCount") or 0)>0]))' 2>/dev/null || echo 0)
+NONEMPTY=$(printf '%s\n' "$OWNED" | awk '$2>0' | grep -c .)
 if [ "$NONEMPTY" -ge 1 ]; then
   echo "seed: user already owns a non-empty playlist — nothing to do"
 else
   IDS=$(curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Audio&Recursive=true&Limit=15&userId=$UID_&SortBy=Random" \
-    -H "X-Emby-Authorization: $WTOK" \
+    -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" \
     | python3 -c 'import sys,json;print(",".join("\""+x["Id"]+"\"" for x in json.load(sys.stdin).get("Items",[])))' 2>/dev/null || true)
   if [ -z "$IDS" ]; then
     echo "seed: could not fetch songs — skipping playlist seed (tests will retry)"
   else
     code=$(curl -s --max-time 45 -o /dev/null -w '%{http_code}' -X POST "$URL/Playlists" \
-      -H "X-Emby-Authorization: $WTOK" -H 'Content-Type: application/json' \
+      -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" -H 'Content-Type: application/json' \
       -d "{\"Name\":\"Cadence Test Mix\",\"UserId\":\"$UID_\",\"MediaType\":\"Audio\",\"Ids\":[$IDS]}")
     echo "seed: created owned playlist (HTTP $code)"
   fi
@@ -67,16 +79,16 @@ fi
 
 # Ensure a followed artist exists (Made-for-you / Your artists shelves).
 FAV=$(curl -s --max-time 30 "$URL/Artists?Filters=IsFavorite&Limit=1&userId=$UID_" \
-  -H "X-Emby-Authorization: $WTOK" \
+  -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" \
   | python3 -c 'import sys,json;print(len(json.load(sys.stdin).get("Items",[])))' 2>/dev/null || echo 0)
 if [ "$FAV" -ge 1 ]; then
   echo "seed: cadence-test already follows an artist"
 else
   AID=$(curl -s --max-time 30 "$URL/Artists?Limit=1&userId=$UID_&SortBy=SortName" \
-    -H "X-Emby-Authorization: $WTOK" \
+    -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" \
     | python3 -c 'import sys,json;i=json.load(sys.stdin).get("Items",[]);print(i[0]["Id"] if i else "")' 2>/dev/null || true)
   [ -n "$AID" ] && curl -s --max-time 30 -o /dev/null -w 'seed: followed an artist (HTTP %{http_code})\n' \
-    -X POST "$URL/Users/$UID_/FavoriteItems/$AID" -H "X-Emby-Authorization: $WTOK"
+    -X POST "$URL/Users/$UID_/FavoriteItems/$AID" -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK"
 fi
 
 echo "seed: done"
