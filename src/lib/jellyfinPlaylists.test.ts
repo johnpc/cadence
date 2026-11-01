@@ -51,24 +51,26 @@ describe('jellyfinPlaylists', () => {
     vi.restoreAllMocks();
   });
 
-  it('getPlaylists (non-admin) partitions on CanDelete with NO ownership probes', async () => {
-    // A normal user can only delete their OWN playlists, so CanDelete IS the
-    // ownership signal — no per-playlist /Users fan-out (the perf storm on Home).
+  it('getPlaylists (non-admin) confirms ownership via the share endpoint', async () => {
+    // Jellyfin 12 reports CanDelete:true on EVERY listed playlist even for a
+    // plain user, so 'theirs12' must be excluded by the /Users probe (403), while
+    // a CanDelete:false one is skipped as a definite "not mine" with no probe.
     setSession({ token: 't', userId: 'uid', isAdmin: false });
     const f = stubOwnership(
       [
         { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
-        { Id: 'theirs', Name: 'Someone Else', Type: 'Playlist', CanDelete: false },
+        { Id: 'theirs12', Name: 'Someone Else', Type: 'Playlist', CanDelete: true },
+        { Id: 'theirs', Name: 'Old Server', Type: 'Playlist', CanDelete: false },
       ],
-      [], // no probe should ever be made
+      ['mine'],
     );
     const items = await getPlaylists();
     expect(items.map((p) => p.Id)).toEqual(['mine']);
     expect(f.mock.calls[0][0]).toContain('Fields=CanDelete');
-    // Zero owner-probe requests — that's the whole point of this path.
-    expect(f.mock.calls.some(([url]: [string]) => /\/Playlists\/[^/]+\/Users/.test(url))).toBe(
-      false,
-    );
+    const probed = f.mock.calls
+      .map(([url]: [string]) => url.match(/\/Playlists\/([^/]+)\/Users/)?.[1])
+      .filter(Boolean);
+    expect(probed.sort()).toEqual(['mine', 'theirs12']);
   });
 
   it('getPlaylists (ADMIN) confirms ownership via the share endpoint', async () => {
@@ -112,20 +114,19 @@ describe('jellyfinPlaylists', () => {
     expect(f.mock.calls[0][0]).toContain('SortOrder=Descending');
   });
 
-  it('getPublicPlaylists (non-admin) excludes own playlists using CanDelete alone', async () => {
+  it('getPublicPlaylists (non-admin) surfaces CanDelete:true playlists the user does NOT own', async () => {
+    // The Jellyfin 12 case: everything is CanDelete:true; only the probe tells.
     setSession({ token: 't', userId: 'uid', isAdmin: false });
-    const f = stubOwnership(
+    stubOwnership(
       [
+        { Id: 'theirs12', Name: 'Community', Type: 'Playlist', CanDelete: true },
         { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
-        { Id: 'theirs', Name: 'Community', Type: 'Playlist', CanDelete: false },
+        { Id: 'theirs', Name: 'Old Server', Type: 'Playlist', CanDelete: false },
       ],
-      [],
+      ['mine'],
     );
     const items = await getPublicPlaylists();
-    expect(items.map((p) => p.Id)).toEqual(['theirs']);
-    expect(f.mock.calls.some(([url]: [string]) => /\/Playlists\/[^/]+\/Users/.test(url))).toBe(
-      false,
-    );
+    expect(items.map((p) => p.Id)).toEqual(['theirs12', 'theirs']);
   });
 
   it('getPlaylistItems reads a playlist’s tracks', async () => {

@@ -196,9 +196,12 @@ Non-obvious things that have cost real time — check here before rediscovering 
   ownership signal but **an ADMIN can delete anything**, so it's `true` for every playlist for an admin —
   filtering on it alone dumps the whole server into an admin's library. The reliable signal is the
   owner-only share list `GET /Playlists/{id}/Users`: **200 for the owner, 403 for everyone else
-  (including admins)**. `partitionByOwnership` (jellyfinPlaylistLists) uses `CanDelete === false` as a
-  cheap definite "not mine", then confirms the rest in parallel via the share endpoint. "Your Library"
-  shows owned; others surface as a "From the community" Home shelf you can clone.
+  (including admins)**. **Jellyfin 12 made it worse: the bulk `/Items` list reports `CanDelete: true`
+  for EVERY playlist even for a plain user** (the single-item GET is still accurate), so there is no
+  non-admin shortcut. `partitionByOwnership` (jellyfinPlaylistLists) uses `CanDelete === false` as a
+  cheap definite "not mine", then confirms EVERY remaining candidate in parallel via the share endpoint,
+  for all users. `scripts/seed-e2e-user.sh` does the same. "Your Library" shows owned; others surface as
+  a "From the community" Home shelf you can clone.
 - **Jellyfin 12 removed the legacy auth spellings — `X-Emby-Authorization` and `api_key`.** A request
   whose only auth header is `X-Emby-Authorization` is a **400** ("Error processing request." — sign-in
   dies), and a stream URL with `api_key=` is a **401** (every song: "Couldn't play that track"). The full

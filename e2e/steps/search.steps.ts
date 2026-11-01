@@ -45,9 +45,26 @@ When('I search for {string}', async ({ page }, term: string) => {
   await settleSearch(page, term);
 });
 
+// The Top result's name at the moment Enter was pressed (the card unmounts if
+// Enter navigates away, so capture it before).
+let lastTopResult = '';
+
 When('I press Enter in the search box', async ({ page }) => {
-  // Enter activates the Top result (Spotify-style) — a song plays.
+  // Enter activates the Top result (Spotify-style): a song plays; an album /
+  // artist / playlist opens its page. Which one wins depends on the LIBRARY
+  // (an album named "LOVE" outranks a song "Love"), so remember what it was.
+  const top = page.getByTestId('top-result');
+  await expect(top).toBeVisible({ timeout: DATA_WAIT });
+  lastTopResult = (await top.getAttribute('aria-label')) ?? '';
   await page.getByTestId('search-input').locator('input').press('Enter');
+});
+
+Then('the top result is activated', async ({ page }) => {
+  expect(lastTopResult).not.toBe('');
+  // Either it's now playing (a song) or its detail page opened (anything else).
+  const playing = page.getByTestId('now-playing-title').filter({ hasText: lastTopResult });
+  const opened = page.getByRole('heading', { level: 1, name: lastTopResult });
+  await expect(playing.or(opened).first()).toBeAttached({ timeout: DATA_WAIT });
 });
 
 Then('I see song results', async ({ page }) => {

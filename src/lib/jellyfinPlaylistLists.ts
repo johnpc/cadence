@@ -41,10 +41,10 @@ async function isPlaylistOwner(id: string): Promise<boolean> {
   }
 }
 
-/** ADMIN-only: confirm which playlists the admin actually owns. `CanDelete===false`
- * is a definite "not mine" (no probe); every `CanDelete!==false` candidate is
+/** Confirm which playlists the user actually owns. `CanDelete===false` is a
+ * definite "not mine" (no probe); every `CanDelete!==false` candidate is
  * confirmed via the owner-only share endpoint (parallel). Returns the owned ids. */
-async function confirmAdminOwnership(playlists: JellyfinItem[]): Promise<Set<string>> {
+async function confirmOwnership(playlists: JellyfinItem[]): Promise<Set<string>> {
   const candidates = playlists.filter((p) => p.CanDelete !== false);
   const confirmed = await Promise.all(candidates.map((p) => isPlaylistOwner(p.Id)));
   return new Set(candidates.filter((_, i) => confirmed[i]).map((p) => p.Id));
@@ -52,19 +52,19 @@ async function confirmAdminOwnership(playlists: JellyfinItem[]): Promise<Set<str
 
 /** Partition playlists into [owned, notOwned].
  *
- * For a NON-ADMIN, `CanDelete` is exactly the ownership signal — you can only
- * delete your own playlists — so we partition on it with ZERO extra requests.
- * For an ADMIN, `CanDelete` is `true` on EVERY playlist (they can delete
- * anything), so it can't distinguish owned from others'; only then do we fall
- * back to confirming each `CanDelete!==false` candidate via the owner-only share
- * endpoint (parallel). This keeps the common path free and confines the O(N)
- * probe fan-out to the rare admin case — a chatty storm over slow links. */
+ * `CanDelete` on the LIST endpoint is NOT a usable ownership signal: it's `true`
+ * on every playlist for an admin (they can delete anything) and, since Jellyfin
+ * 12, for a plain user too (the bulk `/Items` list reports `true` for all 34
+ * playlists on the server while the single-item GET still says `false`).
+ * Trusting it dumped the whole server into "Your Library" and emptied the
+ * community shelf. So: `CanDelete===false` is still a cheap definite "not mine"
+ * (older servers), and every other candidate is confirmed via the owner-only
+ * share endpoint, in parallel. The list is cached on disk (playlistsListCache),
+ * so the fan-out is paid once per launch, not per visit. */
 async function partitionByOwnership(
   playlists: JellyfinItem[],
 ): Promise<[JellyfinItem[], JellyfinItem[]]> {
-  const ownedIds = getSession()?.isAdmin
-    ? await confirmAdminOwnership(playlists)
-    : new Set(playlists.filter((p) => p.CanDelete !== false).map((p) => p.Id));
+  const ownedIds = await confirmOwnership(playlists);
   // Filter the ORIGINAL list so BOTH partitions keep the caller's sort order
   // (e.g. getPublicPlaylists relies on DateCreated-desc — a newly-shared
   // playlist must stay at the front, not sink below the CanDelete:false ones).

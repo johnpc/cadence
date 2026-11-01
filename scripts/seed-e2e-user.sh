@@ -36,19 +36,31 @@ WTOK="$XEMBY, Token=\"$TOK\""
 # clicks into "This playlist is empty" (no play-all) — while the old existence
 # check said "nothing to do" forever. So: DELETE owned empty playlists always,
 # then ensure a non-empty owned one exists.
+# Ownership: NOT `CanDelete` — Jellyfin 12 reports it true for EVERY playlist
+# in the bulk list (so the old filter saw 30+ "owned" playlists, deleted none
+# (401) and never seeded). The owner-only `GET /Playlists/{id}/Users` is the
+# reliable signal: 200 for the owner, 403 for everyone else.
 owned_playlists() {
-  curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Playlist&Recursive=true&userId=$UID_&Fields=CanDelete,ChildCount&Limit=200" \
-    -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK"
+  curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Playlist&Recursive=true&userId=$UID_&Fields=ChildCount&Limit=200" \
+    -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" \
+    | python3 -c 'import sys,json;print("\n".join(x["Id"]+" "+str(x.get("ChildCount") or 0) for x in json.load(sys.stdin).get("Items",[])))' 2>/dev/null \
+    | while read -r pid count; do
+        code=$(curl -s --max-time 30 -o /dev/null -w '%{http_code}' "$URL/Playlists/$pid/Users" \
+          -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK")
+        [ "$code" = "200" ] && echo "$pid $count"
+      done
 }
+OWNED=$(owned_playlists)
+echo "seed: owns $(printf '%s\n' "$OWNED" | grep -c .) playlist(s)"
 
-EMPTY_IDS=$(owned_playlists | python3 -c 'import sys,json;print(" ".join(x["Id"] for x in json.load(sys.stdin).get("Items",[]) if x.get("CanDelete") and (x.get("ChildCount") or 0)==0))' 2>/dev/null || true)
+EMPTY_IDS=$(printf '%s\n' "$OWNED" | awk '$2==0 {print $1}')
 for pid in $EMPTY_IDS; do
   code=$(curl -s --max-time 30 -o /dev/null -w '%{http_code}' -X DELETE "$URL/Items/$pid" \
     -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK")
   echo "seed: deleted empty owned playlist $pid (HTTP $code)"
 done
 
-NONEMPTY=$(owned_playlists | python3 -c 'import sys,json;print(len([x for x in json.load(sys.stdin).get("Items",[]) if x.get("CanDelete") and (x.get("ChildCount") or 0)>0]))' 2>/dev/null || echo 0)
+NONEMPTY=$(printf '%s\n' "$OWNED" | awk '$2>0' | grep -c .)
 if [ "$NONEMPTY" -ge 1 ]; then
   echo "seed: user already owns a non-empty playlist — nothing to do"
 else
