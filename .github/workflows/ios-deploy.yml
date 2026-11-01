@@ -26,7 +26,10 @@ env:
 jobs:
   deploy:
     name: Deploy to App Store Connect
-    runs-on: macos-26
+    # Self-hosted Mac Mini. Safe here: this workflow only triggers on
+    # workflow_run (post-merge, after CI succeeds) and workflow_dispatch —
+    # never on pull_request, so fork PRs can't reach this runner.
+    runs-on: [self-hosted, mac-mini]
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v5

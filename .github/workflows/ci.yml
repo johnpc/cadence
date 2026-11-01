@@ -89,7 +89,12 @@ jobs:
     # guards the durable-Now-Playing + prev/next-track behavior that can't be caught
     # by the JS suite. Complements the native-playback Gherkin area (JS half).
     name: iOS Swift Tests
-    runs-on: macos-26
+    # Self-hosted Mac Mini. This job also runs on pull_request, and self-hosted
+    # runners on a public repo are unsafe for fork PRs (arbitrary code exec) —
+    # so only run it for push-to-main or a PR authored by the repo owner.
+    # Everyone else's PRs simply skip this job.
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login == 'johnpc'
+    runs-on: [self-hosted, mac-mini]
     steps:
       - uses: actions/checkout@v5
 
