@@ -202,6 +202,10 @@ export async function ensureSignedIn(page: Page): Promise<void> {
 Given('I am signed in', async ({ page }) => {
   await page.goto('/');
   await ensureSignedIn(page);
+  // The token lands in storage BEFORE the app finishes its post-auth refresh
+  // and swaps the sign-in gate for the shell. Wait for the gate to go, so the
+  // next step acts on the real app rather than racing that hand-off.
+  await expect(page.getByTestId('signin-submit')).toHaveCount(0, { timeout: DATA_WAIT });
 });
 
 Then('I see the sign-in screen', async ({ page }) => {
