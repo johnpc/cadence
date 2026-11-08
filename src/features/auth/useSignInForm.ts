@@ -27,10 +27,14 @@ export function useSignInForm() {
     setError(null);
     setBusy(true);
     setServerUrl(server); // point the client at this server before we call it
+    const startPath = history.location.pathname;
     try {
       await signIn(username, password);
-      // Return to the intended deep link; '/' (→ home) for a plain app open.
-      history.replace(dest.current || '/');
+      // signIn resolves only after the post-auth refresh (token validation +
+      // plugin config), which over a cold tunnel lands seconds AFTER the shell
+      // has rendered. If the user already moved on (tapped a tab), don't yank
+      // them back. Otherwise return to the intended deep link, or '/' (→ home).
+      if (history.location.pathname === startPath) history.replace(dest.current || '/');
     } catch {
       setError('Check your server address, username, and password.');
     } finally {

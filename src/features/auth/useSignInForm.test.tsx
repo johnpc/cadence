@@ -1,5 +1,5 @@
 import { render, screen, waitFor, act } from '@testing-library/react';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, useHistory } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AuthContext } from './AuthContext';
 import { useSignInForm } from './useSignInForm';
@@ -13,10 +13,16 @@ vi.mock('../../lib/serverUrlStore', () => ({
 // A tiny harness that drives the hook's submit() and shows the resulting path.
 function Harness() {
   const { submit } = useSignInForm();
+  const history = useHistory();
   return (
-    <button data-testid="go" onClick={() => void submit()}>
-      go
-    </button>
+    <>
+      <button data-testid="go" onClick={() => void submit()}>
+        go
+      </button>
+      <button data-testid="tap-search" onClick={() => history.push('/search')}>
+        search
+      </button>
+    </>
   );
 }
 
@@ -60,6 +66,26 @@ describe('useSignInForm deep-link preservation', () => {
       screen.getByTestId('go').click();
     });
     await waitFor(() => expect(screen.getByTestId('loc')).toHaveTextContent('/'));
+  });
+
+  it('does not yank the user back if they navigated while sign-in was finishing', async () => {
+    // signIn resolves after a slow post-auth refresh; the shell is already up and
+    // the user taps Search in that gap. The late redirect must not undo that.
+    let finish: () => void = () => undefined;
+    renderAt(
+      '/',
+      vi.fn(() => new Promise<void>((resolve) => (finish = resolve))),
+    );
+    await act(async () => {
+      screen.getByTestId('go').click();
+    });
+    await act(async () => {
+      screen.getByTestId('tap-search').click();
+    });
+    await act(async () => {
+      finish();
+    });
+    await waitFor(() => expect(screen.getByTestId('loc')).toHaveTextContent('/search'));
   });
 
   it('does not navigate when sign-in fails', async () => {
