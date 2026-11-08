@@ -95,6 +95,7 @@ jobs:
     # Everyone else's PRs simply skip this job.
     if: github.event_name != 'pull_request' || github.event.pull_request.user.login == 'johnpc'
     runs-on: [self-hosted, mac-mini]
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
 
