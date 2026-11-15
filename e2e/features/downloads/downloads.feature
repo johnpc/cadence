@@ -25,6 +25,7 @@ Feature: Offline downloads
     Then the Now-Playing bar shows a track
     And the audio element is playing from a local download
 
+  @offline-fixture
   Scenario: Download a whole playlist in one tap
     Given I own a small playlist for offline download
     And I am signed in

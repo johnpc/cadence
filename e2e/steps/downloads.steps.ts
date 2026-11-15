@@ -26,7 +26,9 @@ Given('I own a small playlist for offline download', async () => {
   await createSmallPlaylist(owner, FIXTURE, 2);
 });
 
-After(async () => {
+// Scoped to the scenarios that own the fixture: step files load in EVERY area,
+// so an unscoped After would sign in and sweep after every scenario everywhere.
+After({ tags: '@offline-fixture' }, async () => {
   try {
     const s = owner ?? (await login(USER, PASS));
     await deletePlaylistsByName(s, FIXTURE);

@@ -8,6 +8,7 @@ import {
   setPlaylistPublic,
   deletePlaylistsByName,
   type Session,
+  someTrackIds,
 } from './jellyfinApi';
 
 const { Given, When, Then, Before, After } = createBdd();
@@ -24,12 +25,17 @@ const NAME = 'E2E Shared Visibility Mix';
 let user2: Session | null = null;
 let playlistId: string | null = null;
 
-Before({ tags: '' }, () => {
+// Hooks are SCOPED to @visibility scenarios. Step files are loaded by every
+// acceptance area, so an unscoped After ran after EVERY scenario in EVERY area —
+// 13 parallel areas kept signing in as user two (invalidating this scenario's
+// token: same DeviceId) and deleting the fixture by name mid-scenario (the CI
+// "POST /Playlists/{id} → 404"). Scoping is what makes a destructive hook safe.
+Before({ tags: '@visibility' }, () => {
   user2 = null;
   playlistId = null;
 });
 
-After(async () => {
+After({ tags: '@visibility' }, async () => {
   // Teardown: remove EVERY fixture by name, not just this run's id — a run that
   // crashed between create and here (or created more than one) would otherwise
   // orphan public playlists on the shared server. Best-effort.
@@ -47,7 +53,9 @@ Given('user two owns a fresh public playlist', async () => {
   // Start from a clean slate: sweep any leftover fixture from a crashed prior
   // run so the community-shelf assertion is unambiguous, then create ours.
   await deletePlaylistsByName(user2, NAME);
-  playlistId = await createPlaylist(user2, NAME, true);
+  // A REAL playlist with tracks, like one a person would share — not an empty
+  // shell (an empty one is also what server-side tidy-ups are quickest to prune).
+  playlistId = await createPlaylist(user2, NAME, true, await someTrackIds(user2, 3));
 });
 
 When('I am signed in as user one', async ({ page }) => {
