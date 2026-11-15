@@ -95,17 +95,17 @@ jobs:
               -archivePath ~/Desktop/Cadence.xcarchive \
               -quiet
 
-            # The runner job runs in the system launchd context; from there
-            # `-exportArchive -allowProvisioningUpdates` crashes inside AppSSO
-            # (xcodebuild SIGABRT, no error text, exit 1 — crash report
-            # xcodebuild-2026-11-15-171456.ips on the mini). Hop into the user's
-            # GUI session for the export only, exactly as peek's deploy does.
-            sudo -n launchctl asuser "$(id -u)" sudo -n -u "$(id -un)" env HOME="$HOME" \
+            # NO -allowProvisioningUpdates: signing is MANUAL (profiles + the CI
+            # keychain identity from the Prepare step), so Xcode has no reason to
+            # touch an Apple account — and that flag is exactly what dragged in
+            # AppSSO, which crashes xcodebuild in the runner's launchd context
+            # (SIGTRAP, crash report xcodebuild-2026-11-15-171456.ips on the mini)
+            # and times out in a GUI-session hop. The authentication key below is
+            # for the UPLOAD only (destination=upload in ExportOptions).
             xcodebuild -exportArchive \
               -archivePath ~/Desktop/Cadence.xcarchive \
               -exportOptionsPlist /tmp/ExportOptions.plist \
               -exportPath ~/Desktop/export \
-              -allowProvisioningUpdates \
               -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
               -authenticationKeyID ${{ secrets.ASC_KEY_ID }} \
               -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }} 2>&1
