@@ -59,7 +59,7 @@ URL (it renders inline). All `aws` calls use `AWS_PROFILE=personal`; never inlin
 
 ### The Jellyfin client (`src/lib/jellyfin*.ts`) — replaces stoop's `dataClient`
 
-Split by concern to stay under the ≤100-line / CRAP≤15 gates:
+Split by concern (each module owns one idea and its tests):
 
 - **`jellyfinConfig.ts`** — base URL from `import.meta.env.VITE_JELLYFIN_URL` (build-time constant;
   one server) + the `X-Emby-Authorization` header builder. **DeviceId is a stable per-install UUID**
@@ -115,12 +115,13 @@ never hardcoded hex/px. Light/Dark/System is user-switchable (persisted; pre-pai
 Run `npm run quality`. **Enforce them yourself; when one fails, fix the code, never the gate.**
 
 - **No `any`, ever.** ESLint `@typescript-eslint/no-explicit-any: error`.
-- **Every `.ts`/`.tsx` logic file ≤ 100 lines** (`npm run check:lines`). Over → extract a helper.
-  Never raise the limit.
+- **Complexity is gated per function, not per file.** ESLint `complexity` ≤ 15 and **CRAP ≤ 15**
+  per function. Draw seams along concepts (a module with its own tests), never along line counts —
+  the old 100-line file cap produced the 20-hook player. `npm run check:lines` is only a 300-line
+  tripwire for files nobody can hold in view.
 - **≥ 80% coverage** (statements/branches/functions/lines) on every logic file. Fix by writing tests
   — never exclusions. Render-only composition roots (`App.tsx`, `AppRoutes.tsx`, `main.tsx`) are the
   only coverage exemptions.
-- **CRAP ≤ 15 per function** (`npm run crap`).
 - **Acceptance tests are always Gherkin** (`.feature` + steps), run via Playwright + playwright-bdd.
 - **Build + Prettier clean.**
 - **Determinism:** unit tests **mock the `jellyfin*` modules** — no real network; only Gherkin hits
@@ -131,8 +132,12 @@ Run `npm run quality`. **Enforce them yourself; when one fails, fix the code, ne
 
 Every data-reading flow asserts on **rendered real Jellyfin data**, never just a URL or element
 visibility. After sign-in, **wait for the Jellyfin token to persist** before reading data — reading
-immediately races the session. Use the dedicated **`cadence-test`** Jellyfin user for e2e (never
-`John`/`guest`).
+immediately races the session. **The suite runs against a hermetic Jellyfin container** with a
+generated fixture library (`scripts/e2e-jellyfin.sh`, `scripts/e2e-fixtures.sh`; run one area with
+`scripts/e2e-local.sh <area>`). A scenario that needs new library content gets it by extending the
+fixture script, never by depending on what happens to be on someone's server. CI never touches the
+production Jellyfin; the one live check (`smoke-live`) targets the public demo instance and is
+opt-in via secrets.
 
 ## Definition of done
 
@@ -169,9 +174,11 @@ npm run gen:icons      # regenerate app icons from assets/icon*.png (add --nativ
   `ITSAppUsesNonExemptEncryption=false`.
 - **Deploy:** nginx image (`Dockerfile` + `deploy/`) → Dockge on umbrel (192.168.7.211) → cloudflared
   `cadence.jpc.io`, host port 8095. See the `umbrel-dockge-dind` skill for the deploy flow.
-- **e2e test user:** a dedicated Jellyfin `cadence-test` user (creds in `.env.local` /
-  CI secrets `TEST_USERNAME` / `TEST_PASSWORD`).
-- **CI:** `.github/workflows/ci.yml` — `quality` + `acceptance` matrix (one area per feature). No AWS.
+- **e2e users:** `cadence-e2e-<area>` (+ `cadence-e2e-playlists2`), created on the hermetic
+  container by `scripts/e2e-jellyfin.sh up` (password `cadence-e2e-pass`, not a secret). For a run
+  against a real server, `.env.local` supplies `VITE_JELLYFIN_URL` / `TEST_USERNAME` / `TEST_PASSWORD`.
+- **CI:** `.github/workflows/ci.yml` — `quality` + `acceptance` matrix (one hermetic container per
+  area) + opt-in `smoke-live` (demo server). No AWS.
 - **Diagnostics (opt-in playback logging):** off by default; **Settings → Diagnostics** turns on an
   on-device ring buffer of player events (`src/lib/diagnostics/`), with a separate opt-in **Upload**
   to a serverless backend. Logs come from BOTH the JS player (`log()` in diagnosticsStore) and the iOS
@@ -239,13 +246,15 @@ Non-obvious things that have cost real time — check here before rediscovering 
   "proceeded anyway", every sign-in failed, and each area burned 2 × 25 minutes inside a retry
   wrapper before failing with no report. One honest `exit 1` would have said "user missing" in
   ten seconds.
-- **e2e scaling facts (not excuses):** each area signs in as its own `cadence-e2e-<area>` user
-  with its own `E2E_DEVICE_ID`, provisioned per run by `scripts/ensure-e2e-users.sh` (needs the
-  `JELLYFIN_ADMIN_KEY` secret); the test user must OWN the fixtures its scenarios open
-  (`scripts/seed-e2e-user.sh`); server-backed waits use the shared `DATA_WAIT`
-  (`e2e/steps/timeouts.ts`); the warmup step absorbs the tunnel cold start before Playwright
-  starts. Jellyfin 12 requires the full `Authorization: MediaBrowser … Token="…"` header — the
-  legacy `X-Emby-Token` header and `api_key=` query are rejected.
+- **e2e facts:** each area signs in as its own `cadence-e2e-<area>` user with its own
+  `E2E_DEVICE_ID` on its own container (`scripts/e2e-jellyfin.sh`); the user must OWN the fixtures
+  its scenarios open (`scripts/seed-e2e-user.sh` — playlist, followed artist, liked song);
+  server-backed waits use the shared `DATA_WAIT` (`e2e/steps/timeouts.ts`). Jellyfin 12 requires the
+  full `Authorization: MediaBrowser … Token="…"` header — the legacy `X-Emby-Token` header and
+  `api_key=` query are rejected. Jellyfin 12.4 quirks the fixtures work around: a later audiobook
+  part's `Album` is derived from the PREVIOUS part's title (so every part is titled with the book),
+  and an album whose discs sit in "Disc N" subfolders returns nothing by `AlbumIds`
+  (`getItemTracks` falls back to `ParentId`).
 - **Deploy: the active stack compose is separate from the repo.** `/opt/stacks/cadence/compose.yaml`
   (inside Dockge's dind) is hand-maintained — editing `deploy/compose.yaml` in the repo does NOT update
   it. After a deploy-config change, edit the active compose too. VERIFY every deploy:

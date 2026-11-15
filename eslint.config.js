@@ -33,6 +33,12 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       // Strict quality requirements: no `any`, ever.
       '@typescript-eslint/no-explicit-any': 'error',
+      // Complexity is gated PER FUNCTION (cyclomatic ≤ 15 — the ceiling CRAP ≤ 15
+      // already implies at full coverage; scripts/crap-check.mjs) — not per file.
+      // A function over it
+      // is extracted along a concept boundary; a long file is only a tripwire
+      // (scripts/check-file-lines.mjs).
+      complexity: ['error', 15],
       // Allow intentionally-unused args/vars prefixed with `_` — e.g. a
       // playwright-bdd step whose {string} placeholder must be in the signature
       // for arg-count but isn't needed in the body.

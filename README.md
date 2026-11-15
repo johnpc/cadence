@@ -188,18 +188,31 @@ Notes:
 npm install
 npm run dev            # Vite dev server on :5173
 npm run quality        # full gate: lint + format + lines + features + coverage + crap + build
-npm run test:e2e       # Gherkin acceptance tests (Playwright + playwright-bdd)
+npm run test:e2e       # Gherkin acceptance tests (Playwright + playwright-bdd) against $VITE_JELLYFIN_URL
+scripts/e2e-local.sh search   # one acceptance area against a throwaway Jellyfin container (needs Docker)
+scripts/e2e-local.sh all      # every area, the way CI runs them
 npm run gen:icons      # regenerate app icons from assets/icon*.png
 ```
 
 The Jellyfin base URL is a build-time constant (`VITE_JELLYFIN_URL`, defaulted in `.env`).
+
+### Acceptance tests run against a hermetic Jellyfin
+
+CI never touches a real server. Each acceptance area starts its own `jellyfin/jellyfin` container
+(`scripts/e2e-jellyfin.sh up`), renders a small fixture library inside it with the bundled
+jellyfin-ffmpeg (`scripts/e2e-fixtures.sh`: six albums, a two-disc "Rent", "love" songs and a
+"Lovelight Parade" artist, Pop/Rock/Indie genres, two multi-part audiobooks), finishes the setup
+wizard, scans, and creates one `cadence-e2e-<area>` user per area — about fifteen seconds. The
+fixtures are deterministic, so a red scenario is a bug in the test, the app, or the fixtures, never
+"the server was slow today". One opt-in job (`smoke-live`) runs the smoke area against a public
+demo server when its secrets are configured; it skips with a notice otherwise.
 
 ## Testing policy: no ignored failures
 
 Every test in this repo is a gate, and a failing gate is a bug to fix, not a signal to retry.
 There are no Playwright retries, no CI retry wrappers, no re-run-until-green, no parallelism caps
 to "calm the server", and no helper scripts that swallow errors. When something in the
-environment breaks (a deleted test user, a tunnel outage, an API change), the pipeline fails fast
+environment breaks (a Docker pull failure, a Jellyfin API change), the pipeline fails fast
 with the real error and the environment gets fixed. If you find yourself wanting to re-run a red
 job, read the report instead — the failure is telling you something. Details and the case study
 that led to this rule are in `CLAUDE.md` ("No ignored failures").

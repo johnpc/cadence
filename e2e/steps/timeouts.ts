@@ -1,8 +1,9 @@
 /**
- * Shared e2e wait budgets. Data reads go through a cloudflared tunnel to one
- * shared Jellyfin server that can be slow/cold under CI load — so waits on
- * server-backed content need real headroom. Centralised here (not hardcoded per
- * step) so the whole suite tunes in one place.
+ * Shared e2e wait budgets. In CI the server is a hermetic container on the same
+ * runner, but a fresh Jellyfin still cold-starts transcoders, image resizes and
+ * query caches on first use — so waits on server-backed content keep headroom.
+ * Centralised here (not hardcoded per step) so the whole suite tunes in one
+ * place.
  *
  * DATA_WAIT: for anything backed by a Jellyfin round-trip (shelves, tracks,
  * search results, favorite toggles). Generous in CI where the tunnel is

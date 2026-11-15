@@ -45,7 +45,7 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: File-length discipline (max 100 lines)
+      - name: File-length tripwire (max 300 lines)
         run: npm run check:lines
 
       - name: Feature coverage (every .feature maps to an acceptance area)
@@ -129,21 +129,24 @@ jobs:
 
   acceptance:
     # One job per feature area, each its own independent check, so a red X points
-    # at the area that broke. Tests hit the real Jellyfin server (base URL is
-    # baked into the build via VITE_JELLYFIN_URL).
+    # at the area that broke. Every area runs against a HERMETIC Jellyfin: a
+    # throwaway container on the runner holding a generated fixture library
+    # (scripts/e2e-jellyfin.sh + scripts/e2e-fixtures.sh). Nothing here touches
+    # the maintainer's production server — no tunnel, no junk users, no cold
+    # starts, no shared state between areas. The only live-server check is the
+    # opt-in `smoke-live` job below.
     name: Acceptance Tests (${{ matrix.area.name }})
     runs-on: ubuntu-latest
     # Hard cap per area. It surfaces hangs (e.g. sign-in never succeeding) as a
     # fast red X with the real error in the log — it is not a retry budget.
-    timeout-minutes: 25
+    timeout-minutes: 20
     strategy:
       # Let every area run even if one fails — a lone failure shouldn't cancel the
       # rest and hide which areas are healthy. Each area is its own check.
       fail-fast: false
-      # Areas run fully in parallel. Each area signs in as its OWN Jellyfin user
-      # with its OWN DeviceId (see below), so there is no shared-session contention
-      # to throttle around. If a run fails, the failure is real: fix the test, the
-      # app, or the environment — never the parallelism, never with a retry.
+      # Areas run fully in parallel, each on its own runner with its own server.
+      # If a run fails, the failure is real: fix the test, the app, or the
+      # fixtures — never the parallelism, never with a retry.
       matrix:
         area:
           - name: smoke
@@ -192,63 +195,32 @@ jobs:
         # audiobooks need, so playback scenarios exercise real audio in CI.
         run: npx playwright install chrome
 
-      # Provision THIS area's dedicated Jellyfin user (cadence-e2e-<area>): create
-      # it if missing, reset its password to TEST_PASSWORD, grant library access,
-      # and verify sign-in. Fails the job if any of that fails — a missing user
-      # can only produce a 25-minute sign-in hang later, which is worse.
-      - name: Ensure this area's Jellyfin user exists
-        env:
-          VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
-          JELLYFIN_ADMIN_KEY: ${{ secrets.JELLYFIN_ADMIN_KEY }}
-          AREA: ${{ matrix.area.name }}
-          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-        run: bash scripts/ensure-e2e-users.sh
+      # Start the hermetic Jellyfin: container up, fixture library rendered with
+      # the bundled jellyfin-ffmpeg, setup wizard completed, Music + Books
+      # libraries scanned, one user per area created. Exports VITE_JELLYFIN_URL,
+      # JELLYFIN_ADMIN_KEY, TEST_PASSWORD(_2) and TEST_USERNAME_2 to later steps.
+      # Fails the job loudly if any of that fails — ~15 s when healthy.
+      - name: Start the e2e Jellyfin
+        run: bash scripts/e2e-jellyfin.sh up
 
-      # Warm up the Jellyfin auth path before the tests (the first auth after an
-      # idle gap is slow). Fails the job on a 401 — wrong credentials are a real
-      # failure, not something to let Playwright discover by timing out.
-      - name: Warm up Jellyfin auth
-        env:
-          VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
-          # Warm as THIS area's dedicated user, so the warmed auth path matches
-          # the user the tests actually sign in as.
-          TEST_USERNAME: cadence-e2e-${{ matrix.area.name }}
-          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-        run: bash scripts/warmup-jellyfin.sh
-
-      # Ensure this area's user owns a playlist + follows an artist — the
-      # library/home scenarios need that owned content. Idempotent; fails the job
-      # if it cannot sign in or read the library.
+      # Seed this area's user: an owned playlist, a followed artist, a liked song.
       - name: Seed owned content for this area's user
         env:
-          VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
-          # Every area now signs in as its OWN dedicated user (cadence-e2e-<area>,
-          # provisioned on the server). Seed that same user so 'open the first
-          # playlist' / followed-artist scenarios have their fixtures.
           TEST_USERNAME: cadence-e2e-${{ matrix.area.name }}
-          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: bash scripts/seed-e2e-user.sh
 
       # ONE attempt, no retry wrapper. Playwright runs with retries: 0 in CI too.
-      # A failing scenario is a bug (test, app, or environment) that gets fixed —
+      # A failing scenario is a bug (test, app, or fixtures) that gets fixed —
       # it is never re-run until green. The job-level timeout-minutes above is the
       # only wall-clock cap, and it exists to surface hangs, not to absorb them.
       - name: Run acceptance tests (${{ matrix.area.name }})
         env:
-          # The server URL is NOT in committed source — Vite reads it from this
-          # secret at dev-server start (webServer in playwright.config.ts).
-          VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
-          # DEDICATED Jellyfin user PER AREA (cadence-e2e-<area>), provisioned by
-          # scripts/ensure-e2e-users.sh above. Password is shared (TEST_PASSWORD).
+          # DEDICATED Jellyfin user PER AREA (cadence-e2e-<area>), created by
+          # e2e-jellyfin.sh above; TEST_PASSWORD was exported by the same step.
           TEST_USERNAME: cadence-e2e-${{ matrix.area.name }}
-          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           # A DISTINCT Jellyfin DeviceId PER AREA: Jellyfin keys a playback session
           # per (user, DeviceId), so each area gets a fully independent session.
           E2E_DEVICE_ID: cadence-e2e-${{ matrix.area.name }}
-          # Second user — only the playlists area's cross-user visibility scenario
-          # needs one; dedicated so it can't collide with any other area's user.
-          TEST_USERNAME_2: cadence-e2e-playlists2
-          TEST_PASSWORD_2: ${{ secrets.TEST_PASSWORD }}
         run: npx bddgen && npx playwright test ${{ matrix.area.paths }}
 
       - name: Upload Playwright report
@@ -256,5 +228,70 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: playwright-report-${{ matrix.area.name }}
+          path: playwright-report/
+          retention-days: 7
+
+  smoke-live:
+    # The ONE check against a real, remote Jellyfin: the smoke area against the
+    # public DEMO instance (never production). Catches what a container cannot —
+    # TLS, a tunnel, a real server version drift. Opt-in: it runs only when the
+    # demo secrets are configured (an existing non-admin demo user; no
+    # provisioning, no admin key). Without them the job completes as a no-op
+    # that says so, instead of failing or silently pretending to have run.
+    #   gh secret set DEMO_JELLYFIN_URL   --body https://jellyfin-demo.example
+    #   gh secret set DEMO_TEST_USERNAME  --body cadence-smoke
+    #   gh secret set DEMO_TEST_PASSWORD  --body '…'
+    name: Smoke against the live demo server
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VITE_JELLYFIN_URL: ${{ secrets.DEMO_JELLYFIN_URL }}
+      TEST_USERNAME: ${{ secrets.DEMO_TEST_USERNAME }}
+      TEST_PASSWORD: ${{ secrets.DEMO_TEST_PASSWORD }}
+      E2E_DEVICE_ID: cadence-e2e-smoke-live
+    steps:
+      - name: Check for demo credentials
+        id: creds
+        run: |
+          if [ -z "$VITE_JELLYFIN_URL" ] || [ -z "$TEST_USERNAME" ] || [ -z "$TEST_PASSWORD" ]; then
+            echo "::notice::smoke-live skipped: DEMO_JELLYFIN_URL / DEMO_TEST_USERNAME / DEMO_TEST_PASSWORD are not set."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v5
+        if: steps.creds.outputs.run == 'true'
+
+      - uses: actions/setup-node@v5
+        if: steps.creds.outputs.run == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.creds.outputs.run == 'true'
+        run: npm ci
+
+      - name: Install Google Chrome for Playwright
+        if: steps.creds.outputs.run == 'true'
+        timeout-minutes: 5
+        run: npx playwright install chrome
+
+      # Warm the demo's auth path first; a 401 here is a real failure (wrong
+      # demo credentials) and is reported as such, not as a Playwright timeout.
+      - name: Warm up the demo server
+        if: steps.creds.outputs.run == 'true'
+        run: bash scripts/warmup-jellyfin.sh
+
+      - name: Run the smoke area against the demo
+        if: steps.creds.outputs.run == 'true'
+        run: npx bddgen && npx playwright test .features-gen/e2e/features/smoke
+
+      - name: Upload Playwright report
+        if: always() && steps.creds.outputs.run == 'true'
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report-smoke-live
           path: playwright-report/
           retention-days: 7

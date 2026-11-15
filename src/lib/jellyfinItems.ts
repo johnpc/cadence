@@ -25,22 +25,27 @@ export async function getItem(itemId: string): Promise<JellyfinItem> {
   return request<JellyfinItem>(`/Users/${userId}/Items/${itemId}?Fields=${fields}`);
 }
 
-/** All audio tracks on an album, in disc+track order. Uses AlbumIds, not
- * ParentId: some albums (e.g. where the songs live under a different container)
- * return nothing for ParentId+Recursive but resolve correctly by AlbumIds. The
- * limit covers even large box sets (a 200-cap would silently drop later discs). */
+/** All audio tracks on an album, in disc+track order. Asks by AlbumIds first
+ * (some albums whose songs live under a different container return nothing for
+ * ParentId), then falls back to ParentId+Recursive — Jellyfin 12.4 returns NO
+ * rows by AlbumIds for an album whose discs sit in "Disc 1"/"Disc 2" subfolders,
+ * which left a multi-disc album with an empty tracklist. The limit covers even
+ * large box sets (a 200-cap would silently drop later discs). */
 export async function getItemTracks(albumId: string, limit = 1000): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
-  const params = new URLSearchParams({
-    AlbumIds: albumId,
-    IncludeItemTypes: 'Audio',
-    Recursive: 'true',
-    SortBy: 'ParentIndexNumber,IndexNumber,SortName',
-    Limit: String(limit),
-    Fields: audioFields,
-    userId,
-  });
-  const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
+  const query = (scope: Record<string, string>) =>
+    new URLSearchParams({
+      ...scope,
+      IncludeItemTypes: 'Audio',
+      Recursive: 'true',
+      SortBy: 'ParentIndexNumber,IndexNumber,SortName',
+      Limit: String(limit),
+      Fields: audioFields,
+      userId,
+    }).toString();
+  let res = await request<ItemsResponse>(`/Items?${query({ AlbumIds: albumId })}`);
+  if (!res.Items.length)
+    res = await request<ItemsResponse>(`/Items?${query({ ParentId: albumId })}`);
   return dedupeTracks(res.Items);
 }
 
