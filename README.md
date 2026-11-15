@@ -194,6 +194,16 @@ npm run gen:icons      # regenerate app icons from assets/icon*.png
 
 The Jellyfin base URL is a build-time constant (`VITE_JELLYFIN_URL`, defaulted in `.env`).
 
+## Testing policy: no ignored failures
+
+Every test in this repo is a gate, and a failing gate is a bug to fix, not a signal to retry.
+There are no Playwright retries, no CI retry wrappers, no re-run-until-green, no parallelism caps
+to "calm the server", and no helper scripts that swallow errors. When something in the
+environment breaks (a deleted test user, a tunnel outage, an API change), the pipeline fails fast
+with the real error and the environment gets fixed. If you find yourself wanting to re-run a red
+job, read the report instead — the failure is telling you something. Details and the case study
+that led to this rule are in `CLAUDE.md` ("No ignored failures").
+
 ## Diagnostics & telemetry (opt-in)
 
 Cadence can capture a **structured, on-device log** of playback events (track load,
