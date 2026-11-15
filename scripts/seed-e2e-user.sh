@@ -11,14 +11,15 @@
 # Idempotent: if an owned playlist already exists, it does nothing. Auth writes
 # use a FRESH token via X-Emby-Authorization (Token=...) — the form the app
 # uses; a token that only ever did GETs can read but a stale one 401s on POST.
-# Never fails the job (exit 0) — the tests' own retries remain the real gate.
-set -u
+# FAILS LOUDLY: a missing URL/creds or a failed sign-in means the acceptance run
+# cannot pass; say so here instead of hiding it behind a later test timeout.
+set -uo pipefail
 
 URL="${VITE_JELLYFIN_URL:-}"
 [ -z "$URL" ] && URL="$(grep -hE '^VITE_JELLYFIN_URL=.' .env .env.local 2>/dev/null | head -1 | cut -d= -f2-)"
 if [ -z "${URL:-}" ] || [ -z "${TEST_USERNAME:-}" ] || [ -z "${TEST_PASSWORD:-}" ]; then
-  echo "seed: missing URL or creds — skipping"
-  exit 0
+  echo "seed: missing URL or creds" >&2
+  exit 1
 fi
 
 XEMBY='MediaBrowser Client="seed", Device="ci", DeviceId="cadence-e2e-seed", Version="1"'
@@ -27,7 +28,7 @@ AUTH=$(curl -s --max-time 30 -X POST "$URL/Users/AuthenticateByName" \
   -d "$(printf '{"Username":"%s","Pw":"%s"}' "$TEST_USERNAME" "$TEST_PASSWORD")")
 TOK=$(printf '%s' "$AUTH" | python3 -c 'import sys,json;print(json.load(sys.stdin).get("AccessToken",""))' 2>/dev/null || true)
 UID_=$(printf '%s' "$AUTH" | python3 -c 'import sys,json;print(json.load(sys.stdin).get("User",{}).get("Id",""))' 2>/dev/null || true)
-if [ -z "$TOK" ]; then echo "seed: auth failed — skipping (tests will retry)"; exit 0; fi
+if [ -z "$TOK" ]; then echo "seed: sign-in failed for '$TEST_USERNAME': $(printf '%s' "$AUTH" | head -c 200)" >&2; exit 1; fi
 WTOK="$XEMBY, Token=\"$TOK\""
 
 # Owned playlists split by content. EMPTY owned playlists are poison, not just
@@ -68,7 +69,8 @@ else
     -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" \
     | python3 -c 'import sys,json;print(",".join("\""+x["Id"]+"\"" for x in json.load(sys.stdin).get("Items",[])))' 2>/dev/null || true)
   if [ -z "$IDS" ]; then
-    echo "seed: could not fetch songs — skipping playlist seed (tests will retry)"
+    echo "seed: could not fetch songs from the library" >&2; exit 1
+    echo "unreachable"
   else
     code=$(curl -s --max-time 45 -o /dev/null -w '%{http_code}' -X POST "$URL/Playlists" \
       -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" -H 'Content-Type: application/json' \

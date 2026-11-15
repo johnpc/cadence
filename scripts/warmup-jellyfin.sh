@@ -1,42 +1,37 @@
 #!/usr/bin/env bash
-# Prime the Jellyfin auth path so the cold-start latency (cloudflared tunnel +
-# auth cold path) is absorbed HERE, before the acceptance tests sign in. The
-# first request after an idle gap can take 12-15s+; subsequent ones are ~0.2s.
-# We retry a bounded number of times until one succeeds (or give up without
-# failing the job — the tests' own retries remain the real gate).
-set -u
+# Prime the Jellyfin auth path before the acceptance tests sign in: the first
+# auth after an idle gap can take 10s+ (PBKDF2 + tunnel cold path), later ones
+# ~0.2s. Hit it until a call is fast.
+#
+# FAILS LOUDLY: if sign-in never returns 200, the tests cannot pass — surface
+# that here, with the HTTP status, instead of letting Playwright time out later.
+set -euo pipefail
 
-# Prefer the env var (CI secret / local shell); fall back to .env then .env.local
-# for local runs. The URL is intentionally NOT committed in .env.
 URL="${VITE_JELLYFIN_URL:-}"
 [ -z "$URL" ] && URL="$(grep -hE '^VITE_JELLYFIN_URL=.' .env .env.local 2>/dev/null | head -1 | cut -d= -f2-)"
-if [ -z "${URL:-}" ]; then
-  echo "warmup: no VITE_JELLYFIN_URL set — skipping"
-  exit 0
-fi
-
-BODY=$(printf '{"Username":"%s","Pw":"%s"}' "${TEST_USERNAME:-}" "${TEST_PASSWORD:-}")
+: "${URL:?VITE_JELLYFIN_URL is required}" "${TEST_USERNAME:?TEST_USERNAME is required}" "${TEST_PASSWORD:?TEST_PASSWORD is required}"
+URL="${URL%/}"
+BODY=$(python3 -c 'import json,sys; print(json.dumps({"Username":sys.argv[1],"Pw":sys.argv[2]}))' "$TEST_USERNAME" "$TEST_PASSWORD")
 AUTH='MediaBrowser Client="ci-warmup", Device="ci", DeviceId="ci-warmup", Version="1"'
 
-# Warm until auth is FAST, not merely until it returns 200. Measured against the
-# live server, the first auth after idle is 30-40s and it takes ~5 hits to settle
-# to a few seconds (PBKDF2 + cloudflared cold path). The old script stopped on the
-# first 200 — which could itself be a 34s cold hit — leaving the tests to eat the
-# slow warm-up curve and time out. Keep hitting it until a call returns under
-# FAST_MS (or attempts run out); never fail the job (the tests retry too).
 FAST_MS=5000
+ok=0
 for attempt in $(seq 1 10); do
-  ms=$(curl -s -o /dev/null -w '%{time_total}' --max-time 45 \
+  out=$(curl -s -o /dev/null -w '%{http_code} %{time_total}' --max-time 45 \
     -X POST "$URL/Users/AuthenticateByName" \
     -H 'Content-Type: application/json' -H "Authorization: $AUTH" -H "X-Emby-Authorization: $AUTH" \
-    -d "$BODY" | awk '{printf "%d", $1 * 1000}')
-  echo "warmup attempt $attempt: ${ms}ms"
-  if [ -n "$ms" ] && [ "$ms" -gt 0 ] && [ "$ms" -lt "$FAST_MS" ]; then
-    echo "warmup: Jellyfin auth is warm (${ms}ms < ${FAST_MS}ms)"
-    exit 0
+    -d "$BODY" || echo "000 0")
+  code=${out%% *}; ms=$(awk '{printf "%d", $2 * 1000}' <<<"$out")
+  echo "warmup attempt $attempt: HTTP $code in ${ms}ms"
+  if [ "$code" = "200" ]; then
+    ok=1
+    if [ "$ms" -lt "$FAST_MS" ]; then echo "warmup: Jellyfin auth is warm"; exit 0; fi
+  elif [ "$code" = "401" ]; then
+    echo "warmup: Jellyfin rejected the credentials for '$TEST_USERNAME' (401) — the e2e user is missing or the password is wrong" >&2
+    exit 1
   fi
   sleep 2
 done
-
-echo "warmup: auth never settled below ${FAST_MS}ms — proceeding anyway (tests retry)"
-exit 0
+if [ "$ok" = 1 ]; then echo "warmup: auth works but stayed slow (>${FAST_MS}ms); continuing"; exit 0; fi
+echo "warmup: Jellyfin auth never succeeded at $URL" >&2
+exit 1
