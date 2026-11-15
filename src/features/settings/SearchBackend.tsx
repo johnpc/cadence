@@ -17,7 +17,7 @@ export function SearchBackend() {
       <p className="search-backend__hint cad-meta">
         {managed
           ? 'Your server administrator has configured search for everyone on this server, so these settings can’t be changed here.'
-          : 'Optional: point search at a Meilisearch (marlin-search) server for faster, better-ranked results. Leave blank to use your Jellyfin server’s search.'}
+          : 'Optional: point search at a Meilisearch (marlin-search) server for faster, better-ranked results. Leave blank to use your media server’s search.'}
       </p>
       <IonInput
         label="Search server URL"

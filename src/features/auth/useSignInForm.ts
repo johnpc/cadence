@@ -21,7 +21,7 @@ export function useSignInForm() {
 
   const submit = useCallback(async () => {
     if (!server.trim()) {
-      setError('Enter your Jellyfin server address.');
+      setError('Enter your server address.');
       return;
     }
     setError(null);
