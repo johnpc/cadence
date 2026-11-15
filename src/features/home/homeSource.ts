@@ -61,3 +61,15 @@ export async function fetchHomeShelves(): Promise<HomeShelvesData> {
     onRepeat: arr(res.OnRepeat),
   };
 }
+
+/** Ask the plugin to rebuild this user's precomputed shelves NOW. Its cache is
+ * fresh for 6 h, so without this a track you just played would not reach
+ * "Recently played" / "On repeat" until the next scheduled rebuild. Best-effort:
+ * a failure here only means the shelves refresh on the plugin's own schedule. */
+export async function requestHomeShelvesRebuild(): Promise<void> {
+  if (!homeSourceEnabled()) return;
+  const userId = getSession()?.userId ?? '';
+  await request(`/Cadence/Home/Refresh?userId=${encodeURIComponent(userId)}`, {
+    method: 'POST',
+  }).catch(() => undefined);
+}

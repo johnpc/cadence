@@ -57,7 +57,7 @@ export function Settings() {
           <section className="settings__storage">
             <h2 className="settings__title cad-kicker">Storage</h2>
             <p className="cad-meta">
-              Reload everything from your Jellyfin server if something looks stale or out of date.
+              Reload everything from your media server if something looks stale or out of date.
             </p>
             <ClearCacheButton />
             <RefreshHomeButton />

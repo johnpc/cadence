@@ -62,11 +62,16 @@ export async function logout(token: string): Promise<void> {
 }
 
 /** Create a playlist owned by `s`, public or private, and return its id. */
-export async function createPlaylist(s: Session, name: string, isPublic: boolean): Promise<string> {
+export async function createPlaylist(
+  s: Session,
+  name: string,
+  isPublic: boolean,
+  ids: string[] = [],
+): Promise<string> {
   const r = await api<{ Id: string }>('/Playlists', {
     method: 'POST',
     token: s.token,
-    body: { Name: name, UserId: s.userId, MediaType: 'Audio', IsPublic: isPublic },
+    body: { Name: name, UserId: s.userId, MediaType: 'Audio', IsPublic: isPublic, Ids: ids },
   });
   return r.Id;
 }

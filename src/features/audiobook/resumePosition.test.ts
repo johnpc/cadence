@@ -29,10 +29,14 @@ describe('resumeSeconds', () => {
     expect(resumeSeconds(book({}), 36000)).toBeNull();
   });
 
-  it('is null when marked played', () => {
-    expect(
-      resumeSeconds(book({ PlaybackPositionTicks: 3600 * S, Played: true }), 36000),
-    ).toBeNull();
+  it('still resumes when Jellyfin has flagged the book Played (it flips at START, not at the end)', () => {
+    expect(resumeSeconds(book({ PlaybackPositionTicks: 3600 * S, Played: true }), 36000)).toBe(
+      3600,
+    );
+  });
+
+  it('is null when Played and the position is back at the start (a finished, reset book)', () => {
+    expect(resumeSeconds(book({ PlaybackPositionTicks: 0, Played: true }), 36000)).toBeNull();
   });
 
   it('is null when within the end margin (finished)', () => {

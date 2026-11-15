@@ -33,14 +33,15 @@ const testDir = defineBddConfig({
 export default defineConfig({
   testDir,
   fullyParallel: true,
-  // In CI, run scenarios within an area SERIALLY (workers: 1). Every scenario
-  // signs in and reads/writes the SAME self-hosted Jellyfin; with 4 workers ×
-  // 3 parallel area jobs that was ~12 concurrent sign-in storms hammering one
-  // server — the root of the acceptance "flakes". Serial per area + the
-  // max-parallel:3 cap keeps peak load gentle. Locally, 4 workers for speed.
+  // Scenarios within an area run serially in CI (one Jellyfin user + DeviceId
+  // per area; scenarios in an area share and mutate that user's state). Locally,
+  // 4 workers for speed.
   workers: process.env.CI ? 1 : 4,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // NEVER retry. A scenario that fails is a bug in the test, the app, or the
+  // environment, and it gets fixed. Retrying until green hides exactly the
+  // failures these tests exist to catch (see CLAUDE.md → "No ignored failures").
+  retries: 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   // CI reaches the home Jellyfin through a cloudflared tunnel, so round-trips
   // can be slow — give tests and assertions extra headroom there.
@@ -59,7 +60,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      // CI runs real Google Chrome, not Playwright's open-source Chromium build:
+      // Chromium has no AAC decoder, so m4b audiobooks (and any AAC track) never
+      // play there and "resume where you left off" can't be exercised honestly.
+      // Locally the default Chromium is fine; set PW_CHANNEL=chrome to match CI.
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: process.env.PW_CHANNEL || (process.env.CI ? 'chrome' : undefined),
+      },
     },
   ],
   webServer: {

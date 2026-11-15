@@ -3,6 +3,7 @@ Feature: Playlist visibility (public vs private)
   other users' "From the community" shelf; a private one does not. This is a
   cross-user guarantee, so it is verified with TWO real Jellyfin accounts.
 
+  @visibility
   Scenario: A public playlist is visible to another user; making it private hides it
     Given user two owns a fresh public playlist
     When I am signed in as user one

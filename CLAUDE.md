@@ -225,16 +225,27 @@ Non-obvious things that have cost real time — check here before rediscovering 
   but CI's quality job doesn't — tests that read it must `vi.stubEnv('VITE_JELLYFIN_URL', '')` (or set
   the value they need) so they pass in both. This bit `serverUrlStore`/`SignIn` when the URL default
   went empty.
-- **e2e flakiness levers (in priority order):** (0) **`max-parallel: 1` on the acceptance matrix** —
-  all ~10 areas hit ONE cloudflared-tunneled Jellyfin, and running even 3 concurrently stampedes it
-  (auth throttling / stalled first-paint that reads as widespread `search-input`/`navigate` timeouts;
-  main went red across 5+ areas at once with `max-parallel: 3`, while every scenario passes alone).
-  Serialize the areas — the tunnel is the bottleneck, not the runners. (1) the test user must OWN
-  fixtures the scenarios need — `scripts/seed-e2e-user.sh` guarantees an owned playlist + followed
-  artist (a CI step). (2) use the shared `DATA_WAIT` (`e2e/steps/timeouts.ts`, 45s CI) for every
-  server-backed wait, never a hardcoded 15s. (3) A single fixed e2e DeviceId seeded via
-  `page.addInitScript` (BEFORE app boot) so runs reuse one session instead of minting thousands.
-  Warmup step absorbs the tunnel cold-start before tests.
+- **No ignored failures. Ever.** A failing test is a bug — in the test, the app, or the
+  environment — and the only acceptable response is to find the cause and fix it. There is no
+  such thing as a "known flake". Concretely, none of these are allowed in this repo: Playwright
+  `retries` > 0, CI retry wrappers (`nick-fields/retry` and friends), re-running a failed job
+  until it goes green, `max-parallel` caps "because the server is busy", helper scripts that
+  `exit 0` on an error "so the tests can decide", or `test.skip`/`@flaky` tags on a scenario
+  that sometimes fails. If a failure's root cause is in the environment (the e2e users were
+  deleted, the tunnel is down, Jellyfin changed an auth header), fix the environment and make the
+  pipeline FAIL FAST with the real error — `scripts/ensure-e2e-users.sh` / `warmup-jellyfin.sh`
+  / `seed-e2e-user.sh` exit non-zero for exactly this reason. Case study (2026-11-15): after the
+  Jellyfin 12 upgrade the provisioning script's `X-Emby-Token` header returned 401, it
+  "proceeded anyway", every sign-in failed, and each area burned 2 × 25 minutes inside a retry
+  wrapper before failing with no report. One honest `exit 1` would have said "user missing" in
+  ten seconds.
+- **e2e scaling facts (not excuses):** each area signs in as its own `cadence-e2e-<area>` user
+  with its own `E2E_DEVICE_ID`, provisioned per run by `scripts/ensure-e2e-users.sh` (needs the
+  `JELLYFIN_ADMIN_KEY` secret); the test user must OWN the fixtures its scenarios open
+  (`scripts/seed-e2e-user.sh`); server-backed waits use the shared `DATA_WAIT`
+  (`e2e/steps/timeouts.ts`); the warmup step absorbs the tunnel cold start before Playwright
+  starts. Jellyfin 12 requires the full `Authorization: MediaBrowser … Token="…"` header — the
+  legacy `X-Emby-Token` header and `api_key=` query are rejected.
 - **Deploy: the active stack compose is separate from the repo.** `/opt/stacks/cadence/compose.yaml`
   (inside Dockge's dind) is hand-maintained — editing `deploy/compose.yaml` in the repo does NOT update
   it. After a deploy-config change, edit the active compose too. VERIFY every deploy:

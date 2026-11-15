@@ -11,6 +11,7 @@ vi.mock('../../lib/jellyfinItems', () => ({ getInstantMix: vi.fn().mockResolvedV
 // covered in useDiagnosticsContext.test — stub it here so PlayerProvider tests stay
 // focused on playback and don't require the full provider tree.
 vi.mock('./useDiagnosticsContext', () => ({ useDiagnosticsContext: () => {} }));
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PlayerProvider } from './PlayerProvider';
 import { usePlayer } from './usePlayer';
 import { setSession } from '../../lib/sessionStore';
@@ -69,6 +70,19 @@ function Probe() {
   );
 }
 
+// The player refreshes play-derived Home shelves through react-query, so it
+// needs a client in scope — exactly as the app provides one.
+function renderPlayer() {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={client}>
+      <PlayerProvider>
+        <Probe />
+      </PlayerProvider>
+    </QueryClientProvider>,
+  );
+}
+
 describe('PlayerProvider', () => {
   beforeEach(() => {
     setSession({ token: 't', userId: 'u' });
@@ -93,11 +107,7 @@ describe('PlayerProvider', () => {
   });
 
   it('plays a queue: loads the first track src and marks playing', async () => {
-    render(
-      <PlayerProvider>
-        <Probe />
-      </PlayerProvider>,
-    );
+    renderPlayer();
     await userEvent.click(screen.getByText('play'));
     expect(screen.getByTestId('current')).toHaveTextContent('Song a');
     // src resolution is async (resolveTrackSrc) — wait for it to land.
@@ -106,11 +116,7 @@ describe('PlayerProvider', () => {
   });
 
   it('advances to the next track when the current one ends', async () => {
-    render(
-      <PlayerProvider>
-        <Probe />
-      </PlayerProvider>,
-    );
+    renderPlayer();
     await userEvent.click(screen.getByText('play'));
     act(() => audio.fire('ended'));
     expect(screen.getByTestId('current')).toHaveTextContent('Song b');
@@ -118,11 +124,7 @@ describe('PlayerProvider', () => {
   });
 
   it('retries the track on the first load error, then skips on the second', async () => {
-    render(
-      <PlayerProvider>
-        <Probe />
-      </PlayerProvider>,
-    );
+    renderPlayer();
     await userEvent.click(screen.getByText('play'));
     // First error → reload/retry the SAME track (don't lose the user's place).
     act(() => audio.fire('error'));
@@ -133,11 +135,7 @@ describe('PlayerProvider', () => {
   });
 
   it('prev restarts the current track when more than a few seconds in', async () => {
-    render(
-      <PlayerProvider>
-        <Probe />
-      </PlayerProvider>,
-    );
+    renderPlayer();
     await userEvent.click(screen.getByText('play'));
     // advance to the 2nd track so "previous" would have somewhere to go
     await userEvent.click(screen.getByText('next'));
@@ -150,11 +148,7 @@ describe('PlayerProvider', () => {
   });
 
   it('prev goes to the previous track near the start', async () => {
-    render(
-      <PlayerProvider>
-        <Probe />
-      </PlayerProvider>,
-    );
+    renderPlayer();
     await userEvent.click(screen.getByText('play'));
     await userEvent.click(screen.getByText('next'));
     expect(screen.getByTestId('current')).toHaveTextContent('Song b');
@@ -164,11 +158,7 @@ describe('PlayerProvider', () => {
   });
 
   it('toggles pause/resume', async () => {
-    render(
-      <PlayerProvider>
-        <Probe />
-      </PlayerProvider>,
-    );
+    renderPlayer();
     await userEvent.click(screen.getByText('play'));
     await userEvent.click(screen.getByText('toggle'));
     expect(screen.getByTestId('playing')).toHaveTextContent('false');
@@ -177,22 +167,14 @@ describe('PlayerProvider', () => {
   });
 
   it('seeks the audio element', async () => {
-    render(
-      <PlayerProvider>
-        <Probe />
-      </PlayerProvider>,
-    );
+    renderPlayer();
     await userEvent.click(screen.getByText('play'));
     await userEvent.click(screen.getByText('seek'));
     expect(audio.currentTime).toBe(42);
   });
 
   it('toggles shuffle on and off', async () => {
-    render(
-      <PlayerProvider>
-        <Probe />
-      </PlayerProvider>,
-    );
+    renderPlayer();
     await userEvent.click(screen.getByText('play'));
     await userEvent.click(screen.getByText('shuffle'));
     expect(screen.getByTestId('shuffle')).toHaveTextContent('true');

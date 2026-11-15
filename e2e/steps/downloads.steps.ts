@@ -26,7 +26,9 @@ Given('I own a small playlist for offline download', async () => {
   await createSmallPlaylist(owner, FIXTURE, 2);
 });
 
-After(async () => {
+// Scoped to the scenarios that own the fixture: step files load in EVERY area,
+// so an unscoped After would sign in and sweep after every scenario everywhere.
+After({ tags: '@offline-fixture' }, async () => {
   try {
     const s = owner ?? (await login(USER, PASS));
     await deletePlaylistsByName(s, FIXTURE);
@@ -57,20 +59,19 @@ When('I open my offline-fixture playlist', async ({ page }) => {
 const OPEN_SHEET = 'ion-action-sheet[is-open]';
 
 async function dismissOpenSheet(page: import('@playwright/test').Page) {
-  // Dismiss by tapping the open sheet's backdrop — NOT Escape: the search field
-  // is an IonSearchbar, which CLEARS its value on Escape, which would wipe the
-  // results the very next openFirstResultMenu depends on. Backdrop-tap closes the
-  // sheet without touching the searchbar. No-op when no sheet is open.
-  const backdrop = page.locator(`${OPEN_SHEET} ion-backdrop`);
-  if (await backdrop.count()) {
-    await backdrop
+  // Dismiss through Ionic's own API — NOT Escape (the IonSearchbar clears its
+  // value on Escape and wipes the results the next step needs) and NOT a forced
+  // backdrop click (once the sheet is mid-dismiss the forced click falls through
+  // to whatever is underneath; in CI that was an album card, which navigated to
+  // the Album page and made "play the first result" impossible). No-op when no
+  // sheet is open.
+  const sheet = page.locator(OPEN_SHEET);
+  if (await sheet.count()) {
+    await sheet
       .first()
-      .click({ force: true })
+      .evaluate((el) => (el as unknown as { dismiss: () => Promise<boolean> }).dismiss())
       .catch(() => undefined);
-    await page
-      .locator(OPEN_SHEET)
-      .waitFor({ state: 'detached', timeout: 5_000 })
-      .catch(() => undefined);
+    await sheet.waitFor({ state: 'detached', timeout: 5_000 }).catch(() => undefined);
   }
 }
 

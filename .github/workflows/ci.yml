@@ -128,22 +128,22 @@ jobs:
             -quiet
 
   acceptance:
-    # One job per feature area, each its own independent check. Splitting isolates
-    # a flaky area from the rest. Tests hit the real Jellyfin server (base URL is
+    # One job per feature area, each its own independent check, so a red X points
+    # at the area that broke. Tests hit the real Jellyfin server (base URL is
     # baked into the build via VITE_JELLYFIN_URL).
     name: Acceptance Tests (${{ matrix.area.name }})
     runs-on: ubuntu-latest
+    # Hard cap per area. It surfaces hangs (e.g. sign-in never succeeding) as a
+    # fast red X with the real error in the log — it is not a retry budget.
+    timeout-minutes: 25
     strategy:
       # Let every area run even if one fails — a lone failure shouldn't cancel the
       # rest and hide which areas are healthy. Each area is its own check.
       fail-fast: false
-      # Serialize the areas: all ~12 hit ONE cloudflared-tunneled Jellyfin, and
-      # running them in parallel stampedes the tunnel — auth throttling / stalled
-      # first-paint that reads as widespread multi-minute timeouts across areas
-      # (even dependency-free `smoke`), while every scenario passes alone. The
-      # tunnel is the bottleneck, not the runners, so a parallelism limit is the
-      # fix, not a workaround. (#330 dropped this and CI went red across the board.)
-      max-parallel: 1
+      # Areas run fully in parallel. Each area signs in as its OWN Jellyfin user
+      # with its OWN DeviceId (see below), so there is no shared-session contention
+      # to throttle around. If a run fails, the failure is real: fix the test, the
+      # app, or the environment — never the parallelism, never with a retry.
       matrix:
         area:
           - name: smoke
@@ -186,26 +186,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Cache Playwright browsers
-        id: pw-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Install Playwright browsers
-        if: steps.pw-cache.outputs.cache-hit != 'true'
+      - name: Install Google Chrome for Playwright
         timeout-minutes: 5
-        # Chromium binary only — ubuntu-latest already ships the shared libs, so
-        # we skip --with-deps (its apt step is what intermittently hangs). Retry
-        # once on the occasional flaky download.
-        run: npx playwright install chromium || npx playwright install chromium
+        # Google Chrome (not Chromium): it ships the AAC decoder that m4b
+        # audiobooks need, so playback scenarios exercise real audio in CI.
+        run: npx playwright install chrome
 
-      # Provision THIS area's dedicated Jellyfin user (cadence-e2e-<area>) if it
-      # doesn't exist yet, so adding a new acceptance area never fails on a missing
-      # user (the audiobooks area hit exactly that). Idempotent; needs the admin
-      # key; never fails the job. Runs BEFORE warmup/seed/sign-in, which all
-      # authenticate as this user.
+      # Provision THIS area's dedicated Jellyfin user (cadence-e2e-<area>): create
+      # it if missing, reset its password to TEST_PASSWORD, grant library access,
+      # and verify sign-in. Fails the job if any of that fails — a missing user
+      # can only produce a 25-minute sign-in hang later, which is worse.
       - name: Ensure this area's Jellyfin user exists
         env:
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
@@ -214,11 +204,9 @@ jobs:
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: bash scripts/ensure-e2e-users.sh
 
-      # Warm up the Jellyfin auth path before the tests. The server sits behind a
-      # cloudflared tunnel that goes cold when idle: the FIRST auth after a gap
-      # can take 12–15s+ (then it drops to ~0.2s). If that cold hit lands inside
-      # a test's sign-in it trips the app's request timeout and the whole area
-      # fails — so we absorb it here, in a retrying curl, before Playwright runs.
+      # Warm up the Jellyfin auth path before the tests (the first auth after an
+      # idle gap is slow). Fails the job on a 401 — wrong credentials are a real
+      # failure, not something to let Playwright discover by timing out.
       - name: Warm up Jellyfin auth
         env:
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
@@ -228,10 +216,9 @@ jobs:
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: bash scripts/warmup-jellyfin.sh
 
-      # Ensure the cadence-test user owns a playlist + follows an artist — the
-      # library/home scenarios need that owned content, which the
-      # playlist-ownership fix (own-only Your Library) otherwise leaves empty on
-      # a fresh user. Idempotent; never fails the job.
+      # Ensure this area's user owns a playlist + follows an artist — the
+      # library/home scenarios need that owned content. Idempotent; fails the job
+      # if it cannot sign in or read the library.
       - name: Seed owned content for this area's user
         env:
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
@@ -242,56 +229,27 @@ jobs:
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: bash scripts/seed-e2e-user.sh
 
-      # Auto-retry the whole area once on failure. Playwright already retries
-      # individual scenarios (retries: 2), but when a scenario exhausts all its
-      # attempts inside one bad ~60s Jellyfin window (auth throttle / stalled
-      # reads under CI load), the job fails. A fresh re-run usually hits a calm
-      # window — this automates the manual "re-run the failed job" and ends the
-      # flake tail without weakening any assertion.
+      # ONE attempt, no retry wrapper. Playwright runs with retries: 0 in CI too.
+      # A failing scenario is a bug (test, app, or environment) that gets fixed —
+      # it is never re-run until green. The job-level timeout-minutes above is the
+      # only wall-clock cap, and it exists to surface hangs, not to absorb them.
       - name: Run acceptance tests (${{ matrix.area.name }})
-        uses: nick-fields/retry@v4
         env:
           # The server URL is NOT in committed source — Vite reads it from this
           # secret at dev-server start (webServer in playwright.config.ts).
           VITE_JELLYFIN_URL: ${{ secrets.VITE_JELLYFIN_URL }}
-          # DEDICATED Jellyfin user PER AREA (cadence-e2e-<area>). Every area used
-          # to share cadence-test, so concurrent logins serialized on Jellyfin's
-          # session/token-write path — auth ballooned to 30-60s during a run while
-          # reads stayed fast (lock contention, NOT CPU). One user per area removes
-          # that entirely and also isolates each area's mutable state (playlists/
-          # downloads). Password is shared (TEST_PASSWORD). Users are provisioned on
-          # the server; scripts/ensure-e2e-users.sh recreates them if needed.
+          # DEDICATED Jellyfin user PER AREA (cadence-e2e-<area>), provisioned by
+          # scripts/ensure-e2e-users.sh above. Password is shared (TEST_PASSWORD).
           TEST_USERNAME: cadence-e2e-${{ matrix.area.name }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          # A DISTINCT Jellyfin DeviceId PER AREA. Jellyfin keys a playback session
-          # per (user, DeviceId); combined with the per-area user above, each shard
-          # gets a fully independent session. Stable within a run so retries reuse
-          # it (no session pile-up). See app-shell.steps.ts.
+          # A DISTINCT Jellyfin DeviceId PER AREA: Jellyfin keys a playback session
+          # per (user, DeviceId), so each area gets a fully independent session.
           E2E_DEVICE_ID: cadence-e2e-${{ matrix.area.name }}
-          # Second user — ONLY the playlists area's cross-user visibility scenario
-          # needs one (public/private toggling seen by another account). It gets a
-          # dedicated cadence-e2e-playlists2 so it can't collide with any other
-          # area's user. Both use the shared TEST_PASSWORD.
+          # Second user — only the playlists area's cross-user visibility scenario
+          # needs one; dedicated so it can't collide with any other area's user.
           TEST_USERNAME_2: cadence-e2e-playlists2
           TEST_PASSWORD_2: ${{ secrets.TEST_PASSWORD }}
-        with:
-          # Wall-clock per attempt. Sized for the LARGEST area (playback: 12
-          # scenarios, each signing in + streaming real audio, run serially within
-          # the area with Playwright retries:2). Under shared-Jellyfin contention a
-          # few scenarios burn their retries, and 12 × up-to-3 attempts × ~60-100s
-          # overran the old 15 min mid-suite (a raw "Timeout of 900000ms" kill, not
-          # a test failure). 25 min gives that retry stack room to finish green
-          # without weakening anything or capping matrix parallelism (areas still
-          # run fully concurrently).
-          timeout_minutes: 25
-          max_attempts: 2
-          retry_wait_seconds: 30
-          # Re-warm the tunnel/auth INSIDE the retry command so attempt 2 (after
-          # the 30s wait, by which point the tunnel may have gone cold again)
-          # doesn't start Playwright's sign-in against a cold server — the exact
-          # window that made whole areas fail both attempts. Warmup never fails
-          # the run; the tests remain the gate.
-          command: bash scripts/warmup-jellyfin.sh && npx bddgen && npx playwright test ${{ matrix.area.paths }}
+        run: npx bddgen && npx playwright test ${{ matrix.area.paths }}
 
       - name: Upload Playwright report
         if: always()
