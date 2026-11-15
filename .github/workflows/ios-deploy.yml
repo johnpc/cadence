@@ -95,6 +95,12 @@ jobs:
               -archivePath ~/Desktop/Cadence.xcarchive \
               -quiet
 
+            # The runner job runs in the system launchd context; from there
+            # `-exportArchive -allowProvisioningUpdates` crashes inside AppSSO
+            # (xcodebuild SIGABRT, no error text, exit 1 — crash report
+            # xcodebuild-2026-11-15-171456.ips on the mini). Hop into the user's
+            # GUI session for the export only, exactly as peek's deploy does.
+            sudo -n launchctl asuser "$(id -u)" sudo -n -u "$(id -un)" env HOME="$HOME" \
             xcodebuild -exportArchive \
               -archivePath ~/Desktop/Cadence.xcarchive \
               -exportOptionsPlist /tmp/ExportOptions.plist \
