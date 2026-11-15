@@ -31,6 +31,9 @@ UID_=$(printf '%s' "$AUTH" | python3 -c 'import sys,json;print(json.load(sys.std
 if [ -z "$TOK" ]; then echo "seed: sign-in failed for '$TEST_USERNAME': $(printf '%s' "$AUTH" | head -c 200)" >&2; exit 1; fi
 WTOK="$XEMBY, Token=\"$TOK\""
 
+# Fixtures are PRIVATE (IsPublic:false): a public one shows up in every other
+# user's "From the community" shelf — 14 CI areas seeding at once crowded the
+# real community fixture out of the shelf's top 20. (Jellyfin defaults to public.)
 # Owned playlists split by content. EMPTY owned playlists are poison, not just
 # useless: a past run created one while its song-fetch failed, it sorts first
 # under the library's "Recently played" order, and every playlist scenario then
@@ -74,7 +77,7 @@ else
   else
     code=$(curl -s --max-time 45 -o /dev/null -w '%{http_code}' -X POST "$URL/Playlists" \
       -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" -H 'Content-Type: application/json' \
-      -d "{\"Name\":\"Cadence Test Mix\",\"UserId\":\"$UID_\",\"MediaType\":\"Audio\",\"Ids\":[$IDS]}")
+      -d "{\"Name\":\"Cadence Test Mix\",\"UserId\":\"$UID_\",\"MediaType\":\"Audio\",\"IsPublic\":false,\"Ids\":[$IDS]}")
     echo "seed: created owned playlist (HTTP $code)"
   fi
 fi

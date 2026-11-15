@@ -16,18 +16,25 @@ import {
  * (savePlaybackPosition): the /Sessions/Playing endpoints silently drop the
  * resume position for books (verified live — 204 but saved 0), so without this
  * "resume where you left off" never sticks. Written each tick + on stop.
+ *
+ * `onReported` fires once the Start report has landed on the server — the
+ * moment play-derived data (Recently played, On repeat) is actually new.
  */
 export function usePlaybackReporting(
   currentId: string | undefined,
   getPosition: () => number,
   isAudiobook = false,
+  onReported?: () => void,
 ) {
   const posRef = useRef(getPosition);
   posRef.current = getPosition;
 
   useEffect(() => {
     if (!currentId) return;
-    void reportPlaybackStart(currentId);
+    void Promise.resolve(reportPlaybackStart(currentId)).then(
+      () => onReported?.(),
+      () => undefined,
+    );
     const timer = setInterval(() => {
       const pos = posRef.current();
       void reportPlaybackProgress(currentId, pos);
@@ -39,5 +46,5 @@ export function usePlaybackReporting(
       void reportPlaybackStopped(currentId, pos);
       if (isAudiobook) void savePlaybackPosition(currentId, pos);
     };
-  }, [currentId, isAudiobook]);
+  }, [currentId, isAudiobook, onReported]);
 }

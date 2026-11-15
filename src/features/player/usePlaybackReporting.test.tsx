@@ -44,6 +44,23 @@ describe('usePlaybackReporting', () => {
     expect(reportPlaybackProgress).toHaveBeenCalledWith('a', 10);
   });
 
+  it('calls onReported once the start report has landed', async () => {
+    vi.mocked(reportPlaybackStart).mockResolvedValue(undefined);
+    const onReported = vi.fn();
+    renderHook(() => usePlaybackReporting('a', () => 0, false, onReported));
+    expect(onReported).not.toHaveBeenCalled();
+    await vi.waitFor(() => expect(onReported).toHaveBeenCalledTimes(1));
+  });
+
+  it('does not call onReported when the start report fails', async () => {
+    vi.mocked(reportPlaybackStart).mockRejectedValue(new Error('offline'));
+    const onReported = vi.fn();
+    renderHook(() => usePlaybackReporting('a', () => 0, false, onReported));
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(onReported).not.toHaveBeenCalled();
+  });
+
   it('does nothing without a current track', () => {
     renderHook(() => usePlaybackReporting(undefined, () => 0));
     expect(reportPlaybackStart).not.toHaveBeenCalled();

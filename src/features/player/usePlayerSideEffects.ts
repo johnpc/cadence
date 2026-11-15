@@ -1,5 +1,7 @@
-import { type RefObject } from 'react';
+import { useCallback, type RefObject } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePlaybackReporting } from './usePlaybackReporting';
+import { refreshPlayDerivedShelves } from '../home/homeShelfRefresh';
 import { useEndlessPlay } from './useEndlessPlay';
 import { useNextTrackPrefetch } from './useNextTrackPrefetch';
 import { useDocumentTitle } from './useDocumentTitle';
@@ -23,8 +25,16 @@ export function usePlayerSideEffects(
   isPlaying: boolean,
 ): void {
   // Report playback to Jellyfin (play counts + Recently Played). Reads position
-  // live from the audio element so it doesn't re-fire on every tick.
-  usePlaybackReporting(currentId, () => ref.current?.currentTime ?? 0, isAudiobook(current));
+  // live from the audio element so it doesn't re-fire on every tick. Once the
+  // play is recorded, refresh the Home shelves derived from it.
+  const qc = useQueryClient();
+  const onReported = useCallback(() => void refreshPlayDerivedShelves(qc), [qc]);
+  usePlaybackReporting(
+    currentId,
+    () => ref.current?.currentTime ?? 0,
+    isAudiobook(current),
+    onReported,
+  );
 
   // Endless play: append instant-mix radio when the queue ends (unless the user
   // turned Autoplay off, or repeat is on — then the queue loops instead).

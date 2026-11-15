@@ -7,7 +7,7 @@ vi.mock('../../lib/sessionStore', () => ({ getSession: vi.fn() }));
 import { request } from '../../lib/jellyfinFetch';
 import { homeShelvesEnabled } from '../../lib/runtimeConfig';
 import { getSession } from '../../lib/sessionStore';
-import { fetchHomeShelves, homeSourceEnabled } from './homeSource';
+import { fetchHomeShelves, homeSourceEnabled, requestHomeShelvesRebuild } from './homeSource';
 
 beforeEach(() => {
   vi.mocked(getSession).mockReturnValue({ token: 't', userId: 'u1' });
@@ -63,5 +63,21 @@ describe('homeSource', () => {
     vi.mocked(request).mockResolvedValue({});
     await fetchHomeShelves();
     expect(request).toHaveBeenCalledWith('/Cadence/Home?userId=');
+  });
+
+  it('requestHomeShelvesRebuild POSTs the refresh for this user when the plugin serves Home', async () => {
+    vi.mocked(homeShelvesEnabled).mockReturnValue(true);
+    vi.mocked(request).mockResolvedValue(undefined);
+    await requestHomeShelvesRebuild();
+    expect(request).toHaveBeenCalledWith('/Cadence/Home/Refresh?userId=u1', { method: 'POST' });
+  });
+
+  it('requestHomeShelvesRebuild is a no-op without the plugin and swallows errors', async () => {
+    vi.mocked(homeShelvesEnabled).mockReturnValue(false);
+    await requestHomeShelvesRebuild();
+    expect(request).not.toHaveBeenCalled();
+    vi.mocked(homeShelvesEnabled).mockReturnValue(true);
+    vi.mocked(request).mockRejectedValue(new Error('503'));
+    await expect(requestHomeShelvesRebuild()).resolves.toBeUndefined();
   });
 });

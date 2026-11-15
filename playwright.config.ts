@@ -60,7 +60,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      // CI runs real Google Chrome, not Playwright's open-source Chromium build:
+      // Chromium has no AAC decoder, so m4b audiobooks (and any AAC track) never
+      // play there and "resume where you left off" can't be exercised honestly.
+      // Locally the default Chromium is fine; set PW_CHANNEL=chrome to match CI.
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: process.env.PW_CHANNEL || (process.env.CI ? 'chrome' : undefined),
+      },
     },
   ],
   webServer: {
