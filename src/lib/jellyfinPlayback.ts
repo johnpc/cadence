@@ -5,6 +5,7 @@
  * actual playback, so failures are swallowed.
  */
 import { request } from './jellyfinFetch';
+import { apiUrl } from './jellyfinConfig';
 import { getSession } from './sessionStore';
 
 const SECONDS_TO_TICKS = 10_000_000;
@@ -55,4 +56,28 @@ export async function savePlaybackPosition(itemId: string, positionSeconds: numb
   } catch {
     // Best-effort; never disrupt playback.
   }
+}
+
+/**
+ * Save the resume position as the page is going away (pagehide / app killed).
+ * A normal fetch is cancelled by the unload, so this rides `sendBeacon`, which
+ * can't set headers — the token goes in the `ApiKey` query (the one accepted
+ * spelling on Jellyfin 12). Returns false when the beacon could not be queued.
+ */
+export function beaconPlaybackPosition(itemId: string, positionSeconds: number): boolean {
+  const session = getSession();
+  if (!session?.userId || !session.token || typeof navigator.sendBeacon !== 'function')
+    return false;
+  const url = apiUrl(
+    `/UserItems/${itemId}/UserData?userId=${encodeURIComponent(session.userId)}&ApiKey=${encodeURIComponent(session.token)}`,
+  );
+  const body = new Blob(
+    [
+      JSON.stringify({
+        PlaybackPositionTicks: Math.max(0, Math.round(positionSeconds * SECONDS_TO_TICKS)),
+      }),
+    ],
+    { type: 'application/json' },
+  );
+  return navigator.sendBeacon(url, body);
 }
