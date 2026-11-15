@@ -121,3 +121,12 @@ export async function deletePlaylistsByName(s: Session, name: string): Promise<v
   const mine = r.Items.filter((p) => p.Name === name);
   await Promise.all(mine.map((p) => deletePlaylist(s, p.Id).catch(() => undefined)));
 }
+
+/** The user's saved resume position (seconds) for an item, read live. */
+export async function savedPositionSeconds(s: Session, itemId: string): Promise<number> {
+  const r = await api<{ UserData?: { PlaybackPositionTicks?: number } }>(
+    `/Users/${s.userId}/Items/${itemId}`,
+    { token: s.token },
+  );
+  return (r.UserData?.PlaybackPositionTicks ?? 0) / 10_000_000;
+}

@@ -5,7 +5,7 @@
  * actual playback, so failures are swallowed.
  */
 import { request } from './jellyfinFetch';
-import { apiUrl } from './jellyfinConfig';
+import { apiUrl, authHeaders } from './jellyfinConfig';
 import { getSession } from './sessionStore';
 
 const SECONDS_TO_TICKS = 10_000_000;
@@ -60,24 +60,23 @@ export async function savePlaybackPosition(itemId: string, positionSeconds: numb
 
 /**
  * Save the resume position as the page is going away (pagehide / app killed).
- * A normal fetch is cancelled by the unload, so this rides `sendBeacon`, which
- * can't set headers — the token goes in the `ApiKey` query (the one accepted
- * spelling on Jellyfin 12). Returns false when the beacon could not be queued.
+ * A plain fetch is cancelled by the unload; `keepalive` lets the browser finish
+ * it after the page is gone. (sendBeacon can't carry the JSON content type
+ * cross-origin, so it was silently refused.) Returns false when it could not
+ * even be queued.
  */
 export function beaconPlaybackPosition(itemId: string, positionSeconds: number): boolean {
   const session = getSession();
-  if (!session?.userId || !session.token || typeof navigator.sendBeacon !== 'function')
-    return false;
-  const url = apiUrl(
-    `/UserItems/${itemId}/UserData?userId=${encodeURIComponent(session.userId)}&ApiKey=${encodeURIComponent(session.token)}`,
-  );
-  const body = new Blob(
-    [
-      JSON.stringify({
-        PlaybackPositionTicks: Math.max(0, Math.round(positionSeconds * SECONDS_TO_TICKS)),
-      }),
-    ],
-    { type: 'application/json' },
-  );
-  return navigator.sendBeacon(url, body);
+  if (!session?.userId || !session.token || typeof fetch !== 'function') return false;
+  const url = apiUrl(`/UserItems/${itemId}/UserData?userId=${encodeURIComponent(session.userId)}`);
+  const body = JSON.stringify({
+    PlaybackPositionTicks: Math.max(0, Math.round(positionSeconds * SECONDS_TO_TICKS)),
+  });
+  void fetch(url, {
+    method: 'POST',
+    keepalive: true,
+    headers: { ...authHeaders(session.token), 'Content-Type': 'application/json' },
+    body,
+  }).catch(() => undefined);
+  return true;
 }

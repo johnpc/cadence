@@ -69,23 +69,22 @@ describe('jellyfinPlayback', () => {
     expect(f).not.toHaveBeenCalled();
   });
 
-  it('beaconPlaybackPosition posts the position with the token in the ApiKey query', () => {
+  it('beaconPlaybackPosition posts the position with keepalive and the auth header', () => {
     setSession({ token: 'tok', userId: 'uid' });
-    const beacon = vi.fn().mockReturnValue(true);
-    vi.stubGlobal('navigator', { sendBeacon: beacon });
+    const f = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('fetch', f);
     expect(beaconPlaybackPosition('book1', 12)).toBe(true);
-    const [url, body] = beacon.mock.calls[0] as [string, Blob];
-    expect(url).toContain('/UserItems/book1/UserData?userId=uid&ApiKey=tok');
-    expect(body.type).toBe('application/json');
+    const [url, init] = f.mock.calls[0] as [string, RequestInit & { keepalive: boolean }];
+    expect(url).toContain('/UserItems/book1/UserData?userId=uid');
+    expect(init.keepalive).toBe(true);
+    expect(init.method).toBe('POST');
+    expect((init.headers as Record<string, string>).Authorization).toContain('Token="tok"');
+    expect(init.body).toBe(JSON.stringify({ PlaybackPositionTicks: 120000000 }));
     vi.unstubAllGlobals();
   });
 
-  it('beaconPlaybackPosition is false without a session or sendBeacon', () => {
+  it('beaconPlaybackPosition is false without a session', () => {
     setSession(null);
     expect(beaconPlaybackPosition('book1', 12)).toBe(false);
-    setSession({ token: 'tok', userId: 'uid' });
-    vi.stubGlobal('navigator', {});
-    expect(beaconPlaybackPosition('book1', 12)).toBe(false);
-    vi.unstubAllGlobals();
   });
 });

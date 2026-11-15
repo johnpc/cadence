@@ -2,8 +2,11 @@ import { createBdd } from 'playwright-bdd';
 import { DATA_WAIT } from './timeouts';
 import { expect } from '@playwright/test';
 import { navigate } from './app-shell.steps';
+import { login, savedPositionSeconds } from './jellyfinApi';
 
 const { When, Then } = createBdd();
+const USERNAME = process.env.TEST_USERNAME;
+const PASSWORD = process.env.TEST_PASSWORD;
 
 When('I open the Audiobooks tab', async ({ page }) => {
   // Navigate IN-APP via the "Books" nav entry (desktop sidebar / mobile tab) — no
@@ -123,6 +126,20 @@ When('the book plays past its saved-position threshold', async ({ page }) => {
     // Say exactly where the media element got stuck instead of a bare timeout.
     throw new Error(`book never played past 12s — audio: ${await audioState(page)}`);
   }
+  // The contract under test is "the place is persisted while playing": wait for
+  // the SERVER to hold a resumable position (> the 5s barely-started floor), not
+  // for a wall-clock tick that may land while the stream is still buffering.
+  const bookId = await page.evaluate(
+    () => document.querySelector('audio')?.src.match(/\/Audio\/([0-9a-f]+)\//)?.[1] ?? '',
+  );
+  expect(bookId).not.toBe('');
+  const s = await login(USERNAME as string, PASSWORD as string);
+  await expect
+    .poll(async () => savedPositionSeconds(s, bookId), {
+      timeout: DATA_WAIT,
+      message: 'the server never received a resumable (>5s) position for the book',
+    })
+    .toBeGreaterThan(5);
 });
 
 /** Media-element state for failure messages (one line, no secrets). */
