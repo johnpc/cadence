@@ -1,0 +1,43 @@
+name: Watch Screenshot
+
+# Manual: builds the CadenceWatch app for the watchOS simulator, launches it, and
+# uploads a 416x496 screenshot (Apple Watch Series 10 46mm) for App Store Connect.
+on:
+  workflow_dispatch:
+
+jobs:
+  screenshot:
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pick a watch simulator
+        id: sim
+        run: |
+          xcrun simctl list runtimes | grep -i watchos || true
+          UDID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; c=[x for k,v in d.items() if "watchOS" in k for x in v if "Series 10 (46mm)" in x["name"] or "Series 11 (46mm)" in x["name"]]; print(c[0]["udid"] if c else "")')
+          [ -n "$UDID" ] || UDID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; c=[x for k,v in d.items() if "watchOS" in k for x in v if "46mm" in x["name"] or "49mm" in x["name"]]; print(c[0]["udid"])')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+      - name: Build CadenceWatch for the simulator
+        working-directory: ios/App
+        run: |
+          xcodebuild -project App.xcodeproj -target CadenceWatch -sdk watchsimulator -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO -derivedDataPath /tmp/dd build | tail -20
+          find /tmp/dd -name "CadenceWatch.app" -maxdepth 6 | head -2
+      - name: Launch and screenshot
+        run: |
+          APP=$(find /tmp/dd -name "CadenceWatch.app" -maxdepth 6 | head -1)
+          UDID=${{ steps.sim.outputs.udid }}
+          xcrun simctl install "$UDID" "$APP"
+          BUNDLE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")
+          xcrun simctl launch "$UDID" "$BUNDLE"
+          sleep 8
+          mkdir -p out
+          xcrun simctl io "$UDID" screenshot out/cadence-watch-01.png
+          sips -g pixelWidth -g pixelHeight out/cadence-watch-01.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: watch-screenshot
+          path: out/
