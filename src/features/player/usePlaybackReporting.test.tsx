@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinPlayback', () => ({
@@ -20,6 +20,10 @@ describe('usePlaybackReporting', () => {
     vi.useFakeTimers();
   });
   afterEach(() => {
+    // Unmount BEFORE resetting the mocks: an unmount reports Stopped, and RTL's
+    // automatic cleanup would otherwise run after the reset and leak that call
+    // into the next test's assertions.
+    cleanup();
     vi.useRealTimers();
     vi.resetAllMocks();
   });
@@ -61,12 +65,40 @@ describe('usePlaybackReporting', () => {
     expect(onReported).not.toHaveBeenCalled();
   });
 
+  it('a restored, never-played track reports nothing (no Start, Progress or Stopped)', () => {
+    const { unmount } = renderHook(() =>
+      usePlaybackReporting('book', () => 0, true, undefined, false),
+    );
+    vi.advanceTimersByTime(30_000);
+    unmount();
+    expect(reportPlaybackStart).not.toHaveBeenCalled();
+    expect(reportPlaybackProgress).not.toHaveBeenCalled();
+    expect(reportPlaybackStopped).not.toHaveBeenCalled();
+    expect(savePlaybackPosition).not.toHaveBeenCalled();
+  });
+
+  it('reports Start only once the track is really playing, then ticks and stops', () => {
+    let pos = 0;
+    const { rerender, unmount } = renderHook(
+      ({ playing }) => usePlaybackReporting('a', () => pos, false, undefined, playing),
+      { initialProps: { playing: false } },
+    );
+    expect(reportPlaybackStart).not.toHaveBeenCalled();
+    rerender({ playing: true });
+    expect(reportPlaybackStart).toHaveBeenCalledWith('a');
+    pos = 7;
+    vi.advanceTimersByTime(10_000);
+    expect(reportPlaybackProgress).toHaveBeenCalledWith('a', 7);
+    unmount();
+    expect(reportPlaybackStopped).toHaveBeenCalledWith('a', 7);
+  });
+
   it('does nothing without a current track', () => {
     renderHook(() => usePlaybackReporting(undefined, () => 0));
     expect(reportPlaybackStart).not.toHaveBeenCalled();
   });
 
-  it('also saves the resume position for an audiobook (tick + stop)', () => {
+  it('also saves the resume position for an audiobook (tick + stop)', async () => {
     let pos = 0;
     const { rerender, unmount } = renderHook(
       ({ id }) => usePlaybackReporting(id, () => pos, true),
@@ -76,10 +108,14 @@ describe('usePlaybackReporting', () => {
     );
     pos = 30;
     vi.advanceTimersByTime(10_000);
-    expect(savePlaybackPosition).toHaveBeenCalledWith('book', 30);
+    expect(reportPlaybackProgress).toHaveBeenCalledWith('book', 30);
+    expect(savePlaybackPosition).not.toHaveBeenCalled(); // only after Progress has landed
+    await vi.waitFor(() => expect(savePlaybackPosition).toHaveBeenCalledWith('book', 30));
     pos = 90;
-    rerender({ id: 'book2' }); // change → stop → save
-    expect(savePlaybackPosition).toHaveBeenCalledWith('book', 90);
+    rerender({ id: 'book2' }); // change → stop → THEN save (Stopped zeroes the server position)
+    expect(reportPlaybackStopped).toHaveBeenCalledWith('book', 90);
+    expect(savePlaybackPosition).not.toHaveBeenCalledWith('book', 90);
+    await vi.waitFor(() => expect(savePlaybackPosition).toHaveBeenCalledWith('book', 90));
     unmount(); // don't leak a stop-save into the next test
   });
 

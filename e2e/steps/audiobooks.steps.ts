@@ -110,13 +110,6 @@ When('the book plays past its saved-position threshold', async ({ page }) => {
   // real, resumable position gets saved. The position is persisted to the server
   // on the 10s progress tick AND on stop (a reload unmounts → stop-save), so once
   // the element is comfortably past the threshold there's a position to resume to.
-  const state = () =>
-    page.evaluate(() => {
-      const a = document.querySelector('audio');
-      if (!a) return 'no <audio> element';
-      const buffered = a.buffered.length ? `${a.buffered.start(0)}-${a.buffered.end(0)}` : 'none';
-      return `paused=${a.paused} t=${a.currentTime.toFixed(1)} ready=${a.readyState} net=${a.networkState} err=${a.error?.code ?? 'none'} buffered=${buffered} src=${a.src.slice(0, 120)}`;
-    });
   try {
     await page.waitForFunction(
       () => {
@@ -126,11 +119,22 @@ When('the book plays past its saved-position threshold', async ({ page }) => {
       undefined,
       { timeout: DATA_WAIT },
     );
-  } catch (e) {
+  } catch {
     // Say exactly where the media element got stuck instead of a bare timeout.
-    throw new Error(`book never played past 12s — audio: ${await state()}`, { cause: e });
+    throw new Error(`book never played past 12s — audio: ${await audioState(page)}`);
   }
 });
+
+/** Media-element state for failure messages (one line, no secrets). */
+async function audioState(page: import('@playwright/test').Page): Promise<string> {
+  return page.evaluate(() => {
+    const a = document.querySelector('audio');
+    if (!a) return 'no <audio> element';
+    const buffered = a.buffered.length ? `${a.buffered.start(0)}-${a.buffered.end(0)}` : 'none';
+    const q = Object.keys(localStorage).filter((k) => k.includes('queue') || k.includes('resume'));
+    return `paused=${a.paused} t=${a.currentTime.toFixed(1)} ready=${a.readyState} net=${a.networkState} err=${a.error?.code ?? 'none'} buffered=${buffered} keys=${q.join(',')} src=${a.src.replace(/ApiKey=[^&]+/, 'ApiKey=…').slice(0, 140)}`;
+  });
+}
 
 Then('the book resumes from where I left off', async ({ page }) => {
   // After a reload the queue is restored PAUSED (browsers block autoplay), so we
@@ -138,14 +142,18 @@ Then('the book resumes from where I left off', async ({ page }) => {
   // the LIVE server position and seeks there once metadata loads — so currentTime
   // lands well past the 5s "barely started" threshold, NOT back at 0 (the pre-fix
   // restart-from-the-beginning bug this scenario guards against).
-  await page.waitForFunction(
-    () => {
-      const audio = document.querySelector('audio');
-      return !!audio && audio.currentTime > 5;
-    },
-    undefined,
-    { timeout: DATA_WAIT },
-  );
+  try {
+    await page.waitForFunction(
+      () => {
+        const audio = document.querySelector('audio');
+        return !!audio && audio.currentTime > 5;
+      },
+      undefined,
+      { timeout: DATA_WAIT },
+    );
+  } catch {
+    throw new Error(`book did not resume past 5s after reload — audio: ${await audioState(page)}`);
+  }
 });
 
 Then("I see the book's chapter or part list", async ({ page }) => {

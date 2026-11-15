@@ -34,6 +34,7 @@ export function usePlayerSideEffects(
     () => ref.current?.currentTime ?? 0,
     isAudiobook(current),
     onReported,
+    isPlaying,
   );
 
   // Endless play: append instant-mix radio when the queue ends (unless the user

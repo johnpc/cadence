@@ -28,9 +28,10 @@ describe('liveResumeSeconds', () => {
     expect(await liveResumeSeconds(stale, 36000)).toBe(3600);
   });
 
-  it('applies the resumeSeconds guards to the fresh data (played → null)', async () => {
+  it('applies the resumeSeconds guards to the fresh data (at the end → null)', async () => {
+    // 5s from the end of a 36000s book: finished → start over, not resume.
     mockGetItem.mockResolvedValue(
-      book({ UserData: { PlaybackPositionTicks: 3600 * S, Played: true } }),
+      book({ UserData: { PlaybackPositionTicks: 35995 * S, Played: true } }),
     );
     expect(await liveResumeSeconds(book(), 36000)).toBeNull();
   });

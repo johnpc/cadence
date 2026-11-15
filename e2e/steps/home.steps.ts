@@ -61,7 +61,12 @@ Then('I am still on Home', async ({ page }) => {
 When('I open the full play history', async ({ page }) => {
   // The "Recently played" shelf appears once a track has been played; its
   // "Show all" link opens the full history page.
-  const seeAll = page.getByTestId('shelf-see-all').first();
+  // Scope to the Recently played shelf: several shelves have a "Show all" link
+  // (Your artists → Library, …) and their order depends on the user's data, so
+  // "the first one" is not this one.
+  const shelf = page.getByTestId('shelf').filter({ hasText: 'Recently played' });
+  await expect(shelf).toBeAttached({ timeout: DATA_WAIT });
+  const seeAll = shelf.getByTestId('shelf-see-all');
   await expect(seeAll).toBeVisible({ timeout: DATA_WAIT });
   await seeAll.click();
 });
