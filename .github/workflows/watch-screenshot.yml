@@ -25,8 +25,9 @@ jobs:
       - name: Build CadenceWatch for the simulator
         working-directory: ios/App
         run: |
+          set -o pipefail
           xcodebuild -project App.xcodeproj -target CadenceWatch -sdk watchsimulator -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO -derivedDataPath /tmp/dd build | tail -20
+            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO SYMROOT=/tmp/dd build | tail -20
           find /tmp/dd -name "CadenceWatch.app" -maxdepth 6 | head -2
       - name: Launch and screenshot
         run: |
