@@ -4,6 +4,8 @@ name: Watch Screenshot
 # uploads a 416x496 screenshot (Apple Watch Series 10 46mm) for App Store Connect.
 on:
   workflow_dispatch:
+  push:
+    branches: [ci/watch-screenshot]
 
 jobs:
   screenshot:
