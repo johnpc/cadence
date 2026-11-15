@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  beaconPlaybackPosition,
   reportPlaybackStart,
   reportPlaybackProgress,
   reportPlaybackStopped,
@@ -66,5 +67,25 @@ describe('jellyfinPlayback', () => {
     const f = okFetch();
     await savePlaybackPosition('book1', 90);
     expect(f).not.toHaveBeenCalled();
+  });
+
+  it('beaconPlaybackPosition posts the position with the token in the ApiKey query', () => {
+    setSession({ token: 'tok', userId: 'uid' });
+    const beacon = vi.fn().mockReturnValue(true);
+    vi.stubGlobal('navigator', { sendBeacon: beacon });
+    expect(beaconPlaybackPosition('book1', 12)).toBe(true);
+    const [url, body] = beacon.mock.calls[0] as [string, Blob];
+    expect(url).toContain('/UserItems/book1/UserData?userId=uid&ApiKey=tok');
+    expect(body.type).toBe('application/json');
+    vi.unstubAllGlobals();
+  });
+
+  it('beaconPlaybackPosition is false without a session or sendBeacon', () => {
+    setSession(null);
+    expect(beaconPlaybackPosition('book1', 12)).toBe(false);
+    setSession({ token: 'tok', userId: 'uid' });
+    vi.stubGlobal('navigator', {});
+    expect(beaconPlaybackPosition('book1', 12)).toBe(false);
+    vi.unstubAllGlobals();
   });
 });

@@ -2,12 +2,14 @@ import { cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../lib/jellyfinPlayback', () => ({
+  beaconPlaybackPosition: vi.fn(),
   reportPlaybackStart: vi.fn(),
   reportPlaybackProgress: vi.fn(),
   reportPlaybackStopped: vi.fn(),
   savePlaybackPosition: vi.fn(),
 }));
 import {
+  beaconPlaybackPosition,
   reportPlaybackStart,
   reportPlaybackProgress,
   reportPlaybackStopped,
@@ -91,6 +93,30 @@ describe('usePlaybackReporting', () => {
     expect(reportPlaybackProgress).toHaveBeenCalledWith('a', 7);
     unmount();
     expect(reportPlaybackStopped).toHaveBeenCalledWith('a', 7);
+  });
+
+  it('beacons an audiobook position on pagehide (closing the app keeps the place)', () => {
+    let pos = 0;
+    renderHook(() => usePlaybackReporting('book', () => pos, true));
+    pos = 42;
+    window.dispatchEvent(new Event('pagehide'));
+    expect(beaconPlaybackPosition).toHaveBeenCalledWith('book', 42);
+  });
+
+  it('ticks are measured from playback START, not from mount', () => {
+    let pos = 0;
+    const { rerender } = renderHook(
+      ({ playing }) => usePlaybackReporting('a', () => pos, false, undefined, playing),
+      { initialProps: { playing: false } },
+    );
+    vi.advanceTimersByTime(9_000); // buffering: nothing has played yet
+    rerender({ playing: true });
+    pos = 3;
+    vi.advanceTimersByTime(5_000); // 5s into playback — no tick yet
+    expect(reportPlaybackProgress).not.toHaveBeenCalled();
+    pos = 10;
+    vi.advanceTimersByTime(5_000); // 10s into playback → first tick
+    expect(reportPlaybackProgress).toHaveBeenCalledWith('a', 10);
   });
 
   it('does nothing without a current track', () => {
