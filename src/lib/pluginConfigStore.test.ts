@@ -22,6 +22,7 @@ describe('hydratePluginConfig', () => {
       CastReceiverAppId: 'ABC123',
       LidarrProxy: true,
       DeezerImport: true,
+      // An OLDER plugin still advertising the retired fast paths: ignored.
       HomeShelves: true,
       Audiobooks: true,
     });
@@ -33,9 +34,10 @@ describe('hydratePluginConfig', () => {
       lidarrProxy: true,
       lidarrPluginProxy: true,
       deezerImport: true,
-      homeShelves: true,
-      audiobooks: true,
     });
+    const raw = window.__CADENCE_CONFIG__ as Record<string, unknown>;
+    expect(raw.homeShelves).toBeUndefined();
+    expect(raw.audiobooks).toBeUndefined();
     expect(request).toHaveBeenCalledWith('/Cadence/Config');
   });
 
@@ -54,16 +56,12 @@ describe('hydratePluginConfig', () => {
       SignupUrl: '',
       LidarrProxy: false,
       DeezerImport: false,
-      HomeShelves: false,
-      Audiobooks: false,
     });
     await hydratePluginConfig();
     expect(window.__CADENCE_CONFIG__?.marlinUrl).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.signupUrl).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.lidarrProxy).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.deezerImport).toBeUndefined();
-    expect(window.__CADENCE_CONFIG__?.homeShelves).toBeUndefined();
-    expect(window.__CADENCE_CONFIG__?.audiobooks).toBeUndefined();
   });
 
   it('swallows a fetch failure (no plugin / offline) and leaves config untouched', async () => {

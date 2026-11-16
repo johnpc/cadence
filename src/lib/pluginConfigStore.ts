@@ -23,8 +23,6 @@ interface PluginConfigResponse {
   CastReceiverAppId?: string;
   LidarrProxy?: boolean;
   DeezerImport?: boolean;
-  HomeShelves?: boolean;
-  Audiobooks?: boolean;
 }
 
 /** Merge a string value into the config only when it's non-empty AND not already
@@ -40,7 +38,7 @@ function fillString(key: 'marlinUrl' | 'signupUrl' | 'castReceiverAppId', value?
  * wins). Keyed to the boolean flags so it can't target a string field. */
 function fillFlag(
   config: NonNullable<typeof window.__CADENCE_CONFIG__>,
-  key: 'deezerImport' | 'homeShelves' | 'audiobooks',
+  key: 'deezerImport',
   value?: boolean,
 ): void {
   if (value === true && !config[key]) config[key] = true;
@@ -67,13 +65,12 @@ export async function hydratePluginConfig(): Promise<void> {
       config.lidarrProxy = true;
       config.lidarrPluginProxy = true;
     }
-    // Plain plugin-endpoint flags: each tells the client an endpoint is available
-    // so it takes the fast plugin path (routes "Import from Deezer" to
-    // /Cadence/Deezer/Import; homeSource → /Cadence/Home; audiobookSource →
-    // /Cadence/Audiobooks). Only set when the deploy didn't already (config.js wins).
+    // Plain plugin-endpoint flags: each tells the client an extension endpoint is
+    // available (routes "Import from Deezer" to /Cadence/Deezer/Import). Only set
+    // when the deploy didn't already (config.js wins). Older plugins also sent
+    // HomeShelves/Audiobooks for retired fast paths; Home and Audiobooks are
+    // always native now, so those are ignored.
     fillFlag(config, 'deezerImport', res.DeezerImport);
-    fillFlag(config, 'homeShelves', res.HomeShelves);
-    fillFlag(config, 'audiobooks', res.Audiobooks);
   } catch {
     /* no plugin / offline / unauthenticated — keep existing config */
   } finally {

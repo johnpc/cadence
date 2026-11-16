@@ -77,20 +77,3 @@ export function lidarrPluginProxyEnabled(): boolean {
 export function deezerImportEnabled(): boolean {
   return configFlag('deezerImport');
 }
-
-/** True when the CadenceConfig plugin exposes the precomputed Home-shelves
- * endpoint (GET /Cadence/Home). When true, homeSource fetches all shelves in one
- * fast call; when false (no plugin / older plugin), it falls back to the native
- * per-shelf Jellyfin queries — so Home always works, just slower without it. */
-export function homeShelvesEnabled(): boolean {
-  return configFlag('homeShelves');
-}
-
-/** True when the CadenceConfig plugin exposes the precomputed audiobook-library
- * endpoint (GET /Cadence/Audiobooks). When true, audiobookSource fetches the
- * whole library in one fast call; when false (no plugin / older plugin), it
- * falls back to the native recursive AudioBook scan — so the Audiobooks tab
- * always works, just slower without it. */
-export function audiobooksSourceEnabled(): boolean {
-  return configFlag('audiobooks');
-}
