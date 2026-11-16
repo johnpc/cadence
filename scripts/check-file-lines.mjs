@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 /**
- * File-length discipline: every source file (.ts and .tsx) must stay short
- * and single-purpose. Anything over MAX_LINES is a signal to extract logic
- * into a smaller, tested helper or split the file. Fails the build if any
- * source file is too long. Test files are exempt.
+ * File-length TRIPWIRE (not a design gate). Seams should follow concepts, not
+ * line counts: the old 100-line cap pushed the player into 20+ hooks threading
+ * refs into each other just to fit. Complexity is now gated where it belongs —
+ * per function (ESLint `complexity` + CRAP). This script only catches the
+ * pathological case: a file so long that no reader (human or agent) can hold
+ * it in view. Test files are exempt.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const MAX_LINES = 100;
+const MAX_LINES = 300;
 // The one source tree we author. Cadence has no self-hosted backend of its own —
 // Jellyfin IS the backend — so there's no `amplify/` tree to walk.
 const ROOTS = ['src'].map((d) => join(process.cwd(), d));
@@ -47,8 +49,8 @@ if (offenders.length > 0) {
   console.error(`\n✖ Source files exceeding ${MAX_LINES} lines:`);
   for (const o of offenders) console.error(`    ${o.file} — ${o.lines} lines`);
   console.error(
-    `\n  This limit reduces complexity, not line count. Don't game it by deleting\n` +
-      `  comments or blank lines — extract a function to genuinely simplify the file.\n`,
+    `\n  A file this long holds more than one concept. Split it along a seam that\n` +
+      `  means something (a module with its own tests), not at an arbitrary line.\n`,
   );
   process.exit(1);
 }

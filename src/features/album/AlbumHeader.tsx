@@ -11,10 +11,8 @@ import { artistLine, collectionSummary } from '../player/playerFormat';
 import { albumMeta } from './albumMeta';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** The album header: art, title, artist (linked when we have its id), release
- * meta, song count, genres, and the save/play actions. Always renders once the
- * album metadata is known — even for an album Jellyfin reports 0 tracks for. */
-export function AlbumHeader({
+/** Title, artist (linked when we know its id), release meta and song count. */
+function AlbumHeaderText({
   album,
   tracks,
 }: {
@@ -23,44 +21,59 @@ export function AlbumHeader({
 }) {
   const artistId = album?.ArtistItems?.[0]?.Id;
   const artistText = artistLine(album) || album?.AlbumArtist || '';
+  const meta = albumMeta(album);
+  return (
+    <>
+      <h1 className="album__title cad-headline">{album?.Name}</h1>
+      {artistId ? (
+        <Link className="album__artist cad-meta album__artist-link" to={`/artist/${artistId}`}>
+          {artistText}
+        </Link>
+      ) : (
+        <p className="album__artist cad-meta">{artistText}</p>
+      )}
+      {meta && (
+        <p className="album__info cad-meta" data-testid="album-info">
+          {meta}
+        </p>
+      )}
+      {tracks.length > 0 && (
+        <p className="album__summary cad-meta" data-testid="album-summary">
+          {collectionSummary(tracks)}
+        </p>
+      )}
+    </>
+  );
+}
+
+/** The album header: art, title, artist, release meta, song count, genres, and
+ * the save/play actions. Always renders once the album metadata is known — even
+ * for an album Jellyfin reports 0 tracks for. */
+export function AlbumHeader({
+  album,
+  tracks,
+}: {
+  album: JellyfinItem | null;
+  tracks: JellyfinItem[];
+}) {
+  const context = {
+    kind: 'album',
+    label: album?.Name ?? 'Album',
+    path: album?.Id ? `/album/${album.Id}` : undefined,
+  };
   return (
     <GradientHeader item={album}>
       <div className="album__header">
         <TrackArt item={album} size={160} />
-        <h1 className="album__title cad-headline">{album?.Name}</h1>
-        {artistId ? (
-          <Link className="album__artist cad-meta album__artist-link" to={`/artist/${artistId}`}>
-            {artistText}
-          </Link>
-        ) : (
-          <p className="album__artist cad-meta">{artistText}</p>
-        )}
-        {albumMeta(album) && (
-          <p className="album__info cad-meta" data-testid="album-info">
-            {albumMeta(album)}
-          </p>
-        )}
-        {tracks.length > 0 && (
-          <p className="album__summary cad-meta" data-testid="album-summary">
-            {collectionSummary(tracks)}
-          </p>
-        )}
+        <AlbumHeaderText album={album} tracks={tracks} />
         <GenreChips genres={album?.Genres} />
         <div className="album__actions">
-          <SaveButton item={album ?? null} />
+          <SaveButton item={album} />
           <DownloadCollectionButton tracks={tracks} />
-          <ShareButton item={album ?? null} />
+          <ShareButton item={album} />
           {album && <AlbumMenu album={album} />}
           {tracks.length > 0 && (
-            <CollectionActions
-              tracks={tracks}
-              collectionId={album?.Id}
-              context={{
-                kind: 'album',
-                label: album?.Name ?? 'Album',
-                path: album?.Id ? `/album/${album.Id}` : undefined,
-              }}
-            />
+            <CollectionActions tracks={tracks} collectionId={album?.Id} context={context} />
           )}
         </div>
       </div>

@@ -3,23 +3,20 @@
  * enable: a user can capture logs locally (to view/copy) without ever uploading.
  * Upload is OFF by default and only meaningful when the backend is configured.
  */
+import { createStoredValue } from '../store';
 import { diagnosticsUploadConfigured } from './diagnosticsConfig';
 
-const UPLOAD_KEY = 'cadence.diagnostics.upload';
+const uploadChoice = createStoredValue({
+  key: 'cadence.diagnostics.upload',
+  parse: (raw) => raw === 'on',
+  serialize: (on: boolean) => (on ? 'on' : 'off'),
+});
 
-const listeners = new Set<() => void>();
+/** Upload is on only when this build has an ingest endpoint AND the user opted in. */
+export const diagnosticsUploadEnabled = (): boolean =>
+  diagnosticsUploadConfigured() && uploadChoice.get();
 
-/** True only when the user opted into upload AND the backend is configured. */
-export function diagnosticsUploadEnabled(): boolean {
-  return diagnosticsUploadConfigured() && localStorage.getItem(UPLOAD_KEY) === 'on';
-}
+export const setDiagnosticsUploadEnabled = (on: boolean): void => uploadChoice.set(on);
 
-export function setDiagnosticsUploadEnabled(on: boolean): void {
-  localStorage.setItem(UPLOAD_KEY, on ? 'on' : 'off');
-  listeners.forEach((l) => l());
-}
-
-export function onDiagnosticsUploadChange(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
+export const onDiagnosticsUploadChange = (listener: () => void): (() => void) =>
+  uploadChoice.subscribe(listener);

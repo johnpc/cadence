@@ -1,5 +1,5 @@
 /** The keyboard shortcuts Cadence binds, as displayable rows — the single
- * source of truth for the "?" help overlay. Keys mirror useKeyboardShortcuts
+ * source of truth for the "?" help overlay. Keys mirror player/integrations/keyboardShortcuts
  * (player transport) + useSearchHotkey ("/") + useHelpHotkey ("?"). */
 export interface Shortcut {
   /** Key label(s) shown as <kbd> chips, e.g. ['Space'] or ['↑', '↓']. */

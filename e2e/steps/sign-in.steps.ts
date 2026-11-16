@@ -1,6 +1,7 @@
 import { createBdd } from 'playwright-bdd';
 import { DATA_WAIT } from './timeouts';
 import { expect } from '@playwright/test';
+import { navigate } from './app-shell.steps';
 
 const { Given, When, Then } = createBdd();
 
@@ -69,4 +70,27 @@ Then('I see a sign-in error', async ({ page }) => {
   // The rejecting Jellyfin round-trip can be slow under CI contention (and the
   // server may throttle repeated bad-password attempts) — give it real headroom.
   await expect(page.getByTestId('signin-error')).toBeVisible({ timeout: 60_000 });
+});
+
+When('I sign out from Settings', async ({ page }) => {
+  // In-app navigation only: a page load would stop the audio by itself and
+  // prove nothing about sign-out.
+  await navigate(page, 'Your Library');
+  await page.getByTestId('library-settings').first().click();
+  await page.getByTestId('settings-signout').click();
+  await page.getByRole('button', { name: 'Sign out', exact: true }).last().click();
+  await expect(page.getByTestId('signin-submit')).toBeVisible({ timeout: DATA_WAIT });
+});
+
+Then('nothing is playing', async ({ page }) => {
+  // The previous user's track must not keep sounding on the sign-in screen
+  // (or resume for whoever signs in next).
+  await expect(async () => {
+    const audio = await page.evaluate(() => {
+      const el = document.querySelector('audio');
+      return el ? { paused: el.paused, src: el.getAttribute('src') ?? '' } : null;
+    });
+    expect(audio?.paused ?? true).toBe(true);
+    expect(audio?.src ?? '').toBe('');
+  }).toPass({ timeout: DATA_WAIT });
 });

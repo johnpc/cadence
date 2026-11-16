@@ -40,6 +40,31 @@ describe('jellyfinItems', () => {
     expect(f.mock.calls[0][0]).toContain('/Users/uid/Items/al');
   });
 
+  it('getItemTracks falls back to ParentId when AlbumIds returns nothing (multi-disc folders)', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const f = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ Items: [], TotalRecordCount: 0 }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: async () =>
+          JSON.stringify({
+            Items: [{ Id: 'd2t1', Name: 'B', IndexNumber: 1 }],
+            TotalRecordCount: 1,
+          }),
+      } as Response);
+    vi.stubGlobal('fetch', f);
+    const items = await getItemTracks('album1');
+    expect(items.map((t) => t.Id)).toEqual(['d2t1']);
+    expect(String(f.mock.calls[0][0])).toContain('AlbumIds=album1');
+    expect(String(f.mock.calls[1][0])).toContain('ParentId=album1');
+  });
+
   it('getItemTracks requests an album’s tracks by AlbumIds, in order', async () => {
     setSession({ token: 't', userId: 'uid' });
     const f = stubItems([{ Id: 'a', Name: 'x', Type: 'Audio' }]);

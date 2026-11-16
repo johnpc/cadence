@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Ensure the cadence-test user OWNS at least one playlist and FOLLOWS at least
-# one artist — the fixtures the acceptance suite's library/home scenarios need.
+# Ensure the e2e user OWNS at least one playlist, FOLLOWS at least one artist and
+# LIKES at least one song — the fixtures the acceptance scenarios need.
 #
 # Why this exists: the playlist-ownership fix (Your Library shows only playlists
 # you OWN) correctly stopped surfacing other users' playlists — but it left the
@@ -94,6 +94,21 @@ else
     | python3 -c 'import sys,json;i=json.load(sys.stdin).get("Items",[]);print(i[0]["Id"] if i else "")' 2>/dev/null || true)
   [ -n "$AID" ] && curl -s --max-time 30 -o /dev/null -w 'seed: followed an artist (HTTP %{http_code})\n' \
     -X POST "$URL/Users/$UID_/FavoriteItems/$AID" -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK"
+fi
+
+# Ensure at least one LIKED song (Liked Songs scenarios shuffle-play the list
+# before any scenario in the area has liked anything — order must not matter).
+LIKED=$(curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Audio&Recursive=true&Filters=IsFavorite&Limit=1&userId=$UID_" \
+  -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" \
+  | python3 -c 'import sys,json;print(len(json.load(sys.stdin).get("Items",[])))' 2>/dev/null || echo 0)
+if [ "$LIKED" -ge 1 ]; then
+  echo "seed: user already likes a song"
+else
+  SID=$(curl -s --max-time 30 "$URL/Items?IncludeItemTypes=Audio&Recursive=true&Limit=1&userId=$UID_&SortBy=SortName" \
+    -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK" \
+    | python3 -c 'import sys,json;i=json.load(sys.stdin).get("Items",[]);print(i[0]["Id"] if i else "")' 2>/dev/null || true)
+  [ -n "$SID" ] && curl -s --max-time 30 -o /dev/null -w 'seed: liked a song (HTTP %{http_code})\n' \
+    -X POST "$URL/Users/$UID_/FavoriteItems/$SID" -H "Authorization: $WTOK" -H "X-Emby-Authorization: $WTOK"
 fi
 
 echo "seed: done"

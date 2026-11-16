@@ -34,8 +34,9 @@ else
   jf -X POST "$URL/Users/${ID}/Password" -d '{"ResetPassword":true}' >/dev/null
   jf -X POST "$URL/Users/${ID}/Password" -d "$(python3 -c 'import json,sys; print(json.dumps({"CurrentPw":"","NewPw":sys.argv[1]}))' "$PW")" >/dev/null
 fi
-# Library access: every folder, not hidden from login.
-POLICY=$(jf "$URL/Users/${ID}" | python3 -c 'import sys,json; p=json.load(sys.stdin)["Policy"]; p["EnableAllFolders"]=True; p["IsHidden"]=False; p["IsDisabled"]=False; print(json.dumps(p))')
+# Library access: every folder, not hidden from login. No login lockout: the
+# auth area deliberately signs in with a wrong password every run.
+POLICY=$(jf "$URL/Users/${ID}" | python3 -c 'import sys,json; p=json.load(sys.stdin)["Policy"]; p["EnableAllFolders"]=True; p["IsHidden"]=False; p["IsDisabled"]=False; p["LoginAttemptsBeforeLockout"]=-1; print(json.dumps(p))')
 jf -X POST "$URL/Users/${ID}/Policy" -d "$POLICY" >/dev/null
 # Prove the credentials actually work, the same way the app signs in.
 CLIENT='MediaBrowser Client="ci-provision", Device="ci", DeviceId="ci-provision-check", Version="1"'

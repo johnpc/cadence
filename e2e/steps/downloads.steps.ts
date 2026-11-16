@@ -1,5 +1,5 @@
 import { createBdd } from 'playwright-bdd';
-import { expect } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { DATA_WAIT, DOWNLOAD_WAIT } from './timeouts';
 import { navigate } from './app-shell.steps';
 import {
@@ -89,26 +89,37 @@ async function openFirstResultMenu(page: import('@playwright/test').Page) {
   await expect(page.locator(OPEN_SHEET)).toBeVisible({ timeout: DATA_WAIT });
 }
 
+/** Rows in the app's IndexedDB download index (0 when it doesn't exist yet). */
+function downloadedCount(page: Page): Promise<number> {
+  return page.evaluate(
+    () =>
+      new Promise<number>((resolve) => {
+        const open = indexedDB.open('cadence');
+        open.onerror = () => resolve(0);
+        open.onsuccess = () => {
+          const db = open.result;
+          if (!db.objectStoreNames.contains('downloads')) return resolve(0);
+          const count = db.transaction('downloads', 'readonly').objectStore('downloads').count();
+          count.onsuccess = () => resolve(count.result);
+          count.onerror = () => resolve(0);
+        };
+      }),
+  );
+}
+
 When('I download the first song result', async ({ page }) => {
   // Download lives in the row's "…" menu — tap it once, then dismiss the sheet.
   await openFirstResultMenu(page);
   await page.getByRole('button', { name: 'Download', exact: true }).click();
   await dismissOpenSheet(page);
-  // Poll the DURABLE signal — a completed download writes to the localStorage
-  // download index (cadence.downloads.index) — instead of reopening the action
-  // sheet each iteration. Reopening raced the search-results re-render (the menu
-  // couldn't find its row and timed out); the index is stable and completes the
-  // moment the real audio bytes land. DOWNLOAD_WAIT: whole-file transfer budget.
+  // Poll the DURABLE signal — a completed download writes its row to the
+  // IndexedDB download index (db "cadence", store "downloads") — instead of
+  // reopening the action sheet each iteration. Reopening raced the search-results
+  // re-render (the menu couldn't find its row and timed out); the index is stable
+  // and completes the moment the real audio bytes land. DOWNLOAD_WAIT: whole-file
+  // transfer budget.
   await expect(async () => {
-    const count = await page.evaluate(() => {
-      try {
-        return (JSON.parse(localStorage.getItem('cadence.downloads.index') || '[]') as unknown[])
-          .length;
-      } catch {
-        return 0;
-      }
-    });
-    expect(count).toBeGreaterThan(0);
+    expect(await downloadedCount(page)).toBeGreaterThan(0);
   }).toPass({ timeout: DOWNLOAD_WAIT });
 });
 

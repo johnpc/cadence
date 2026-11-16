@@ -93,3 +93,34 @@ export interface ItemsResponse {
   Items: JellyfinItem[];
   TotalRecordCount: number;
 }
+
+// ── compile-time conformance with the server's own types ─────────────────────
+// The interfaces above are hand-kept small on purpose; these checks prove every
+// field we model exists on Jellyfin's DTO (src/lib/jellyfinOpenApi.d.ts,
+// generated from the OpenAPI spec of the version CI tests against) with a type
+// the server's value fits. Jellyfin marks nearly every field optional/nullable,
+// so presence is not checked — renames and type changes are. A failure names
+// the offending field: "Type '"Foo"' does not satisfy the constraint 'never'".
+import type { BaseItemDto, BaseItemDtoQueryResult } from './jellyfinOpenApi';
+
+/** The server's value with null/undefined peeled off at every level. */
+type Present<T> = T extends null | undefined
+  ? never
+  : T extends Array<infer U>
+    ? Array<Present<U>>
+    : T extends object
+      ? { [K in keyof T]-?: Present<T[K]> }
+      : T;
+
+/** Keys of `Hand` that `Api` lacks, or whose server type doesn't fit ours. */
+type Mismatched<Hand, Api> = {
+  [K in keyof Hand]-?: K extends keyof Api
+    ? Present<Api[K]> extends NonNullable<Hand[K]>
+      ? never
+      : K
+    : K;
+}[keyof Hand];
+
+type AssertNone<T extends never> = T;
+export type JellyfinItemConforms = AssertNone<Mismatched<JellyfinItem, BaseItemDto>>;
+export type ItemsResponseConforms = AssertNone<Mismatched<ItemsResponse, BaseItemDtoQueryResult>>;

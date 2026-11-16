@@ -24,6 +24,7 @@
 		5E962226B0035BCE6FA0302C /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397A5C8B4E39BC3D12138D57 /* NowPlayingView.swift */; };
 		68EC28C6B88A30C37E30B3FB /* NowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E778FFB7EE04E8CF416CCF1 /* NowPlaying.swift */; };
 		6D1CEC5F2A9B647AABD214B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7C3A3E40040E3F87E2AB0E7 /* Assets.xcassets */; };
+		7305BEBC304D6BD80A408A58 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD73FBA369EE788F95A9752D /* SceneDelegate.swift */; };
 		7655C22A107A6C1A06F1BEB0 /* ContinueListeningSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F4C3F48EABA90BA2A80CF /* ContinueListeningSnapshot.swift */; };
 		7D401D2C26D67B9DEB8927BE /* NowPlayingShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DB857EA324E7196D451C21 /* NowPlayingShape.swift */; };
 		8081D63667A22DC11D497D8B /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59239E0340951BA7C4BA0DE7 /* WatchConnector.swift */; };
@@ -112,6 +113,7 @@
 		C4C0A762CC16E55DEE2EFC0E /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CAD0000100000000000000A2 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		CAD0000200000000000000A2 /* NowPlayingBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingBridge.swift; sourceTree = "<group>"; };
+		CD73FBA369EE788F95A9752D /* SceneDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CadenceWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F05076A09667A7FF9215BC3C /* AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3DB857EA324E7196D451C21 /* NowPlayingShape.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingShape.swift; sourceTree = "<group>"; };
@@ -206,6 +208,7 @@
 				A84EEBC9D31C11133109D470 /* WatchBridge.swift */,
 				CAD0000200000000000000A2 /* NowPlayingBridge.swift */,
 				F3DB857EA324E7196D451C21 /* NowPlayingShape.swift */,
+				CD73FBA369EE788F95A9752D /* SceneDelegate.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -497,6 +500,7 @@
 				350F3B9DF6F8AF3CD4465228 /* WatchBridge.swift in Sources */,
 				CAD0000300000000000000A3 /* NowPlayingBridge.swift in Sources */,
 				7D401D2C26D67B9DEB8927BE /* NowPlayingShape.swift in Sources */,
+				7305BEBC304D6BD80A408A58 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

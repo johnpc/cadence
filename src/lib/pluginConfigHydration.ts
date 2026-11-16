@@ -6,32 +6,16 @@
  * fetch resolves, so reading it at mount would wrongly see the plugin as
  * unavailable and, e.g., fire the native queries the fast paths exist to avoid.
  */
-import { useSyncExternalStore } from 'react';
+import { createStore, useStore } from './store';
 
-let configHydrated = false;
-const hydrationListeners = new Set<() => void>();
+const hydrated = createStore(false);
 
 /** True once the plugin config fetch has settled (either way). */
-export function isPluginConfigHydrated(): boolean {
-  return configHydrated;
-}
+export const isPluginConfigHydrated = (): boolean => hydrated.get();
 
 /** React hook: re-renders when plugin-config hydration settles. */
-export function usePluginConfigHydrated(): boolean {
-  return useSyncExternalStore(
-    (cb) => {
-      hydrationListeners.add(cb);
-      return () => hydrationListeners.delete(cb);
-    },
-    () => configHydrated,
-    () => configHydrated,
-  );
-}
+export const usePluginConfigHydrated = (): boolean => useStore(hydrated);
 
 /** Flip the signal to settled and notify subscribers. Idempotent. Called by
  * hydratePluginConfig in a finally, so even a failed fetch counts as settled. */
-export function markConfigHydrated(): void {
-  if (configHydrated) return;
-  configHydrated = true;
-  hydrationListeners.forEach((l) => l());
-}
+export const markConfigHydrated = (): void => hydrated.set(true);

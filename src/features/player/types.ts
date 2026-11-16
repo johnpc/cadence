@@ -1,8 +1,11 @@
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
-import type { SleepMode } from './useSleepTimer';
 
 /** Repeat mode: off, repeat the whole queue, or repeat the current track. */
 export type RepeatMode = 'off' | 'all' | 'one';
+
+/** What the sleep timer is set to: a minute count, 'track' (stop when the
+ * current song ends), or null (off). */
+export type SleepMode = number | 'track' | null;
 
 /** Player state + actions exposed via PlayerContext. */
 export interface PlayerContextValue {

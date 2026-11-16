@@ -1,3 +1,4 @@
+import { createStore } from '../../lib/store';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** Where the current queue was started from — "Playing from PLAYLIST · Chill
@@ -14,44 +15,35 @@ export interface PlayContext {
   trackIds: Set<string>;
 }
 
-let current: PlayContext | null = null;
-const listeners = new Set<() => void>();
-
-function emit(): void {
-  for (const l of listeners) l();
-}
+export const playContextStore = createStore<PlayContext | null>(null);
 
 /** Record the collection a play started from. Passing null clears it (e.g. when
  * a single track is played from search, which has no collection context). */
 export function setPlayContext(
   ctx: { kind: string; label: string; path?: string; tracks: JellyfinItem[] } | null,
 ): void {
-  current = ctx
-    ? {
-        kind: ctx.kind,
-        label: ctx.label,
-        path: ctx.path,
-        trackIds: new Set(ctx.tracks.map((t) => t.Id)),
-      }
-    : null;
-  emit();
+  playContextStore.set(
+    ctx
+      ? {
+          kind: ctx.kind,
+          label: ctx.label,
+          path: ctx.path,
+          trackIds: new Set(ctx.tracks.map((t) => t.Id)),
+        }
+      : null,
+  );
 }
 
-export function getPlayContext(): PlayContext | null {
-  return current;
-}
+export const getPlayContext = (): PlayContext | null => playContextStore.get();
 
-export function subscribePlayContext(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
+export const subscribePlayContext = (listener: () => void): (() => void) =>
+  playContextStore.subscribe(listener);
 
 /** The context to show for the currently-playing track: the stored context only
  * while that track still belongs to it, else null — so the label disappears the
  * moment playback leaves the collection (endless radio, a different queue). */
 export function contextFor(trackId: string | undefined): PlayContext | null {
+  const current = playContextStore.get();
   if (!current || !trackId || !current.trackIds.has(trackId)) return null;
   return current;
 }

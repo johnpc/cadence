@@ -43,8 +43,8 @@ export default defineConfig({
   // failures these tests exist to catch (see CLAUDE.md → "No ignored failures").
   retries: 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
-  // CI reaches the home Jellyfin through a cloudflared tunnel, so round-trips
-  // can be slow — give tests and assertions extra headroom there.
+  // CI runners are slower than a dev machine and the hermetic Jellyfin is cold
+  // on first use — give tests and assertions extra headroom there.
   timeout: process.env.CI ? 120_000 : 60_000,
   expect: { timeout: process.env.CI ? 30_000 : 15_000 },
   use: {

@@ -8,13 +8,43 @@ vi.mock('../../lib/marlinStore', () => ({
   marlinConfigured: () => marlin.configured,
 }));
 
-import { jellyfinSearchSource, marlinSearchSource, searchSource } from './searchSource';
+import {
+  jellyfinSearchSource,
+  marlinSearchSource,
+  searchPlaylists,
+  searchSource,
+} from './searchSource';
 import { setSession } from '../../lib/sessionStore';
 
 beforeEach(() => {
   marlin.url = '';
   marlin.token = '';
   marlin.configured = false;
+});
+
+describe('searchPlaylists', () => {
+  afterEach(() => {
+    setSession(null);
+    vi.restoreAllMocks();
+  });
+
+  it('asks the server for ALL matches (its Limit runs before the per-user filter) and trims here', async () => {
+    setSession({ token: 't', userId: 'uid' });
+    const many = Array.from({ length: 14 }, (_, i) => ({
+      Id: `p${i}`,
+      Name: `Mix ${i}`,
+      Type: 'Playlist',
+    }));
+    const f = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ Items: many }),
+    } as Response);
+    vi.stubGlobal('fetch', f);
+    const found = await searchPlaylists('mix', 10);
+    expect(String(f.mock.calls[0][0])).not.toContain('Limit=');
+    expect(found).toHaveLength(10);
+  });
 });
 
 describe('jellyfinSearchSource', () => {

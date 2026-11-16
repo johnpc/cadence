@@ -10,7 +10,7 @@ import {
 } from '@ionic/react';
 import { settingsOutline, cloudDownloadOutline } from 'ionicons/icons';
 import { LibraryList } from './LibraryList';
-import { deezerImportEnabled } from '../../lib/runtimeConfig';
+import { isExtensionEnabled } from '../../extensions/flags';
 
 /** Your Library — one filterable list (Playlists / Albums / Artists), with
  * Liked Songs pinned as the first playlist. Requesting music now has its own
@@ -23,7 +23,7 @@ export function Library() {
         <IonToolbar>
           <IonTitle>Your Library</IonTitle>
           <IonButtons slot="end">
-            {deezerImportEnabled() && (
+            {isExtensionEnabled('deezerImport') && (
               <IonButton routerLink="/import/deezer" data-testid="library-import-deezer">
                 <IonIcon
                   slot="icon-only"

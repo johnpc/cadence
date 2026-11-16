@@ -1,7 +1,9 @@
+import { createStore } from '../../lib/store';
+
 /**
- * Reactive Cast session state: whether we're connected to a receiver and its
- * display name. Module-scoped + listener-based (mirrors the app's other small
- * stores) so the player and a Cast button stay in sync without prop-drilling.
+ * Reactive Cast session state: whether we're connected to a receiver, its
+ * display name, and whether it is playing. The player engine subscribes to it
+ * (hand-off to and from the TV); the Cast button reads it via useCast.
  */
 export interface CastState {
   connected: boolean;
@@ -10,19 +12,13 @@ export interface CastState {
   playing: boolean;
 }
 
-let state: CastState = { connected: false, deviceName: '', playing: false };
-const listeners = new Set<() => void>();
+export const castStore = createStore<CastState>({
+  connected: false,
+  deviceName: '',
+  playing: false,
+});
 
-export function getCastState(): CastState {
-  return state;
-}
-
-export function setCastState(next: CastState): void {
-  state = next;
-  for (const l of listeners) l();
-}
-
-export function onCastStateChange(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
+export const getCastState = (): CastState => castStore.get();
+export const setCastState = (next: CastState): void => castStore.set(next);
+export const onCastStateChange = (listener: () => void): (() => void) =>
+  castStore.subscribe(listener);

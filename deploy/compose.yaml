@@ -1,43 +1,30 @@
-# Cadence PWA — deployed as a Dockge stack on umbrel, fronted by cloudflared.
+# Cadence PWA — THE compose file for the cadence.jpc.io deploy (a Dockge stack
+# on umbrel, fronted by cloudflared). This file is the source of truth: it is
+# copied verbatim to the stack dir by `scripts/deploy-umbrel.sh`, never edited
+# on the server. Everything deployment-specific lives in the stack's `.env`
+# beside it (server-side only, never committed):
 #
-# The dind daemon has no `git`, so deploy by cloning the repo on the umbrel HOST
-# into this stack dir, then building from the local ./repo context:
+#   CADENCE_TAG      image tag to run (CI publishes sha-<short> + latest)
+#   JELLYFIN_URL     prefilled sign-in server (runtime config.js, no rebuild)
+#   SIGNUP_URL       optional "Sign up" link on the sign-in screen
+#   MARLIN_URL       optional: nginx proxies same-origin /api/search to marlin
+#   MARLIN_TOKEN       …and injects this token server-side (never reaches the browser)
+#   LIDARR_URL       optional: nginx proxies a curated /api/lidarr/* allowlist
+#   LIDARR_API_KEY     …injecting this WRITE key server-side
 #
-#   ssh umbrel@<host>
-#   cd /home/umbrel/umbrel/app-data/dockge/data/dockge-stacks/cadence
-#   sudo rm -rf repo && sudo git clone --depth 1 https://github.com/johnpc/cadence.git repo
-#   sudo docker exec dockge_dockge_1 docker compose -p cadence \
-#     -f /opt/stacks/cadence/compose.yaml up -d --build
-#
-# To update: re-pull repo (git -C repo pull) and re-run the `up -d --build`.
-#
-# The Jellyfin server URL is NOT baked into the build — set JELLYFIN_URL below
-# (or in a .env beside this file / Dockge's env field). It's injected at
-# container start into config.js by deploy/runtime-config.sh, so changing it
-# needs only a restart, not a rebuild — and the address never lives in source.
-#
-# Optional faster search: set MARLIN_URL + MARLIN_TOKEN (the indexer's
-# EXPRESS_AUTH_TOKEN) to have nginx proxy same-origin /api/search to marlin and
-# inject the token server-side — the token never reaches the browser and marlin
-# needs no public hostname. Unset → Jellyfin native search. Keep real values in a
-# .env beside this file (gitignored), never committed.
-#
-# Optional "request missing music" (Lidarr): set LIDARR_URL + LIDARR_API_KEY to
-# have nginx proxy same-origin /api/lidarr/* (a curated allowlist) to Lidarr,
-# injecting the API key server-side. The key is a WRITE credential — it never
-# reaches the browser and Lidarr needs no public hostname. Unset → feature off.
+# Unset optional values switch their feature off. The Jellyfin address never
+# lives in the image or the bundle — `deploy-umbrel.sh deploy` verifies that.
 services:
   cadence:
-    build:
-      context: ./repo
-    image: cadence-local:latest
+    image: mrorbitman/cadence:${CADENCE_TAG:-latest}
     container_name: cadence
+    ports:
+      - '8095:80'
+    restart: unless-stopped
     environment:
       JELLYFIN_URL: ${JELLYFIN_URL:-}
+      SIGNUP_URL: ${SIGNUP_URL:-}
       MARLIN_URL: ${MARLIN_URL:-}
       MARLIN_TOKEN: ${MARLIN_TOKEN:-}
       LIDARR_URL: ${LIDARR_URL:-}
       LIDARR_API_KEY: ${LIDARR_API_KEY:-}
-    ports:
-      - '8095:80'
-    restart: unless-stopped
