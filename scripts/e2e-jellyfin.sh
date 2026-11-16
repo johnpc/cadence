@@ -142,6 +142,23 @@ seed_users() {
   done
 }
 
+# Open the stream path once, alone, before any test runs. Jellyfin 12.4 creates
+# its transcode marker (/cache/transcodes/.jellyfin-transcode) lazily on the
+# first stream, and two FIRST streams arriving together race for it — one gets
+# HTTP 500 ("The process cannot access the file … being used by another
+# process"). A long-running server is past this; a fresh one is not, and the
+# first playback scenario's two concurrent requests (the <audio> element and the
+# step's own check) hit it on CI. Fails the setup if streaming is broken.
+warm_stream() {
+  local id
+  id=$(jf "$URL/Items?IncludeItemTypes=Audio&Recursive=true&Limit=1" | py 'import sys,json; print(json.load(sys.stdin)["Items"][0]["Id"])')
+  local code
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 -r 0-4095 \
+    "$URL/Audio/$id/universal?ApiKey=$TOKEN&Container=opus,mp3,aac,m4a,m4b,flac,webma,webm,wav,ogg&TranscodingContainer=ts&AudioCodec=aac")
+  [ "$code" -lt 300 ] || die "the stream endpoint answered HTTP $code — streaming is broken"
+  echo "e2e-jellyfin: stream path warm (HTTP $code)"
+}
+
 print_env() {
   cat <<ENV
 VITE_JELLYFIN_URL=$URL
@@ -168,6 +185,7 @@ up() {
   wait_for_scan
   create_users
   seed_users
+  warm_stream
   # GitHub Actions: hand the env to later steps. Locally: `eval "$(… env)"`.
   if [ -n "${GITHUB_ENV:-}" ]; then print_env >> "$GITHUB_ENV"; fi
   print_env
