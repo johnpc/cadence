@@ -1,6 +1,6 @@
 /** The subset of Lidarr's API we consume, hand-modelled (no `any`). Lidarr is
  * the "request missing music" backend — music's Radarr — reached via the
- * same-origin /api/lidarr proxy (see deploy/runtime-config.sh). */
+ * CadenceConfig plugin's signed-in /Cadence/Lidarr proxy (see lidarrTransport). */
 
 /** An artist as Lidarr returns it (search results + after add). */
 export interface LidarrArtist {

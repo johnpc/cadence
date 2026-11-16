@@ -56,15 +56,10 @@ export async function hydratePluginConfig(): Promise<void> {
     fillString('marlinUrl', res.MarlinUrl);
     fillString('signupUrl', res.SignupUrl);
     fillString('castReceiverAppId', res.CastReceiverAppId);
-    // The Lidarr proxy: nginx (web) sets lidarrProxy in config.js BEFORE boot; the
-    // plugin sets it here only when nginx didn't. When the plugin is the source we
-    // also flag lidarrPluginProxy so lidarrApi routes through Jellyfin's
-    // /Cadence/Lidarr (works on native) instead of the same-origin /api/lidarr.
+    // The Lidarr proxy lives ONLY in the plugin (signed-in users, allowlisted
+    // endpoints) on web and native alike — so the plugin is its sole source.
     const config = (window.__CADENCE_CONFIG__ ??= {});
-    if (res.LidarrProxy === true && !config.lidarrProxy) {
-      config.lidarrProxy = true;
-      config.lidarrPluginProxy = true;
-    }
+    config.lidarrProxy = res.LidarrProxy === true;
     // Plain plugin-endpoint flags: each tells the client an extension endpoint is
     // available (routes "Import from Deezer" to /Cadence/Deezer/Import). Only set
     // when the deploy didn't already (config.js wins). Older plugins also sent

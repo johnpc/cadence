@@ -25,16 +25,7 @@ afterEach(() => {
 });
 
 describe('lidarrTransport', () => {
-  it('uses the same-origin nginx path (no auth header) when the plugin proxy is off', async () => {
-    const f = stubFetch();
-    await lidarrFetch('/rootfolder');
-    const [url, init] = f.mock.calls[0];
-    expect(url).toBe('/api/lidarr/rootfolder');
-    expect((init as RequestInit).headers).not.toHaveProperty('X-Emby-Authorization');
-  });
-
-  it('routes through the Jellyfin plugin (with auth header) when the plugin proxy is on', async () => {
-    window.__CADENCE_CONFIG__ = { lidarrProxy: true, lidarrPluginProxy: true };
+  it("GETs through the Jellyfin plugin with the user's auth header", async () => {
     const f = stubFetch();
     await lidarrFetch('/search?term=x');
     const [url, init] = f.mock.calls[0];
@@ -42,22 +33,26 @@ describe('lidarrTransport', () => {
     const headers = (init as RequestInit).headers as Record<string, string>;
     expect(headers['X-Emby-Authorization']).toContain('Token="tok-1"');
     expect(headers['Authorization']).toContain('tok-1');
+    expect((init as RequestInit).method).toBe('GET');
+    expect(headers).not.toHaveProperty('Content-Type');
   });
 
-  it('POSTs a JSON body through the nginx path with a content-type', async () => {
+  it('POSTs a JSON body through the plugin with auth + content-type', async () => {
     const f = stubFetch();
     await lidarrPost('/artist', { foreignArtistId: 'mb-1' });
     const [url, init] = f.mock.calls[0];
-    expect(url).toBe('/api/lidarr/artist');
+    expect(url).toBe('https://jf.example.com/Cadence/Lidarr/artist');
     expect((init as RequestInit).method).toBe('POST');
     expect(JSON.parse((init as RequestInit).body as string)).toEqual({ foreignArtistId: 'mb-1' });
-    expect((init as RequestInit).headers).toHaveProperty('Content-Type', 'application/json');
+    const headers = (init as RequestInit).headers as Record<string, string>;
+    expect(headers).toHaveProperty('Content-Type', 'application/json');
+    expect(headers['Authorization']).toContain('tok-1');
   });
 
-  it('POSTs through the plugin path when enabled', async () => {
-    window.__CADENCE_CONFIG__ = { lidarrPluginProxy: true };
+  it('never calls the removed same-origin /api/lidarr proxy', async () => {
+    window.__CADENCE_CONFIG__ = { lidarrProxy: true };
     const f = stubFetch();
-    await lidarrPost('/artist', { a: 1 });
-    expect(f.mock.calls[0][0]).toBe('https://jf.example.com/Cadence/Lidarr/artist');
+    await lidarrFetch('/rootfolder');
+    expect(f.mock.calls[0][0]).not.toContain('/api/lidarr');
   });
 });

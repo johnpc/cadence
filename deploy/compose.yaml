@@ -7,10 +7,12 @@
 #   CADENCE_TAG      image tag to run (CI publishes sha-<short> + latest)
 #   JELLYFIN_URL     prefilled sign-in server (runtime config.js, no rebuild)
 #   SIGNUP_URL       optional "Sign up" link on the sign-in screen
-#   MARLIN_URL       optional: nginx proxies same-origin /api/search to marlin
-#   MARLIN_TOKEN       …and injects this token server-side (never reaches the browser)
-#   LIDARR_URL       optional: nginx proxies a curated /api/lidarr/* allowlist
-#   LIDARR_API_KEY     …injecting this WRITE key server-side
+#   MARLIN_URL       optional: nginx proxies same-origin /api/search to marlin,
+#   MARLIN_TOKEN       …injecting this token server-side (never reaches the browser),
+#                      for signed-in Jellyfin users only (verified per request)
+#
+# Lidarr requests go through the CadenceConfig Jellyfin plugin (signed-in users
+# only), not this container — LIDARR_* in the .env are no longer read.
 #
 # Unset optional values switch their feature off. The Jellyfin address never
 # lives in the image or the bundle — `deploy-umbrel.sh deploy` verifies that.
@@ -26,8 +28,6 @@ services:
       SIGNUP_URL: ${SIGNUP_URL:-}
       MARLIN_URL: ${MARLIN_URL:-}
       MARLIN_TOKEN: ${MARLIN_TOKEN:-}
-      LIDARR_URL: ${LIDARR_URL:-}
-      LIDARR_API_KEY: ${LIDARR_API_KEY:-}
 
 # umbrel's host daemon has no free address pools for a per-stack bridge, so the
 # stack joins the shared, pre-created `homelab-apps` network. The public path

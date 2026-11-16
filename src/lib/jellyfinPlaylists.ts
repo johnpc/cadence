@@ -6,6 +6,7 @@
  */
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
+import { rememberOwnPlaylist } from './playlistOwnership';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
 export { getPlaylists, getPublicPlaylists } from './jellyfinPlaylistLists';
@@ -67,6 +68,7 @@ export async function createPlaylist(name: string): Promise<string> {
     method: 'POST',
     body: { Name: name, UserId: userId, MediaType: 'Audio', IsPublic: false },
   });
+  rememberOwnPlaylist(res.Id);
   return res.Id;
 }
 
@@ -79,6 +81,7 @@ export async function createPlaylistWithItems(name: string, itemIds: string[]): 
     method: 'POST',
     body: { Name: name, UserId: userId, MediaType: 'Audio', Ids: itemIds, IsPublic: false },
   });
+  rememberOwnPlaylist(res.Id);
   return res.Id;
 }
 

@@ -60,16 +60,10 @@ export function marlinProxyEnabled(): boolean {
   return configFlag('marlinProxy');
 }
 
-/** True when the Lidarr proxy is available (nginx `/api/lidarr/*` OR the
- * CadenceConfig plugin). Gates the "request missing music" UI. */
+/** True when the CadenceConfig plugin's Lidarr proxy is available. Gates the
+ * "request missing music" UI. */
 export function lidarrProxyEnabled(): boolean {
   return configFlag('lidarrProxy');
-}
-
-/** True when the Lidarr proxy is the CadenceConfig Jellyfin plugin
- * (`/Cadence/Lidarr/*`) not nginx — the native-iOS path. See lidarrTransport. */
-export function lidarrPluginProxyEnabled(): boolean {
-  return configFlag('lidarrPluginProxy');
 }
 
 /** True when the CadenceConfig plugin exposes the Deezer import endpoint. Gates

@@ -32,7 +32,6 @@ describe('hydratePluginConfig', () => {
       signupUrl: 'https://signup.example.com',
       castReceiverAppId: 'ABC123',
       lidarrProxy: true,
-      lidarrPluginProxy: true,
       deezerImport: true,
     });
     const raw = window.__CADENCE_CONFIG__ as Record<string, unknown>;
@@ -41,13 +40,21 @@ describe('hydratePluginConfig', () => {
     expect(request).toHaveBeenCalledWith('/Cadence/Config');
   });
 
-  it('does NOT override values already set by the deploy (nginx config.js wins)', async () => {
-    window.__CADENCE_CONFIG__ = { marlinUrl: 'https://deploy-marlin', lidarrProxy: true };
+  it('does NOT override a deploy-set marlin URL (nginx config.js wins)', async () => {
+    window.__CADENCE_CONFIG__ = { marlinUrl: 'https://deploy-marlin' };
     request.mockResolvedValue({ MarlinUrl: 'https://plugin-marlin', LidarrProxy: true });
     await hydratePluginConfig();
-    // Deploy marlin URL kept; lidarrProxy stays nginx (no plugin flag added).
     expect(window.__CADENCE_CONFIG__?.marlinUrl).toBe('https://deploy-marlin');
-    expect(window.__CADENCE_CONFIG__?.lidarrPluginProxy).toBeUndefined();
+    expect(window.__CADENCE_CONFIG__?.lidarrProxy).toBe(true);
+  });
+
+  it("the plugin alone decides Lidarr: an old container's lidarrProxy is overridden", async () => {
+    // Pre-change images wrote lidarrProxy:true into config.js for their (now
+    // removed, unauthenticated) nginx proxy — the plugin must decide instead.
+    window.__CADENCE_CONFIG__ = { lidarrProxy: true };
+    request.mockResolvedValue({ LidarrProxy: false });
+    await hydratePluginConfig();
+    expect(window.__CADENCE_CONFIG__?.lidarrProxy).toBe(false);
   });
 
   it('ignores empty strings and a false LidarrProxy / DeezerImport', async () => {
@@ -60,7 +67,7 @@ describe('hydratePluginConfig', () => {
     await hydratePluginConfig();
     expect(window.__CADENCE_CONFIG__?.marlinUrl).toBeUndefined();
     expect(window.__CADENCE_CONFIG__?.signupUrl).toBeUndefined();
-    expect(window.__CADENCE_CONFIG__?.lidarrProxy).toBeUndefined();
+    expect(window.__CADENCE_CONFIG__?.lidarrProxy).toBe(false);
     expect(window.__CADENCE_CONFIG__?.deezerImport).toBeUndefined();
   });
 

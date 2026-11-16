@@ -29,16 +29,11 @@ export interface RuntimeConfig {
    * browser and no direct indexer exposure — the preferred setup. Web/PWA only
    * (native has no nginx; config.js is absent there, so this stays false). */
   marlinProxy?: boolean;
-  /** When true, the serving nginx proxies `/api/lidarr/*` to Lidarr (a curated
-   * allowlist), injecting the API key SERVER-SIDE (see deploy/runtime-config.sh).
-   * Enables the "request missing music" feature. The write-capable key never
-   * reaches the browser. Web/PWA only (config.js absent on native → false). */
+  /** When true, the CadenceConfig Jellyfin plugin's Lidarr proxy
+   * (`/Cadence/Lidarr/*`: signed-in users only, allowlisted endpoints, key kept
+   * server-side) is available. Set from the plugin config (pluginConfigStore).
+   * Enables the "request missing music" feature on web and native. */
   lidarrProxy?: boolean;
-  /** When true, the Lidarr proxy is provided by the CadenceConfig Jellyfin plugin
-   * (GET|POST /Cadence/Lidarr/*), not the serving nginx. Set by the plugin-config
-   * fetch (pluginConfigStore) when nginx didn't already enable lidarrProxy — so
-   * lidarrApi routes through Jellyfin (works on native iOS, which has no nginx). */
-  lidarrPluginProxy?: boolean;
   /** When true, the CadenceConfig Jellyfin plugin exposes the Deezer playlist
    * import endpoint (POST /Cadence/Deezer/Import). Set by the plugin-config fetch
    * (pluginConfigStore); gates the "Import from Deezer" screen. */
