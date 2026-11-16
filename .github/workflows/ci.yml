@@ -159,11 +159,6 @@ jobs:
       - name: Install CocoaPods
         run: cd ios/App && pod install
 
-      - name: TEMP runner session probe
-        run: |
-          launchctl print "gui/$(id -u)" >/dev/null 2>&1 && echo "gui domain present" || echo "gui domain ABSENT"
-          echo "console=$(stat -f %Su /dev/console) user=$(id -un)"
-
       - name: Launch the app and wait for Home
         run: bash scripts/ios-launch-smoke.sh
 
