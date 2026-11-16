@@ -1,6 +1,11 @@
 /**
- * Who owns which playlist, remembered per user. Jellyfin's playlist list has no
- * owner field, so ownership is proven one playlist at a time via the owner-only
+ * Who owns which playlist. FIRST choice: the CadenceConfig plugin's
+ * `GET /Cadence/Playlists/Mine` — the server knows every owner, so it answers in
+ * ONE call (Home's two list reads start together and share it while in flight;
+ * nothing is reused after it lands, so a just-created playlist is never missed). Without
+ * the plugin (404 → not asked again this run) or on any error, it falls back to
+ * proving ownership one playlist at a time, remembered per user. Jellyfin's
+ * playlist list has no owner field, so that fallback goes via the owner-only
  * `/Playlists/{id}/Users` (200 for the owner, 403 for everyone else — admins
  * included). That fan-out used to run on every list fetch, TWICE per Home load
  * (Your Library's and the community shelf's queries each probed every playlist
@@ -25,6 +30,39 @@ let known: Known = {};
 const inflight = new Map<string, Promise<boolean>>();
 
 const storageKey = (userId: string) => `${KEY_PREFIX}${userId}`;
+
+/** The plugin call in flight, shared by concurrent reads (never reused after). */
+let serverAnswer: { userId: string; ids: Promise<Set<string> | null> } | null = null;
+/** The plugin endpoint 404'd: this server has no such endpoint — stop asking. */
+let serverUnsupported = false;
+
+async function askServer(userId: string): Promise<Set<string> | null> {
+  try {
+    const res = await request<{ Ids?: string[] }>('/Cadence/Playlists/Mine');
+    const ids = new Set(res.Ids ?? []);
+    for (const id of ids) remember(userId, id, true);
+    return ids;
+  } catch (err: unknown) {
+    if (err instanceof HttpError && err.status === 404) serverUnsupported = true;
+    return null; // fall back to per-playlist proof
+  }
+}
+
+/** The current user's own playlist ids from the plugin, in one call — or null
+ * when the plugin can't answer (then use isPlaylistOwner per playlist). */
+export function ownPlaylistIdsFromServer(): Promise<Set<string> | null> {
+  const userId = getSession()?.userId ?? '';
+  if (!userId || serverUnsupported) return Promise.resolve(null);
+  if (serverAnswer && serverAnswer.userId === userId) return serverAnswer.ids;
+  const entry = {
+    userId,
+    ids: askServer(userId).finally(() => {
+      if (serverAnswer === entry) serverAnswer = null;
+    }),
+  };
+  serverAnswer = entry;
+  return entry.ids;
+}
 
 /** The current user's remembered answers (loaded once per user). */
 function knownFor(userId: string): Known {
@@ -89,4 +127,6 @@ export function __resetPlaylistOwnership(): void {
   loadedFor = null;
   known = {};
   inflight.clear();
+  serverAnswer = null;
+  serverUnsupported = false;
 }

@@ -36,8 +36,11 @@ const res = (body: unknown, status = 200) =>
 /** Route the /Items playlist list to `items`, and the owner-only
  * `/Playlists/{id}/Users` check to 200 for `ownedIds` else 403 — so ownership
  * tests exercise the real confirm-via-share-endpoint path. */
-function stubOwnership(items: unknown[], ownedIds: string[]) {
+function stubOwnership(items: unknown[], ownedIds: string[], plugin = false) {
   const f = vi.fn((url: string) => {
+    // The CadenceConfig plugin's one-call answer: off (404) unless `plugin`.
+    if (url.includes('/Cadence/Playlists/Mine'))
+      return Promise.resolve(plugin ? res({ Ids: ownedIds }) : res(undefined, 404));
     const m = url.match(/\/Playlists\/([^/]+)\/Users/);
     if (m) return Promise.resolve(res(undefined, ownedIds.includes(m[1]) ? 200 : 403));
     return Promise.resolve(res({ Items: items, TotalRecordCount: items.length }));
