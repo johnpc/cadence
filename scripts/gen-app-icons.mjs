@@ -1,28 +1,29 @@
 #!/usr/bin/env node
 /**
  * Generate all app icons from the brand source art:
- *   assets/icon.png       — full-bleed light icon (green Cadence mark on near-black)
- *   assets/icon-dark.png  — full-bleed dark icon (brighter mark on pure black)
+ *   assets/icon.png       — full-bleed light icon (near-black "record C" on brand green)
+ *   assets/icon-dark.png  — full-bleed dark icon (brand-green "record C" on near-black)
+ * Both are rendered by scripts/gen-icon-art.mjs — edit the mark there, not here.
  *
  * Produces, deterministically (no @capacitor/assets — it mangled paths/dark):
  *   • Favicons    → public/favicon{,-16,-32}.png + apple-touch-icon.png (browser tab)
  *   • PWA         → public/icons/icon-{48..512}.png + maskable-{192,512}.png
- *   • iOS         → AppIcon.appiconset light + dark + tinted (1024) + Contents.json
+ *   • iOS         → AppIcon.appiconset light + dark + tinted (1024) + Contents.json, watchOS icon
  *   • Android     → mipmap-<dpi> launcher + round + foreground (light & dark)
  *
  * Re-run after changing the source art:  node scripts/gen-app-icons.mjs
  * Not a shipped logic file (build script) — lives outside src/.
  */
 import sharp from 'sharp';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = process.cwd();
 const LIGHT = join(ROOT, 'assets/icon.png');
 const DARK = join(ROOT, 'assets/icon-dark.png');
-// Maskable safe-zone field — match the icon's near-black canvas so the padding
-// is invisible against the mark.
-const BRAND_BG = { r: 0x12, g: 0x12, b: 0x12 };
+// Maskable safe-zone field — match the light icon's green field (--cad-accent) so the
+// padding is invisible against the mark.
+const BRAND_BG = { r: 0x1d, g: 0xb9, b: 0x54 };
 
 const PWA_SIZES = [48, 72, 96, 128, 192, 256, 384, 512];
 const ANDROID = [
@@ -39,8 +40,9 @@ const resizeTo = (src, size) => sharp(src).resize(size, size, { fit: 'cover' }).
 async function maskable(src, size, bg) {
   const inner = Math.round(size * 0.78);
   const art = await sharp(src).resize(inner, inner, { fit: 'cover' }).png().toBuffer();
-  return sharp({ create: { width: size, height: size, channels: 4, background: bg } })
+  return sharp({ create: { width: size, height: size, channels: 3, background: bg } })
     .composite([{ input: art, gravity: 'center' }])
+    .removeAlpha()
     .png()
     .toBuffer();
 }
@@ -71,10 +73,12 @@ async function ios() {
   mkdirSync(dir, { recursive: true });
   await resizeTo(LIGHT, 1024).toFile(join(dir, 'AppIcon-512@2x.png'));
   await resizeTo(DARK, 1024).toFile(join(dir, 'AppIcon-512@2x-dark.png'));
-  // Tinted: iOS renders a monochrome mask; a grayscale of the light art reads best.
-  await sharp(LIGHT)
+  // Tinted: iOS tints a grayscale icon — light mark on black. The dark art (green on
+  // near-black), grayscaled and stretched, gives a near-white mark on black.
+  await sharp(DARK)
     .resize(1024, 1024, { fit: 'cover' })
     .grayscale()
+    .normalise()
     .png()
     .toFile(join(dir, 'AppIcon-512@2x-tinted.png'));
   const img = (filename, appearance) => ({
@@ -99,10 +103,17 @@ async function ios() {
       2,
     ),
   );
-  console.log('iOS: light + dark + tinted AppIcon');
+  // watchOS companion: one round-masked icon on a black watch face — the dark art.
+  const watch = join(ROOT, 'ios/App/CadenceWatch/Assets.xcassets/AppIcon.appiconset');
+  if (existsSync(watch)) await resizeTo(DARK, 1024).toFile(join(watch, 'AppIcon-1024.png'));
+  console.log('iOS: light + dark + tinted AppIcon (+ watchOS)');
 }
 
 async function android() {
+  if (!existsSync(join(ROOT, 'android'))) {
+    console.log('Android: no android/ project (npx cap add android) — skipped');
+    return;
+  }
   const base = join(ROOT, 'android/app/src/main/res');
   for (const [dpi, size] of ANDROID) {
     const dir = join(base, `mipmap-${dpi}`);
