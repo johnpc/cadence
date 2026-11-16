@@ -19,9 +19,13 @@ import type { RepeatMode, SleepMode } from '../types';
  * - `playing`   the element is producing audio.
  * - `buffering` meant to be playing but starved for data. Shows the spinner and
  *               arms the stall watchdog. Leaving it (play, pause, error) disarms.
- * - `casting`   a TV receiver owns playback; the local element stays silent.
+ * - `casting`   a TV receiver owns playback and is playing; the local element
+ *               stays silent.
+ * - `casting-paused` the same, with the TV paused. (Two states rather than a
+ *               "TV is playing" flag that only meant something while casting.)
  */
-export type TransportStatus = 'idle' | 'paused' | 'playing' | 'buffering' | 'casting';
+export type TransportStatus =
+  'idle' | 'paused' | 'playing' | 'buffering' | 'casting' | 'casting-paused';
 
 export interface PlayerState {
   queue: QueueState;
@@ -39,8 +43,6 @@ export interface PlayerState {
   sleep: SleepMode;
   volume: number;
   rate: number;
-  /** Whether the cast receiver is playing (meaningful only while `casting`). */
-  castPlaying: boolean;
 }
 
 /** Fast-ticking position/duration (seconds), in its own store so a tick never

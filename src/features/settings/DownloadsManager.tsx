@@ -1,29 +1,26 @@
 import { IonAlert } from '@ionic/react';
-import { useState } from 'react';
+import { useCallback } from 'react';
 import { useDownloads } from '../downloads/useDownloads';
 import { removeAllDownloads } from '../downloads/downloadStore';
 import { useToast } from '../toast/useToast';
+import { useConfirmedAction } from '../../lib/useConfirmedAction';
 
 /** Settings "Downloads" section: shows how many tracks are saved for offline and
  * lets the user free the space with one tap (confirmed). Hidden when nothing is
  * downloaded — no empty control to explain. */
 export function DownloadsManager() {
   const { tracks } = useDownloads();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
   const toast = useToast();
+  const removeAll = useConfirmedAction(
+    useCallback(async () => {
+      await removeAllDownloads();
+      toast('Downloads removed');
+    }, [toast]),
+  );
   if (tracks.length === 0) return null;
 
   const count = tracks.length;
-  const run = async () => {
-    setBusy(true);
-    try {
-      await removeAllDownloads();
-      toast('Downloads removed');
-    } finally {
-      setBusy(false);
-    }
-  };
+  const busy = removeAll.phase === 'running';
 
   return (
     <section className="settings__downloads">
@@ -36,19 +33,19 @@ export function DownloadsManager() {
         className="settings__clear-cache"
         data-testid="remove-all-downloads"
         disabled={busy}
-        onClick={() => setConfirmOpen(true)}
+        onClick={removeAll.ask}
       >
         {busy ? 'Removing…' : 'Remove all downloads'}
       </button>
       <IonAlert
-        isOpen={confirmOpen}
+        isOpen={removeAll.phase === 'confirming'}
         header="Remove all downloads?"
         message="Deletes every track saved for offline playback. You can re-download them anytime."
         buttons={[
           { text: 'Cancel', role: 'cancel' },
-          { text: 'Remove', handler: () => void run() },
+          { text: 'Remove', handler: () => void removeAll.run() },
         ]}
-        onDidDismiss={() => setConfirmOpen(false)}
+        onDidDismiss={removeAll.dismissed}
       />
     </section>
   );

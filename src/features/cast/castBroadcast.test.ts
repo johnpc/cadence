@@ -11,7 +11,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const track = { Id: 't1', Name: 'Song', Type: 'Audio', Artists: ['A'] } as JellyfinItem;
 const connect = (on: boolean) =>
-  setCastState({ connected: on, deviceName: on ? 'TV' : '', playing: on });
+  setCastState(on ? { status: 'connected', deviceName: 'TV', playing: true } : { status: 'off' });
 const setAppId = (id: string | undefined) => {
   window.__CADENCE_CONFIG__ = id ? { castReceiverAppId: id } : {};
 };

@@ -1,7 +1,7 @@
 import { useAuth } from './features/auth/useAuth';
 import { SignIn } from './features/auth/SignIn';
 import { AppTabs } from './AppTabs';
-import { AppLoading } from './AppLoading';
+import { AppLoading, SessionUnavailable } from './AppLoading';
 import { RouteAnnouncer } from './features/shell/RouteAnnouncer';
 
 /**
@@ -11,7 +11,7 @@ import { RouteAnnouncer } from './features/shell/RouteAnnouncer';
  * renders before we know who the user is.
  */
 export function AppRoutes() {
-  const { status } = useAuth();
+  const { status, refresh } = useAuth();
 
   return (
     <>
@@ -21,11 +21,19 @@ export function AppRoutes() {
           path, so announce that rather than the underlying route. */}
       <RouteAnnouncer
         override={
-          status === 'loading' ? 'Loading' : status === 'unauthenticated' ? 'Sign in' : undefined
+          status === 'loading'
+            ? 'Loading'
+            : status === 'unavailable'
+              ? "Can't open your sign-in"
+              : status === 'unauthenticated'
+                ? 'Sign in'
+                : undefined
         }
       />
       {status === 'loading' ? (
         <AppLoading />
+      ) : status === 'unavailable' ? (
+        <SessionUnavailable onRetry={() => void refresh()} />
       ) : status === 'unauthenticated' ? (
         <SignIn />
       ) : (

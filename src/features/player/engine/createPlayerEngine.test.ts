@@ -382,7 +382,6 @@ describe('casting', () => {
     expect(status()).toBe('casting');
     expect(audio.paused).toBe(true);
     expect(deps.cast.load).not.toHaveBeenCalled();
-    expect(engine.state.get().castPlaying).toBe(true);
     engine.next();
     expect(deps.cast.load).toHaveBeenCalledWith(expect.objectContaining({ Id: 'b' }));
   });
@@ -395,10 +394,12 @@ describe('casting', () => {
     expect(deps.cast.toggle).not.toHaveBeenCalled();
     engine.pause();
     expect(deps.cast.toggle).toHaveBeenCalledTimes(1);
+    expect(engine.state.get().status).toBe('casting-paused');
     engine.pause(); // already paused
     expect(deps.cast.toggle).toHaveBeenCalledTimes(1);
     engine.toggle(); // shows paused → plays
     expect(deps.cast.toggle).toHaveBeenCalledTimes(2);
+    expect(engine.state.get().status).toBe('casting');
     engine.seek(30);
     expect(deps.cast.seek).toHaveBeenCalledWith(30);
     audio.currentTime = 50;
@@ -406,6 +407,16 @@ describe('casting', () => {
     expect(engine.state.get().queue.index).toBe(0);
     engine.resume(); // never touches the local element while casting
     expect(audio.paused).toBe(true);
+  });
+
+  it("follows the TV's own play/pause (its remote) between casting and casting-paused", () => {
+    const { engine, cast, status } = startedEngine();
+    engine.playQueue(ab(), 0);
+    cast.set({ connected: true, playing: false });
+    expect(status()).toBe('casting-paused');
+    expect(engine.state.get().status).toBe('casting-paused');
+    cast.set({ connected: true, playing: true });
+    expect(status()).toBe('casting');
   });
 
   it('when the cast ends, playback comes back to the phone', () => {

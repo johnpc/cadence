@@ -36,3 +36,20 @@ Feature: Sign in with a Jellyfin account
     And the track is actually playing
     And I sign out from Settings
     Then nothing is playing
+
+  Scenario: A saved sign-in that can't be read yet is retried, not signed out
+    Given I am signed in
+    And the device can't read the saved sign-in
+    When I reload the app
+    Then I see that Cadence can't open my sign-in yet
+    When the device can read the saved sign-in again
+    And I tap Try again
+    Then I land on the Home tab
+
+  Scenario: An unreadable sign-in recovers by itself once the device can read it
+    Given I am signed in
+    And the device can't read the saved sign-in
+    When I reload the app
+    Then I see that Cadence can't open my sign-in yet
+    When the device can read the saved sign-in again
+    Then I land on the Home tab

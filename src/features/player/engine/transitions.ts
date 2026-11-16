@@ -9,10 +9,13 @@ import type { RepeatMode } from '../types';
 
 /** What the UI shows as "playing": local audio running (even while buffering),
  * or the TV playing during a cast. */
-export function isPlayingState(s: Pick<PlayerState, 'status' | 'castPlaying'>): boolean {
-  return (
-    s.status === 'playing' || s.status === 'buffering' || (s.status === 'casting' && s.castPlaying)
-  );
+export function isPlayingState(s: Pick<PlayerState, 'status'>): boolean {
+  return s.status === 'playing' || s.status === 'buffering' || s.status === 'casting';
+}
+
+/** A TV receiver owns the transport (playing or paused). */
+export function isCasting(status: TransportStatus): boolean {
+  return status === 'casting' || status === 'casting-paused';
 }
 
 /** Next/skip has somewhere to go: a later track, or a wrap under repeat-all. */
@@ -30,7 +33,7 @@ export function nextStatus(
   event: ElementEvent,
   element: { paused: boolean; hasTrack: boolean },
 ): TransportStatus {
-  if (current === 'casting') return current;
+  if (isCasting(current)) return current;
   if (event === 'play') return 'playing';
   if (event === 'pause') return element.hasTrack ? 'paused' : 'idle';
   if (event === 'waiting') return element.paused ? current : 'buffering';

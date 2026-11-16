@@ -94,3 +94,33 @@ Then('nothing is playing', async ({ page }) => {
     expect(audio?.src ?? '').toBe('');
   }).toPass({ timeout: DATA_WAIT });
 });
+
+// Simulates iOS launching the app before the phone is unlocked: reading the
+// saved session throws (as the locked Keychain does), while everything else in
+// storage still works. A sessionStorage flag survives the reload; the init
+// script re-arms the throwing read on every page load while the flag is set.
+Given("the device can't read the saved sign-in", async ({ page }) => {
+  await page.addInitScript(() => {
+    const read = Storage.prototype.getItem;
+    Storage.prototype.getItem = function (key: string) {
+      if (sessionStorage.getItem('__e2e_session_locked') === '1' && key.includes('cadence.session'))
+        throw new Error('e2e: saved sign-in is locked');
+      return read.call(this, key);
+    };
+  });
+  await page.evaluate(() => sessionStorage.setItem('__e2e_session_locked', '1'));
+});
+
+When('the device can read the saved sign-in again', async ({ page }) => {
+  await page.evaluate(() => sessionStorage.removeItem('__e2e_session_locked'));
+});
+
+Then("I see that Cadence can't open my sign-in yet", async ({ page }) => {
+  await expect(page.getByTestId('session-unavailable')).toBeVisible({ timeout: DATA_WAIT });
+  // Not signed out: the sign-in form must not have replaced it.
+  await expect(page.getByTestId('signin-submit')).toHaveCount(0);
+});
+
+When('I tap Try again', async ({ page }) => {
+  await page.getByTestId('session-retry').click();
+});

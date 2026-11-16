@@ -27,3 +27,30 @@
   font-size: 13px;
   font-weight: 600;
 }
+
+/* Picker open / handshake in progress: dimmed and pulsing, not tappable. */
+.cast-btn--connecting {
+  color: var(--cad-accent);
+  animation: cast-connecting 1.2s ease-in-out infinite;
+  cursor: progress;
+}
+
+@keyframes cast-connecting {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cast-btn--connecting {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* The TV dropped without the user stopping (Wi-Fi, TV off): playback came back
+ * to the phone; say so briefly. */
+.casting-banner--lost {
+  background: color-mix(in srgb, var(--cad-warning) 18%, transparent);
+  color: var(--cad-warning);
+}

@@ -2,7 +2,7 @@ import { audioStreamUrl, imageUrl } from '../../lib/jellyfinStream';
 import { addToIndex, removeFromIndex, readIndex } from './downloadIndex';
 import { selectBlobStore } from './blobStore';
 import { fetchWithProgress } from './fetchWithProgress';
-import { setProgress, clearProgress } from './downloadProgress';
+import { setProgress, clearProgress, getProgress, onProgressChange } from './downloadProgress';
 import { emitDownloadsChange as emit, onDownloadsChange } from './downloadEmitter';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -52,7 +52,7 @@ async function cacheArt(item: JellyfinItem): Promise<void> {
  * one blip shouldn't permanently fail a track. Throws only if both attempts
  * fail. Also caches the cover art (best-effort) so downloads render offline.
  * Progress is cleared on both success and final failure so no stale % lingers. */
-export async function downloadTrack(item: JellyfinItem): Promise<void> {
+async function fetchAndStore(item: JellyfinItem): Promise<void> {
   let lastErr: unknown;
   setProgress(item.Id, 0);
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -70,6 +70,38 @@ export async function downloadTrack(item: JellyfinItem): Promise<void> {
   }
   clearProgress(item.Id);
   throw lastErr instanceof Error ? lastErr : new Error('download failed');
+}
+
+/** In-flight downloads by track id: a second request for a track that is
+ * already downloading joins the running one instead of fetching it twice. */
+const inflight = new Map<string, Promise<void>>();
+
+export function downloadTrack(item: JellyfinItem): Promise<void> {
+  if (isDownloaded(item.Id)) return Promise.resolve();
+  const running = inflight.get(item.Id);
+  if (running) return running;
+  const job = fetchAndStore(item).finally(() => inflight.delete(item.Id));
+  inflight.set(item.Id, job);
+  return job;
+}
+
+/** A track's ONE download state, derived from the shared stores (never kept per
+ * button): in flight while it has live progress, else whether it's indexed. */
+export type DownloadState = 'none' | 'downloading' | 'downloaded';
+
+export function trackDownloadState(id: string): DownloadState {
+  if (getProgress(id) !== undefined) return 'downloading';
+  return isDownloaded(id) ? 'downloaded' : 'none';
+}
+
+/** Fires when any track's download state may have changed (index or progress). */
+export function onDownloadStateChange(listener: () => void): () => void {
+  const offIndex = onDownloadsChange(listener);
+  const offProgress = onProgressChange(listener);
+  return () => {
+    offIndex();
+    offProgress();
+  };
 }
 
 /** Delete a downloaded track's bytes (audio + cached art) + index entry. */

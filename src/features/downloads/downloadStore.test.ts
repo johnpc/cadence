@@ -32,6 +32,8 @@ import {
   isDownloaded,
   onDownloadsChange,
   removeAllDownloads,
+  trackDownloadState,
+  onDownloadStateChange,
 } from './downloadStore';
 import { readIndex } from './downloadIndex';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -145,5 +147,46 @@ describe('downloadStore', () => {
     off();
     await downloadTrack(track('b'));
     expect(seen).toEqual(['x', 'x']);
+  });
+
+  it('a second request for an in-flight track joins it (one fetch)', async () => {
+    const a = downloadTrack(track('a'));
+    const b = downloadTrack(track('a'));
+    expect(b).toBe(a);
+    await Promise.all([a, b]);
+    const streamCalls = vi.mocked(fetch).mock.calls.filter(([u]) => String(u).includes('/Audio/'));
+    expect(streamCalls).toHaveLength(1);
+  });
+
+  it('does not re-fetch a track that is already downloaded', async () => {
+    await downloadTrack(track('a'));
+    vi.mocked(fetch).mockClear();
+    await downloadTrack(track('a'));
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('can retry a track after its download failed', async () => {
+    vi.mocked(fetch).mockImplementation(() => Promise.resolve(new Response('', { status: 500 })));
+    await expect(downloadTrack(track('a'))).rejects.toThrow();
+    vi.mocked(fetch).mockImplementation(() =>
+      Promise.resolve(new Response('audio-bytes', { status: 200 })),
+    );
+    await downloadTrack(track('a'));
+    expect(isDownloaded('a')).toBe(true);
+  });
+
+  it('reports one state per track: none → downloading → downloaded → none', async () => {
+    const seen: string[] = [];
+    const off = onDownloadStateChange(() => seen.push(trackDownloadState('a')));
+    expect(trackDownloadState('a')).toBe('none');
+    const job = downloadTrack(track('a'));
+    expect(trackDownloadState('a')).toBe('downloading');
+    await job;
+    expect(trackDownloadState('a')).toBe('downloaded');
+    await removeDownload('a');
+    expect(trackDownloadState('a')).toBe('none');
+    off();
+    expect(seen).toContain('downloading');
+    expect(seen.at(-1)).toBe('none');
   });
 });

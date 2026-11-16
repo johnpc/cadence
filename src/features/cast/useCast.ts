@@ -6,8 +6,9 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /**
  * Cast session as reactive state for the UI: whether cast is offered on this
- * platform, whether we're connected, the device name, and cast/stop actions.
- * Errors (user dismisses the picker, no devices) toast rather than throw.
+ * platform, the session's one status (off / connecting / connected / lost), the
+ * device name, and cast/stop actions. Errors (user dismisses the picker, no
+ * devices) toast rather than throw.
  */
 export function useCast() {
   const toast = useToast();
@@ -15,8 +16,10 @@ export function useCast() {
 
   return {
     available: isCastAvailable(),
-    connected: state.connected,
-    deviceName: state.deviceName,
+    status: state.status,
+    connected: state.status === 'connected',
+    connecting: state.status === 'connecting',
+    deviceName: 'deviceName' in state ? state.deviceName : '',
     cast: async (track: JellyfinItem | null) => {
       if (!track) return;
       try {

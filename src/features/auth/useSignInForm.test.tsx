@@ -12,10 +12,15 @@ vi.mock('../../lib/serverUrlStore', () => ({
 
 // A tiny harness that drives the hook's submit() and shows the resulting path.
 function Harness() {
-  const { submit } = useSignInForm();
+  const { submit, error, busy } = useSignInForm();
   const history = useHistory();
   return (
     <>
+      <span data-testid="error">{error ?? ''}</span>
+      <span data-testid="busy">{busy ? 'busy' : 'idle'}</span>
+      <button data-testid="go-twice" onClick={() => void (submit(), submit())}>
+        twice
+      </button>
       <button data-testid="go" onClick={() => void submit()}>
         go
       </button>
@@ -95,5 +100,30 @@ describe('useSignInForm deep-link preservation', () => {
     });
     // Stays on the attempted path (no replace happened) — still /album/123.
     await waitFor(() => expect(screen.getByTestId('loc')).toHaveTextContent('/album/123'));
+  });
+
+  it('shows why sign-in failed and is no longer busy', async () => {
+    renderAt('/', vi.fn().mockRejectedValue(new Error('bad creds')));
+    await act(async () => {
+      screen.getByTestId('go').click();
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('error')).toHaveTextContent('Check your server address'),
+    );
+    expect(screen.getByTestId('busy')).toHaveTextContent('idle');
+  });
+
+  it('is busy while signing in and ignores a second submit', async () => {
+    let finish!: () => void;
+    const signIn = vi.fn(() => new Promise<void>((res) => (finish = res)));
+    renderAt('/', signIn);
+    act(() => {
+      screen.getByTestId('go-twice').click();
+    });
+    expect(screen.getByTestId('busy')).toHaveTextContent('busy');
+    expect(signIn).toHaveBeenCalledTimes(1);
+    await act(async () => finish());
+    expect(screen.getByTestId('busy')).toHaveTextContent('idle');
+    expect(screen.getByTestId('error')).toHaveTextContent('');
   });
 });

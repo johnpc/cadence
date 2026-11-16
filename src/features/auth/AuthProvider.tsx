@@ -8,6 +8,7 @@ import { hydrateMarlin } from '../../lib/marlinStore';
 import { hydrateMusicGrabber } from '../../lib/musicGrabberStore';
 import { hydratePluginConfig } from '../../lib/pluginConfigStore';
 import { onSessionExpired } from '../../lib/sessionExpiry';
+import { attachSessionRetry } from './sessionRetry';
 import { queryClient } from '../../lib/queryClient';
 import { clearPersistedQueue } from '../player/queuePersistence';
 import type { AuthState } from './types';
@@ -21,12 +22,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // no-session — so a flaky read never signs a user out. Load the durable
   // server URL + device id FIRST: the validating request must hit the server
   // the user signed into (not the build default) and carry a stable DeviceId.
+  // If any of that can't be read (a throwing storage plugin), the session is
+  // `unavailable` — never a silent forever-splash, never a sign-out.
   const refresh = useCallback(async () => {
-    await hydrateServerUrl();
-    await hydrateMarlin(); // optional search backend; no-op when unconfigured
-    await hydrateMusicGrabber(); // optional Grab service; no-op when unconfigured
-    await ensureDeviceId();
-    const resolved = await resolveSession();
+    let resolved: AuthState;
+    try {
+      await hydrateServerUrl();
+      await hydrateMarlin(); // optional search backend; no-op when unconfigured
+      await hydrateMusicGrabber(); // optional Grab service; no-op when unconfigured
+      await ensureDeviceId();
+      resolved = await resolveSession();
+    } catch {
+      resolved = { status: 'unavailable', username: null };
+    }
     setState(resolved);
     // Once signed in, ask the server's CadenceConfig plugin (if installed) for
     // the client config — marlin/signup/cast URLs + the Lidarr proxy flag. This
@@ -37,6 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  // While the session can't be read, keep retrying (timer + app foreground).
+  const unavailable = state.status === 'unavailable';
+  useEffect(() => (unavailable ? attachSessionRetry(refresh) : undefined), [unavailable, refresh]);
 
   // When the server rejects our token mid-session (a 401 anywhere — a mutation,
   // a query, or an <audio> stream load), re-validate: resolveSession recovers if

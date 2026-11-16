@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { IonActionSheet, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
@@ -10,6 +9,7 @@ import { nowPlayingMenuButtons } from './nowPlayingMenuButtons';
 import { addToPlaylistButtons } from '../playlists/trackMenuButtons';
 import { useToast } from '../toast/useToast';
 import { copyShareLink } from '../share/shareLink';
+import { useOverlay } from '../../lib/useOverlay';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** The now-playing "…" menu: jump to the current track's song/album/artist,
@@ -22,9 +22,7 @@ export function NowPlayingMenu({
   track: JellyfinItem;
   onNavigate: () => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [pickOpen, setPickOpen] = useState(false);
-  const [newOpen, setNewOpen] = useState(false);
+  const overlay = useOverlay<'menu' | 'pick' | 'new'>();
   const history = useHistory();
   const { playlists } = usePlaylists();
   const add = useAddToPlaylist();
@@ -46,10 +44,10 @@ export function NowPlayingMenu({
       void copyShareLink(track, window.location.origin).then((ok) =>
         toast(ok ? 'Link copied' : 'Could not copy link'),
       ),
-    addToPlaylist: () => setPickOpen(true),
+    addToPlaylist: () => overlay.show('pick'),
   });
   const pickButtons = addToPlaylistButtons(playlists, {
-    newPlaylist: () => setNewOpen(true),
+    newPlaylist: () => overlay.show('new'),
     addTo: (pl) => addToPlaylistWithToast(add, toast, pl.Id, track.Id, pl.Name ?? 'playlist'),
   });
   return (
@@ -57,26 +55,30 @@ export function NowPlayingMenu({
       <button
         type="button"
         className="fullplayer__foot-btn"
-        onClick={() => setOpen(true)}
+        onClick={() => overlay.show('menu')}
         data-testid="full-player-more"
         aria-label="More options"
       >
         <IonIcon icon={ellipsisHorizontal} /> More
       </button>
       <IonActionSheet
-        isOpen={open}
+        isOpen={overlay.open === 'menu'}
         header="Track options"
         buttons={buttons}
-        onDidDismiss={() => setOpen(false)}
+        onDidDismiss={() => overlay.closed('menu')}
       />
       <IonActionSheet
-        isOpen={pickOpen}
+        isOpen={overlay.open === 'pick'}
         header="Add to playlist"
         buttons={pickButtons}
-        onDidDismiss={() => setPickOpen(false)}
+        onDidDismiss={() => overlay.closed('pick')}
         data-testid="np-add-to-playlist-sheet"
       />
-      <NewPlaylistAlert open={newOpen} onClose={() => setNewOpen(false)} itemId={track.Id} />
+      <NewPlaylistAlert
+        open={overlay.open === 'new'}
+        onClose={() => overlay.closed('new')}
+        itemId={track.Id}
+      />
     </>
   );
 }

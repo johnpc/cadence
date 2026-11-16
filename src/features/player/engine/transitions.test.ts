@@ -1,6 +1,13 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { canAdvance, endedAction, errorAction, isPlayingState, nextStatus } from './transitions';
+import {
+  canAdvance,
+  endedAction,
+  errorAction,
+  isCasting,
+  isPlayingState,
+  nextStatus,
+} from './transitions';
 import { startQueue } from '../queue';
 import { track } from '../../../test/engineHarness';
 
@@ -10,12 +17,19 @@ const one = startQueue([track('a')], 0);
 
 describe('isPlayingState', () => {
   it('is true while local audio runs (even buffering) or the TV plays', () => {
-    expect(isPlayingState({ status: 'playing', castPlaying: false })).toBe(true);
-    expect(isPlayingState({ status: 'buffering', castPlaying: false })).toBe(true);
-    expect(isPlayingState({ status: 'casting', castPlaying: true })).toBe(true);
-    expect(isPlayingState({ status: 'casting', castPlaying: false })).toBe(false);
-    expect(isPlayingState({ status: 'paused', castPlaying: true })).toBe(false);
-    expect(isPlayingState({ status: 'idle', castPlaying: false })).toBe(false);
+    expect(isPlayingState({ status: 'playing' })).toBe(true);
+    expect(isPlayingState({ status: 'buffering' })).toBe(true);
+    expect(isPlayingState({ status: 'casting' })).toBe(true);
+    expect(isPlayingState({ status: 'casting-paused' })).toBe(false);
+    expect(isPlayingState({ status: 'paused' })).toBe(false);
+    expect(isPlayingState({ status: 'idle' })).toBe(false);
+  });
+
+  it('isCasting covers both receiver states and nothing else', () => {
+    expect(isCasting('casting')).toBe(true);
+    expect(isCasting('casting-paused')).toBe(true);
+    for (const s of ['idle', 'paused', 'playing', 'buffering'] as const)
+      expect(isCasting(s)).toBe(false);
   });
 });
 
@@ -48,6 +62,7 @@ describe('nextStatus', () => {
   it('a cast owns the transport: element events never leave casting', () => {
     for (const ev of ['play', 'pause', 'waiting', 'resumed'] as const) {
       expect(nextStatus('casting', ev, el(true))).toBe('casting');
+      expect(nextStatus('casting-paused', ev, el(true))).toBe('casting-paused');
     }
   });
 });

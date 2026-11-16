@@ -80,9 +80,10 @@ Split by concern (each module owns one idea and its tests):
   with the e2e server up): a renamed or retyped field is a type error naming the field. Add a field
   to the hand model when you consume it; regenerate when CI's Jellyfin image moves.
 
-`authClient.ts` wraps `jellyfinAuth`; `resolveSession.ts` mirrors stoop's retry-then-`loading` logic
-(**an offline launch must return `loading`, never `unauthenticated`** — else airplane mode signs the
-user out). `queryClient.ts` is copied verbatim.
+`authClient.ts` wraps `jellyfinAuth`; `resolveSession.ts` retries a session read that throws, then
+reports **`unavailable` — never `unauthenticated`** (else a locked Keychain or a flaky read signs the
+user out). `unavailable` is a real state with its own screen ("Try again"); `AuthProvider` keeps
+retrying it (`sessionRetry.ts`: backoff timer + app foreground) so it can never become a forever-splash. `queryClient.ts` is copied verbatim.
 
 ### Audio player (`src/features/player/`) — a framework-free engine
 
@@ -90,8 +91,8 @@ The player is **one plain TypeScript object**, `createPlayerEngine(deps)` (`play
 owns the one long-lived audio element, the queue, the modes and the transport, in **one store**
 (`PlayerState`) plus a separate fast-ticking `progress` store. React is a thin subscriber.
 
-- **The transport is ONE explicit state**: `idle | paused | playing | buffering | casting`
-  (`engine/types.ts`). `intent` (the user wants sound — survives OS interruptions) and `started` (a
+- **The transport is ONE explicit state**: `idle | paused | playing | buffering | casting |
+casting-paused` (`engine/types.ts`). `intent` (the user wants sound — survives OS interruptions) and `started` (a
   real play happened this session) sit beside it. Every decision — what an element event does, what
   the end of a track does, what an error does — is a **pure function in `engine/transitions.ts`**.
 - **Invariant:** the element holds the queue's current track (or nothing). Queue commands go through
@@ -115,6 +116,10 @@ owns the one long-lived audio element, the queue, the modes and the transport, i
 
 Features live under `src/features/<feature>/`; tests colocated. File conventions:
 
+- **One state per concept, never a cluster of booleans.** A thing with phases gets a union type
+  (`AuthStatus`, `TransportStatus`, `CastState`, `DownloadState`, `GrabSearchState`). Shared state is
+  derived from its store, not copied into each component (`trackDownloadState`). A screen's overlays
+  are one `useOverlay()` value; a confirm-then-run button is `useConfirmedAction()`.
 - **`useX.ts`** — hooks hold React-facing orchestration. **Client state has ONE mechanism:**
   `createStore` / `createStoredValue` + `useStore` / `watch` (`src/lib/store.ts`). Module stores
   (session, reachability, cast, settings, download progress, play context…) are all built on it;

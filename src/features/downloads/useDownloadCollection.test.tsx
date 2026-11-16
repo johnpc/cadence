@@ -21,6 +21,7 @@ import { downloadTrack, removeDownload } from './downloadStore';
 import { saveOfflinePlaylist, removeOfflinePlaylist } from '../offline/offlinePlaylistStore';
 import { indexedIds } from './downloadIndex';
 import { useDownloadCollection } from './useDownloadCollection';
+import { setProgress, clearProgress, __resetProgress } from './downloadProgress';
 import { ToastContext } from '../toast/ToastContext';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -38,6 +39,7 @@ describe('useDownloadCollection', () => {
   afterEach(() => {
     vi.clearAllMocks();
     vi.mocked(indexedIds).mockReturnValue(new Set());
+    __resetProgress();
   });
 
   it('is "none" when no track is downloaded', () => {
@@ -119,5 +121,15 @@ describe('useDownloadCollection', () => {
     vi.mocked(indexedIds).mockReturnValue(new Set(['a', 'b', 'c']));
     act(() => fire());
     expect(result.current.state).toBe('downloaded');
+  });
+
+  it('is "downloading" and busy when one of its tracks is mid-download from elsewhere', () => {
+    setProgress('b', 0.4); // started by a row, another screen, or before a remount
+    const { result } = renderHook(() => useDownloadCollection(tracks), { wrapper });
+    expect(result.current.state).toBe('downloading');
+    expect(result.current.busy).toBe(true);
+    act(() => clearProgress('b'));
+    expect(result.current.state).toBe('none');
+    expect(result.current.busy).toBe(false);
   });
 });
