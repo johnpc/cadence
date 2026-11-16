@@ -30,13 +30,33 @@ final class NowPlayingBridgeTests: XCTestCase {
         position: Double = 12,
         duration: Double = 200,
         queueIndex: Int = 2,
-        queueCount: Int = 7
+        queueCount: Int = 7,
+        rate: Double? = nil
     ) -> NowPlayingSnapshot {
         NowPlayingSnapshot(
             title: "Song", artist: "The Band", album: "Album", artUrl: nil,
             isPlaying: isPlaying, position: position, duration: duration,
-            hasTrack: hasTrack, queueIndex: queueIndex, queueCount: queueCount
+            hasTrack: hasTrack, queueIndex: queueIndex, queueCount: queueCount,
+            rate: rate
         )
+    }
+
+    func testPlaybackRateFollowsTheRealSpeed() {
+        // A 1.5× audiobook: the lock-screen scrubber must advance at 1.5×.
+        bridge.update(snapshot(isPlaying: true, rate: 1.5))
+        let info = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        XCTAssertEqual(info?[MPNowPlayingInfoPropertyPlaybackRate] as? Double, 1.5)
+        XCTAssertEqual(info?[MPNowPlayingInfoPropertyDefaultPlaybackRate] as? Double, 1.5)
+        bridge.update(snapshot(isPlaying: false, rate: 1.5))
+        XCTAssertEqual(
+            MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double, 0.0
+        )
+    }
+
+    func testMissingOrInvalidRateMeansNormalSpeed() {
+        XCTAssertEqual(snapshot(rate: nil).speed, 1)
+        XCTAssertEqual(snapshot(rate: 0).speed, 1)
+        XCTAssertEqual(snapshot(rate: 2).speed, 2)
     }
 
     func testUpdatePopulatesNowPlayingInfo() {
@@ -121,5 +141,11 @@ final class NowPlayingBridgeTests: XCTestCase {
         XCTAssertEqual(snap.queueIndex, 1)
         XCTAssertEqual(snap.queueCount, 4)
         XCTAssertTrue(snap.hasTrack)
+        XCTAssertNil(snap.rate) // an older web bundle without `rate` still decodes
+        let withRate = try JSONDecoder().decode(
+            NowPlayingSnapshot.self,
+            from: Data(json.replacingOccurrences(of: "\"queueCount\":4", with: "\"queueCount\":4,\"rate\":1.25").utf8)
+        )
+        XCTAssertEqual(withRate.speed, 1.25)
     }
 }

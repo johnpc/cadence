@@ -127,11 +127,16 @@ describe('mediaSession', () => {
   it('publishes a clamped, finite position state (and skips invalid durations)', () => {
     const sps = navigator.mediaSession.setPositionState as ReturnType<typeof vi.fn>;
     setPositionState(30, 200);
-    expect(sps).toHaveBeenCalledWith({ duration: 200, position: 30 });
+    expect(sps).toHaveBeenCalledWith({ duration: 200, position: 30, playbackRate: 1 });
+    // The real speed reaches the lock screen; a nonsense rate falls back to 1×.
+    setPositionState(30, 200, 1.5);
+    expect(sps).toHaveBeenLastCalledWith({ duration: 200, position: 30, playbackRate: 1.5 });
+    setPositionState(30, 200, 0);
+    expect(sps).toHaveBeenLastCalledWith({ duration: 200, position: 30, playbackRate: 1 });
     sps.mockClear();
     setPositionState(10, 0); // no duration yet → don't publish
     expect(sps).not.toHaveBeenCalled();
     setPositionState(250, 200); // position past the end → clamped
-    expect(sps).toHaveBeenCalledWith({ duration: 200, position: 200 });
+    expect(sps).toHaveBeenCalledWith({ duration: 200, position: 200, playbackRate: 1 });
   });
 });

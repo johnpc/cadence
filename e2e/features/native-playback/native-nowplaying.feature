@@ -10,7 +10,7 @@ Feature: Native iOS Now Playing bridge
   simulator needed. The commands fired are the same DOM events the real Swift relay
   dispatches, so a green run proves the JS half of the native contract end to end.
 
-  NOTE: kept to TWO scenarios that each play at most one playlist — playback over
+  NOTE: kept to THREE scenarios that each play at most one playlist — playback over
   the shared CI Jellyfin tunnel is the slow part, so we assert everything the
   bridge does (state push, queue info, next/prev/seek) within a single play rather
   than replaying per behavior (which overran the area's timeout).
@@ -33,3 +33,9 @@ Feature: Native iOS Now Playing bridge
   Scenario: The web MediaSession publishes alongside the native bridge
     When I play a playlist
     Then the web MediaSession publishes the current track's metadata
+
+  Scenario: The lock screen advances at the real playback speed
+    When I set the playback speed to "1.5" in settings
+    And I play a playlist
+    Then native receives now-playing state for the current track
+    And the pushed state reports a playback speed of 1.5

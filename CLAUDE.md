@@ -255,6 +255,16 @@ Non-obvious things that have cost real time — check here before rediscovering 
   — hide software volume there (`lib/platform.ts` `hasSoftwareVolume()`). iOS lock-screen shows EITHER
   prev/next-track OR ±seek buttons and prefers seek when registered — so on iOS leave
   `seekbackward`/`seekforward` MediaSession handlers unset to surface track skip.
+- **The iOS session lives in the Keychain** (`SecureSessionPlugin.swift` + `KeychainStore.swift`,
+  JS `src/lib/sessionPersistence.ts`), migrated once from Capacitor Preferences. An UNSIGNED simulator
+  build (`CODE_SIGNING_ALLOWED=NO`) and the host-less `AppTests` bundle have no Keychain entitlement
+  (`-34018`): the app then falls back to Preferences instead of hanging on its splash, and only the
+  locked-before-first-unlock case (`-25308`) is retried. To exercise the real Keychain in the
+  simulator, build with `CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=JW5SC3NYUV`.
+- **iOS pauses when the private output goes away** (headphones, Bluetooth, CarPlay, AirPlay —
+  `AudioRouteLoss.swift` → `cadence:audioroutelost` → `attachAudioRouteLost`); the lock screen
+  advances at the real playback speed (`rate` in the Now Playing state). New native source files are
+  added to the Xcode targets with `cd ios/App && ruby add_app_sources.rb`.
 - **Ionic `IonReorderGroup` in a React list:** call `event.detail.complete(false)` so Ionic does NOT
   mutate the DOM (React owns the list), then apply the move to your own state. The event is
   `onIonItemReorder` → DOM `ionItemReorder`.

@@ -99,8 +99,10 @@ final class NowPlayingBridge: NSObject {
             MPMediaItemPropertyAlbumTitle: state.album,
             MPMediaItemPropertyPlaybackDuration: state.duration,
             MPNowPlayingInfoPropertyElapsedPlaybackTime: state.position,
-            // Rate drives the lock screen's interpolated scrubber between updates.
-            MPNowPlayingInfoPropertyPlaybackRate: state.isPlaying ? 1.0 : 0.0,
+            // Rate drives the lock screen's interpolated scrubber between updates —
+            // the REAL speed, or a 1.5× audiobook's scrubber drifts behind.
+            MPNowPlayingInfoPropertyPlaybackRate: state.isPlaying ? state.speed : 0.0,
+            MPNowPlayingInfoPropertyDefaultPlaybackRate: state.speed,
             // Queue position/length: without these iOS (and especially CarPlay /
             // some Bluetooth heads) treats the app as having no queue and GRAYS OUT
             // the prev/next-track buttons — the "lost next/prev" symptom. The web
@@ -160,4 +162,10 @@ struct NowPlayingSnapshot: Decodable {
     let hasTrack: Bool
     let queueIndex: Int
     let queueCount: Int
+    /// Playback speed (1 = normal). Optional so an older web bundle without it
+    /// still decodes; read through `speed`.
+    var rate: Double? = nil
+
+    /// The playback speed to publish: the web player's, or 1 when absent/invalid.
+    var speed: Double { (rate ?? 1) > 0 ? (rate ?? 1) : 1 }
 }

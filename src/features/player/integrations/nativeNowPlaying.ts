@@ -21,6 +21,7 @@ function toNativeState(s: NowPlayingSnapshot): NowPlayingState {
     // Published so iOS shows prev/next TRACK buttons (not ±seek).
     queueIndex: s.queueIndex,
     queueCount: s.queueCount,
+    rate: s.rate,
   };
 }
 

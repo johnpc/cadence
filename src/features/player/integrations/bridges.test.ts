@@ -33,6 +33,7 @@ describe('nowPlayingSnapshot', () => {
       duration: 99,
       queueIndex: 1,
       queueCount: 2,
+      rate: 1,
     });
   });
 });
@@ -55,7 +56,10 @@ describe('attachNativeNowPlaying', () => {
       hasTrack: true,
       queueIndex: 0,
       queueCount: 2,
+      rate: 1,
     });
+    engine.setRate(1.5); // an audiobook sped up: native gets the real speed
+    expect(pushed(bridges.cadenceNowPlaying.postMessage).at(-1)).toMatchObject({ rate: 1.5 });
     expect(states.filter((s) => s.position === 1)).toHaveLength(1);
 
     window.dispatchEvent(new Event(NOW_PLAYING_EVENT.pause));

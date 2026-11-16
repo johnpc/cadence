@@ -30,7 +30,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             name: AVAudioSession.interruptionNotification,
             object: nil
         )
+        // Headphones / Bluetooth / CarPlay going away must PAUSE (like Apple's
+        // media apps) instead of carrying on out of the phone speaker.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleRouteChange(_:)),
+            name: AVAudioSession.routeChangeNotification,
+            object: nil
+        )
         return true
+    }
+
+    /// A private output disappeared (see AudioRouteLoss) → tell the web player to
+    /// pause. A directional pause there also clears play intent, so the
+    /// interruption-resume nudge won't restart it on the speaker.
+    @objc func handleRouteChange(_ notification: Notification) {
+        guard
+            let info = notification.userInfo,
+            let raw = info[AVAudioSessionRouteChangeReasonKey] as? UInt,
+            let reason = AVAudioSession.RouteChangeReason(rawValue: raw)
+        else { return }
+        let previous = (info[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription)?
+            .outputs.map(\.portType) ?? []
+        guard AudioRouteLoss.shouldPause(reason: reason, previousOutputs: previous) else { return }
+        nativeLog("route", "output lost (\(previous.map(\.rawValue).joined(separator: ","))) — pausing")
+        DispatchQueue.main.async {
+            let vc = self.window?.rootViewController as? CAPBridgeViewController
+            vc?.webView?.evaluateJavaScript(
+                "window.dispatchEvent(new Event('cadence:audioroutelost'))",
+                completionHandler: nil
+            )
+        }
     }
 
     // On interruption END, reactivate the audio session and — only when iOS

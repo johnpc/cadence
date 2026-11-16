@@ -25,7 +25,11 @@ describe('attachMediaSession', () => {
     expect(setPlaybackState).toHaveBeenLastCalledWith(true);
     audio.loadMetadata(180);
     audio.tick(20);
-    expect(setPositionState).toHaveBeenLastCalledWith(20, 180);
+    expect(setPositionState).toHaveBeenLastCalledWith(20, 180, 1);
+    engine.pause();
+    engine.setRate(2); // paused (no ticks) — a speed change still reaches the OS
+    expect(setPositionState).toHaveBeenLastCalledWith(20, 180, 2);
+    engine.play();
     engine.next();
     expect(bindMediaSessionHandlers).toHaveBeenCalledTimes(3);
     const handlers = vi.mocked(bindMediaSessionHandlers).mock.calls[0][0];

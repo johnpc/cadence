@@ -39,6 +39,9 @@ export interface NowPlayingState {
    * some heads gray them out (the "lost next/prev" symptom). */
   queueIndex: number;
   queueCount: number;
+  /** Playback speed (1 = normal) — the lock-screen scrubber advances at this rate,
+   * so a 1.5× audiobook's progress bar doesn't drift behind. */
+  rate: number;
 }
 
 /** Transport commands native (MPRemoteCommandCenter) can send back to the player. */

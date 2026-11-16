@@ -41,13 +41,17 @@ export function attachMediaSession(engine: PlayerEngine): () => void {
   const offPlaying = watch(engine.state, isPlayingState, (playing) => setPlaybackState(playing), {
     immediate: true,
   });
-  const offProgress = engine.progress.subscribe(() => {
+  const publishPosition = () => {
     const { position, duration } = engine.progress.get();
-    setPositionState(position, duration);
-  });
+    setPositionState(position, duration, engine.state.get().rate);
+  };
+  const offProgress = engine.progress.subscribe(publishPosition);
+  // A speed change must reach the lock screen even while paused (no ticks then).
+  const offRate = watch(engine.state, (s) => s.rate, publishPosition);
   return () => {
     offTrack();
     offPlaying();
     offProgress();
+    offRate();
   };
 }

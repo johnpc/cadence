@@ -31,7 +31,7 @@ test_target = project.new_target(
 
 # The app sources under test (no Capacitor imports) compiled straight into the
 # bundle, plus the test files themselves.
-sources_under_test = ["App/NowPlayingBridge.swift"]
+sources_under_test = ["App/NowPlayingBridge.swift", "App/AudioRouteLoss.swift", "App/KeychainStore.swift"]
 group = project.main_group.find_subpath("AppTests", true)
 group.set_source_tree("<group>")
 

@@ -36,6 +36,11 @@ class MainViewController: CAPBridgeViewController, WKScriptMessageHandler {
     /// Key under which the snapshot JSON string is stored in the shared defaults.
     static let widgetSnapshotKey = "continueListeningSnapshot"
 
+    /// App-local Capacitor plugins (not from npm): the Keychain session store.
+    override open func capacitorDidLoad() {
+        bridge?.registerPluginInstance(SecureSessionPlugin())
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Register the one-way handlers on the live web view's content controller.
