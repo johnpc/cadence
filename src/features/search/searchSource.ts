@@ -47,18 +47,23 @@ async function searchArtists(query: string, limit: number): Promise<JellyfinItem
 
 /** Native Jellyfin playlist search. Exported because marlin can't index/rank
  * playlists well, so the marlin source fetches playlists natively even when it's
- * the active backend (see marlinSource). */
+ * the active backend (see marlinSource).
+ *
+ * NO server-side Limit: Jellyfin applies it BEFORE dropping other users' private
+ * playlists, so on a multi-user server the first N matches can all be someone
+ * else's and the response comes back empty (TotalRecordCount 14, Items []) —
+ * your own playlist never shows up. Matching playlists are few, so fetch them
+ * all and trim here. */
 export async function searchPlaylists(query: string, limit: number): Promise<JellyfinItem[]> {
   const userId = getSession()?.userId ?? '';
   const params = new URLSearchParams({
     searchTerm: query,
     IncludeItemTypes: 'Playlist',
     Recursive: 'true',
-    Limit: String(limit),
     userId,
   });
   const res = await request<ItemsResponse>(`/Items?${params.toString()}`);
-  return res.Items;
+  return res.Items.slice(0, limit);
 }
 
 /** Jellyfin native search across songs + albums (Items), artists (Artists),

@@ -130,6 +130,18 @@ create_users() {
   done
 }
 
+# Give EVERY user the same owned fixtures (a "Cadence Test Mix", a followed
+# artist, a liked song), not just the area under test: a real server has many
+# users with similarly named private playlists, and that is exactly the shape
+# that hid a user's own playlist from search (Jellyfin applied the search Limit
+# before filtering out other users' private playlists).
+seed_users() {
+  for area in "${AREAS[@]}"; do
+    VITE_JELLYFIN_URL="$URL" TEST_USERNAME="cadence-e2e-${area}" TEST_PASSWORD="$TEST_PASSWORD" \
+      bash "$HERE/seed-e2e-user.sh" | sed 's/^/  /'
+  done
+}
+
 print_env() {
   cat <<ENV
 VITE_JELLYFIN_URL=$URL
@@ -155,6 +167,7 @@ up() {
   create_libraries
   wait_for_scan
   create_users
+  seed_users
   # GitHub Actions: hand the env to later steps. Locally: `eval "$(… env)"`.
   if [ -n "${GITHUB_ENV:-}" ]; then print_env >> "$GITHUB_ENV"; fi
   print_env
