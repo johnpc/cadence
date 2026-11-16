@@ -185,6 +185,10 @@ npm run quality        # full gate: lint + format + check:lines + check:features
 npm run format         # Prettier write (run before committing)
 npm run test:e2e       # Gherkin acceptance tests (bddgen + Playwright)
 npm run gen:icons      # regenerate app icons from assets/icon*.png (add --native for iOS/Android trees)
+bash scripts/ios-launch-smoke.sh   # (Mac w/ Xcode + Docker, e.g. the mini) build the iOS app, launch it in a
+                                   # fresh simulator against the hermetic Jellyfin, PASS only when Home renders
+                                   # real data; screenshot + request log in ios-smoke-output/
+python3 scripts/asc-testflight.py builds   # recent TestFlight uploads/builds + Apple's errors (needs ASC_* env)
 ```
 
 ## Slices (build order)
@@ -251,6 +255,27 @@ Non-obvious things that have cost real time — check here before rediscovering 
   `authHeaders(token)` (jellyfinConfig) for every fetch — it sends both headers with the same value —
   and mirror it in scripts (`-H "Authorization: $H" -H "X-Emby-Authorization: $H"`). Writes also need a
   FRESH token: a stale one returns 401 on POST while reads still work.
+- **The iOS app must adopt the UIScene life cycle — or it does not launch at all.** Built with the
+  Xcode 27 SDK, an app without `UIApplicationSceneManifest` (Info.plist) + a `SceneDelegate` dies at
+  launch ("UIScene life cycle is required for apps built with this SDK") — and that build passed every
+  test and reached App Store review. `scripts/ios-launch-smoke.sh` (CI job `ios-launch-smoke`, and a
+  gate in ios-deploy.yml before archive) now proves the built app reaches a rendered Home: the app talks
+  to the hermetic Jellyfin through a recording proxy (`scripts/ios-smoke-proxy.py`), and PASS needs Home's
+  `/Items/Latest` reply AND a cover image for one of those albums, from the seeded DeviceId, with the
+  process alive after 20 s and no scene fault/crash. Seed the session via
+  `simctl spawn <udid> defaults write com.johncorser.cadence CapacitorStorage.cadence.<key>` (session,
+  device-id, server-url). Don't pass `-sdk iphonesimulator` to xcodebuild (drags the Watch target onto
+  the phone SDK).
+- **iOS deploy: the App Store upload needs the runner user logged in at the Mac mini's console.** The
+  runners are LaunchDaemons (`UserName john`); when `john` has no GUI session (another account such as
+  `peektest` holds the console), `xcodebuild -exportArchive` dies with SIGTRAP inside AppSSO
+  (`_xpc_api_misuse` in `xpc_connection_set_target_uid`) and prints only "failed with exit code 0 but
+  produced no further output" — a line that ALSO appears in green runs, so it's noise. That (not
+  `-allowProvisioningUpdates`) was every Nov 14–15 failure; a reboot that auto-logged `john` in fixed it.
+  The deploy now checks `launchctl print gui/$(id -u)` up front, prints the xcdistributionlogs + any
+  xcodebuild crash on failure (`scripts/ios-export-diagnostics.sh`), and confirms via the ASC API
+  (`buildUploads` + `builds`) that the build arrived before distributing. Apple can take 20+ min to list
+  a fine build — the wait is 45 min, on explicit deadlines, never a retry.
 - **iOS is not the browser.** `HTMLMediaElement.volume` is **read-only on iOS** (hardware buttons only)
   — hide software volume there (`lib/platform.ts` `hasSoftwareVolume()`). iOS lock-screen shows EITHER
   prev/next-track OR ±seek buttons and prefers seek when registered — so on iOS leave

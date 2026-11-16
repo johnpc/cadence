@@ -30,7 +30,12 @@ jobs:
     # workflow_run (post-merge, after CI succeeds) and workflow_dispatch —
     # never on pull_request, so fork PRs can't reach this runner.
     runs-on: [self-hosted, mac-mini]
-    timeout-minutes: 60
+    # Launch smoke (~10 min) + archive/upload (~5) + Apple processing (up to 45).
+    timeout-minutes: 90
+    env:
+      E2E_JELLYFIN_NAME: cadence-smoke-deploy-${{ github.run_id }}-${{ github.run_attempt }}
+      SMOKE_RUN_TAG: deploy-${{ github.run_id }}-${{ github.run_attempt }}
+      SMOKE_OUT: ${{ github.workspace }}/ios-smoke-output
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v5
@@ -61,6 +66,52 @@ jobs:
           npx cap sync ios
           (cd ios/App && pod install)
 
+      # GATE: never upload a build that cannot launch. CI already ran this smoke
+      # test on the merged commit, but this job builds `main` as it is NOW (and a
+      # workflow_dispatch skips CI entirely), so it smokes the exact web bundle it
+      # is about to ship (SMOKE_WEB_BUILD=0: the dist synced above, with the
+      # diagnostics keys and no baked-in server) in a Release simulator build,
+      # BEFORE anything is signed, archived or uploaded. A red here stops the
+      # deploy with the reason (scene fault, crash, Home never rendered).
+      - name: Launch smoke test (gate — the app must reach Home)
+        env:
+          SMOKE_WEB_BUILD: '0'
+          SMOKE_CONFIGURATION: Release
+        run: bash scripts/ios-launch-smoke.sh
+
+      - name: Upload launch-smoke screenshot + logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ios-launch-smoke-deploy
+          path: |
+            ios-smoke-output/home.png
+            ios-smoke-output/requests.jsonl
+            ios-smoke-output/device.log
+            ios-smoke-output/app.stdout
+            ios-smoke-output/xcodebuild.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Remove the smoke simulator + Jellyfin
+        if: always()
+        run: bash scripts/ios-launch-smoke.sh cleanup
+
+      # The upload crashes xcodebuild (SIGTRAP in AppSSO:
+      # _xpc_api_misuse ← xpc_connection_set_target_uid, crash reports
+      # xcodebuild-2026-11-15-171456/182826.ips) whenever the runner user `john`
+      # has no GUI login session — every Nov 14–15 failure happened while another
+      # account (peektest) held the console; it went green after a reboot
+      # auto-logged john back in. Fail fast with that cause instead of a silent
+      # export failure ten minutes later.
+      - name: Require a GUI login session for the runner user
+        run: |
+          if ! launchctl print "gui/$(id -u)" >/dev/null 2>&1; then
+            echo "::error::'$(id -un)' has no GUI login session on this Mac (console user: '$(stat -f %Su /dev/console)'). xcodebuild's App Store upload crashes in AppSSO without one. Log '$(id -un)' in at the console (auto-login), then re-run."
+            exit 1
+          fi
+          echo "GUI session for $(id -un) present (console user: $(stat -f %Su /dev/console))"
+
       - name: Write App Store Connect API key
         run: |
           mkdir -p ~/private_keys
@@ -85,7 +136,10 @@ jobs:
           python3 ~/ci-signing/ios_manual_signing.py apply "$XCODEPROJ" --export-options /tmp/ExportOptions.plist
 
       - name: Archive and upload (auto-bump version on conflict)
+        id: archive
         run: |
+          # Everything the failure diagnostics below report is newer than this.
+          touch "$RUNNER_TEMP/export-marker"
 
           archive_and_upload() {
             xcodebuild archive \
@@ -138,105 +192,28 @@ jobs:
             exit 1
           fi
 
-      # Wait for App Store Connect to finish processing THIS build, then attach
-      # it to every external beta group (auto-submits for Beta App Review on the
-      # first external assignment). Skips cleanly if no external group exists yet.
-      - name: Distribute to external beta testers
+      # xcodebuild often fails an export with no reason at all (its "failed with
+      # exit code 0 but produced no further output" line is noise — it appears in
+      # green runs too). Print the IDEDistribution logs + any xcodebuild crash.
+      - name: Why the archive/upload failed
+        if: failure() && steps.archive.outcome == 'failure'
+        run: bash scripts/ios-export-diagnostics.sh "$RUNNER_TEMP/export-marker"
+
+      # PROVES the upload landed: "Upload succeeded" from xcodebuild is not
+      # enough (a job has gone red while Apple got the build, and green-looking
+      # uploads have sat unlisted for 20+ min). scripts/asc-testflight.py checks
+      # Apple's buildUpload record (named rejection errors), waits on explicit
+      # deadlines with a live line per poll, then attaches the build to every
+      # external beta group (ASC auto-submits it for Beta App Review on the first
+      # external assignment; no external group = VALID in TestFlight, logged, not
+      # an error). TestFlight only — App Store submission stays manual.
+      - name: Verify the build reached TestFlight and distribute to external testers
+        timeout-minutes: 50
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           BUNDLE_ID: ${{ env.BUNDLE_ID }}
-        run: |
-          python3 - << 'EOF'
-          import json, time, os, subprocess, tempfile, base64, urllib.request, urllib.error, ssl
-          ctx = ssl.create_default_context()
-
-          key_id = os.environ["ASC_KEY_ID"]
-          issuer_id = os.environ["ASC_ISSUER_ID"]
-          bundle_id = os.environ["BUNDLE_ID"]
-          build_num = os.environ["BUILD_NUM"]
-          key_path = os.path.expanduser(f"~/private_keys/AuthKey_{key_id}.p8")
-          BASE = "https://api.appstoreconnect.apple.com/v1"
-
-          def b64url(data):
-              return base64.urlsafe_b64encode(data).rstrip(b"=").decode()
-
-          def token():
-              header = b64url(json.dumps({"alg":"ES256","kid":key_id,"typ":"JWT"}).encode())
-              now = int(time.time())
-              payload = b64url(json.dumps({"iss":issuer_id,"iat":now,"exp":now+1200,"aud":"appstoreconnect-v1"}).encode())
-              signing_input = f"{header}.{payload}".encode()
-              with tempfile.NamedTemporaryFile(suffix=".bin", delete=False) as tf:
-                  tf.write(signing_input); tf.flush()
-                  der = subprocess.run(["openssl","dgst","-sha256","-sign",key_path,tf.name],
-                                       capture_output=True).stdout
-              def parse_der_int(data, offset):
-                  assert data[offset] == 0x02
-                  length = data[offset+1]
-                  value = data[offset+2:offset+2+length]
-                  while len(value) > 32 and value[0] == 0:
-                      value = value[1:]
-                  value = b'\x00' * (32 - len(value)) + value
-                  return value, offset + 2 + length
-              assert der[0] == 0x30
-              r, off = parse_der_int(der, 2)
-              s, _ = parse_der_int(der, off)
-              return f"{header}.{payload}.{b64url(r + s)}"
-
-          def api(path, method="GET", body=None):
-              data = json.dumps(body).encode() if body is not None else None
-              req = urllib.request.Request(f"{BASE}{path}", data=data, method=method,
-                  headers={"Authorization": f"Bearer {token()}", "Content-Type": "application/json"})
-              try:
-                  resp = urllib.request.urlopen(req, context=ctx)
-                  raw = resp.read()
-                  return json.loads(raw) if raw else {}
-              except urllib.error.HTTPError as e:
-                  print(f"  HTTP {e.code} on {method} {path}: {e.read().decode()}")
-                  raise
-
-          # 1) Resolve the app by bundle id.
-          apps = api(f"/apps?filter[bundleId]={bundle_id}").get("data", [])
-          if not apps:
-              raise SystemExit(f"No app found for bundle id {bundle_id}")
-          app_id = apps[0]["id"]
-
-          # 2) Find OUR build (match this run's CFBundleVersion) and wait for processing.
-          build = None
-          for _ in range(40):  # ~20 min max
-              builds = api(f"/builds?filter[app]={app_id}&filter[version]={build_num}"
-                           "&limit=1&include=preReleaseVersion").get("data", [])
-              if builds:
-                  state = builds[0]["attributes"].get("processingState")
-                  print(f"  build {build_num}: {state}")
-                  if state == "VALID":
-                      build = builds[0]; break
-                  if state in ("INVALID", "FAILED"):
-                      raise SystemExit(f"Build processing {state}")
-              else:
-                  print(f"  build {build_num}: not visible yet")
-              time.sleep(30)
-          if not build:
-              raise SystemExit("Timed out waiting for build to finish processing")
-          build_id = build["id"]
-
-          # 3) Discover external beta groups (isInternalGroup == False).
-          groups = [g for g in api(f"/betaGroups?filter[app]={app_id}&limit=200").get("data", [])
-                    if not g["attributes"].get("isInternalGroup", False)]
-          if not groups:
-              print("No external beta group exists yet — build uploaded to TestFlight; "
-                    "create an External Testing group in App Store Connect to auto-distribute.")
-              raise SystemExit(0)
-
-          # 4) Attach the build to each external group. ASC auto-submits for Beta App
-          #    Review on first external assignment.
-          for g in groups:
-              name = g["attributes"].get("name", g["id"])
-              api(f"/betaGroups/{g['id']}/relationships/builds", method="POST",
-                  body={"data": [{"type": "builds", "id": build_id}]})
-              print(f"  attached build {build_num} to external group '{name}'")
-          print(f"Done: distributed build {build_num} to {len(groups)} external group(s).")
-          EOF
+        run: python3 scripts/asc-testflight.py distribute "$BUILD_NUM"
 
       - name: Revert CI signing
         if: always()
