@@ -103,7 +103,10 @@ Given("the device can't read the saved sign-in", async ({ page }) => {
   await page.addInitScript(() => {
     const read = Storage.prototype.getItem;
     Storage.prototype.getItem = function (key: string) {
-      if (sessionStorage.getItem('__e2e_session_locked') === '1' && key.includes('cadence.session'))
+      // Read the flag with the ORIGINAL getItem — calling sessionStorage.getItem
+      // here would re-enter this patch forever.
+      const locked = read.call(sessionStorage, '__e2e_session_locked') === '1';
+      if (locked && key.includes('cadence.session'))
         throw new Error('e2e: saved sign-in is locked');
       return read.call(this, key);
     };
