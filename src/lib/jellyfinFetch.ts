@@ -12,6 +12,7 @@ import { notifySessionExpired } from './sessionExpiry';
 import { markReachable, markUnreachable } from './reachabilityStore';
 import { readForceOffline } from '../features/settings/forceOfflineStore';
 import { Unauthenticated, RequestTimeout, HttpError, REQUEST_TIMEOUT_MS } from './jellyfinErrors';
+import { withoutTotalCount } from './listQuery';
 
 export { Unauthenticated, RequestTimeout, HttpError } from './jellyfinErrors';
 
@@ -37,7 +38,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetch(apiUrl(path), {
+    res = await fetch(apiUrl(withoutTotalCount(path, method)), {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
