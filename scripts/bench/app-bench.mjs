@@ -10,7 +10,12 @@
  * Scenarios (each repeated --runs times, median + p90 reported):
  *   home-first   signed in, every client cache cleared → Home fully rendered
  *   home-warm    the same, reloaded with caches → Home fully rendered
+ *   home-return  a returning user whose DATA caches were cleared: on-device
+ *                facts that never go stale (playlist ownership) are kept
  *   books-first  signed in, caches cleared → Audiobooks list rendered
+ * Besides time-to-ready, each run reports `apiTotal`: every Jellyfin API call in
+ * the first SETTLE_MS after navigation, including background refetches that
+ * run after the page is already showing (they cost the server, not the wait).
  * Profiles: wifi (no throttling) and lte (70 ms RTT, 9/3 Mbps via CDP).
  * "Rendered" = the page's data containers are present AND no LoadState
  * spinner/skeleton remains, so it measures what the user waits for.
@@ -52,8 +57,13 @@ const KEEP = [
   'cadence.server-url',
   'CapacitorStorage.cadence.server-url',
 ];
+/** Extra keys a RETURNING user still has after their data caches are cleared. */
+const RETURNING = /^cadence\.playlist-ownership\./;
+const SETTLE_MS = 8000;
 
 const browser = await chromium.launch();
+
+let returning = {};
 
 async function signIn() {
   const ctx = await browser.newContext();
@@ -77,6 +87,19 @@ async function signIn() {
     }
     return out;
   }, KEEP);
+  // Load Home once so the returning-user facts exist, then capture them.
+  await page.goto(`${BASE}/home`);
+  await page.waitForFunction(READY.home, undefined, { timeout: 90_000, polling: 100 });
+  await page.waitForTimeout(SETTLE_MS);
+  returning = await page.evaluate((src) => {
+    const re = new RegExp(src);
+    const out = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && re.test(k)) out[k] = localStorage.getItem(k);
+    }
+    return out;
+  }, RETURNING.source);
   await ctx.close();
   return state;
 }
@@ -128,12 +151,20 @@ async function measure(state, route, ready, profile, warm) {
     counting = false;
     return { ms: Date.now() - t0, api, images };
   };
+  let t0 = Date.now();
   let r = await go();
   if (warm) {
     // Let the first load's caches persist, then measure the reload.
     await page.waitForTimeout(1500);
+    t0 = Date.now();
     r = await go();
   }
+  // Keep counting until SETTLE_MS after navigation: background refetches count.
+  const before = api;
+  counting = true;
+  await page.waitForTimeout(Math.max(0, SETTLE_MS - (Date.now() - t0)));
+  counting = false;
+  r = { ...r, apiTotal: r.api + (api - before) };
   await ctx.close();
   return r;
 }
@@ -146,17 +177,18 @@ const percentile = (xs, p) => {
 writeFileSync(OUT, '');
 const state = await signIn();
 const scenarios = [
-  ['home-first', '/home', READY.home, false],
-  ['home-warm', '/home', READY.home, true],
-  ['books-first', '/audiobooks', READY.books, false],
+  ['home-first', '/home', READY.home, false, state],
+  ['home-return', '/home', READY.home, false, { ...state, ...returning }],
+  ['home-warm', '/home', READY.home, true, state],
+  ['books-first', '/audiobooks', READY.books, false, state],
 ];
 const summary = [];
 for (const profile of Object.keys(PROFILES)) {
-  for (const [name, route, ready, warm] of scenarios) {
+  for (const [name, route, ready, warm, seed] of scenarios) {
     const samples = [];
     for (let i = 0; i < RUNS; i++) {
       try {
-        const r = await measure(state, route, ready, profile, warm);
+        const r = await measure(seed, route, ready, profile, warm);
         samples.push(r);
         appendFileSync(OUT, JSON.stringify({ label: LABEL, profile, name, run: i, ...r }) + '\n');
       } catch (e) {
@@ -184,6 +216,12 @@ for (const profile of Object.keys(PROFILES)) {
       images: samples.length
         ? percentile(
             samples.map((s) => s.images),
+            50,
+          )
+        : null,
+      apiTotal: samples.length
+        ? percentile(
+            samples.map((s) => s.apiTotal),
             50,
           )
         : null,

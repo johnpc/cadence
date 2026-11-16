@@ -187,7 +187,7 @@ describe('marlinSearchSource', () => {
     expect(results.map((r) => r.Id)).toEqual(['song']);
   });
 
-  it('uses the same-origin /api/search proxy with NO token when marlinProxy is on', async () => {
+  it('uses the same-origin /api/search proxy with the Jellyfin sign-in (no marlin token)', async () => {
     setSession({ token: 't', userId: 'uid' });
     window.__CADENCE_CONFIG__ = { marlinProxy: true };
     const f = stubMarlin({
@@ -199,8 +199,11 @@ describe('marlinSearchSource', () => {
     const results = await marlinSearchSource('love', 40);
     const call = f.mock.calls.find((c) => (c[0] as string).includes('/api/search'));
     expect((call?.[0] as string).startsWith('/api/search')).toBe(true); // same-origin, no host
-    // No Authorization header — the proxy injects the token server-side.
-    expect((call?.[1] as RequestInit | undefined)?.headers).toBeUndefined();
+    // The user's Jellyfin auth (nginx verifies it before proxying) — never the
+    // marlin token, which the proxy injects server-side.
+    const headers = (call?.[1] as RequestInit).headers as Record<string, string>;
+    expect(headers.Authorization).toContain('Token="t"');
+    expect(headers.Authorization).not.toBe(marlin.token);
     expect(results.map((r) => r.Id)).toEqual(['a']);
     delete window.__CADENCE_CONFIG__;
   });

@@ -41,7 +41,7 @@ describe('lidarrApi', () => {
     }));
     const out = await searchArtists('radiohead');
     expect(out.map((a) => a.artistName)).toEqual(['Radiohead']);
-    expect(f.mock.calls[0][0] as string).toContain('/api/lidarr/search?term=radiohead');
+    expect(f.mock.calls[0][0] as string).toContain('/Cadence/Lidarr/search?term=radiohead');
   });
 
   it('searchArtists short-circuits on an empty term (no request)', async () => {
@@ -88,7 +88,7 @@ describe('lidarrApi', () => {
     const added = await requestArtist(artist, defaults);
     expect(added.id).toBe(9);
     const [url, init] = f.mock.calls[0];
-    expect(url).toContain('/api/lidarr/artist');
+    expect(url).toContain('/Cadence/Lidarr/artist');
     const body = JSON.parse((init as RequestInit).body as string);
     expect(body).toMatchObject({
       foreignArtistId: 'mb-1',

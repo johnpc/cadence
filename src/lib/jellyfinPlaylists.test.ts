@@ -14,6 +14,7 @@ import {
   renamePlaylist,
 } from './jellyfinPlaylists';
 import { setSession } from './sessionStore';
+import { __resetPlaylistOwnership } from './playlistOwnership';
 
 function stub(body: unknown, status = 200) {
   const f = vi.fn().mockResolvedValue({
@@ -49,6 +50,8 @@ describe('jellyfinPlaylists', () => {
   afterEach(() => {
     setSession(null);
     vi.restoreAllMocks();
+    __resetPlaylistOwnership();
+    localStorage.clear();
   });
 
   it('getPlaylists (non-admin) confirms ownership via the share endpoint', async () => {
@@ -90,6 +93,36 @@ describe('jellyfinPlaylists', () => {
     expect(f.mock.calls.some(([url]: [string]) => /\/Playlists\/[^/]+\/Users/.test(url))).toBe(
       true,
     );
+  });
+
+  it("Home's two list reads share ONE probe per playlist, and later loads ask nothing", async () => {
+    setSession({ token: 't', userId: 'uid', isAdmin: false });
+    const list = [
+      { Id: 'mine', Name: 'Mine', Type: 'Playlist', CanDelete: true },
+      { Id: 'theirs', Name: 'Theirs', Type: 'Playlist', CanDelete: true },
+    ];
+    const f = stubOwnership(list, ['mine']);
+    const probes = () =>
+      f.mock.calls.filter(([u]: [string]) => /\/Users$/.test(u.split('?')[0])).length;
+    // Your Library + the community shelf, fetched together like Home does.
+    const [mine, community] = await Promise.all([getPlaylists(), getPublicPlaylists()]);
+    expect(mine.map((p) => p.Id)).toEqual(['mine']);
+    expect(community.map((p) => p.Id)).toEqual(['theirs']);
+    expect(probes()).toBe(2); // not 4
+    // A relaunch (memory gone, disk kept) answers from disk: zero probes.
+    __resetPlaylistOwnership();
+    await Promise.all([getPlaylists(), getPublicPlaylists()]);
+    expect(probes()).toBe(2);
+  });
+
+  it("createPlaylist records the new playlist as the user's own (no probe later)", async () => {
+    setSession({ token: 't', userId: 'uid' });
+    stub({ Id: 'fresh' });
+    await createPlaylist('New');
+    const f = stubOwnership([{ Id: 'fresh', Name: 'New', Type: 'Playlist', CanDelete: true }], []);
+    const items = await getPlaylists();
+    expect(items.map((p) => p.Id)).toEqual(['fresh']);
+    expect(f.mock.calls.some(([u]: [string]) => u.includes('/Playlists/fresh/Users'))).toBe(false);
   });
 
   it('getPublicPlaylists returns others playlists NEWEST-FIRST (Descending)', async () => {

@@ -4,13 +4,16 @@
  * on any error. Two ways to configure it:
  *  - PROXY (preferred, web/PWA): the deploy sets `marlinProxy` and the serving
  *    nginx proxies same-origin `/api/search` to the indexer, injecting the token
- *    server-side. The browser sends NO token and never touches the indexer.
+ *    server-side. The browser sends NO marlin token; it sends the user's Jellyfin
+ *    auth, which nginx verifies against Jellyfin before proxying (signed-in only).
  *  - DIRECT (native, or user-supplied): Settings holds a URL + token (marlinStore)
  *    and the client calls the indexer directly with the token header.
  */
 import { getItemsByIds } from '../../lib/jellyfinItems';
 import { getMarlinUrl, getMarlinToken } from '../../lib/marlinStore';
 import { marlinProxyEnabled } from '../../lib/runtimeConfig';
+import { authHeaders } from '../../lib/jellyfinConfig';
+import { getSession } from '../../lib/sessionStore';
 import { searchPlaylists } from './searchSource';
 import type { SearchSource } from './searchTypes';
 
@@ -32,7 +35,9 @@ const MARLIN_TIMEOUT_MS = 6000;
 /** The search endpoint + headers: the same-origin proxy (no token in the
  * browser) when the deploy enabled it, else the direct indexer URL + token. */
 function searchRequest(qs: string): { url: string; init?: RequestInit } {
-  if (marlinProxyEnabled()) return { url: `/api/search?${qs}` };
+  if (marlinProxyEnabled()) {
+    return { url: `/api/search?${qs}`, init: { headers: authHeaders(getSession()?.token) } };
+  }
   return {
     url: `${getMarlinUrl()}/search?${qs}`,
     init: { headers: { Authorization: getMarlinToken() } },
