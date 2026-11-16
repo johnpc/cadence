@@ -1,6 +1,6 @@
 import { IonRouterOutlet, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
 import { home, search, library, addCircleOutline, book } from 'ionicons/icons';
-import { lidarrProxyEnabled } from './lib/runtimeConfig';
+import { isExtensionEnabled } from './extensions/flags';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import { NowPlayingAnnouncer } from './features/player/NowPlayingAnnouncer';
 import { DesktopSidebar } from './features/library/DesktopSidebar';
@@ -28,7 +28,7 @@ export function AppTabs() {
   const retap = useScrollToTopOnRetap();
   // The Requests tab only appears where the Lidarr proxy is deployed (web); it
   // can't function without it (e.g. native has no config.js → hidden there).
-  const canRequest = lidarrProxyEnabled();
+  const canRequest = isExtensionEnabled('requests');
   // Keep the iOS "Continue listening" widget fed + route widget deep-link opens.
   // Both no-op off native iOS (bridge/Capacitor listener absent).
   useWidgetSync();

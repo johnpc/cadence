@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 vi.mock('./grabClient', () => ({ grabDownload: vi.fn() }));
 vi.mock('./pollJob', () => ({ pollJob: vi.fn() }));
 const toast = vi.fn();
-vi.mock('../toast/useToast', () => ({ useToast: () => toast }));
+vi.mock('../../features/toast/useToast', () => ({ useToast: () => toast }));
 
 import { grabDownload } from './grabClient';
 import { pollJob } from './pollJob';

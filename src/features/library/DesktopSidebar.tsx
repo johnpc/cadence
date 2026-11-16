@@ -11,7 +11,7 @@ import {
 import { NavLink } from 'react-router-dom';
 import { LibraryList } from './LibraryList';
 import { useSidebarCollapsed } from './useSidebarCollapsed';
-import { lidarrProxyEnabled } from '../../lib/runtimeConfig';
+import { isExtensionEnabled } from '../../extensions/flags';
 import './desktopSidebar.css';
 
 const NAV = [
@@ -37,7 +37,7 @@ const REQUESTS_NAV = {
  * Collapsed, it becomes an icons-only rail so the main area gets more room. */
 export function DesktopSidebar() {
   const { collapsed, toggle } = useSidebarCollapsed();
-  const nav = lidarrProxyEnabled() ? [...NAV, REQUESTS_NAV] : NAV;
+  const nav = isExtensionEnabled('requests') ? [...NAV, REQUESTS_NAV] : NAV;
   return (
     <aside
       className={collapsed ? 'sidebar sidebar--collapsed' : 'sidebar'}

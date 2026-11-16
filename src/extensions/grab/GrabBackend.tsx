@@ -1,6 +1,6 @@
 import { IonInput, IonButton } from '@ionic/react';
 import { useGrabSettings } from './useGrabSettings';
-import './searchBackend.css';
+import '../../features/settings/searchBackend.css';
 
 /** Settings "Grab missing tracks" section: point Cadence at a self-hosted Music
  * Grabber service to acquire a single song that isn't in your library yet. Off by

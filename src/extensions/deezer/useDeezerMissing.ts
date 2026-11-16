@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useToast } from '../toast/useToast';
+import { useToast } from '../../features/toast/useToast';
 import { getDeezerSubscription } from './deezerSubscriptionApi';
 import { requestMissingArtist } from './requestMissingArtist';
 import { deezerImportEnabled } from '../../lib/runtimeConfig';

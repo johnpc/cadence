@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { grabDownload } from './grabClient';
 import { pollJob } from './pollJob';
 import { isJobSuccess, jobId } from './grabTypes';
-import { useToast } from '../toast/useToast';
+import { useToast } from '../../features/toast/useToast';
 import type { GrabResult } from './grabTypes';
 
 /** Grab a single track: kick off the download, then poll the job to completion,

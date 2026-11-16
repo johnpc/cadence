@@ -47,7 +47,35 @@ export default tseslint.config(
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+      // The core/extension boundary: core code reaches the acquisition tools
+      // (Lidarr requests, Deezer import, Music Grabber) ONLY through the
+      // registry (extensions/flags) and its slots — never their internals.
+      // Root composition files (routes, lazy pages) and the extensions
+      // themselves are exempt below.
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/extensions/*/**', '!**/extensions/slots/*'],
+              message:
+                'Core code reaches extensions only via extensions/flags or extensions/slots/* (see src/extensions/flags.ts).',
+            },
+          ],
+        },
+      ],
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     },
+  },
+  {
+    // Extensions use core freely; composition roots wire extension pages into
+    // the router (lazily, so their code stays out of the core bundle).
+    files: [
+      'src/extensions/**/*.{ts,tsx}',
+      'src/lazyPages.tsx',
+      'src/appRouteList.tsx',
+      'src/test/**',
+    ],
+    rules: { 'no-restricted-imports': 'off' },
   },
 );

@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounced } from '../../lib/useDebounced';
-import { useToast } from '../toast/useToast';
+import { useToast } from '../../features/toast/useToast';
 import {
   searchArtists,
   getAddDefaults,

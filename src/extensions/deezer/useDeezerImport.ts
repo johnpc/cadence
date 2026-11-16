@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useToast } from '../toast/useToast';
+import { useToast } from '../../features/toast/useToast';
 import { importDeezerPlaylist } from './deezerApi';
 import { requestMissingArtist } from './requestMissingArtist';
 import type { DeezerImportResult, MissingStatus } from './deezerTypes';

@@ -7,7 +7,7 @@ import * as api from './deezerSubscriptionApi';
 import * as missing from './requestMissingArtist';
 import * as runtimeConfig from '../../lib/runtimeConfig';
 
-vi.mock('../toast/useToast', () => ({ useToast: () => vi.fn() }));
+vi.mock('../../features/toast/useToast', () => ({ useToast: () => vi.fn() }));
 
 afterEach(() => {
   vi.restoreAllMocks();

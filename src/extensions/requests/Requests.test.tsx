@@ -8,7 +8,7 @@ vi.mock('./lidarrApi', () => ({
   getLibraryArtistIds: vi.fn().mockResolvedValue(new Set<string>()),
 }));
 vi.mock('./lidarrQueue', () => ({ getDownloadQueue: vi.fn().mockResolvedValue([]) }));
-vi.mock('../toast/useToast', () => ({ useToast: () => vi.fn() }));
+vi.mock('../../features/toast/useToast', () => ({ useToast: () => vi.fn() }));
 import { searchArtists } from './lidarrApi';
 import { Requests } from './Requests';
 import { renderWithProviders } from '../../test/renderWithProviders';

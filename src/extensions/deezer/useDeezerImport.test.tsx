@@ -4,7 +4,7 @@ import { useDeezerImport } from './useDeezerImport';
 import * as deezerApi from './deezerApi';
 import * as missing from './requestMissingArtist';
 
-vi.mock('../toast/useToast', () => ({ useToast: () => vi.fn() }));
+vi.mock('../../features/toast/useToast', () => ({ useToast: () => vi.fn() }));
 
 afterEach(() => {
   vi.restoreAllMocks();

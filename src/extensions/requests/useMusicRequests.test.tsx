@@ -11,7 +11,7 @@ vi.mock('./lidarrApi', async (importActual) => ({
   requestArtist: vi.fn(),
   getLibraryArtistIds: vi.fn().mockResolvedValue(new Set<string>()),
 }));
-vi.mock('../toast/useToast', () => ({ useToast: () => vi.fn() }));
+vi.mock('../../features/toast/useToast', () => ({ useToast: () => vi.fn() }));
 import {
   searchArtists,
   getAddDefaults,
