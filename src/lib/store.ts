@@ -73,6 +73,48 @@ export function createStore<T>(initial: T, options: StoreOptions<T> = {}): Store
   };
 }
 
+/**
+ * A store whose value lives in localStorage under its EXISTING on-disk format
+ * (settings like `'on'`/`'off'` predate the JSON stores — changing the format
+ * would silently reset every user's preference). Reads go through storage, so a
+ * write from anywhere (a test, another module) is always seen; `set` writes and
+ * notifies. Storage failures degrade to the parsed default.
+ */
+export function createStoredValue<T>(options: {
+  key: string;
+  parse: (raw: string | null) => T;
+  serialize: (value: T) => string;
+}): Store<T> {
+  const { key, parse, serialize } = options;
+  const listeners = new Set<() => void>();
+  const get = (): T => {
+    try {
+      return parse(localStorage.getItem(key));
+    } catch {
+      return parse(null);
+    }
+  };
+  const set = (next: T): void => {
+    try {
+      localStorage.setItem(key, serialize(next));
+    } catch {
+      // Storage unavailable — subscribers still hear about it this session.
+    }
+    for (const l of listeners) l();
+  };
+  return {
+    get,
+    set,
+    update: (fn) => set(fn(get())),
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
+}
+
 /** React binding: re-render when the store (or the selected slice) changes. The
  * selector must return a referentially stable value for an unchanged slice
  * (primitives, or a field of the state) — useSyncExternalStore compares with
@@ -82,4 +124,27 @@ export function useStore<T, S>(store: Store<T>, selector: (state: T) => S): S;
 export function useStore<T, S>(store: Store<T>, selector?: (state: T) => S): T | S {
   const read = () => (selector ? selector(store.get()) : store.get());
   return useSyncExternalStore(store.subscribe, read, read);
+}
+
+/** Call `onChange(next, prev)` whenever the selected slice of a store changes
+ * (compared with `equals`, default Object.is). The plain-module counterpart of
+ * `useStore(store, selector)` — how non-React subscribers (MediaSession, the
+ * watch bridge, play reporting…) react to state without polling. Returns an
+ * unsubscribe. With `immediate`, it also fires once now (prev = undefined). */
+export function watch<T, S>(
+  store: Store<T>,
+  select: (state: T) => S,
+  onChange: (next: S, prev: S | undefined) => void,
+  options: { immediate?: boolean; equals?: (a: S, b: S) => boolean } = {},
+): () => void {
+  const equals = options.equals ?? Object.is;
+  let last = select(store.get());
+  if (options.immediate) onChange(last, undefined);
+  return store.subscribe(() => {
+    const next = select(store.get());
+    if (equals(next, last)) return;
+    const prev = last;
+    last = next;
+    onChange(next, prev);
+  });
 }

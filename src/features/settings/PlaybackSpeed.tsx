@@ -1,5 +1,5 @@
 import { usePlayer } from '../player/usePlayer';
-import { PLAYBACK_RATES } from '../player/usePlaybackRate';
+import { PLAYBACK_RATES } from '../player/playbackPrefs';
 import './sleepTimer.css';
 
 /** Settings "Playback speed" control — sets the audio playback rate (0.75×–2×),

@@ -8,10 +8,17 @@
  *
  * Reads Istanbul's coverage-final.json. For each function we derive:
  *   - complexity: cyclomatic complexity, approximated as 1 + (# branch paths
- *     whose region falls inside the function's span). Istanbul records every
- *     branch (if / ternary / &&/|| / switch), which is exactly the set of
- *     decision points cyclomatic complexity counts.
+ *     that belong to the function). Istanbul records every branch (if /
+ *     ternary / &&/|| / switch), which is exactly the set of decision points
+ *     cyclomatic complexity counts.
  *   - coverage: fraction of the function's own statements that were executed.
+ *
+ * "Belong to" = the INNERMOST function whose span contains it. A nested
+ * function (a callback, a command in a factory) is its own entry in Istanbul's
+ * fnMap and is scored on its own; counting its branches in every enclosing
+ * function as well would score the same decision several times and make any
+ * closure-based module (the player engine) look as complex as all its parts
+ * combined.
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -44,34 +51,53 @@ function contains(outer, point) {
 const offenders = [];
 const allScores = [];
 
+/** Is `a` at or after `b` (line, then column)? */
+function atOrAfter(a, b) {
+  return a.line > b.line || (a.line === b.line && a.column >= b.column);
+}
+
+/** The id of the innermost function whose span contains `point`, or null.
+ * Functions nest, so the innermost is the containing one that starts last. */
+function innermostFn(spans, point) {
+  let best = null;
+  for (const [fnId, span] of spans) {
+    if (!contains(span, point)) continue;
+    if (!best || atOrAfter(span.start, best.span.start)) best = { fnId, span };
+  }
+  return best?.fnId ?? null;
+}
+
 for (const [file, data] of Object.entries(coverage)) {
   const { fnMap = {}, f = {}, statementMap = {}, s = {}, branchMap = {}, b = {} } = data;
+  const spans = Object.entries(fnMap)
+    .map(([fnId, fnMeta]) => [fnId, fnMeta.loc ?? fnMeta.decl])
+    .filter(([, span]) => span);
 
-  for (const [fnId, fnMeta] of Object.entries(fnMap)) {
-    const span = fnMeta.loc ?? fnMeta.decl;
-    if (!span) continue;
+  // Attribute every branch and statement to its innermost function, once.
+  const decisions = new Map();
+  for (const [branchId, branchMeta] of Object.entries(branchMap)) {
+    const loc = branchMeta.loc ?? branchMeta.locations?.[0];
+    const anchor = loc?.start ? loc : { start: loc, end: loc };
+    const owner = innermostFn(spans, anchor.start);
+    if (owner === null) continue;
+    // each additional branch path beyond the first is a decision point
+    const paths = Array.isArray(b[branchId]) ? b[branchId].length : 1;
+    decisions.set(owner, (decisions.get(owner) ?? 0) + Math.max(1, paths - 1));
+  }
+  const statements = new Map();
+  for (const [stmtId, stmtLoc] of Object.entries(statementMap)) {
+    const owner = innermostFn(spans, stmtLoc.start);
+    if (owner === null) continue;
+    const tally = statements.get(owner) ?? { total: 0, covered: 0 };
+    tally.total += 1;
+    if ((s[stmtId] ?? 0) > 0) tally.covered += 1;
+    statements.set(owner, tally);
+  }
 
-    // --- cyclomatic complexity: 1 + decision points inside this function ---
-    let complexity = 1;
-    for (const [branchId, branchMeta] of Object.entries(branchMap)) {
-      const loc = branchMeta.loc ?? branchMeta.locations?.[0];
-      const anchor = loc?.start ? loc : { start: loc, end: loc };
-      if (contains(span, anchor.start)) {
-        // each additional branch path beyond the first is a decision point
-        const paths = Array.isArray(b[branchId]) ? b[branchId].length : 1;
-        complexity += Math.max(1, paths - 1);
-      }
-    }
-
-    // --- coverage: executed statements within the function span ---
-    let total = 0;
-    let covered = 0;
-    for (const [stmtId, stmtLoc] of Object.entries(statementMap)) {
-      if (contains(span, stmtLoc.start)) {
-        total += 1;
-        if ((s[stmtId] ?? 0) > 0) covered += 1;
-      }
-    }
+  for (const [fnId, span] of spans) {
+    const fnMeta = fnMap[fnId];
+    const complexity = 1 + (decisions.get(fnId) ?? 0);
+    const { total, covered } = statements.get(fnId) ?? { total: 0, covered: 0 };
     const cov = total === 0 ? (f[fnId] > 0 ? 1 : 0) : covered / total;
 
     const crap = complexity ** 2 * (1 - cov) ** 3 + complexity;

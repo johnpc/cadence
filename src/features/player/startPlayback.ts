@@ -1,32 +1,36 @@
-import { log } from '../../lib/diagnostics/diagnosticsStore';
 import { audioStreamUrl } from '../../lib/jellyfinStream';
 import { isDownloaded, localAudioUrl } from '../downloads/downloadStore';
+import type { AudioLike, LogFn } from './engine/types';
 
 /** Resolve the best src for a track: a locally-downloaded blob when present
- * (offline), else the Jellyfin network stream. Async only for the downloaded
- * case; the common (streaming) path resolves synchronously. */
-export async function resolveTrackSrc(id: string): Promise<string> {
-  if (isDownloaded(id)) return (await localAudioUrl(id)) ?? audioStreamUrl(id);
-  return audioStreamUrl(id);
+ * (offline), else the Jellyfin network stream. Only the downloaded case is
+ * async — the common streaming path returns a plain string so the engine sets
+ * src and calls play() in the same task as the user's tap (iOS only honours
+ * play() inside the gesture). */
+export function resolveTrackSrc(id: string): string | Promise<string> {
+  if (!isDownloaded(id)) return audioStreamUrl(id);
+  return localAudioUrl(id).then((url) => url ?? audioStreamUrl(id));
 }
 
 /** Point the element at `src` and play, with the reliability + diagnostics the
- * iOS WKWebView needs. Extracted from useTrackLoader so the effect stays simple
- * (and this is unit-testable in isolation).
+ * iOS WKWebView needs.
  *
  * - `isActive()` guards against a track change landing mid-resolve.
  * - `skipAutoPlay` (a ref-like box) leaves a session-restored first track paused.
  * - A rejected play() (WKWebView "interrupted by a new load request") is retried
- *   once on `canplay` and logged — the "songs are tricky to start" fix.
+ *   on the FIRST `canplay` only, and logged — the "songs are tricky to start" fix.
  *
  * Returns a cleanup that removes the canplay listener.
  */
 export function startPlayback(
-  audio: HTMLAudioElement,
+  audio: AudioLike,
   src: string,
   currentId: string,
   isActive: () => boolean,
   skipAutoPlay: { current: boolean },
+  log: LogFn,
+  /** Does the user still want sound? A pause before the first canplay wins. */
+  wantsSound: () => boolean = () => true,
 ): () => void {
   if (!isActive()) return () => {};
   audio.src = src;
@@ -43,8 +47,13 @@ export function startPlayback(
     skipAutoPlay.current = false;
     return () => {};
   }
+  // ONE-SHOT: only the first canplay after this load may retry. It used to stay
+  // attached for the whole track, so a later canplay (after a seek or a stall)
+  // restarted a track the user had deliberately paused — and even this first
+  // one yields to a pause the user made before the stream was ready.
   const onCanPlay = () => {
-    if (isActive() && audio.paused) void audio.play().catch(() => undefined);
+    audio.removeEventListener('canplay', onCanPlay);
+    if (isActive() && audio.paused && wantsSound()) void audio.play().catch(() => undefined);
   };
   audio.addEventListener('canplay', onCanPlay);
   void audio.play().catch((e: unknown) => {

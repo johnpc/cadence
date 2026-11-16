@@ -11,19 +11,22 @@ configure({ asyncUtilTimeout: 5000 });
 // Mock matchMedia (jsdom has none). Includes the modern addEventListener API the
 // ThemeProvider uses to track the OS appearance — the default 'system' theme
 // calls this on app start, so a partial mock would crash rendering.
-window.matchMedia =
-  window.matchMedia ||
-  function (query: string) {
-    return {
-      matches: false,
-      media: query,
-      onchange: null,
-      addEventListener: function () {},
-      removeEventListener: function () {},
-      addListener: function () {},
-      removeListener: function () {},
-      dispatchEvent: function () {
-        return false;
-      },
-    } as unknown as MediaQueryList;
-  };
+// Guarded: framework-free suites (the player engine) run in the plain `node`
+// environment, where there is no window at all.
+if (typeof window !== 'undefined')
+  window.matchMedia =
+    window.matchMedia ||
+    function (query: string) {
+      return {
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: function () {},
+        removeEventListener: function () {},
+        addListener: function () {},
+        removeListener: function () {},
+        dispatchEvent: function () {
+          return false;
+        },
+      } as unknown as MediaQueryList;
+    };

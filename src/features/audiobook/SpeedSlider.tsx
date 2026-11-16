@@ -1,4 +1,4 @@
-import { RATE_MIN, RATE_MAX, RATE_STEP } from '../player/usePlaybackRate';
+import { RATE_MIN, RATE_MAX, RATE_STEP } from '../player/playbackPrefs';
 import { usePlayer } from '../player/usePlayer';
 import { isAudiobook } from './isAudiobook';
 import './speedSlider.css';

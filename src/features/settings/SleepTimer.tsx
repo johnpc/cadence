@@ -1,5 +1,5 @@
 import { usePlayer } from '../player/usePlayer';
-import type { SleepMode } from '../player/useSleepTimer';
+import type { SleepMode } from '../player/types';
 import './sleepTimer.css';
 
 const OPTIONS: { label: string; mode: SleepMode; key: string }[] = [

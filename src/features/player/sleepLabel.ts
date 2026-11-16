@@ -1,4 +1,4 @@
-import type { SleepMode } from './useSleepTimer';
+import type { SleepMode } from './types';
 
 /** A short human label for an armed sleep timer, or null when it's off. Used by
  * the player's sleep indicator. Minute modes read as "Sleep in N min"; the

@@ -1,19 +1,21 @@
 /**
- * Shuffle helpers for the play queue — split from queue.ts for the line gate.
+ * Shuffle helpers for the play queue.
  * All pure (injected randomness) so they're deterministic in tests.
  */
 import { currentTrack, type QueueState } from './queue';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** A fresh queue from a fully-shuffled copy of `tracks` (Fisher–Yates), starting
- * at index 0. `rand` is injected for deterministic tests. */
+ * at index 0, remembering the original order so turning shuffle off restores it
+ * (it used to leave a shuffle-played queue scrambled). `rand` is injected for
+ * deterministic tests. */
 export function startShuffled(tracks: JellyfinItem[], rand: () => number): QueueState {
   const shuffled = [...tracks];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  return { tracks: shuffled, index: 0 };
+  return { tracks: shuffled, index: 0, unshuffled: tracks };
 }
 
 /** Shuffle the upcoming tracks, keeping the current one first (index 0), and

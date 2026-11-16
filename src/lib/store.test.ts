@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createStore, useStore } from './store';
+import { createStore, createStoredValue, useStore, watch } from './store';
 
 describe('createStore', () => {
   afterEach(() => localStorage.clear());
@@ -61,5 +61,74 @@ describe('useStore', () => {
     expect(slice.result.current).toBe('x');
     act(() => s.set({ a: 2, b: 'y' }));
     expect(slice.result.current).toBe('y');
+  });
+});
+
+describe('watch', () => {
+  it('fires only when the selected slice changes, with prev', () => {
+    const s = createStore({ a: 1, b: 1 });
+    const seen: Array<[number, number | undefined]> = [];
+    const off = watch(
+      s,
+      (v) => v.a,
+      (next, prev) => seen.push([next, prev]),
+    );
+    s.set({ a: 1, b: 2 });
+    s.set({ a: 2, b: 2 });
+    off();
+    s.set({ a: 3, b: 2 });
+    expect(seen).toEqual([[2, 1]]);
+  });
+
+  it('can fire immediately and use a custom equality', () => {
+    const s = createStore({ list: [1] });
+    const fn = vi.fn();
+    watch(s, (v) => v.list, fn, { immediate: true, equals: (a, b) => a.length === b.length });
+    s.set({ list: [9] });
+    s.set({ list: [9, 9] });
+    expect(fn.mock.calls.map((c) => c[0])).toEqual([[1], [9, 9]]);
+    expect(fn.mock.calls[0][1]).toBeUndefined();
+  });
+});
+
+describe('createStoredValue', () => {
+  afterEach(() => {
+    localStorage.clear();
+    vi.restoreAllMocks();
+  });
+  const flag = () =>
+    createStoredValue({
+      key: 'cadence.flag',
+      parse: (raw) => raw === 'on',
+      serialize: (on) => (on ? 'on' : 'off'),
+    });
+
+  it('keeps the existing string format and reads through storage', () => {
+    const s = flag();
+    expect(s.get()).toBe(false);
+    const spy = vi.fn();
+    s.subscribe(spy);
+    s.set(true);
+    expect(localStorage.getItem('cadence.flag')).toBe('on');
+    localStorage.setItem('cadence.flag', 'off');
+    expect(s.get()).toBe(false);
+    s.update((v) => !v);
+    expect(s.get()).toBe(true);
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+
+  it('falls back to the default when storage throws', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied');
+    });
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('full');
+    });
+    const s = flag();
+    const spy = vi.fn();
+    s.subscribe(spy);
+    s.set(true);
+    expect(s.get()).toBe(false);
+    expect(spy).toHaveBeenCalled();
   });
 });

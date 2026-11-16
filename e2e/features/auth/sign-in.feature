@@ -1,6 +1,7 @@
 Feature: Sign in with a Jellyfin account
   A returning user signs in with their Jellyfin credentials and lands in the
-  app; a bad password is rejected; a valid session survives a reload.
+  app; a bad password is rejected; a valid session survives a reload; signing
+  out ends the session's playback.
 
   Scenario: Signing in lands on the Home tab
     Given I open the app signed out
@@ -28,3 +29,10 @@ Feature: Sign in with a Jellyfin account
     Then I see a server address field prefilled with a server
     When I sign in with the test user's credentials
     Then I land on the Home tab
+
+  Scenario: Signing out stops playback
+    Given I am signed in
+    When I tap a track from search
+    And the track is actually playing
+    And I sign out from Settings
+    Then nothing is playing
