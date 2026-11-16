@@ -9,3 +9,4 @@ ios
 android
 
 public/privacy-policy.html
+src/lib/jellyfinOpenApi.d.ts
