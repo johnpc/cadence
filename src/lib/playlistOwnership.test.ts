@@ -6,6 +6,7 @@ import { HttpError, RequestTimeout } from './jellyfinErrors';
 import { setSession } from './sessionStore';
 import {
   isPlaylistOwner,
+  ownPlaylistIdsFromServer,
   rememberOwnPlaylist,
   __resetPlaylistOwnership,
 } from './playlistOwnership';
@@ -86,5 +87,60 @@ describe('playlistOwnership', () => {
     });
     expect(await isPlaylistOwner('b')).toBe(false); // still answers this run
     set.mockRestore();
+  });
+
+  describe('the plugin answer', () => {
+    it('returns the owned ids in one call, shared by concurrent reads', async () => {
+      vi.mocked(request).mockResolvedValue({ Ids: ['a', 'b'] });
+      const [x, y] = await Promise.all([ownPlaylistIdsFromServer(), ownPlaylistIdsFromServer()]);
+      expect([...(x ?? [])]).toEqual(['a', 'b']);
+      expect(y).toBe(x);
+      expect(request).toHaveBeenCalledTimes(1);
+      expect(request).toHaveBeenCalledWith('/Cadence/Playlists/Mine');
+    });
+
+    it('asks afresh once the previous answer has landed (a new playlist is never missed)', async () => {
+      vi.mocked(request).mockResolvedValueOnce({ Ids: [] });
+      await ownPlaylistIdsFromServer();
+      vi.mocked(request).mockResolvedValueOnce({ Ids: ['new'] });
+      expect([...((await ownPlaylistIdsFromServer()) ?? [])]).toEqual(['new']);
+      expect(request).toHaveBeenCalledTimes(2);
+    });
+
+    it('records the owned ids, so a later fallback needs no probe for them', async () => {
+      vi.mocked(request).mockResolvedValueOnce({ Ids: ['a'] });
+      await ownPlaylistIdsFromServer();
+      expect(await isPlaylistOwner('a')).toBe(true);
+      expect(request).toHaveBeenCalledTimes(1);
+    });
+
+    it('a server without the endpoint (404) is not asked again this run', async () => {
+      vi.mocked(request).mockRejectedValue(new HttpError(404));
+      expect(await ownPlaylistIdsFromServer()).toBeNull();
+      expect(await ownPlaylistIdsFromServer()).toBeNull();
+      expect(request).toHaveBeenCalledTimes(1);
+    });
+
+    it('a transient failure falls back now but is retried next time', async () => {
+      vi.mocked(request).mockRejectedValueOnce(new RequestTimeout());
+      expect(await ownPlaylistIdsFromServer()).toBeNull();
+      vi.mocked(request).mockResolvedValueOnce({});
+      expect(await ownPlaylistIdsFromServer()).toEqual(new Set());
+    });
+
+    it("is not asked without a signed-in user, and never shares another user's call", async () => {
+      setSession(null);
+      expect(await ownPlaylistIdsFromServer()).toBeNull();
+      expect(request).not.toHaveBeenCalled();
+      setSession({ token: 't', userId: 'u1' });
+      let first!: (v: { Ids: string[] }) => void;
+      vi.mocked(request).mockImplementationOnce(() => new Promise((res) => (first = res)));
+      const u1 = ownPlaylistIdsFromServer();
+      setSession({ token: 't2', userId: 'u2' });
+      vi.mocked(request).mockResolvedValueOnce({ Ids: ['z'] });
+      expect([...((await ownPlaylistIdsFromServer()) ?? [])]).toEqual(['z']);
+      first({ Ids: ['a'] });
+      expect([...((await u1) ?? [])]).toEqual(['a']);
+    });
   });
 });

@@ -5,7 +5,7 @@
 import { request } from './jellyfinFetch';
 import { getSession } from './sessionStore';
 import { dedupeByName } from './dedupeByName';
-import { isPlaylistOwner } from './playlistOwnership';
+import { isPlaylistOwner, ownPlaylistIdsFromServer } from './playlistOwnership';
 import type { ItemsResponse, JellyfinItem } from './jellyfinTypes';
 
 async function fetchAllPlaylists(
@@ -29,11 +29,14 @@ async function fetchAllPlaylists(
   return res.Items;
 }
 
-/** Confirm which playlists the user actually owns. `CanDelete===false` is a
- * definite "not mine" (no probe); every other candidate is answered by
+/** Confirm which playlists the user actually owns. The plugin answers for all
+ * of them in one call when installed. Otherwise `CanDelete===false` is a
+ * definite "not mine" (no probe), and every other candidate is answered by
  * playlistOwnership — remembered per user, deduped, so only playlists never
  * seen before cost a request. Returns the owned ids. */
 async function confirmOwnership(playlists: JellyfinItem[]): Promise<Set<string>> {
+  const fromServer = await ownPlaylistIdsFromServer();
+  if (fromServer) return new Set(playlists.filter((p) => fromServer.has(p.Id)).map((p) => p.Id));
   const candidates = playlists.filter((p) => p.CanDelete !== false);
   const confirmed = await Promise.all(candidates.map((p) => isPlaylistOwner(p.Id)));
   return new Set(candidates.filter((_, i) => confirmed[i]).map((p) => p.Id));
