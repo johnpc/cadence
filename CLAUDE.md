@@ -52,7 +52,7 @@ URL (it renders inline). All `aws` calls use `AWS_PROFILE=personal`; never inlin
   playlists, streaming, and
   recommendations/instant-mix radio — all natively, all per-user.
 - **Search:** Jellyfin native search (v1) → Meilisearch via the `marlin-search` indexer (later).
-- **Deploy:** static PWA in an nginx container on umbrel via Dockge → cloudflared → `cadence.jpc.io`;
+- **Deploy:** static PWA in an nginx container on umbrel (host docker daemon) → cloudflared → `cadence.jpc.io`;
   iOS via Capacitor → TestFlight.
 
 ## Architecture
@@ -189,6 +189,9 @@ bash scripts/ios-launch-smoke.sh   # (Mac w/ Xcode + Docker, e.g. the mini) buil
                                    # fresh simulator against the hermetic Jellyfin, PASS only when Home renders
                                    # real data; screenshot + request log in ios-smoke-output/
 python3 scripts/asc-testflight.py builds   # recent TestFlight uploads/builds + Apple's errors (needs ASC_* env)
+bash scripts/deploy-umbrel.sh check         # read-only: live cadence.jpc.io stack == repo compose?
+bash scripts/deploy-umbrel.sh deploy <tag>  # manual deploy / ROLLBACK (main deploys automatically)
+gh workflow run deploy-web.yml -f tag=<tag> # same, from the Mac mini runner
 ```
 
 ## Slices (build order)
@@ -207,11 +210,19 @@ python3 scripts/asc-testflight.py builds   # recent TestFlight uploads/builds + 
   user enters their server on the sign-in screen.
 - **iOS bundle id:** `com.johncorser.cadence`. Apple **team id `JW5SC3NYUV`**.
   `ITSAppUsesNonExemptEncryption=false`.
-- **Deploy:** CI publishes `mrorbitman/cadence:sha-<short>` (+ `latest`) → Dockge on umbrel
-  (192.168.7.211) → cloudflared `cadence.jpc.io`, host port 8095. **`deploy/compose.yaml` is the
+- **Deploy:** CI publishes `mrorbitman/cadence:sha-<short>` (+ `latest`) → umbrel host docker
+  (192.168.7.211, stack dir `/home/umbrel/homelab/stacks/cadence`; moved off the legacy Dockge dind 2026-11-16) → cloudflared `cadence.jpc.io`, host port 8095. **`deploy/compose.yaml` is the
   only compose**; the server keeps just a `.env` (tag + URLs + keys). `scripts/deploy-umbrel.sh
 check` (read-only drift check), `deploy <tag>` (pull, up, verify config.js + server-agnostic
-  bundle).
+  bundle). **Deploys are automatic on green main:** `deploy-web.yml` runs on the Mac mini runner
+  after `Publish Docker image` succeeds and deploys `sha-<first 7 of the commit>` (refuses a tag
+  not on Docker Hub; fails loudly, never auto-rolls back). SSH auth = dedicated key
+  `john@mini:~/.ssh/cadence_deploy`, whose umbrel `authorized_keys` line is pinned
+  `from="192.168.6.202"` (the mini's LAN IP — if DHCP moves it, deploys fail with "Permission
+  denied"; update that line) + no-pty/no-forwarding. **Rollback:** a failed deploy prints the
+  previous tag; run `scripts/deploy-umbrel.sh deploy <prev-tag>` from a LAN machine, or
+  `gh workflow run deploy-web.yml -f tag=<prev-tag>`. Each deploy backs up the server `.env` as
+  `.env.bak-<timestamp>`.
 - **e2e users:** `cadence-e2e-<area>` (+ `cadence-e2e-playlists2`), created on the hermetic
   container by `scripts/e2e-jellyfin.sh up` (password `cadence-e2e-pass`, not a secret). For a run
   against a real server, `.env.local` supplies `VITE_JELLYFIN_URL` / `TEST_USERNAME` / `TEST_PASSWORD`.

@@ -7,29 +7,40 @@
 #                                           # value typed into the live compose into .env,
 #                                           # proves the rendered config is IDENTICAL, swaps
 #   scripts/deploy-umbrel.sh deploy <tag>   # run image tag <tag> (e.g. sha-2e4e180), then verify
+#   scripts/deploy-umbrel.sh verify         # read-only: public config.js + server-agnostic bundle
+#
+# Every green push to main runs `deploy sha-<short>` automatically from the Mac
+# mini runner (.github/workflows/deploy-web.yml). Run `deploy <previous tag>` by
+# hand to roll back — a failed deploy prints the exact command.
 #
 # Why: the live compose used to be hand-maintained inside Dockge and drifted
 # from the repo (it was still documenting a local-build flow the server no
 # longer used). Now drift is impossible by construction, and `check` proves it.
 #
-# Needs: ssh to umbrel@$UMBREL_HOST (LAN), sudo there. Secrets never leave the
+# Needs: ssh to $UMBREL_HOST (LAN), sudo there. UMBREL_SSH_KEY (optional) pins
+# the identity file — CI uses a dedicated, source-restricted deploy key. Secrets never leave the
 # server: values are read and written server-side and never printed.
 set -euo pipefail
 
 HOST="${UMBREL_HOST:-umbrel@192.168.7.211}"
 STACK=cadence
-HOST_DIR="/home/umbrel/umbrel/app-data/dockge/data/dockge-stacks/$STACK" # = /opt/stacks/$STACK in dind
-DIND_DIR="/opt/stacks/$STACK"
+# The stack runs on umbrel's HOST docker daemon (moved off the legacy Dockge dind
+# on 2026-11-16; the old dind copy under dockge-stacks/ is dead — never deploy there).
+HOST_DIR="${CADENCE_STACK_DIR:-/home/umbrel/homelab/stacks/$STACK}"
 PUBLIC_URL="${CADENCE_PUBLIC_URL:-https://cadence.jpc.io}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_COMPOSE="$HERE/../deploy/compose.yaml"
 
-remote() { ssh -o BatchMode=yes "$HOST" "$@"; }
-dc() { echo "sudo docker exec dockge_dockge_1 docker compose -p $STACK --project-directory $DIND_DIR $*"; }
+IMAGE=mrorbitman/cadence
+SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=15)
+if [ -n "${UMBREL_SSH_KEY:-}" ]; then SSH_OPTS+=(-i "$UMBREL_SSH_KEY" -o IdentitiesOnly=yes); fi
+
+remote() { ssh "${SSH_OPTS[@]}" "$HOST" "$@"; }
+dc() { echo "sudo docker compose -p $STACK --project-directory $HOST_DIR $*"; }
 die() { echo "deploy-umbrel: $*" >&2; exit 1; }
 
 # Render a compose file against the stack's .env (as JSON, keys sorted).
-render() { remote "$(dc -f "$DIND_DIR/$1" config --format json) | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin), indent=1, sort_keys=True))'"; }
+render() { remote "$(dc -f "$HOST_DIR/$1" config --format json) | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin), indent=1, sort_keys=True))'"; }
 
 upload_candidate() {
   remote "sudo tee $HOST_DIR/compose.candidate.yaml >/dev/null" <"$REPO_COMPOSE"
@@ -62,8 +73,8 @@ adopt_env() {
 import json, subprocess, sys, pathlib
 d = pathlib.Path(sys.argv[1])
 cfg = json.loads(subprocess.check_output(
-    ["docker", "exec", "dockge_dockge_1", "docker", "compose", "-p", "cadence",
-     "--project-directory", "/opt/stacks/cadence", "-f", "/opt/stacks/cadence/compose.yaml",
+    ["docker", "compose", "-p", "cadence",
+     "--project-directory", str(d), "-f", str(d / "compose.yaml"),
      "config", "--format", "json"]))
 svc = cfg["services"]["cadence"]
 env_path = d / ".env"
@@ -101,14 +112,37 @@ verify() {
   echo "deploy-umbrel: bundle $bundle is server-agnostic"
 }
 
+running_image() { remote "sudo docker inspect cadence --format '{{.Config.Image}}'"; }
+
+# Refuse a malformed tag, or one not on Docker Hub yet, BEFORE touching the server.
+require_tag() {
+  local tag="$1" code
+  [[ "$tag" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]] || die "invalid image tag: '$tag'"
+  code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+    "https://hub.docker.com/v2/repositories/$IMAGE/tags/$tag") || die "could not reach Docker Hub to check $IMAGE:$tag"
+  [ "$code" = 200 ] || die "$IMAGE:$tag is not on Docker Hub (HTTP $code) — refusing to deploy"
+}
+
 deploy() {
-  local tag="${1:?usage: deploy <tag>}"
+  local tag="${1:?usage: deploy <tag>}" prev
+  require_tag "$tag"
   check >/dev/null || [ $? -eq 2 ] || die "live stack has drifted — run check/install first"
   remote "sudo cmp -s $HOST_DIR/compose.yaml -" <"$REPO_COMPOSE" || die "live compose is not the repo file — run install first"
-  remote "sudo sed -i -E 's/^CADENCE_TAG=.*/CADENCE_TAG=$tag/' $HOST_DIR/.env && grep -q '^CADENCE_TAG=' $HOST_DIR/.env || echo 'CADENCE_TAG=$tag' | sudo tee -a $HOST_DIR/.env >/dev/null"
-  remote "$(dc -f "$DIND_DIR/compose.yaml" pull) && $(dc -f "$DIND_DIR/compose.yaml" up -d)"
-  remote "sudo docker exec dockge_dockge_1 docker inspect cadence --format '{{.Config.Image}} {{.State.Status}}'"
+  prev=$(running_image) || die "could not read the running cadence image"
+  prev="${prev##*:}"
+  echo "deploy-umbrel: running $IMAGE:$prev → deploying $IMAGE:$tag"
+  # From here on, any failure names the previous tag + the one-line rollback. No auto-rollback.
+  trap 'echo "deploy-umbrel: DEPLOY OF $tag FAILED. Previous tag: $prev. Roll back with: scripts/deploy-umbrel.sh deploy $prev" >&2' EXIT
+  remote "sudo cp -p $HOST_DIR/.env $HOST_DIR/.env.bak-\$(date +%Y%m%d%H%M%S) && sudo sed -i -E 's/^CADENCE_TAG=.*/CADENCE_TAG=$tag/' $HOST_DIR/.env && { sudo grep -q '^CADENCE_TAG=' $HOST_DIR/.env || echo 'CADENCE_TAG=$tag' | sudo tee -a $HOST_DIR/.env >/dev/null; }"
+  remote "$(dc -f "$HOST_DIR/compose.yaml" pull) && $(dc -f "$HOST_DIR/compose.yaml" up -d)"
+  remote "sudo docker inspect cadence --format '{{.Config.Image}} {{.State.Status}}'"
+  [ "$(running_image)" = "$IMAGE:$tag" ] || die "cadence is not running $IMAGE:$tag after up -d"
+  # Readiness, not a retry: give the fresh nginx up to 30s to answer, then verify ONCE.
+  local i
+  for i in $(seq 1 15); do curl -fsS -o /dev/null --max-time 5 "$PUBLIC_URL/config.js" && break; sleep 2; done
   verify
+  trap - EXIT
+  echo "deploy-umbrel: deployed $IMAGE:$tag (was $prev — roll back with: scripts/deploy-umbrel.sh deploy $prev)"
 }
 
 case "${1:-}" in

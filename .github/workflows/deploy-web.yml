@@ -1,0 +1,72 @@
+name: Deploy web (cadence.jpc.io)
+
+# Continuous deploy: every green push to main ships its freshly published image
+# (mrorbitman/cadence:sha-<short>, from docker-publish.yml) to the self-hosted
+# stack on umbrel. Runs on the self-hosted Mac mini because umbrel is LAN-only
+# (192.168.7.211) — nothing is exposed to the internet for this.
+#
+# SSH: the runner (user john on the mini) uses a dedicated key, ~/.ssh/cadence_deploy,
+# whose umbrel authorized_keys entry is restricted to the mini's LAN IP
+# (from="…", no forwarding/pty). No secret lives in the repo or in GitHub.
+#
+# Manual / rollback: `gh workflow run deploy-web.yml -f tag=sha-<short>`, or from a
+# LAN machine `scripts/deploy-umbrel.sh deploy <tag>`. A failed deploy is NOT rolled
+# back automatically — the log names the previous tag and the one-line rollback.
+on:
+  workflow_run:
+    workflows: ['Publish Docker image']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag to deploy (e.g. sha-cd475a5)'
+        required: true
+
+# One deploy at a time, in order; never kill one mid-flight.
+concurrency:
+  group: deploy-web-umbrel
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to umbrel
+    # Self-hosted runner on a public repo: only this repo's own main-branch pushes
+    # (workflow_run) or a maintainer's manual dispatch (needs write access) run here.
+    if: >-
+      github.repository == 'johnpc/cadence' && (
+        github.event_name == 'workflow_dispatch' || (
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          github.event.workflow_run.head_repository.full_name == 'johnpc/cadence'
+        )
+      )
+    runs-on: [self-hosted, mac-mini]
+    timeout-minutes: 15
+    steps:
+      - name: Resolve image tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then tag="$INPUT_TAG"; else tag="sha-${HEAD_SHA:0:7}"; fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Deploying mrorbitman/cadence:$tag"
+
+      # The deploy script + compose come from the commit being deployed (main), so the
+      # live compose always matches the image's own deploy/compose.yaml.
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Deploy
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          export UMBREL_SSH_KEY="$HOME/.ssh/cadence_deploy"
+          test -r "$UMBREL_SSH_KEY" || { echo "::error::deploy key $UMBREL_SSH_KEY missing on this runner"; exit 1; }
+          bash scripts/deploy-umbrel.sh deploy "$TAG"
