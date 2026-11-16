@@ -50,3 +50,4 @@ scripts/perf-*.mjs
 scripts/prod-*.mjs
 scripts/ab-probe.mjs
 scripts/ab-*.png
+/ios-smoke-output

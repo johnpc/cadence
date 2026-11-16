@@ -2,6 +2,33 @@ import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+// IonSearchbar → a plain input. The real web component arms a 300 ms timer on
+// load (noAnimate → requestAnimationFrame) that can fire after this file's jsdom
+// is torn down under full-suite load: "ReferenceError: requestAnimationFrame is
+// not defined", an unhandled error that fails the run.
+vi.mock('@ionic/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@ionic/react')>();
+  return {
+    ...actual,
+    IonSearchbar: ({
+      value,
+      onIonInput,
+      debounce: _debounce,
+      ...rest
+    }: {
+      value?: string;
+      debounce?: number;
+      onIonInput?: (e: { detail: { value: string } }) => void;
+      [k: string]: unknown;
+    }) => (
+      <input
+        {...(rest as Record<string, unknown>)}
+        value={value ?? ''}
+        onChange={(e) => onIonInput?.({ detail: { value: e.target.value } })}
+      />
+    ),
+  };
+});
 vi.mock('../../lib/jellyfinItems', () => ({
   getFavoriteSongs: vi.fn().mockResolvedValue([]),
   getFavoriteAlbums: vi.fn().mockResolvedValue([]),
@@ -91,10 +118,7 @@ describe('Library', () => {
     vi.mocked(getPlaylists).mockResolvedValue([playlist]);
     const { getByTestId, findByText, queryByText } = renderWithProviders(<Library />);
     await findByText('Road Trip');
-    // Set the query directly (IonSearchbar debounce=0); userEvent.type can drop
-    // chars into Ionic's wrapped input under jsdom.
-    const bar = getByTestId('library-search');
-    fireEvent(bar, new CustomEvent('ionInput', { detail: { value: 'road' } }));
+    fireEvent.change(getByTestId('library-search'), { target: { value: 'road' } });
     await waitFor(() => expect(queryByText('Liked Songs')).not.toBeInTheDocument());
     expect(queryByText('Road Trip')).toBeInTheDocument();
   });

@@ -127,6 +127,61 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
             -quiet
 
+  ios-launch-smoke:
+    # Does the BUILT app launch in the simulator and reach a Home screen rendered
+    # with real Jellyfin data? Nothing else checks that: an Xcode 27 build that
+    # died at launch ("UIScene life cycle is required for apps built with this
+    # SDK") passed every other job and reached App Store review. All logic is in
+    # scripts/ios-launch-smoke.sh (runnable by hand); the deploy runs it too.
+    name: iOS Launch Smoke Test
+    # Same fork guard as ios-tests: self-hosted runner, so push-to-main or the
+    # repo owner's own PRs only.
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login == 'johnpc'
+    runs-on: [self-hosted, mac-mini]
+    timeout-minutes: 30
+    env:
+      # Unique per run: the Mac mini is shared, and a concurrent run must not
+      # collide on the container name (the port is picked free by the script).
+      E2E_JELLYFIN_NAME: cadence-smoke-${{ github.run_id }}-${{ github.run_attempt }}
+      SMOKE_RUN_TAG: ${{ github.run_id }}-${{ github.run_attempt }}
+      SMOKE_OUT: ${{ github.workspace }}/ios-smoke-output
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install CocoaPods
+        run: cd ios/App && pod install
+
+      - name: Launch the app and wait for Home
+        run: bash scripts/ios-launch-smoke.sh
+
+      - name: Upload screenshot + logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ios-launch-smoke
+          path: |
+            ios-smoke-output/home.png
+            ios-smoke-output/requests.jsonl
+            ios-smoke-output/device.log
+            ios-smoke-output/app.stdout
+            ios-smoke-output/jellyfin-up.log
+            ios-smoke-output/xcodebuild.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      # The script's own trap cleans up; this covers a cancelled job.
+      - name: Remove the smoke simulator + Jellyfin
+        if: always()
+        run: bash scripts/ios-launch-smoke.sh cleanup
+
   acceptance:
     # One job per feature area, each its own independent check, so a red X points
     # at the area that broke. Every area runs against a HERMETIC Jellyfin: a
