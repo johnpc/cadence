@@ -52,7 +52,7 @@ URL (it renders inline). All `aws` calls use `AWS_PROFILE=personal`; never inlin
   playlists, streaming, and
   recommendations/instant-mix radio — all natively, all per-user.
 - **Search:** Jellyfin native search (v1) → Meilisearch via the `marlin-search` indexer (later).
-- **Deploy:** static PWA in an nginx container on umbrel via Dockge → cloudflared → `cadence.jpc.io`;
+- **Deploy:** static PWA in an nginx container on umbrel (host docker daemon) → cloudflared → `cadence.jpc.io`;
   iOS via Capacitor → TestFlight.
 
 ## Architecture
@@ -210,8 +210,8 @@ gh workflow run deploy-web.yml -f tag=<tag> # same, from the Mac mini runner
   user enters their server on the sign-in screen.
 - **iOS bundle id:** `com.johncorser.cadence`. Apple **team id `JW5SC3NYUV`**.
   `ITSAppUsesNonExemptEncryption=false`.
-- **Deploy:** CI publishes `mrorbitman/cadence:sha-<short>` (+ `latest`) → Dockge on umbrel
-  (192.168.7.211) → cloudflared `cadence.jpc.io`, host port 8095. **`deploy/compose.yaml` is the
+- **Deploy:** CI publishes `mrorbitman/cadence:sha-<short>` (+ `latest`) → umbrel host docker
+  (192.168.7.211, stack dir `/home/umbrel/homelab/stacks/cadence`; moved off the legacy Dockge dind 2026-11-16) → cloudflared `cadence.jpc.io`, host port 8095. **`deploy/compose.yaml` is the
   only compose**; the server keeps just a `.env` (tag + URLs + keys). `scripts/deploy-umbrel.sh
 check` (read-only drift check), `deploy <tag>` (pull, up, verify config.js + server-agnostic
   bundle). **Deploys are automatic on green main:** `deploy-web.yml` runs on the Mac mini runner

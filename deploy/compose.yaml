@@ -1,5 +1,5 @@
-# Cadence PWA — THE compose file for the cadence.jpc.io deploy (a Dockge stack
-# on umbrel, fronted by cloudflared). This file is the source of truth: it is
+# Cadence PWA — THE compose file for the cadence.jpc.io deploy (a compose stack
+# on umbrel's host docker daemon, fronted by cloudflared). This file is the source of truth: it is
 # copied verbatim to the stack dir by `scripts/deploy-umbrel.sh`, never edited
 # on the server. Everything deployment-specific lives in the stack's `.env`
 # beside it (server-side only, never committed):
@@ -28,3 +28,11 @@ services:
       MARLIN_TOKEN: ${MARLIN_TOKEN:-}
       LIDARR_URL: ${LIDARR_URL:-}
       LIDARR_API_KEY: ${LIDARR_API_KEY:-}
+
+# umbrel's host daemon has no free address pools for a per-stack bridge, so the
+# stack joins the shared, pre-created `homelab-apps` network. The public path
+# (cloudflared → cadence.jpc.io) is unchanged.
+networks:
+  default:
+    name: homelab-apps
+    external: true

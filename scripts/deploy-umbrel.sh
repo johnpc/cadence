@@ -24,8 +24,9 @@ set -euo pipefail
 
 HOST="${UMBREL_HOST:-umbrel@192.168.7.211}"
 STACK=cadence
-HOST_DIR="/home/umbrel/umbrel/app-data/dockge/data/dockge-stacks/$STACK" # = /opt/stacks/$STACK in dind
-DIND_DIR="/opt/stacks/$STACK"
+# The stack runs on umbrel's HOST docker daemon (moved off the legacy Dockge dind
+# on 2026-11-16; the old dind copy under dockge-stacks/ is dead — never deploy there).
+HOST_DIR="${CADENCE_STACK_DIR:-/home/umbrel/homelab/stacks/$STACK}"
 PUBLIC_URL="${CADENCE_PUBLIC_URL:-https://cadence.jpc.io}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_COMPOSE="$HERE/../deploy/compose.yaml"
@@ -35,11 +36,11 @@ SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=15)
 if [ -n "${UMBREL_SSH_KEY:-}" ]; then SSH_OPTS+=(-i "$UMBREL_SSH_KEY" -o IdentitiesOnly=yes); fi
 
 remote() { ssh "${SSH_OPTS[@]}" "$HOST" "$@"; }
-dc() { echo "sudo docker exec dockge_dockge_1 docker compose -p $STACK --project-directory $DIND_DIR $*"; }
+dc() { echo "sudo docker compose -p $STACK --project-directory $HOST_DIR $*"; }
 die() { echo "deploy-umbrel: $*" >&2; exit 1; }
 
 # Render a compose file against the stack's .env (as JSON, keys sorted).
-render() { remote "$(dc -f "$DIND_DIR/$1" config --format json) | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin), indent=1, sort_keys=True))'"; }
+render() { remote "$(dc -f "$HOST_DIR/$1" config --format json) | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin), indent=1, sort_keys=True))'"; }
 
 upload_candidate() {
   remote "sudo tee $HOST_DIR/compose.candidate.yaml >/dev/null" <"$REPO_COMPOSE"
@@ -72,8 +73,8 @@ adopt_env() {
 import json, subprocess, sys, pathlib
 d = pathlib.Path(sys.argv[1])
 cfg = json.loads(subprocess.check_output(
-    ["docker", "exec", "dockge_dockge_1", "docker", "compose", "-p", "cadence",
-     "--project-directory", "/opt/stacks/cadence", "-f", "/opt/stacks/cadence/compose.yaml",
+    ["docker", "compose", "-p", "cadence",
+     "--project-directory", str(d), "-f", str(d / "compose.yaml"),
      "config", "--format", "json"]))
 svc = cfg["services"]["cadence"]
 env_path = d / ".env"
@@ -111,7 +112,7 @@ verify() {
   echo "deploy-umbrel: bundle $bundle is server-agnostic"
 }
 
-running_image() { remote "sudo docker exec dockge_dockge_1 docker inspect cadence --format '{{.Config.Image}}'"; }
+running_image() { remote "sudo docker inspect cadence --format '{{.Config.Image}}'"; }
 
 # Refuse a malformed tag, or one not on Docker Hub yet, BEFORE touching the server.
 require_tag() {
@@ -133,8 +134,8 @@ deploy() {
   # From here on, any failure names the previous tag + the one-line rollback. No auto-rollback.
   trap 'echo "deploy-umbrel: DEPLOY OF $tag FAILED. Previous tag: $prev. Roll back with: scripts/deploy-umbrel.sh deploy $prev" >&2' EXIT
   remote "sudo cp -p $HOST_DIR/.env $HOST_DIR/.env.bak-\$(date +%Y%m%d%H%M%S) && sudo sed -i -E 's/^CADENCE_TAG=.*/CADENCE_TAG=$tag/' $HOST_DIR/.env && { sudo grep -q '^CADENCE_TAG=' $HOST_DIR/.env || echo 'CADENCE_TAG=$tag' | sudo tee -a $HOST_DIR/.env >/dev/null; }"
-  remote "$(dc -f "$DIND_DIR/compose.yaml" pull) && $(dc -f "$DIND_DIR/compose.yaml" up -d)"
-  remote "sudo docker exec dockge_dockge_1 docker inspect cadence --format '{{.Config.Image}} {{.State.Status}}'"
+  remote "$(dc -f "$HOST_DIR/compose.yaml" pull) && $(dc -f "$HOST_DIR/compose.yaml" up -d)"
+  remote "sudo docker inspect cadence --format '{{.Config.Image}} {{.State.Status}}'"
   [ "$(running_image)" = "$IMAGE:$tag" ] || die "cadence is not running $IMAGE:$tag after up -d"
   # Readiness, not a retry: give the fresh nginx up to 30s to answer, then verify ONCE.
   local i

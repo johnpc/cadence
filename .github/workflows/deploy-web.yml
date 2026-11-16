@@ -21,6 +21,10 @@ on:
       tag:
         description: 'Image tag to deploy (e.g. sha-cd475a5)'
         required: true
+  # TEMPORARY (removed before merge): workflow_dispatch can't target a workflow that
+  # isn't on the default branch yet, so this proves the runner → umbrel deploy path.
+  push:
+    branches: [ci/auto-deploy-umbrel]
 
 # One deploy at a time, in order; never kill one mid-flight.
 concurrency:
@@ -37,7 +41,7 @@ jobs:
     # (workflow_run) or a maintainer's manual dispatch (needs write access) run here.
     if: >-
       github.repository == 'johnpc/cadence' && (
-        github.event_name == 'workflow_dispatch' || (
+        github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (
           github.event.workflow_run.conclusion == 'success' &&
           github.event.workflow_run.event == 'push' &&
           github.event.workflow_run.head_branch == 'main' &&
@@ -54,6 +58,7 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           if [ -n "$INPUT_TAG" ]; then tag="$INPUT_TAG"; else tag="sha-${HEAD_SHA:0:7}"; fi
+          if [ "$GITHUB_EVENT_NAME" = push ]; then tag=sha-cd475a5; fi # TEMPORARY proof: current main image
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "Deploying mrorbitman/cadence:$tag"
 
