@@ -4,6 +4,7 @@ import App from './App';
 import { initTheme } from './features/theme/initTheme';
 import { initInstallPrompt } from './lib/installPrompt';
 import { registerServiceWorker } from './lib/registerServiceWorker';
+import { hydrateDownloads } from './features/downloads/hydrateDownloads';
 
 // Apply the stored palette before first paint so there's no theme flash.
 initTheme();
@@ -21,12 +22,16 @@ registerServiceWorker();
 // (inert unless enabled + configured) and the iOS native→JS log bridge.
 void import('./lib/diagnostics/initDiagnostics').then((m) => m.initDiagnostics());
 
+// The offline index lives in IndexedDB; load it before the first render so an
+// offline launch sees its downloads (bounded — see hydrateDownloads).
 const container = document.getElementById('root');
 const root = createRoot(container!);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+void hydrateDownloads().finally(() =>
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  ),
 );
 
 // The service worker (app-shell precache + offline + auto-update) is registered
