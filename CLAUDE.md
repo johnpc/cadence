@@ -75,27 +75,58 @@ Split by concern (each module owns one idea and its tests):
   query string here — the one unavoidable place (an `<audio>`/`<img>` `src`); acceptable for a
   self-hosted per-user token.
 - **`jellyfinTypes.ts`** — hand-model only the ~15 `BaseItemDto` fields consumed (no `any`; do NOT
-  pull the heavy `@jellyfin/sdk`).
+  pull the heavy `@jellyfin/sdk`). They are **checked at compile time** against
+  `jellyfinOpenApi.d.ts`, generated from the server's own OpenAPI spec (`npm run gen:jellyfin-types`
+  with the e2e server up): a renamed or retyped field is a type error naming the field. Add a field
+  to the hand model when you consume it; regenerate when CI's Jellyfin image moves.
 
 `authClient.ts` wraps `jellyfinAuth`; `resolveSession.ts` mirrors stoop's retry-then-`loading` logic
 (**an offline launch must return `loading`, never `unauthenticated`** — else airplane mode signs the
 user out). `queryClient.ts` is copied verbatim.
 
-### Audio player (`src/features/player/`)
+### Audio player (`src/features/player/`) — a framework-free engine
 
-`PlayerProvider` holds **one long-lived `HTMLAudioElement` in a ref** (survives route/modal changes —
-not JSX `<audio>`). Queue/next/prev/shuffle live in a pure `queue.ts`. On track change: set
-`audio.src = audioStreamUrl(id)`, `play()`; `'ended'` → `next()`. Spotify-style endless play: when
-the queue runs dry (or the user taps "radio"), fetch `InstantMix(seedId)` and append. Lock-screen /
-Control Center / Bluetooth controls use the **W3C MediaSession API** (`mediaSession.ts` +
-`useMediaSessionSync`) — it drives iOS Now Playing through the WKWebView, so no native plugin is
-needed; the native side only sets the `.playback` AVAudioSession (AppDelegate) + `UIBackgroundModes`.
+The player is **one plain TypeScript object**, `createPlayerEngine(deps)` (`player/engine/`), that
+owns the one long-lived audio element, the queue, the modes and the transport, in **one store**
+(`PlayerState`) plus a separate fast-ticking `progress` store. React is a thin subscriber.
+
+- **The transport is ONE explicit state**: `idle | paused | playing | buffering | casting`
+  (`engine/types.ts`). `intent` (the user wants sound — survives OS interruptions) and `started` (a
+  real play happened this session) sit beside it. Every decision — what an element event does, what
+  the end of a track does, what an error does — is a **pure function in `engine/transitions.ts`**.
+- **Invariant:** the element holds the queue's current track (or nothing). Queue commands go through
+  `setQueue`, which persists and calls `sync`; `sync` loads (generation-guarded, `trackLoader.ts`),
+  defers until a session exists, or hands the track to a cast receiver.
+- **Platform is injected** (`EngineDeps`: element, session, cast, persistence, toasts, logger).
+  `browserEngineDeps` wires the real one; tests use `src/test/engineHarness.ts` + `FakeAudio` and run
+  **in plain Node** (`// @vitest-environment node`) — no jsdom, no React.
+- **Everything else is a subscriber** in `player/integrations/`, each a plain `attachX(engine)`
+  returning a detach: play reporting, endless radio, next-track prefetch, tab title, interruption
+  resume, MediaSession, the native iOS Now Playing bridge, the Watch, keyboard shortcuts. They read
+  `engine.state` with `watch()` and call engine commands. Add a surface = one line in
+  `attachIntegrations.ts`.
+- `PlayerProvider.tsx` only creates/starts the engine, attaches integrations and maps state to the
+  unchanged `PlayerContext` (`playerContextValue.ts`). Components keep using `usePlayer()`.
+- Lock-screen / Control Center / Bluetooth use the **W3C MediaSession API** (publishing fully even
+  on native — see Gotchas/memory on iOS Now Playing); the native side sets the `.playback`
+  AVAudioSession (AppDelegate) + `UIBackgroundModes`.
 
 ### Code organization (vertical slices)
 
 Features live under `src/features/<feature>/`; tests colocated. File conventions:
 
-- **`useX.ts`** — hooks hold all logic/orchestration; client state via Context + Hook + Provider.
+- **`useX.ts`** — hooks hold React-facing orchestration. **Client state has ONE mechanism:**
+  `createStore` / `createStoredValue` + `useStore` / `watch` (`src/lib/store.ts`). Module stores
+  (session, reachability, cast, settings, download progress, play context…) are all built on it;
+  `createStoredValue` keeps a setting's existing localStorage format. Server state stays react-query.
+  Context is only for the two player contexts, auth, toast and theme.
+- **Large on-device data is IndexedDB** (`src/lib/persistedCollection.ts`): the downloads index and
+  offline playlists, hydrated before first render (`hydrateDownloads`), mirrored in memory for sync
+  reads, migrated once from the old localStorage keys.
+- **Extensions** (`src/extensions/`): acquisition tools — Lidarr requests, Deezer import, Music
+  Grabber — are not the core client. Each is gated by one flag in `extensions/flags.ts` and reaches
+  core screens only through `extensions/slots/*`; ESLint forbids core code from importing extension
+  internals. A new acquisition feature goes here, off by default.
 - **`xApi.ts`** — all server state through react-query (`useQuery`/`useMutation`) wrapping the
   Jellyfin client. No fetches in components. Every fetch hook returns `isError` (+ `refetch`).
 - **`X.tsx`** — components only render.
@@ -172,8 +203,11 @@ npm run gen:icons      # regenerate app icons from assets/icon*.png (add --nativ
   user enters their server on the sign-in screen.
 - **iOS bundle id:** `com.johncorser.cadence`. Apple **team id `JW5SC3NYUV`**.
   `ITSAppUsesNonExemptEncryption=false`.
-- **Deploy:** nginx image (`Dockerfile` + `deploy/`) → Dockge on umbrel (192.168.7.211) → cloudflared
-  `cadence.jpc.io`, host port 8095. See the `umbrel-dockge-dind` skill for the deploy flow.
+- **Deploy:** CI publishes `mrorbitman/cadence:sha-<short>` (+ `latest`) → Dockge on umbrel
+  (192.168.7.211) → cloudflared `cadence.jpc.io`, host port 8095. **`deploy/compose.yaml` is the
+  only compose**; the server keeps just a `.env` (tag + URLs + keys). `scripts/deploy-umbrel.sh
+check` (read-only drift check), `deploy <tag>` (pull, up, verify config.js + server-agnostic
+  bundle).
 - **e2e users:** `cadence-e2e-<area>` (+ `cadence-e2e-playlists2`), created on the hermetic
   container by `scripts/e2e-jellyfin.sh up` (password `cadence-e2e-pass`, not a secret). For a run
   against a real server, `.env.local` supplies `VITE_JELLYFIN_URL` / `TEST_USERNAME` / `TEST_PASSWORD`.
@@ -255,11 +289,19 @@ Non-obvious things that have cost real time — check here before rediscovering 
   part's `Album` is derived from the PREVIOUS part's title (so every part is titled with the book),
   and an album whose discs sit in "Disc N" subfolders returns nothing by `AlbumIds`
   (`getItemTracks` falls back to `ParentId`).
-- **Deploy: the active stack compose is separate from the repo.** `/opt/stacks/cadence/compose.yaml`
-  (inside Dockge's dind) is hand-maintained — editing `deploy/compose.yaml` in the repo does NOT update
-  it. After a deploy-config change, edit the active compose too. VERIFY every deploy:
-  `curl -s https://cadence.jpc.io/config.js` shows the right `serverUrl`, and the live `index-*.js` has
-  **zero** matches for the server hostname (it must come from runtime config, not the bundle).
+- **Deploy: never edit the compose on the server.** It used to be hand-maintained inside Dockge
+  and drifted from the repo. Since 2026-11-15 the live file IS `deploy/compose.yaml`, copied by
+  `scripts/deploy-umbrel.sh`; deployment values live in the stack's `.env` (server-only, never
+  committed). Change config in the repo, then `deploy`. The script refuses to deploy over drift and
+  verifies `config.js` + a bundle with zero server-hostname matches.
+- **Jellyfin search: never put `Limit` on a playlist search.** Jellyfin applies it BEFORE filtering
+  out other users' private playlists, so on a multi-user server the response can be empty
+  (`TotalRecordCount 14, Items []`) and your own playlist never shows. `searchPlaylists` fetches all
+  matches and trims client-side. The hermetic e2e server seeds every user's "Cadence Test Mix" so
+  this stays covered.
+- **The canplay play() retry is one-shot and yields to a pause.** It used to stay attached for the
+  whole track, so a later `canplay` (after a seek, or a pause before the stream was ready) restarted
+  a track the user had paused.
 
 ## Decisions
 
@@ -271,6 +313,17 @@ Non-obvious things that have cost real time — check here before rediscovering 
 - **Jellyfin base URL is runtime-configured, never hardcoded** (see Key facts + Gotchas). The app
   supports any server; the sign-in screen's Server field is the ultimate source, seeded by an optional
   per-context default.
+- **The player is an engine, not hooks** (2026-11-15). The 100-line file cap had split it into 20+
+  hooks threading refs and callbacks, with side effects in render. Seams now follow concepts; the
+  complexity gate is per function (ESLint `complexity` ≤ 15 + CRAP ≤ 15, branches attributed to their
+  innermost function).
+- **Keep Ionic for now — a judgment call, revisited.** Its pains are real (overlays don't render in
+  jsdom, `IonReorderGroup` mutates React's DOM, react-router v5, animations off under test) but a
+  rewrite to plain React + CSS is a large, risky change with no user-visible gain today. Rule
+  instead: Ionic only for what it uniquely gives us (`IonRouterOutlet`/tabs, overlays, `IonContent`
+  scrolling on iOS); new list/row/button UI is plain React + `--cad-*` CSS. Revisit when react-router
+  v5 must move, or when an Ionic limitation blocks a feature — the player engine and stores no
+  longer depend on Ionic, so the shell is the only part to swap.
 - **Search is native-first, Meilisearch later.** The `searchSource` adapter makes the swap a one-file
   change. Never ship the marlin `EXPRESS_AUTH_TOKEN` in client JS or expose raw Meilisearch — proxy
   `/api/search` through the serving nginx.
