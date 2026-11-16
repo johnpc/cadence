@@ -13,20 +13,18 @@
  *   event is optimistic, so it only downgrades us to `pending` (a real request
  *   then confirms `online`), never straight to online.
  */
+import { createStore } from './store';
+
 export type Reachability = 'pending' | 'online' | 'offline';
 
 // navigator.onLine === false is reliable, so seed `offline` from it; otherwise
 // stay `pending` until a request proves reachability (offline-first default).
-let state: Reachability =
+const initial = (): Reachability =>
   typeof navigator !== 'undefined' && navigator.onLine === false ? 'offline' : 'pending';
 
-const listeners = new Set<() => void>();
-
-function set(next: Reachability): void {
-  if (next === state) return;
-  state = next;
-  for (const l of listeners) l();
-}
+export const reachabilityStore = createStore<Reachability>(initial());
+const set = (next: Reachability): void => reachabilityStore.set(next);
+let subscribers = 0;
 
 /** The server responded — we're online. Called by jellyfinFetch on any HTTP
  * response (even an error status: the server was reachable). */
@@ -40,26 +38,27 @@ export function markUnreachable(): void {
 }
 
 /** Current reachability. */
-export function getReachability(): Reachability {
-  return state;
-}
+export const getReachability = (): Reachability => reachabilityStore.get();
 
 /** Subscribe to reachability changes; returns an unsubscribe. Wires the browser
  * connectivity events on first subscribe (kept lazy so importing the store has
  * no side effects — matters for unit tests). */
 export function onReachabilityChange(listener: () => void): () => void {
-  if (listeners.size === 0) attachBrowserEvents();
-  listeners.add(listener);
+  if (subscribers++ === 0) attachBrowserEvents();
+  const off = reachabilityStore.subscribe(listener);
+  let active = true;
   return () => {
-    listeners.delete(listener);
-    if (listeners.size === 0) detachBrowserEvents();
+    if (!active) return;
+    active = false;
+    off();
+    if (--subscribers === 0) detachBrowserEvents();
   };
 }
 
 const onBrowserOffline = () => set('offline');
 // Don't trust the optimistic `online` event to mean reachable — just clear a
 // confirmed-offline back to pending so pages retry; a request confirms online.
-const onBrowserOnline = () => set(state === 'offline' ? 'pending' : state);
+const onBrowserOnline = () => set(getReachability() === 'offline' ? 'pending' : getReachability());
 
 function attachBrowserEvents(): void {
   if (typeof window === 'undefined') return;
@@ -75,6 +74,5 @@ function detachBrowserEvents(): void {
 
 /** Test-only: reset module state between cases. */
 export function __resetReachability(): void {
-  state = typeof navigator !== 'undefined' && navigator.onLine === false ? 'offline' : 'pending';
-  listeners.clear();
+  reachabilityStore.set(initial());
 }

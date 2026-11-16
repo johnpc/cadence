@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useStore } from '../../lib/store';
 import { isCastAvailable, castTrack, stopCast } from './castController';
-import { getCastState, onCastStateChange } from './castStore';
+import { castStore } from './castStore';
 import { useToast } from '../toast/useToast';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -11,8 +11,7 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
  */
 export function useCast() {
   const toast = useToast();
-  const [state, setState] = useState(getCastState);
-  useEffect(() => onCastStateChange(() => setState(getCastState())), []);
+  const state = useStore(castStore);
 
   return {
     available: isCastAvailable(),

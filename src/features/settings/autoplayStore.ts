@@ -1,23 +1,15 @@
-/** Persistence + default for the "Autoplay" preference (localStorage, per-device).
- * Autoplay = keep playing similar songs (instant-mix radio) when the queue ends,
- * Spotify-style. On by default; users can turn the endless radio off here. */
-const AUTOPLAY_KEY = 'cadence.autoplay';
+import { createStoredValue } from '../../lib/store';
 
-/** Emitted so an open Settings toggle and the player stay in sync in one tab
- * (the `storage` event only fires cross-tab). */
-const listeners = new Set<(on: boolean) => void>();
+/** The "Autoplay" preference (localStorage, per-device): keep playing similar
+ * songs (instant-mix radio) when the queue ends, Spotify-style. ON by default —
+ * only an explicit 'off' disables it. */
+export const autoplayStore = createStoredValue({
+  key: 'cadence.autoplay',
+  parse: (raw) => raw !== 'off',
+  serialize: (on: boolean) => (on ? 'on' : 'off'),
+});
 
-export function readAutoplay(): boolean {
-  // Default ON: only an explicit 'off' disables it.
-  return localStorage.getItem(AUTOPLAY_KEY) !== 'off';
-}
-
-export function writeAutoplay(on: boolean): void {
-  localStorage.setItem(AUTOPLAY_KEY, on ? 'on' : 'off');
-  listeners.forEach((l) => l(on));
-}
-
-export function onAutoplayChange(listener: (on: boolean) => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
+export const readAutoplay = (): boolean => autoplayStore.get();
+export const writeAutoplay = (on: boolean): void => autoplayStore.set(on);
+export const onAutoplayChange = (listener: (on: boolean) => void): (() => void) =>
+  autoplayStore.subscribe(() => listener(autoplayStore.get()));

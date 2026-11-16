@@ -1,9 +1,7 @@
-import { useSyncExternalStore } from 'react';
-import { getCastProgress, onCastProgressChange } from './castProgress';
+import { useStore } from '../../lib/store';
+import { castProgressStore } from './castProgress';
 
-/** The receiver's live playback position/duration while casting, as reactive
- * state. Drives the player's scrubber so it reflects the TV (the local audio
- * element is paused during a cast). */
+/** The receiver's live position/duration while casting, as reactive state. */
 export function useCastProgress() {
-  return useSyncExternalStore(onCastProgressChange, getCastProgress, getCastProgress);
+  return useStore(castProgressStore);
 }

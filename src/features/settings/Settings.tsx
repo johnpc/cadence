@@ -12,7 +12,7 @@ import { Autoplay } from './Autoplay';
 import { ForceOffline } from './ForceOffline';
 import { AudioQuality } from './AudioQuality';
 import { SearchBackend } from './SearchBackend';
-import { GrabBackend } from './GrabBackend';
+import { SettingsExtras } from '../../extensions/slots/SettingsExtras';
 import { PlaybackSpeed } from './PlaybackSpeed';
 import { SleepTimer } from './SleepTimer';
 import { DownloadsManager } from './DownloadsManager';
@@ -50,7 +50,7 @@ export function Settings() {
           <PlaybackSpeed />
           <SleepTimer />
           <SearchBackend />
-          <GrabBackend />
+          <SettingsExtras />
           <DownloadsManager />
           <ForceOffline />
           <InstallButton />

@@ -1,21 +1,16 @@
-/** Persistence + default for the library's list-vs-grid view (localStorage,
- * per-device). List by default (Spotify's default); users can switch to a grid
- * of cover tiles. Listener-based so the toggle + list stay in sync in one tab. */
-const VIEW_KEY = 'cadence.library.view';
+import { createStoredValue } from '../../lib/store';
+
+/** Your Library's layout preference (localStorage, per-device): a list or a
+ * grid of covers. List by default. */
 export type LibraryView = 'list' | 'grid';
 
-const listeners = new Set<(v: LibraryView) => void>();
+export const libraryViewStore = createStoredValue<LibraryView>({
+  key: 'cadence.library.view',
+  parse: (raw) => (raw === 'grid' ? 'grid' : 'list'),
+  serialize: (view) => view,
+});
 
-export function readLibraryView(): LibraryView {
-  return localStorage.getItem(VIEW_KEY) === 'grid' ? 'grid' : 'list';
-}
-
-export function writeLibraryView(view: LibraryView): void {
-  localStorage.setItem(VIEW_KEY, view);
-  listeners.forEach((l) => l(view));
-}
-
-export function onLibraryViewChange(listener: (v: LibraryView) => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
+export const readLibraryView = (): LibraryView => libraryViewStore.get();
+export const writeLibraryView = (view: LibraryView): void => libraryViewStore.set(view);
+export const onLibraryViewChange = (listener: (v: LibraryView) => void): (() => void) =>
+  libraryViewStore.subscribe(() => listener(libraryViewStore.get()));

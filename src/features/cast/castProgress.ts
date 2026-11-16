@@ -1,27 +1,19 @@
+import { createStore } from '../../lib/store';
+
 /**
- * The receiver's playback position while casting, kept in its own tiny store
- * (it ticks often — same reason PlayerProgressContext is separate from the main
- * player value). Fed from the Cast plugin's MEDIA_UPDATE events; read by the
- * player so the scrubber reflects the TV, not the paused local audio element.
+ * The receiver's playback position while casting, in its own store (it ticks
+ * often — the same reason the player keeps progress apart from its state). Fed
+ * from the Cast plugin's MEDIA_UPDATE events; read so the scrubber reflects the
+ * TV, not the silent local element.
  */
 export interface CastProgress {
   position: number;
   duration: number;
 }
 
-let progress: CastProgress = { position: 0, duration: 0 };
-const listeners = new Set<() => void>();
+export const castProgressStore = createStore<CastProgress>({ position: 0, duration: 0 });
 
-export function getCastProgress(): CastProgress {
-  return progress;
-}
-
-export function setCastProgress(next: CastProgress): void {
-  progress = next;
-  for (const l of listeners) l();
-}
-
-export function onCastProgressChange(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
+export const getCastProgress = (): CastProgress => castProgressStore.get();
+export const setCastProgress = (next: CastProgress): void => castProgressStore.set(next);
+export const onCastProgressChange = (listener: () => void): (() => void) =>
+  castProgressStore.subscribe(listener);
