@@ -223,6 +223,12 @@ jobs:
           E2E_DEVICE_ID: cadence-e2e-${{ matrix.area.name }}
         run: npx bddgen && npx playwright test ${{ matrix.area.paths }}
 
+      # A red scenario often starts as a server-side error (e.g. a 500 on a
+      # stream). Print the e2e Jellyfin's own log so the cause is in the job.
+      - name: Jellyfin server log (on failure)
+        if: failure()
+        run: docker logs cadence-e2e-jellyfin 2>&1 | tail -400
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v5

@@ -59,4 +59,15 @@ describe('reachabilityStore', () => {
     expect(getReachability()).toBe('pending');
     off();
   });
+
+  it('a late response never overrides the browser saying it is offline', () => {
+    __resetReachability();
+    const onLine = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    markUnreachable();
+    markReachable(); // a request that started before the connection dropped
+    expect(getReachability()).toBe('offline');
+    onLine.mockReturnValue(true);
+    markReachable();
+    expect(getReachability()).toBe('online');
+  });
 });

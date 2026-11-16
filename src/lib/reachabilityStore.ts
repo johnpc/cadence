@@ -29,6 +29,11 @@ let subscribers = 0;
 /** The server responded — we're online. Called by jellyfinFetch on any HTTP
  * response (even an error status: the server was reachable). */
 export function markReachable(): void {
+  // A response that was already in flight when the browser went offline must
+  // not flip us back online: `navigator.onLine === false` is the newer, reliable
+  // signal (see the header). Without this, a slow shelf request landing just
+  // after the device dropped its connection hid the offline banner for good.
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
   set('online');
 }
 
