@@ -81,6 +81,13 @@ Then('the pushed state includes the queue index and count', async ({ page }) => 
   expect(state?.queueCount as number).toBeGreaterThan(state?.queueIndex as number);
 });
 
+Then('the pushed state reports a playback speed of {float}', async ({ page }, rate: number) => {
+  // Native publishes this as MPNowPlayingInfoPropertyPlaybackRate, so the
+  // lock-screen scrubber advances at the real speed (a 1.5× audiobook no longer
+  // drifts behind its own progress bar).
+  await expect.poll(async () => (await lastPush(page))?.rate, { timeout: DATA_WAIT }).toBe(rate);
+});
+
 When('native sends the {string} transport command', async ({ page }, command: string) => {
   // Fire the exact DOM event the Swift relay dispatches for this remote command.
   await page.evaluate((c) => window.dispatchEvent(new Event(`cadence:nowplaying:${c}`)), command);

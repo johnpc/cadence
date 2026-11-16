@@ -10,6 +10,7 @@ const state: NowPlayingState = {
   isPlaying: true,
   position: 12,
   duration: 200,
+  rate: 1,
   hasTrack: true,
   queueIndex: 0,
   queueCount: 3,

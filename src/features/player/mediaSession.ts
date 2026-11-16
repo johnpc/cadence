@@ -81,10 +81,11 @@ export function bindMediaSessionHandlers(h: MediaSessionHandlers): void {
 // ±skip handlers seek from the right place.
 let current = () => 0;
 
-/** Publish playback position/duration to the OS so the lock screen shows an
- * accurate, scrubbable progress bar. Guards against the invalid states the API
- * rejects (non-finite, position > duration). */
-export function setPositionState(position: number, duration: number): void {
+/** Publish playback position/duration/speed to the OS so the lock screen shows
+ * an accurate, scrubbable progress bar that advances at the real speed. Guards
+ * against the invalid states the API rejects (non-finite, position > duration,
+ * a non-positive rate). */
+export function setPositionState(position: number, duration: number, rate = 1): void {
   if (!('mediaSession' in navigator) || !navigator.mediaSession.setPositionState) return;
   current = () => position;
   if (!Number.isFinite(duration) || duration <= 0) return;
@@ -92,6 +93,7 @@ export function setPositionState(position: number, duration: number): void {
     navigator.mediaSession.setPositionState({
       duration,
       position: Math.min(Math.max(position, 0), duration),
+      playbackRate: rate > 0 ? rate : 1,
     });
   } catch {
     // Some engines throw on transient bad values — ignore; next tick recovers.

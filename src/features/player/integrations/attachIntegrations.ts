@@ -3,6 +3,7 @@ import { attachEndlessPlay } from './endlessPlay';
 import { attachNextTrackPrefetch } from './nextTrackPrefetch';
 import { attachDocumentTitle } from './documentTitle';
 import { attachInterruptionResume } from './interruptionResume';
+import { attachAudioRouteLost } from './audioRouteLost';
 import { attachMediaSession } from './mediaSessionSync';
 import { attachNativeNowPlaying } from './nativeNowPlaying';
 import { attachWatchRemote } from './watchRemote';
@@ -24,6 +25,7 @@ export function attachIntegrations(
     attachNextTrackPrefetch(engine),
     attachDocumentTitle(engine),
     attachInterruptionResume(engine),
+    attachAudioRouteLost(engine),
     attachMediaSession(engine),
     attachNativeNowPlaying(engine),
     attachWatchRemote(engine),

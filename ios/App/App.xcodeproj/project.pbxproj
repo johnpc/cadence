@@ -11,6 +11,7 @@
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		31C7FB382C2071A57A8C9CBB /* CadenceWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4AA906D0B31C43C856A1AA /* CadenceWatchApp.swift */; };
 		350F3B9DF6F8AF3CD4465228 /* WatchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84EEBC9D31C11133109D470 /* WatchBridge.swift */; };
+		35D8CE6FA7DFBBA6BEE33622 /* SecureSessionPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B4ED573CC64CE8D491138D /* SecureSessionPlugin.swift */; };
 		3E3056C85FFA6B3F9CA84220 /* NowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A59A34A80A879CE4B8DEE72 /* NowPlayingBridge.swift */; };
 		414C5494E4BBB78C65CEC6AE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5876C6A35F186B54F2470C /* Foundation.framework */; };
 		4D978A0E5C6F38FDAC29B74A /* NowPlayingBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0163BDF99D0259F77F142360 /* NowPlayingBridgeTests.swift */; };
@@ -21,7 +22,9 @@
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		540DFAF3143FB561256CCD3F /* CadenceWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = F66FECF45855AB0C18B6DF52 /* CadenceWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5C5D617F06958BF208D94CBF /* AudioRouteLossTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076395A451C5A3DD81ADD1A5 /* AudioRouteLossTests.swift */; };
 		5E962226B0035BCE6FA0302C /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397A5C8B4E39BC3D12138D57 /* NowPlayingView.swift */; };
+		605B9E63B1AAE1A8AFCA6383 /* AudioRouteLoss.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849FDD5E0CFA89C37789D8CA /* AudioRouteLoss.swift */; };
 		68EC28C6B88A30C37E30B3FB /* NowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E778FFB7EE04E8CF416CCF1 /* NowPlaying.swift */; };
 		6D1CEC5F2A9B647AABD214B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7C3A3E40040E3F87E2AB0E7 /* Assets.xcassets */; };
 		7305BEBC304D6BD80A408A58 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD73FBA369EE788F95A9752D /* SceneDelegate.swift */; };
@@ -31,9 +34,13 @@
 		95B24884DEC5A4FE3B06605D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACDF531C157768DA1A056434 /* Foundation.framework */; };
 		A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */; };
 		A31C77D6188325D4B1AE2AC4 /* CadenceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3F29B5EA859F1ED43AB847 /* CadenceWidget.swift */; };
+		A68C31D9952D11896D53A687 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B207FEB69479F3DADC18DE3 /* KeychainStore.swift */; };
+		B503B3DF097D8161F07526DC /* AudioRouteLoss.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849FDD5E0CFA89C37789D8CA /* AudioRouteLoss.swift */; };
 		CAD0000100000000000000A1 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD0000100000000000000A2 /* MainViewController.swift */; };
 		CAD0000300000000000000A3 /* NowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD0000200000000000000A2 /* NowPlayingBridge.swift */; };
 		D6ACF6F3D9EB618CD7B39C59 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5876C6A35F186B54F2470C /* Foundation.framework */; };
+		EA1F42702D69C2801FBC503D /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B207FEB69479F3DADC18DE3 /* KeychainStore.swift */; };
+		F346BB7D2CE8107B3F00A7C7 /* KeychainStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D875AE3F2F2F7A995DDF77 /* KeychainStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +87,7 @@
 
 /* Begin PBXFileReference section */
 		0163BDF99D0259F77F142360 /* NowPlayingBridgeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NowPlayingBridgeTests.swift; path = AppTests/NowPlayingBridgeTests.swift; sourceTree = "<group>"; };
+		076395A451C5A3DD81ADD1A5 /* AudioRouteLossTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AudioRouteLossTests.swift; path = AppTests/AudioRouteLossTests.swift; sourceTree = "<group>"; };
 		171589B31ECA1A2069F672D1 /* CadenceWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CadenceWatchApp.swift; sourceTree = "<group>"; };
 		2A3F29B5EA859F1ED43AB847 /* CadenceWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CadenceWidget.swift; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -101,9 +109,12 @@
 		6A4AA906D0B31C43C856A1AA /* CadenceWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CadenceWatchApp.swift; sourceTree = "<group>"; };
 		7881036B54209EC3C031AB69 /* WatchConnector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchConnector.swift; sourceTree = "<group>"; };
 		7A59A34A80A879CE4B8DEE72 /* NowPlayingBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NowPlayingBridge.swift; path = App/NowPlayingBridge.swift; sourceTree = "<group>"; };
+		7B207FEB69479F3DADC18DE3 /* KeychainStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
 		7E778FFB7EE04E8CF416CCF1 /* NowPlaying.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlaying.swift; sourceTree = "<group>"; };
+		849FDD5E0CFA89C37789D8CA /* AudioRouteLoss.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AudioRouteLoss.swift; sourceTree = "<group>"; };
 		88DBF60A5C0D1460BB24F5C5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9360C97C34E467F29E851D74 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A0D875AE3F2F2F7A995DDF77 /* KeychainStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeychainStoreTests.swift; path = AppTests/KeychainStoreTests.swift; sourceTree = "<group>"; };
 		A25E2FA59F5BFAF7676520BE /* CadenceWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = CadenceWidget.entitlements; sourceTree = "<group>"; };
 		A84EEBC9D31C11133109D470 /* WatchBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchBridge.swift; sourceTree = "<group>"; };
 		ACDF531C157768DA1A056434 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -114,6 +125,7 @@
 		CAD0000100000000000000A2 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		CAD0000200000000000000A2 /* NowPlayingBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingBridge.swift; sourceTree = "<group>"; };
 		CD73FBA369EE788F95A9752D /* SceneDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		E2B4ED573CC64CE8D491138D /* SecureSessionPlugin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SecureSessionPlugin.swift; sourceTree = "<group>"; };
 		E96F1DCAFD982F6232B2F8F4 /* CadenceWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CadenceWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F05076A09667A7FF9215BC3C /* AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3DB857EA324E7196D451C21 /* NowPlayingShape.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NowPlayingShape.swift; sourceTree = "<group>"; };
@@ -209,6 +221,9 @@
 				CAD0000200000000000000A2 /* NowPlayingBridge.swift */,
 				F3DB857EA324E7196D451C21 /* NowPlayingShape.swift */,
 				CD73FBA369EE788F95A9752D /* SceneDelegate.swift */,
+				E2B4ED573CC64CE8D491138D /* SecureSessionPlugin.swift */,
+				849FDD5E0CFA89C37789D8CA /* AudioRouteLoss.swift */,
+				7B207FEB69479F3DADC18DE3 /* KeychainStore.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -274,6 +289,8 @@
 			children = (
 				7A59A34A80A879CE4B8DEE72 /* NowPlayingBridge.swift */,
 				0163BDF99D0259F77F142360 /* NowPlayingBridgeTests.swift */,
+				076395A451C5A3DD81ADD1A5 /* AudioRouteLossTests.swift */,
+				A0D875AE3F2F2F7A995DDF77 /* KeychainStoreTests.swift */,
 			);
 			name = AppTests;
 			sourceTree = "<group>";
@@ -501,6 +518,9 @@
 				CAD0000300000000000000A3 /* NowPlayingBridge.swift in Sources */,
 				7D401D2C26D67B9DEB8927BE /* NowPlayingShape.swift in Sources */,
 				7305BEBC304D6BD80A408A58 /* SceneDelegate.swift in Sources */,
+				35D8CE6FA7DFBBA6BEE33622 /* SecureSessionPlugin.swift in Sources */,
+				B503B3DF097D8161F07526DC /* AudioRouteLoss.swift in Sources */,
+				A68C31D9952D11896D53A687 /* KeychainStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -530,6 +550,10 @@
 			files = (
 				3E3056C85FFA6B3F9CA84220 /* NowPlayingBridge.swift in Sources */,
 				4D978A0E5C6F38FDAC29B74A /* NowPlayingBridgeTests.swift in Sources */,
+				605B9E63B1AAE1A8AFCA6383 /* AudioRouteLoss.swift in Sources */,
+				5C5D617F06958BF208D94CBF /* AudioRouteLossTests.swift in Sources */,
+				EA1F42702D69C2801FBC503D /* KeychainStore.swift in Sources */,
+				F346BB7D2CE8107B3F00A7C7 /* KeychainStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

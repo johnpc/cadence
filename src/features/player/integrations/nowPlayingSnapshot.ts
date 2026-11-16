@@ -13,6 +13,8 @@ export interface NowPlayingSnapshot {
   duration: number;
   queueIndex: number;
   queueCount: number;
+  /** Playback speed (1 = normal). */
+  rate: number;
 }
 
 export function nowPlayingSnapshot(s: PlayerState, p: PlayerProgress): NowPlayingSnapshot {
@@ -23,6 +25,7 @@ export function nowPlayingSnapshot(s: PlayerState, p: PlayerProgress): NowPlayin
     duration: Math.round(p.duration),
     queueIndex: s.queue.index,
     queueCount: s.queue.tracks.length,
+    rate: s.rate,
   };
 }
 
