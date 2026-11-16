@@ -5,6 +5,7 @@ import AVFoundation
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    /// Set by SceneDelegate when the scene connects (the scene owns the window).
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -101,7 +102,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
     }
 
+    // With the UIScene life cycle (SceneDelegate) these app-level callbacks are
+    // no longer delivered; the scene forwards them to didEnterBackground() and
+    // applicationDidBecomeActiveResume(). Kept for any pre-scene host.
     func applicationDidEnterBackground(_ application: UIApplication) {
+        didEnterBackground()
+    }
+
+    func didEnterBackground() {
         // Mark that we actually left the foreground, so the next didBecomeActive
         // nudges resume only after a real background trip (see the guard there).
         wasBackgrounded = true
