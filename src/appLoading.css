@@ -27,3 +27,29 @@
     transform: rotate(360deg);
   }
 }
+
+.app-loading__message {
+  margin: 0;
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.app-loading__hint {
+  margin: calc(-1 * var(--cad-space-4)) var(--cad-space-6) 0;
+  max-width: 32ch;
+  text-align: center;
+}
+
+.app-loading__retry {
+  border: 1px solid var(--cad-hairline);
+  background: none;
+  color: var(--cad-text);
+  border-radius: var(--cad-radius-pill);
+  padding: var(--cad-space-2) var(--cad-space-6);
+  font-family: var(--cad-font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}

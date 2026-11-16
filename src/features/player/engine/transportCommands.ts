@@ -1,7 +1,7 @@
 import * as q from '../queue';
 import { prevAction } from '../prevAction';
 import { clampRate, clampVolume } from '../playbackPrefs';
-import { isPlayingState } from './transitions';
+import { isCasting, isPlayingState } from './transitions';
 import type { SleepMode } from '../types';
 import type { EngineCore } from './core';
 import type { PlayerCommands } from './types';
@@ -49,8 +49,8 @@ export function transportCommands(core: EngineCore): TransportCommands & { dispo
       const s = get();
       if (!s.queue.tracks.length) return;
       patch({ intent: true });
-      if (s.status === 'casting') {
-        if (!s.castPlaying) void cast.toggle().catch(ignore);
+      if (isCasting(s.status)) {
+        if (s.status === 'casting-paused') void cast.toggle().catch(ignore);
         return;
       }
       void audio.play().catch((e: unknown) => {
@@ -62,24 +62,24 @@ export function transportCommands(core: EngineCore): TransportCommands & { dispo
     pause: () => {
       const s = get();
       patch({ intent: false });
-      if (s.status !== 'casting') audio.pause();
-      else if (s.castPlaying) void cast.toggle().catch(ignore);
+      if (!isCasting(s.status)) audio.pause();
+      else if (s.status === 'casting') void cast.toggle().catch(ignore);
     },
     // After an OS interruption iOS can leave the element "not paused" yet silent,
     // so play() unconditionally — never guard on `audio.paused`.
     resume: () => {
       const s = get();
-      if (s.queue.tracks.length && s.status !== 'casting') void audio.play().catch(ignore);
+      if (s.queue.tracks.length && !isCasting(s.status)) void audio.play().catch(ignore);
     },
     // Smart previous: restart when a few seconds in, else the prior track. While
     // casting the local element sits at 0, so it always goes back (like the TV).
     prev: () => {
       const s = get();
-      if (s.status !== 'casting' && prevAction(audio.currentTime) === 'restart') c.seek(0);
+      if (!isCasting(s.status) && prevAction(audio.currentTime) === 'restart') c.seek(0);
       else setQueue(q.prev(s.queue, s.repeat === 'all'));
     },
     seek: (seconds) => {
-      if (get().status === 'casting') void cast.seek(seconds).catch(ignore);
+      if (isCasting(get().status)) void cast.seek(seconds).catch(ignore);
       else audio.currentTime = seconds;
     },
     seekBy: (delta) => {

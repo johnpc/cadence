@@ -33,10 +33,13 @@ describe('browserEngineDeps', () => {
     expect(deps.session.userId()).toBe('');
     setSession({ token: 't', userId: 'u1' });
     expect(deps.session.userId()).toBe('u1');
-    setCastState({ connected: true, deviceName: 'TV', playing: false });
+    setCastState({ status: 'connected', deviceName: 'TV', playing: false });
     expect(deps.cast.connected()).toBe(true);
     expect(deps.cast.playing()).toBe(false);
-    setCastState({ connected: false, deviceName: '', playing: false });
+    setCastState({ status: 'connected', deviceName: 'TV', playing: true });
+    expect(deps.cast.playing()).toBe(true);
+    setCastState({ status: 'off' });
+    expect(deps.cast.connected()).toBe(false);
     expect(deps.stallTimeoutMs).toBe(STALL_TIMEOUT_MS);
     expect(() => {
       deps.haptic();

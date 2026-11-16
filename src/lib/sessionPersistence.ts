@@ -11,8 +11,8 @@
  *   is localStorage-backed there.
  *
  * Keychain failures: `locked` (the device hasn't been unlocked since boot) is
- * transient — it throws, so resolveSession retries and reports `loading`, never
- * a false sign-out. Anything else (`unavailable`, e.g. a build without the
+ * transient — it throws, so the session is `unavailable` (never a false
+ * sign-out) and AuthProvider retries until the phone is unlocked. Anything else (`unavailable`, e.g. a build without the
  * Keychain entitlement) falls back to Preferences for the rest of the run, so
  * the app can never hang on its loading screen.
  */

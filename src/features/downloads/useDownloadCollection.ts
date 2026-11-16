@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { downloadTrack, removeDownload, onDownloadsChange } from './downloadStore';
 import { indexedIds } from './downloadIndex';
+import { getProgress, onProgressChange } from './downloadProgress';
 import { mapLimit } from './mapLimit';
 import { useCollectionFraction } from './useCollectionFraction';
 import { saveOfflinePlaylist, removeOfflinePlaylist } from '../offline/offlinePlaylistStore';
@@ -36,15 +37,23 @@ export function useDownloadCollection(
   // Live 0..1 across the collection: already-saved tracks count as full, and
   // in-flight ones contribute their partial fraction — a smooth bar, not steps.
   const fraction = useCollectionFraction(tracks, have);
+  // Any of these tracks downloading — from this button's batch OR one started
+  // elsewhere / before this screen remounted — means the collection is busy.
+  const anyInFlight = useSyncExternalStore(
+    onProgressChange,
+    () => tracks.some((t) => getProgress(t.Id) !== undefined),
+    () => false,
+  );
 
   const total = tracks.length;
-  const state: CollectionState = busy
-    ? 'downloading'
-    : have === 0
-      ? 'none'
-      : have >= total
-        ? 'downloaded'
-        : 'partial';
+  const state: CollectionState =
+    busy || anyInFlight
+      ? 'downloading'
+      : have === 0
+        ? 'none'
+        : have >= total
+          ? 'downloaded'
+          : 'partial';
 
   const downloadAll = async () => {
     tap();
@@ -74,5 +83,11 @@ export function useDownloadCollection(
     toast('Removed downloads');
   };
 
-  return { state, progress: { done, total, fraction }, busy, downloadAll, removeAll };
+  return {
+    state,
+    progress: { done, total, fraction },
+    busy: busy || anyInFlight,
+    downloadAll,
+    removeAll,
+  };
 }

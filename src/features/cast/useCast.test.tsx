@@ -9,7 +9,7 @@ const { isCastAvailable, castTrack, stopCast } = vi.hoisted(() => ({
 }));
 vi.mock('./castController', () => ({ isCastAvailable, castTrack, stopCast }));
 import { useCast } from './useCast';
-import { setCastState } from './castStore';
+import { setCastState, CAST_OFF } from './castStore';
 import { ToastContext } from '../toast/ToastContext';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -22,15 +22,23 @@ const track = { Id: 't1', Name: 'x' } as JellyfinItem;
 describe('useCast', () => {
   afterEach(() => {
     vi.clearAllMocks();
-    setCastState({ connected: false, deviceName: '', playing: false });
+    setCastState(CAST_OFF);
   });
 
   it('exposes availability and reacts to connection state', () => {
     const { result } = renderHook(() => useCast(), { wrapper });
     expect(result.current.available).toBe(true);
     expect(result.current.connected).toBe(false);
-    act(() => setCastState({ connected: true, deviceName: 'Shield', playing: true }));
+    expect(result.current.deviceName).toBe('');
+    act(() => setCastState({ status: 'connecting' }));
+    expect(result.current.connecting).toBe(true);
+    expect(result.current.connected).toBe(false);
+    act(() => setCastState({ status: 'connected', deviceName: 'Shield', playing: true }));
     expect(result.current.connected).toBe(true);
+    expect(result.current.connecting).toBe(false);
+    expect(result.current.deviceName).toBe('Shield');
+    act(() => setCastState({ status: 'lost', deviceName: 'Shield' }));
+    expect(result.current.status).toBe('lost');
     expect(result.current.deviceName).toBe('Shield');
   });
 

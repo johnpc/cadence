@@ -35,9 +35,9 @@ describe('resolveSession', () => {
     expect(currentUsernameOptimistic).toHaveBeenCalledTimes(2);
   });
 
-  it('stays loading (never signs out) when all retries fail — e.g. offline', async () => {
-    vi.mocked(currentUsernameOptimistic).mockRejectedValue(new Error('offline'));
-    expect(await resolveSession(3, noDelay)).toEqual({ status: 'loading', username: null });
+  it('reports unavailable (never signs out) when all retries fail — e.g. a locked Keychain', async () => {
+    vi.mocked(currentUsernameOptimistic).mockRejectedValue(new Error('locked'));
+    expect(await resolveSession(3, noDelay)).toEqual({ status: 'unavailable', username: null });
     expect(currentUsernameOptimistic).toHaveBeenCalledTimes(3);
   });
 

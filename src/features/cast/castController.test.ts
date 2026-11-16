@@ -21,16 +21,17 @@ vi.mock('../../lib/jellyfinStream', () => ({
 }));
 
 import { isCastAvailable, castTrack, castToggle, castSeek, stopCast } from './castController';
-import { getCastState, setCastState } from './castStore';
+import { getCastState, setCastState, CAST_OFF } from './castStore';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const track = { Id: 't1', Name: 'Song', Artists: ['A'] } as JellyfinItem;
-const DISCONNECTED = { connected: false, deviceName: '', playing: false };
+const CONNECTED = { status: 'connected', deviceName: 'Shield', playing: true } as const;
 
 describe('castController', () => {
   afterEach(() => {
     vi.clearAllMocks();
-    setCastState(DISCONNECTED);
+    setCastState(CAST_OFF);
+    vi.useRealTimers();
   });
 
   it('is available only on native', () => {
@@ -43,27 +44,27 @@ describe('castController', () => {
   it('requests a session then loads the track stream on first cast', async () => {
     await castTrack(track);
     expect(plugin.requestSession).toHaveBeenCalledOnce();
-    expect(getCastState()).toEqual({ connected: true, deviceName: 'Shield', playing: true });
+    expect(getCastState()).toEqual(CONNECTED);
     expect(plugin.loadMedia).toHaveBeenCalledWith(
       expect.objectContaining({ contentId: 'https://jf.test/Audio/t1/universal', autoPlay: true }),
     );
   });
 
   it('reuses the session on subsequent casts (no second picker)', async () => {
-    setCastState({ connected: true, deviceName: 'Shield', playing: true });
+    setCastState(CONNECTED);
     await castTrack(track);
     expect(plugin.requestSession).not.toHaveBeenCalled();
     expect(plugin.loadMedia).toHaveBeenCalledOnce();
   });
 
   it('castToggle pauses when playing and plays when paused, tracking state', async () => {
-    setCastState({ connected: true, deviceName: 'Shield', playing: true });
+    setCastState(CONNECTED);
     await castToggle();
     expect(plugin.mediaPause).toHaveBeenCalledOnce();
-    expect(getCastState().playing).toBe(false);
+    expect(getCastState()).toEqual({ ...CONNECTED, playing: false });
     await castToggle();
     expect(plugin.mediaPlay).toHaveBeenCalledOnce();
-    expect(getCastState().playing).toBe(true);
+    expect(getCastState()).toEqual(CONNECTED);
   });
 
   it('castSeek proxies to the receiver', async () => {
@@ -72,24 +73,55 @@ describe('castController', () => {
   });
 
   it('stopCast ends the session and clears state', async () => {
-    setCastState({ connected: true, deviceName: 'Shield', playing: true });
+    setCastState(CONNECTED);
     await stopCast();
     expect(plugin.sessionStop).toHaveBeenCalledOnce();
-    expect(getCastState().connected).toBe(false);
+    expect(getCastState()).toEqual(CAST_OFF);
   });
 
-  it('registers a SESSION_ENDED listener that clears state when the TV disconnects', async () => {
-    // Fresh module so the one-time initialize() (which registers the listener)
-    // definitely runs here regardless of test order.
+  /** A fresh module so the one-time initialize() (which registers the
+   * listeners) runs here regardless of test order. */
+  async function freshController() {
     vi.resetModules();
     const ctrl = await import('./castController');
     const store = await import('./castStore');
-    store.setCastState({ connected: true, deviceName: 'Shield', playing: true });
+    store.setCastState({ status: 'connected', deviceName: 'Shield', playing: true });
     await ctrl.castTrack(track);
     const call = plugin.addListener.mock.calls.find(([e]) => e === 'SESSION_ENDED');
     expect(call).toBeTruthy();
-    (call![1] as () => void)();
-    expect(store.getCastState().connected).toBe(false);
+    return { ctrl, store, sessionEnded: call![1] as () => void };
+  }
+
+  it('a TV that drops on its own shows "lost" briefly, then goes off', async () => {
+    const { store, sessionEnded, ctrl } = await freshController();
+    vi.useFakeTimers();
+    sessionEnded();
+    expect(store.getCastState()).toEqual({ status: 'lost', deviceName: 'Shield' });
+    vi.advanceTimersByTime(ctrl.LOST_NOTICE_MS);
+    expect(store.getCastState()).toEqual({ status: 'off' });
+  });
+
+  it('a user stop is not reported as lost', async () => {
+    const { store, sessionEnded, ctrl } = await freshController();
+    plugin.sessionStop.mockImplementationOnce(async () => sessionEnded()); // ends mid-stop
+    await ctrl.stopCast();
+    expect(store.getCastState()).toEqual({ status: 'off' });
+  });
+
+  it('reconnecting during the lost notice is not undone by its timer', async () => {
+    const { store, sessionEnded, ctrl } = await freshController();
+    vi.useFakeTimers();
+    sessionEnded();
+    await ctrl.castTrack(track); // picks a TV again
+    vi.advanceTimersByTime(ctrl.LOST_NOTICE_MS);
+    expect(store.getCastState()).toEqual(CONNECTED);
+  });
+
+  it('a session ending while not connected just goes off', async () => {
+    const { store, sessionEnded } = await freshController();
+    store.setCastState({ status: 'connecting' });
+    sessionEnded();
+    expect(store.getCastState()).toEqual({ status: 'off' });
   });
 
   it('mirrors the receiver position from MEDIA_UPDATE into castProgress', async () => {
@@ -101,5 +133,28 @@ describe('castController', () => {
     expect(call).toBeTruthy();
     (call![1] as (e: unknown) => void)({ currentTime: 42, media: { duration: 200 } });
     expect(prog.getCastProgress()).toEqual({ position: 42, duration: 200 });
+  });
+
+  it('shows connecting while the picker is open, then connected', async () => {
+    let pick!: (v: { receiver: { friendlyName: string } }) => void;
+    plugin.requestSession.mockImplementationOnce(() => new Promise((res) => (pick = res)));
+    const job = castTrack(track);
+    await vi.waitFor(() => expect(getCastState()).toEqual({ status: 'connecting' }));
+    pick({ receiver: { friendlyName: 'Shield' } });
+    await job;
+    expect(getCastState()).toEqual(CONNECTED);
+  });
+
+  it('goes back to off when the picker is dismissed', async () => {
+    plugin.requestSession.mockRejectedValueOnce(new Error('cancelled'));
+    await expect(castTrack(track)).rejects.toThrow('cancelled');
+    expect(getCastState()).toEqual(CAST_OFF);
+    expect(plugin.loadMedia).not.toHaveBeenCalled();
+  });
+
+  it('castToggle does nothing without a session', async () => {
+    await castToggle();
+    expect(plugin.mediaPause).not.toHaveBeenCalled();
+    expect(plugin.mediaPlay).not.toHaveBeenCalled();
   });
 });

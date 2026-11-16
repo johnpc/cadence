@@ -13,7 +13,9 @@ const track = { Id: 't1', Name: 'x' } as JellyfinItem;
 const useCastMock = (over: Partial<ReturnType<typeof useCast>>) =>
   vi.mocked(useCast).mockReturnValue({
     available: true,
+    status: 'off',
     connected: false,
+    connecting: false,
     deviceName: '',
     cast: vi.fn(),
     stop: vi.fn(),
@@ -43,12 +45,31 @@ describe('CastButton', () => {
 
   it('stops casting when tapped while connected, and reflects pressed state', async () => {
     const stop = vi.fn();
-    useCastMock({ available: true, connected: true, deviceName: 'Shield', stop });
+    useCastMock({
+      available: true,
+      status: 'connected',
+      connected: true,
+      deviceName: 'Shield',
+      stop,
+    });
     vi.mocked(usePlayer).mockReturnValue({ current: track } as ReturnType<typeof usePlayer>);
     render(<CastButton />);
     const btn = screen.getByTestId('cast-button');
     expect(btn).toHaveAttribute('aria-pressed', 'true');
     await userEvent.click(btn);
     expect(stop).toHaveBeenCalledOnce();
+  });
+
+  it('pulses and ignores taps while connecting', async () => {
+    const cast = vi.fn();
+    useCastMock({ available: true, status: 'connecting', connecting: true, cast });
+    vi.mocked(usePlayer).mockReturnValue({ current: track } as ReturnType<typeof usePlayer>);
+    render(<CastButton />);
+    const btn = screen.getByTestId('cast-button');
+    expect(btn).toBeDisabled();
+    expect(btn).toHaveAttribute('aria-label', 'Connecting to a TV…');
+    expect(btn).toHaveClass('cast-btn--connecting');
+    await userEvent.click(btn);
+    expect(cast).not.toHaveBeenCalled();
   });
 });

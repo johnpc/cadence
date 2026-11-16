@@ -4,7 +4,7 @@ import { notifyNativePlaybackStarted } from '../../../lib/nativeAudioSession';
 import { getSession, onSessionChange } from '../../../lib/sessionStore';
 import { random } from '../../../lib/random';
 import { tap } from '../../../lib/haptics';
-import { getCastState, onCastStateChange } from '../../cast/castStore';
+import { isCastConnected, isCastPlaying, onCastStateChange } from '../../cast/castStore';
 import { castSeek, castToggle, castTrack, stopCast } from '../../cast/castController';
 import { liveResumeSeconds } from '../../audiobook/liveResumeSeconds';
 import { loadQueue, saveQueue } from '../queuePersistence';
@@ -47,8 +47,8 @@ export function browserEngineDeps(notify: (message: string) => void): EngineDeps
     resolveSrc: resolveTrackSrc,
     session: { userId: () => getSession()?.userId ?? '', subscribe: onSessionChange },
     cast: {
-      connected: () => getCastState().connected,
-      playing: () => getCastState().playing,
+      connected: () => isCastConnected(),
+      playing: () => isCastPlaying(),
       subscribe: onCastStateChange,
       load: castTrack,
       toggle: castToggle,

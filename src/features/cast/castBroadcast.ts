@@ -1,6 +1,6 @@
 import { Chromecast } from '@hauxir2/capacitor-chromecast';
 import { castReceiverAppId } from '../../lib/runtimeConfig';
-import { getCastState } from './castStore';
+import { isCastConnected } from './castStore';
 import { CAST_NAMESPACE, nowPlayingMessage, queueMessage, lyricsMessage } from './castMessages';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import type { LyricLine } from '../../lib/jellyfinLyrics';
@@ -13,7 +13,7 @@ import type { LyricLine } from '../../lib/jellyfinLyrics';
  * never breaks playback.
  */
 function canSend(): boolean {
-  return getCastState().connected && castReceiverAppId() !== null;
+  return isCastConnected() && castReceiverAppId() !== null;
 }
 
 async function send(message: object): Promise<void> {

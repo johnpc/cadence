@@ -7,7 +7,14 @@ import { createStallWatchdog } from './stallWatchdog';
 import { bindElementEvents } from './elementEvents';
 import { queueCommands } from './queueCommands';
 import { transportCommands } from './transportCommands';
-import { canAdvance, endedAction, errorAction, nextStatus, type ElementEvent } from './transitions';
+import {
+  canAdvance,
+  endedAction,
+  errorAction,
+  isCasting,
+  nextStatus,
+  type ElementEvent,
+} from './transitions';
 import type { JellyfinItem } from '../../../lib/jellyfinTypes';
 import type {
   EngineDeps,
@@ -36,7 +43,6 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
     intent: false,
     started: false,
     sleep: null,
-    castPlaying: false,
   });
   const progress = createStore<PlayerProgress>({ position: 0, duration: 0 });
   const get = state.get;
@@ -94,7 +100,7 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
     const track = q.currentTrack(s.queue);
     if (!track) {
       if (loader.loaded() || s.status !== 'idle') unload();
-    } else if (s.status === 'casting') {
+    } else if (isCasting(s.status)) {
       if (castTarget === track) return;
       castTarget = track;
       void deps.cast.load(track).catch(() => undefined);
@@ -183,14 +189,16 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
 
   const onCast = () => {
     const connected = deps.cast.connected();
-    const casting = get().status === 'casting';
-    patch({ castPlaying: deps.cast.playing() });
+    const casting = isCasting(get().status);
+    const tv: TransportStatus = deps.cast.playing() ? 'casting' : 'casting-paused';
     if (connected && !casting) {
       // castTrack() connects AND loads the current track — don't load it twice.
       castTarget = current();
       loader.forget();
-      transition('casting');
+      transition(tv);
       audio.pause();
+    } else if (connected) {
+      if (get().status !== tv) transition(tv);
     } else if (!connected && casting) {
       // Cast ended: hand playback back to the phone rather than leave silence.
       castTarget = null;

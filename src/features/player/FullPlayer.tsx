@@ -1,6 +1,6 @@
 import { IonModal, IonIcon } from '@ionic/react';
 import { chevronDown } from 'ionicons/icons';
-import { useState } from 'react';
+import { useOverlay } from '../../lib/useOverlay';
 import { AmbientBackground } from './AmbientBackground';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
@@ -30,9 +30,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
   const p = usePlayer();
   const { position, duration } = usePlayerProgress();
   const scrub = useScrubber(position, p.seek);
-  const [queueOpen, setQueueOpen] = useState(false);
-  const [lyricsOpen, setLyricsOpen] = useState(false);
-  const [chaptersOpen, setChaptersOpen] = useState(false);
+  const sheet = useOverlay<'queue' | 'lyrics' | 'chapters'>();
   // Swipe the art left/right to skip — a signature now-playing gesture. Guarded
   // by canNext/canPrev so a swipe at the queue's edge is a no-op.
   const swipe = useSwipe(
@@ -82,15 +80,15 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         <VolumeSlider volume={p.volume} setVolume={p.setVolume} />
         <FullPlayerFooter
           current={p.current}
-          onOpenLyrics={() => setLyricsOpen(true)}
-          onOpenChapters={() => setChaptersOpen(true)}
-          onOpenQueue={() => setQueueOpen(true)}
+          onOpenLyrics={() => sheet.show('lyrics')}
+          onOpenChapters={() => sheet.show('chapters')}
+          onOpenQueue={() => sheet.show('queue')}
           onClose={onClose}
         />
-        <NextUpHint onOpenQueue={() => setQueueOpen(true)} />
-        <QueueView open={queueOpen} onClose={() => setQueueOpen(false)} />
-        <LyricsSheet open={lyricsOpen} onClose={() => setLyricsOpen(false)} />
-        <ChapterSheet open={chaptersOpen} onClose={() => setChaptersOpen(false)} />
+        <NextUpHint onOpenQueue={() => sheet.show('queue')} />
+        <QueueView open={sheet.open === 'queue'} onClose={() => sheet.closed('queue')} />
+        <LyricsSheet open={sheet.open === 'lyrics'} onClose={() => sheet.closed('lyrics')} />
+        <ChapterSheet open={sheet.open === 'chapters'} onClose={() => sheet.closed('chapters')} />
       </div>
     </IonModal>
   );

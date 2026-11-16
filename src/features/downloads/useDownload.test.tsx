@@ -3,20 +3,25 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ReactNode } from 'react';
 
-// A working listener set so tests can emit a downloads-change and assert repaint.
-const dlListeners = new Set<() => void>();
-const emitDownloadsChange = () => dlListeners.forEach((l) => l());
+// A fake of the shared download stores: one state per track id + listeners, so
+// tests drive state the way downloadTrack/removeDownload really publish it.
+const states = new Map<string, 'none' | 'downloading' | 'downloaded'>();
+const listeners = new Set<() => void>();
+const publish = (id: string, s: 'none' | 'downloading' | 'downloaded') => {
+  states.set(id, s);
+  listeners.forEach((l) => l());
+};
 vi.mock('./downloadStore', () => ({
   downloadTrack: vi.fn(),
   removeDownload: vi.fn(),
-  isDownloaded: vi.fn(() => false),
-  onDownloadsChange: (l: () => void) => {
-    dlListeners.add(l);
-    return () => dlListeners.delete(l);
+  trackDownloadState: (id: string) => states.get(id) ?? 'none',
+  onDownloadStateChange: (l: () => void) => {
+    listeners.add(l);
+    return () => listeners.delete(l);
   },
 }));
 vi.mock('../../lib/haptics', () => ({ tap: vi.fn() }));
-import { downloadTrack, removeDownload, isDownloaded } from './downloadStore';
+import { downloadTrack, removeDownload } from './downloadStore';
 import { useDownload } from './useDownload';
 import { ToastContext } from '../toast/ToastContext';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -29,71 +34,96 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 );
 const track = { Id: 't1', Name: 'x' } as JellyfinItem;
 
+/** downloadTrack as the real store behaves: in flight, then downloaded/failed. */
+function realisticDownload(outcome: 'ok' | 'fail') {
+  let settle!: () => void;
+  vi.mocked(downloadTrack).mockImplementation((t) => {
+    publish(t.Id, 'downloading');
+    return new Promise<void>((resolve, reject) => {
+      settle = () => {
+        publish(t.Id, outcome === 'ok' ? 'downloaded' : 'none');
+        if (outcome === 'ok') resolve();
+        else reject(new Error('nope'));
+      };
+    });
+  });
+  return () => act(() => settle());
+}
+
 describe('useDownload', () => {
   afterEach(() => {
     vi.resetAllMocks();
-    dlListeners.clear();
+    states.clear();
+    listeners.clear();
   });
 
-  it('seeds from the store state', () => {
-    vi.mocked(isDownloaded).mockReturnValue(true);
+  it('reads the shared state', () => {
+    states.set('t1', 'downloaded');
     const { result } = renderHook(() => useDownload(track), { wrapper });
     expect(result.current.state).toBe('downloaded');
   });
 
-  it('downloads: optimistic downloading → downloaded', async () => {
-    vi.mocked(downloadTrack).mockResolvedValue();
+  it('downloads: downloading (busy) → downloaded', async () => {
+    const finish = realisticDownload('ok');
     const { result } = renderHook(() => useDownload(track), { wrapper });
     act(() => result.current.toggle());
-    expect(result.current.state).toBe('downloading'); // optimistic
+    await waitFor(() => expect(result.current.state).toBe('downloading'));
+    expect(result.current.busy).toBe(true);
+    await finish();
     await waitFor(() => expect(result.current.state).toBe('downloaded'));
     expect(downloadTrack).toHaveBeenCalledWith(track);
   });
 
-  it('rolls back to none AND toasts on download error', async () => {
-    vi.mocked(downloadTrack).mockRejectedValue(new Error('nope'));
+  it('returns to none AND toasts on download error', async () => {
+    const fail = realisticDownload('fail');
     const { result } = renderHook(() => useDownload(track), { wrapper });
     act(() => result.current.toggle());
+    await waitFor(() => expect(result.current.state).toBe('downloading'));
+    await fail();
     await waitFor(() => expect(result.current.state).toBe('none'));
     expect(toast).toHaveBeenCalledWith("Couldn't download this track");
   });
 
   it('removes a downloaded track', async () => {
-    vi.mocked(isDownloaded).mockReturnValue(true);
-    vi.mocked(removeDownload).mockResolvedValue();
+    states.set('t1', 'downloaded');
+    vi.mocked(removeDownload).mockImplementation(async (id) => publish(id, 'none'));
     const { result } = renderHook(() => useDownload(track), { wrapper });
     act(() => result.current.toggle());
     await waitFor(() => expect(result.current.state).toBe('none'));
     expect(removeDownload).toHaveBeenCalledWith('t1');
   });
 
-  it('does nothing while downloading (no double-fire)', async () => {
-    vi.mocked(downloadTrack).mockResolvedValue();
+  it('toasts when a removal fails', async () => {
+    states.set('t1', 'downloaded');
+    vi.mocked(removeDownload).mockRejectedValue(new Error('io'));
     const { result } = renderHook(() => useDownload(track), { wrapper });
     act(() => result.current.toggle());
-    act(() => result.current.toggle()); // second tap mid-flight
-    await waitFor(() => expect(result.current.state).toBe('downloaded'));
-    expect(downloadTrack).toHaveBeenCalledOnce();
+    await waitFor(() => expect(toast).toHaveBeenCalledWith("Couldn't remove this download"));
+  });
+
+  it('a button mounted mid-download shows it downloading and does not start another', () => {
+    states.set('t1', 'downloading'); // started on another screen / before a remount
+    const { result } = renderHook(() => useDownload(track), { wrapper });
+    expect(result.current.state).toBe('downloading');
+    act(() => result.current.toggle());
+    expect(downloadTrack).not.toHaveBeenCalled();
   });
 
   it('repaints when the track is downloaded elsewhere (e.g. Download all)', () => {
     const { result } = renderHook(() => useDownload(track), { wrapper });
     expect(result.current.state).toBe('none');
-    // A collection download adds this track to the index, then emits.
-    vi.mocked(isDownloaded).mockReturnValue(true);
-    act(() => emitDownloadsChange());
+    act(() => publish('t1', 'downloaded'));
     expect(result.current.state).toBe('downloaded');
   });
 
-  it('re-seeds when the track prop changes under a mounted hook', () => {
-    vi.mocked(isDownloaded).mockReturnValue(true);
+  it('follows the track prop under a mounted hook', () => {
+    states.set('t2', 'downloaded');
     const { result, rerender } = renderHook(({ t }) => useDownload(t), {
       wrapper,
       initialProps: { t: track },
     });
-    expect(result.current.state).toBe('downloaded');
-    vi.mocked(isDownloaded).mockReturnValue(false);
-    rerender({ t: { Id: 't2', Name: 'y' } as JellyfinItem });
     expect(result.current.state).toBe('none');
+    rerender({ t: { Id: 't2', Name: 'y' } as JellyfinItem });
+    expect(result.current.state).toBe('downloaded');
   });
 });

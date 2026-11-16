@@ -13,3 +13,28 @@ export function AppLoading() {
     </div>
   );
 }
+
+/**
+ * The `unavailable` session screen: the saved sign-in couldn't be read yet
+ * (typically iOS opened the app before the phone was unlocked). The app keeps
+ * retrying on its own; "Try again" is for the impatient. Render-only.
+ */
+export function SessionUnavailable({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="app-loading" role="alert" data-testid="session-unavailable">
+      <span className="app-loading__wordmark cad-h1">Cadence</span>
+      <p className="app-loading__message">Can&apos;t open your sign-in yet.</p>
+      <p className="app-loading__hint cad-meta">
+        If your phone just restarted, unlock it. Cadence keeps trying on its own.
+      </p>
+      <button
+        type="button"
+        className="app-loading__retry"
+        onClick={onRetry}
+        data-testid="session-retry"
+      >
+        Try again
+      </button>
+    </div>
+  );
+}

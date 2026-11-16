@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { IonActionSheet, IonIcon } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { usePlaylists } from './playlistsApi';
@@ -8,6 +7,7 @@ import { getRecentPlaylistAdds, touchPlaylistAdd } from './recentPlaylistAdds';
 import { useTrackMenuActions, type RowEdit } from './useTrackMenuActions';
 import { NewPlaylistAlert } from './NewPlaylistAlert';
 import { useToast } from '../toast/useToast';
+import { useOverlay } from '../../lib/useOverlay';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './addToPlaylist.css';
 
@@ -16,17 +16,15 @@ import './addToPlaylist.css';
  * playlist, radio, go to album/artist, copy link, and — in an editable playlist
  * — reorder + remove), so the row itself stays art + title + "…". */
 export function AddToPlaylistButton({ track, edit }: { track: JellyfinItem; edit?: RowEdit }) {
-  const [open, setOpen] = useState(false);
-  const [pickOpen, setPickOpen] = useState(false);
-  const [newOpen, setNewOpen] = useState(false);
+  const overlay = useOverlay<'menu' | 'pick' | 'new'>();
   const { playlists } = usePlaylists();
   const toast = useToast();
-  const { buttons, add } = useTrackMenuActions(track, () => setPickOpen(true), edit);
+  const { buttons, add } = useTrackMenuActions(track, () => overlay.show('pick'), edit);
 
   const pickButtons = addToPlaylistButtons(
     playlists,
     {
-      newPlaylist: () => setNewOpen(true),
+      newPlaylist: () => overlay.show('new'),
       addTo: (pl) => {
         touchPlaylistAdd(pl.Id, Date.now()); // bubble this playlist up next time
         addToPlaylistWithToast(add, toast, pl.Id, track.Id, pl.Name ?? 'playlist');
@@ -42,7 +40,7 @@ export function AddToPlaylistButton({ track, edit }: { track: JellyfinItem; edit
         className="add-pl-btn"
         onClick={(e) => {
           e.stopPropagation();
-          setOpen(true);
+          overlay.show('menu');
         }}
         data-testid="add-to-playlist"
         aria-label="Track options"
@@ -50,19 +48,23 @@ export function AddToPlaylistButton({ track, edit }: { track: JellyfinItem; edit
         <IonIcon icon={ellipsisHorizontal} />
       </button>
       <IonActionSheet
-        isOpen={open}
+        isOpen={overlay.open === 'menu'}
         header="Track options"
         buttons={buttons}
-        onDidDismiss={() => setOpen(false)}
+        onDidDismiss={() => overlay.closed('menu')}
       />
       <IonActionSheet
-        isOpen={pickOpen}
+        isOpen={overlay.open === 'pick'}
         header="Add to playlist"
         buttons={pickButtons}
-        onDidDismiss={() => setPickOpen(false)}
+        onDidDismiss={() => overlay.closed('pick')}
         data-testid="add-to-playlist-sheet"
       />
-      <NewPlaylistAlert open={newOpen} onClose={() => setNewOpen(false)} itemId={track.Id} />
+      <NewPlaylistAlert
+        open={overlay.open === 'new'}
+        onClose={() => overlay.closed('new')}
+        itemId={track.Id}
+      />
     </>
   );
 }

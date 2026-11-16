@@ -6,8 +6,8 @@
  * the loading splash for a slow-tunnel token check. It returns null only on a
  * CONFIRMED no-session (nothing stored); a token-storage hiccup throws, which we
  * retry with a short backoff. If it stays undetermined after the retries we
- * return 'loading' rather than 'unauthenticated' — so a flaky storage read never
- * signs a user out; the next refresh can recover. A dead token is caught by the
+ * return 'unavailable' rather than 'unauthenticated' — so a flaky or locked
+ * storage read never signs a user out; AuthProvider keeps retrying from there. A dead token is caught by the
  * background validate → onSessionExpired → sign-out, not by blocking launch.
  */
 import { currentUsernameOptimistic } from './authClient';
@@ -29,5 +29,5 @@ export async function resolveSession(
       if (attempt < retries) await delay(attempt);
     }
   }
-  return { status: 'loading', username: null };
+  return { status: 'unavailable', username: null };
 }
