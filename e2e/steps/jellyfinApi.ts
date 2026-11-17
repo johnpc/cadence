@@ -130,3 +130,44 @@ export async function savedPositionSeconds(s: Session, itemId: string): Promise<
   );
   return (r.UserData?.PlaybackPositionTicks ?? 0) / 10_000_000;
 }
+
+/** The id of the fixture album named exactly `name`. */
+export async function albumIdByName(s: Session, name: string): Promise<string> {
+  const q = new URLSearchParams({
+    IncludeItemTypes: 'MusicAlbum',
+    Recursive: 'true',
+    SearchTerm: name,
+    userId: s.userId,
+  });
+  const r = await api<{ Items: { Id: string; Name: string }[] }>(`/Items?${q}`, { token: s.token });
+  const album = r.Items.find((i) => i.Name === name);
+  if (!album) throw new Error(`fixture album "${name}" not found`);
+  return album.Id;
+}
+
+/** Names of the tracks in album `albumId` the user has liked. */
+export async function likedTrackNames(s: Session, albumId: string): Promise<string[]> {
+  const q = new URLSearchParams({
+    ParentId: albumId,
+    IncludeItemTypes: 'Audio',
+    Recursive: 'true',
+    Filters: 'IsFavorite',
+    userId: s.userId,
+  });
+  const r = await api<{ Items: { Name: string }[] }>(`/Items?${q}`, { token: s.token });
+  return r.Items.map((i) => i.Name);
+}
+
+/** Un-like every track in album `albumId` (scenario teardown). */
+export async function unlikeAlbumTracks(s: Session, albumId: string): Promise<void> {
+  const q = new URLSearchParams({
+    ParentId: albumId,
+    IncludeItemTypes: 'Audio',
+    Recursive: 'true',
+    Filters: 'IsFavorite',
+    userId: s.userId,
+  });
+  const r = await api<{ Items: { Id: string }[] }>(`/Items?${q}`, { token: s.token });
+  for (const i of r.Items)
+    await api(`/Users/${s.userId}/FavoriteItems/${i.Id}`, { method: 'DELETE', token: s.token });
+}

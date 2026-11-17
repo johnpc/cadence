@@ -1,5 +1,7 @@
 import { IonSpinner } from '@ionic/react';
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { useEffectiveOffline } from '../features/shell/useEffectiveOffline';
 import './loadState.css';
 
 export interface LoadStateProps {
@@ -21,15 +23,37 @@ export interface LoadStateProps {
   children: ReactNode;
 }
 
+/** A failed load while the server can't be reached: say WHY, and point at
+ * what still works (the downloads) instead of a generic "went wrong". */
+function OfflineError({ onRetry }: { onRetry?: () => void }) {
+  return (
+    <div className="load-state" role="alert" data-testid="load-error" data-offline="true">
+      <p className="load-state__title cad-headline-sm">You’re offline</p>
+      <p className="load-state__message cad-meta">This needs a connection to your server.</p>
+      <Link className="load-state__retry" to="/offline" data-testid="load-error-downloads">
+        Browse your downloads
+      </Link>
+      {onRetry && (
+        <button type="button" className="load-state__link" onClick={onRetry}>
+          Try again
+        </button>
+      )}
+    </div>
+  );
+}
+
 /**
  * The four outcomes of any data screen, handled once so no fetch silently
  * hangs on a spinner or shows a blank. Error beats empty; an empty result is
- * NOT treated as "still loading" (the classic infinite-spinner bug).
+ * NOT treated as "still loading" (the classic infinite-spinner bug). An error
+ * while offline says so and offers the downloads.
  */
 export function LoadState(props: LoadStateProps) {
   const { isLoading, isError, onRetry, isEmpty, emptyTitle, emptyMessage, skeleton, children } =
     props;
+  const offline = useEffectiveOffline();
 
+  if (isError && offline) return <OfflineError onRetry={onRetry} />;
   if (isError) {
     return (
       <div className="load-state" role="alert" data-testid="load-error">

@@ -162,4 +162,7 @@ export interface EngineDeps {
   log: LogFn;
   /** How long a buffering stall may last before recovery (ms). */
   stallTimeoutMs: number;
+  /** Whether the server can't be reached (or offline mode is on), and which
+   * tracks are on the device — so a failure offline skips to what CAN play. */
+  availability: { offline(): boolean; downloaded(id: string): boolean };
 }

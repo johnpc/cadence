@@ -297,6 +297,91 @@ describe('recovery', () => {
   });
 });
 
+describe('offline recovery', () => {
+  const abcd = () => [track('a'), track('b'), track('c'), track('d')];
+  function offlineWith(downloaded: string[]) {
+    const h = startedEngine();
+    vi.mocked(h.deps.availability.offline).mockReturnValue(true);
+    vi.mocked(h.deps.availability.downloaded).mockImplementation((id) => downloaded.includes(id));
+    return h;
+  }
+
+  it('skips straight past tracks that are not downloaded, with no pointless retry', () => {
+    const { engine, audio, deps } = offlineWith(['a', 'd']);
+    engine.playQueue(abcd(), 1); // b: not downloaded
+    audio.fire('error');
+    expect(deps.notify).toHaveBeenLastCalledWith('Not downloaded — skipping to the next download.');
+    expect(deps.notify).not.toHaveBeenCalledWith('Trouble playing that — retrying…');
+    expect(engine.state.get().queue.index).toBe(3); // d, not c
+  });
+
+  it('stops and says so when nothing ahead is downloaded', () => {
+    const { engine, audio, deps, status } = offlineWith(['a']);
+    engine.playQueue(abcd(), 1);
+    audio.fire('error');
+    expect(deps.notify).toHaveBeenLastCalledWith(
+      'You’re offline — nothing else in this queue is downloaded.',
+    );
+    expect(engine.state.get().queue.index).toBe(1);
+    expect(status()).toBe('paused');
+    expect(engine.state.get().intent).toBe(false);
+  });
+
+  it('under repeat-all it wraps around to an earlier download', () => {
+    const { engine, audio } = offlineWith(['a']);
+    engine.playQueue(abcd(), 2);
+    engine.cycleRepeat(); // off → all
+    audio.fire('error');
+    expect(engine.state.get().queue.index).toBe(0);
+  });
+
+  it('a DOWNLOADED track that errors offline still gets the normal retry', () => {
+    const { engine, audio, deps } = offlineWith(['a', 'b']);
+    engine.playQueue(ab(), 0);
+    audio.fire('error');
+    expect(deps.notify).toHaveBeenLastCalledWith('Trouble playing that — retrying…');
+  });
+
+  it('pressing play offline on a restored, not-downloaded track goes to a download', () => {
+    // Its launch load failed silently, so no new error fires — play() must act.
+    const h = startedEngine({ queue: startQueue(abc(), 0) });
+    vi.mocked(h.deps.availability.offline).mockReturnValue(true);
+    vi.mocked(h.deps.availability.downloaded).mockImplementation((id) => id === 'c');
+    h.engine.play();
+    expect(h.deps.notify).toHaveBeenLastCalledWith(
+      'Not downloaded — skipping to the next download.',
+    );
+    expect(h.engine.state.get().queue.index).toBe(2);
+  });
+
+  it('pressing play offline with nothing downloaded says so instead of doing nothing', () => {
+    const h = startedEngine({ queue: startQueue(ab(), 0) });
+    vi.mocked(h.deps.availability.offline).mockReturnValue(true);
+    h.engine.toggle();
+    expect(h.deps.notify).toHaveBeenLastCalledWith(
+      'You’re offline — nothing else in this queue is downloaded.',
+    );
+    expect(h.engine.state.get().intent).toBe(false);
+  });
+
+  it('pressing play offline on a DOWNLOADED track just plays it', () => {
+    const h = startedEngine({ queue: startQueue(ab(), 0) });
+    vi.mocked(h.deps.availability.offline).mockReturnValue(true);
+    vi.mocked(h.deps.availability.downloaded).mockReturnValue(true);
+    h.engine.play();
+    expect(h.deps.notify).not.toHaveBeenCalled();
+    expect(h.engine.state.get().queue.index).toBe(0);
+  });
+
+  it('never acts for a restored track the user has not played (no audio on its own)', () => {
+    const h = startedEngine({ queue: startQueue(ab()) });
+    vi.mocked(h.deps.availability.offline).mockReturnValue(true);
+    h.audio.fire('error');
+    expect(h.deps.notify).not.toHaveBeenCalled();
+    expect(h.engine.state.get().queue.index).toBe(0);
+  });
+});
+
 describe('stall watchdog', () => {
   beforeEach(() => {
     vi.useFakeTimers();

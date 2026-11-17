@@ -41,6 +41,22 @@ export function nextStatus(
   return element.paused ? 'paused' : 'playing';
 }
 
+/** The queue index of the next track `playable` accepts after the current one
+ * (wrapping only under repeat-all), or null when none ahead can play. */
+export function nextPlayableIndex(
+  queue: QueueState,
+  wrap: boolean,
+  playable: (id: string) => boolean,
+): number | null {
+  const n = queue.tracks.length;
+  const steps = wrap ? n - 1 : n - 1 - queue.index;
+  for (let step = 1; step <= steps; step++) {
+    const at = (queue.index + step) % n;
+    if (playable(queue.tracks[at].Id)) return at;
+  }
+  return null;
+}
+
 /** What a natural end of track does. */
 export type EndedAction = 'sleep' | 'replay' | 'end' | 'advance';
 

@@ -60,6 +60,7 @@ export function fakePlatform(
     },
     resumeAt: vi.fn((): Promise<number | null> => Promise.resolve(null)),
     notify: vi.fn(),
+    availability: { offline: vi.fn(() => false), downloaded: vi.fn((_id: string) => false) },
     haptic: vi.fn(),
     onAudible: vi.fn(),
     random: () => 0,
