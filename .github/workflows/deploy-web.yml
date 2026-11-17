@@ -44,7 +44,7 @@ jobs:
           github.event.workflow_run.head_repository.full_name == 'johnpc/cadence'
         )
       )
-    runs-on: [self-hosted, mac-mini]
+    runs-on: [self-hosted, mac-mini-light]
     timeout-minutes: 15
     steps:
       - name: Resolve image tag
