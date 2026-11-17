@@ -6,6 +6,7 @@ import {
   errorAction,
   isCasting,
   isPlayingState,
+  nextPlayableIndex,
   nextStatus,
 } from './transitions';
 import { startQueue } from '../queue';
@@ -88,5 +89,28 @@ describe('errorAction', () => {
     expect(errorAction({ started: true, attempts: 1, canSkip: true })).toBe('skip');
     expect(errorAction({ started: true, attempts: 1, canSkip: false })).toBe('give-up');
     expect(errorAction({ started: true, attempts: 1, canSkip: true, maxRetries: 2 })).toBe('retry');
+  });
+});
+
+describe('nextPlayableIndex', () => {
+  const q = (index: number) => startQueue([track('a'), track('b'), track('c'), track('d')], index);
+  const only =
+    (...ids: string[]) =>
+    (id: string) =>
+      ids.includes(id);
+
+  it('finds the next playable track ahead', () => {
+    expect(nextPlayableIndex(q(0), false, only('c'))).toBe(2);
+  });
+  it('is null when nothing ahead plays (no wrap)', () => {
+    expect(nextPlayableIndex(q(2), false, only('a'))).toBeNull();
+    expect(nextPlayableIndex(q(3), false, only('a', 'b', 'c'))).toBeNull();
+  });
+  it('wraps under repeat-all, but never lands on the current track', () => {
+    expect(nextPlayableIndex(q(2), true, only('a'))).toBe(0);
+    expect(nextPlayableIndex(q(1), true, only('b'))).toBeNull();
+  });
+  it('is null for an empty queue', () => {
+    expect(nextPlayableIndex(startQueue([], 0), true, () => true)).toBeNull();
   });
 });

@@ -11,6 +11,9 @@ import { loadQueue, saveQueue } from '../queuePersistence';
 import { loadModes, saveModes } from '../playerModes';
 import { loadRate, loadVolume, saveRate, saveVolume } from '../playbackPrefs';
 import { resolveTrackSrc } from '../startPlayback';
+import { getReachability } from '../../../lib/reachabilityStore';
+import { readForceOffline } from '../../settings/forceOfflineStore';
+import { isDownloaded } from '../../downloads/downloadStore';
 import type { EngineDeps } from './types';
 
 /** How long a buffering stall may last before recovery. 45 s is the measured
@@ -56,6 +59,10 @@ export function browserEngineDeps(notify: (message: string) => void): EngineDeps
       stop: stopCast,
     },
     resumeAt: liveResumeSeconds,
+    availability: {
+      offline: () => readForceOffline() || getReachability() === 'offline',
+      downloaded: isDownloaded,
+    },
     notify,
     haptic: () => tap(),
     onAudible: () => notifyNativePlaybackStarted(),

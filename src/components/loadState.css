@@ -29,3 +29,20 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+/* The offline state's primary action is a link (to the downloads). */
+a.load-state__retry {
+  text-decoration: none;
+}
+
+/* A quieter secondary action ("Try again" under the offline state). */
+.load-state__link {
+  border: none;
+  background: none;
+  color: var(--cad-text-secondary);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}

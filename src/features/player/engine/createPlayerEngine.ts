@@ -7,6 +7,7 @@ import { createStallWatchdog } from './stallWatchdog';
 import { bindElementEvents } from './elementEvents';
 import { queueCommands } from './queueCommands';
 import { transportCommands } from './transportCommands';
+import { offlineRecovery } from './offlineRecovery';
 import {
   canAdvance,
   endedAction,
@@ -137,13 +138,18 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
     },
   };
   const queueCmds = queueCommands(core);
-  const transport = transportCommands(core);
+  const offline = offlineRecovery(core, queueCmds.jumpTo);
+  const transport = transportCommands(core, offline);
 
   /** A load error, or a stall that outlived the watchdog. */
   const recover = () => {
     const s = get();
     const track = q.currentTrack(s.queue);
     if (!track) return;
+    if (s.intent && offline.unavailable(track.Id)) {
+      offline.recover();
+      return;
+    }
     if (recovery.trackId !== track.Id) recovery = { trackId: track.Id, attempts: 0 };
     const canSkip = canAdvance(s.queue, s.repeat);
     const action = errorAction({ started: s.started, attempts: recovery.attempts, canSkip });

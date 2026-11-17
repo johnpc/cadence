@@ -4,6 +4,7 @@ import { clampRate, clampVolume } from '../playbackPrefs';
 import { isCasting, isPlayingState } from './transitions';
 import type { SleepMode } from '../types';
 import type { EngineCore } from './core';
+import type { OfflineRecovery } from './offlineRecovery';
 import type { PlayerCommands } from './types';
 
 type TransportCommands = Omit<
@@ -24,7 +25,10 @@ type TransportCommands = Omit<
 /** Transport, sleep and level commands. While casting, play/pause/seek drive
  * the receiver instead of the silent local element; play/pause are DIRECTIONAL
  * there too, so a lock-screen "play" can never pause the TV. */
-export function transportCommands(core: EngineCore): TransportCommands & { dispose(): void } {
+export function transportCommands(
+  core: EngineCore,
+  offline?: OfflineRecovery,
+): TransportCommands & { dispose(): void } {
   const { deps, get, patch, setQueue } = core;
   const { audio, cast, log } = deps;
   const ignore = () => undefined;
@@ -51,6 +55,12 @@ export function transportCommands(core: EngineCore): TransportCommands & { dispo
       patch({ intent: true });
       if (isCasting(s.status)) {
         if (s.status === 'casting-paused') void cast.toggle().catch(ignore);
+        return;
+      }
+      // Offline and not downloaded: playing it can't work — go to what can.
+      const current = q.currentTrack(s.queue);
+      if (current && offline?.unavailable(current.Id)) {
+        offline.recover();
         return;
       }
       void audio.play().catch((e: unknown) => {
