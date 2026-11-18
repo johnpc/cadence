@@ -6,6 +6,8 @@ import type { ReactNode } from 'react';
 vi.mock('./searchSource', () => ({ searchSource: vi.fn() }));
 import { searchSource } from './searchSource';
 import { useSearch } from './useSearch';
+import { writeForceOffline } from '../settings/forceOfflineStore';
+import { addToIndex, removeFromIndex } from '../downloads/downloadIndex';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const song: JellyfinItem = { Id: 's', Name: 'Song', Type: 'Audio' };
@@ -18,6 +20,8 @@ function wrapper({ children }: { children: ReactNode }) {
 describe('useSearch', () => {
   afterEach(() => {
     vi.resetAllMocks();
+    writeForceOffline(false);
+    removeFromIndex('dl');
   });
 
   it('is idle with an empty query and does not fetch', () => {
@@ -64,5 +68,15 @@ describe('useSearch', () => {
     const other: JellyfinItem = { Id: 's2', Name: 'Other', Type: 'Audio' };
     act(() => resolveSecond([other]));
     await waitFor(() => expect(result.current.groups.songs[0].Id).toBe('s2'));
+  });
+
+  it('offline, searches the downloads on the device instead of the server', async () => {
+    addToIndex({ Id: 'dl', Name: 'Saltwater Song', Type: 'Audio', Artists: ['The Tidal Room'] });
+    writeForceOffline(true);
+    const { result } = renderHook(() => useSearch(), { wrapper });
+    act(() => result.current.setQuery('tidal'));
+    await waitFor(() => expect(result.current.groups.songs.map((t) => t.Id)).toEqual(['dl']));
+    expect(result.current.offline).toBe(true);
+    expect(searchSource).not.toHaveBeenCalled();
   });
 });

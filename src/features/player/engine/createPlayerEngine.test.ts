@@ -252,47 +252,56 @@ describe('end of track', () => {
 });
 
 describe('recovery', () => {
-  it('retries the same track first (keeping the place), then skips', () => {
+  it('retries the same track first (keeping the place), then skips', async () => {
     const { engine, audio, deps } = startedEngine();
     engine.playQueue(ab(), 0);
     audio.tick(95);
     audio.fire('error');
+    await flush();
     expect(deps.notify).toHaveBeenLastCalledWith('Trouble playing that — retrying…');
     expect(engine.state.get().queue.index).toBe(0);
     expect(takePendingSeek('a')).toBe(95);
     audio.fire('error');
+    await flush();
     expect(deps.notify).toHaveBeenLastCalledWith("Couldn't play that track — skipping.");
     expect(engine.state.get().queue.index).toBe(1);
   });
 
-  it('a retry right at the start leaves no pending seek behind', () => {
+  it('a retry right at the start leaves no pending seek behind', async () => {
     const { engine, audio } = startedEngine();
     engine.playQueue(ab(), 0);
     audio.fire('error');
+    await flush();
     expect(takePendingSeek('a')).toBeNull();
   });
 
-  it('at the last track it gives up without a dead-end "skipping"', () => {
+  it('at the last track it gives up without a dead-end "skipping"', async () => {
     const { engine, audio, deps, status } = startedEngine();
     engine.playQueue([track('a')], 0);
     audio.fire('error');
+    await flush();
     audio.fire('error');
+    await flush();
     expect(deps.notify).toHaveBeenLastCalledWith("Couldn't play that track.");
     expect(status()).toBe('paused');
   });
 
-  it('stays silent for a restored track that errors before playback ever started', () => {
+  it('stays silent for a restored track that errors before playback ever started', async () => {
     const { audio, deps } = startedEngine({ queue: startQueue(ab()) });
     audio.fire('error');
+    await flush();
     expect(deps.notify).not.toHaveBeenCalled();
   });
 
-  it('gives each new track its own retry budget', () => {
+  it('gives each new track its own retry budget', async () => {
     const { engine, audio, deps } = startedEngine();
     engine.playQueue(abc(), 0);
     audio.fire('error');
-    audio.fire('error'); // skip a → b
+    await flush();
     audio.fire('error');
+    await flush(); // skip a → b
+    audio.fire('error');
+    await flush();
     expect(deps.notify).toHaveBeenLastCalledWith('Trouble playing that — retrying…');
   });
 });
@@ -382,16 +391,73 @@ describe('offline recovery', () => {
   });
 });
 
+describe('a failed stream with no word yet on the connection', () => {
+  it('asks the server; unreachable → skips straight to the next download', async () => {
+    const h = startedEngine();
+    vi.mocked(h.deps.availability.probe).mockResolvedValue(false);
+    vi.mocked(h.deps.availability.downloaded).mockImplementation((id) => id === 'c');
+    h.engine.playQueue(abc(), 0);
+    h.audio.fire('error');
+    expect(h.deps.notify).not.toHaveBeenCalled(); // waits for the answer
+    await flush();
+    expect(h.deps.availability.probe).toHaveBeenCalledOnce();
+    expect(h.engine.state.get().queue.index).toBe(2);
+    expect(h.deps.notify).toHaveBeenLastCalledWith(
+      'Not downloaded — skipping to the next download.',
+    );
+  });
+
+  it('asks only once while the answer is pending', async () => {
+    const h = startedEngine();
+    let answer!: (v: boolean) => void;
+    vi.mocked(h.deps.availability.probe).mockImplementation(
+      () => new Promise<boolean>((res) => (answer = res)),
+    );
+    h.engine.playQueue(ab(), 0);
+    h.audio.fire('error');
+    h.audio.fire('error');
+    expect(h.deps.availability.probe).toHaveBeenCalledOnce();
+    answer(true);
+    await flush();
+    expect(h.deps.notify).toHaveBeenLastCalledWith('Trouble playing that — retrying…');
+  });
+
+  it('does nothing with a late answer once the user has moved to another track', async () => {
+    const h = startedEngine();
+    let answer!: (v: boolean) => void;
+    vi.mocked(h.deps.availability.probe).mockImplementation(
+      () => new Promise<boolean>((res) => (answer = res)),
+    );
+    h.engine.playQueue(abc(), 0);
+    h.audio.fire('error');
+    h.engine.next();
+    answer(false);
+    await flush();
+    expect(h.deps.notify).not.toHaveBeenCalled();
+    expect(h.engine.state.get().queue.index).toBe(1);
+  });
+
+  it('a DOWNLOADED track that errors never asks — it retries at once', () => {
+    const h = startedEngine();
+    vi.mocked(h.deps.availability.downloaded).mockReturnValue(true);
+    h.engine.playQueue(ab(), 0);
+    h.audio.fire('error');
+    expect(h.deps.availability.probe).not.toHaveBeenCalled();
+    expect(h.deps.notify).toHaveBeenLastCalledWith('Trouble playing that — retrying…');
+  });
+});
+
 describe('stall watchdog', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
 
-  it('recovers a stall that outlives the timeout', () => {
+  it('recovers a stall that outlives the timeout', async () => {
     const { engine, audio, deps } = startedEngine();
     engine.playQueue(ab(), 0);
     audio.fire('waiting');
     vi.advanceTimersByTime(45_000);
+    await flush();
     expect(deps.notify).toHaveBeenCalledWith('Trouble playing that — retrying…');
     expect(deps.log).toHaveBeenCalledWith(
       'stall-watchdog',
@@ -400,7 +466,7 @@ describe('stall watchdog', () => {
     );
   });
 
-  it('progress re-arms it, so only a frozen stream times out', () => {
+  it('progress re-arms it, so only a frozen stream times out', async () => {
     const { engine, audio, deps } = startedEngine();
     engine.playQueue(ab(), 0);
     audio.fire('waiting');
@@ -409,6 +475,7 @@ describe('stall watchdog', () => {
     vi.advanceTimersByTime(40_000);
     audio.tick(3); // no movement: does not re-arm
     vi.advanceTimersByTime(5_000);
+    await flush();
     expect(deps.notify).toHaveBeenCalledTimes(1);
   });
 

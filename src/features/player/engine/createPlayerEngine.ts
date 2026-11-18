@@ -141,15 +141,8 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
   const offline = offlineRecovery(core, queueCmds.jumpTo);
   const transport = transportCommands(core, offline);
 
-  /** A load error, or a stall that outlived the watchdog. */
-  const recover = () => {
-    const s = get();
-    const track = q.currentTrack(s.queue);
-    if (!track) return;
-    if (s.intent && offline.unavailable(track.Id)) {
-      offline.recover();
-      return;
-    }
+  /** The normal path: retry the same track once, then skip, then give up. */
+  const retryOrSkip = (s: PlayerState, track: JellyfinItem) => {
     if (recovery.trackId !== track.Id) recovery = { trackId: track.Id, attempts: 0 };
     const canSkip = canAdvance(s.queue, s.repeat);
     const action = errorAction({ started: s.started, attempts: recovery.attempts, canSkip });
@@ -166,6 +159,33 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
       deps.notify("Couldn't play that track.");
       transition('paused');
     }
+  };
+
+  /** A stream that isn't on the device failed and nothing has told us yet
+   * whether we're offline: the failure may BE the outage, so ask the server
+   * once (briefly) before choosing between "skip to a download" and a retry. */
+  let probing = false;
+  const probeThenRecover = (track: JellyfinItem) => {
+    if (probing) return;
+    probing = true;
+    void deps.availability.probe().then((reachable) => {
+      probing = false;
+      const s = get();
+      if (q.currentTrack(s.queue)?.Id !== track.Id) return; // the user moved on
+      if (!reachable && s.intent) offline.recover();
+      else retryOrSkip(s, track);
+    });
+  };
+
+  /** A load error, or a stall that outlived the watchdog. */
+  const recover = () => {
+    const s = get();
+    const track = q.currentTrack(s.queue);
+    if (!track) return;
+    if (s.intent && offline.unavailable(track.Id)) return offline.recover();
+    if (s.intent && s.started && !deps.availability.downloaded(track.Id))
+      return probeThenRecover(track);
+    retryOrSkip(s, track);
   };
 
   const onEnded = () => {

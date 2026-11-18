@@ -7,7 +7,7 @@ import { isEmptyGroups, topResult } from './searchGroups';
 export function useSearch() {
   const [query, setQuery] = useState('');
   const debounced = useDebounced(query, 300);
-  const { groups, isLoading, isError, refetch } = useSearchResults(debounced);
+  const { groups, isLoading, isError, refetch, offline } = useSearchResults(debounced);
 
   return {
     query,
@@ -16,6 +16,8 @@ export function useSearch() {
     isLoading,
     isError,
     refetch,
+    /** Searching the downloads on the device (no connection). */
+    offline,
     /** The best-match result (drives the Top Result card + Enter-to-play). */
     top: topResult(groups, debounced),
     /** True before the user has typed anything. */
