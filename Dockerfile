@@ -7,7 +7,7 @@
 # targets — the output dist/ is static and arch-independent, so only the tiny
 # final nginx layer differs per arch. Keeps multi-arch publishes ~2min instead
 # of ~40min of emulated `npm ci`.
-FROM --platform=$BUILDPLATFORM node:22-alpine AS build
+FROM --platform=$BUILDPLATFORM node:26-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 # scripts/ is copied before `npm ci` because package.json's postinstall runs a

@@ -1,6 +1,9 @@
 {
   "name": "cadence",
   "private": true,
+  "engines": {
+    "node": ">=26"
+  },
   "version": "0.0.1",
   "type": "module",
   "description": "A Spotify-like music client for your self-hosted Jellyfin server.",
@@ -9,9 +12,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "gen:icons": "node scripts/gen-app-icons.mjs",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "NODE_OPTIONS=--no-experimental-webstorage vitest run",
+    "test:watch": "NODE_OPTIONS=--no-experimental-webstorage vitest",
+    "test:coverage": "NODE_OPTIONS=--no-experimental-webstorage vitest run --coverage",
     "test:e2e": "bddgen && playwright test",
     "crap": "node scripts/crap-check.mjs",
     "check:lines": "node scripts/check-file-lines.mjs",

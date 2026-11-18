@@ -78,6 +78,13 @@ export default defineConfig({
     },
   },
   test: {
+    // Node 26 defines globalThis.localStorage as an OWN property whose value is
+    // undefined (Web Storage without --localstorage-file). Vitest's jsdom
+    // environment never overwrites an existing global, so tests would see
+    // `localStorage === undefined`. The package.json test scripts therefore run
+    // Vitest with NODE_OPTIONS=--no-experimental-webstorage, which removes Node's
+    // property so jsdom's real Storage comes through (locally, in the pre-commit
+    // hook and in CI alike — always run tests through `npm run test*`).
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
