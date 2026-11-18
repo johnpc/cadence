@@ -164,5 +164,10 @@ export interface EngineDeps {
   stallTimeoutMs: number;
   /** Whether the server can't be reached (or offline mode is on), and which
    * tracks are on the device — so a failure offline skips to what CAN play. */
-  availability: { offline(): boolean; downloaded(id: string): boolean };
+  availability: {
+    offline(): boolean;
+    downloaded(id: string): boolean;
+    /** Ask the server whether it's there (true = reachable). */
+    probe(): Promise<boolean>;
+  };
 }

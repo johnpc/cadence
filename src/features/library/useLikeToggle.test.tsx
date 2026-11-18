@@ -6,6 +6,11 @@ import type { ReactNode } from 'react';
 vi.mock('../../lib/jellyfinItems', () => ({ addFavorite: vi.fn(), removeFavorite: vi.fn() }));
 import { addFavorite, removeFavorite } from '../../lib/jellyfinItems';
 import { useLikeToggle } from './useLikeToggle';
+import { HttpError } from '../../lib/jellyfinErrors';
+import { setSession } from '../../lib/sessionStore';
+import { likeOutboxStore, pendingLike, queueLike } from './likeOutbox';
+import { writeForceOffline } from '../settings/forceOfflineStore';
+import { __resetReachability, markUnreachable } from '../../lib/reachabilityStore';
 import { ToastContext } from '../toast/ToastContext';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -38,6 +43,10 @@ const track = (fav: boolean): JellyfinItem => ({
 describe('useLikeToggle', () => {
   afterEach(() => {
     vi.resetAllMocks();
+    likeOutboxStore.set({});
+    writeForceOffline(false);
+    __resetReachability();
+    setSession(null);
   });
 
   it('seeds from the item favorite state', () => {
@@ -61,8 +70,8 @@ describe('useLikeToggle', () => {
     await waitFor(() => expect(removeFavorite).toHaveBeenCalledWith('t1'));
   });
 
-  it('rolls back AND toasts on error', async () => {
-    vi.mocked(addFavorite).mockRejectedValue(new Error('nope'));
+  it('rolls back AND toasts when the server rejects it', async () => {
+    vi.mocked(addFavorite).mockRejectedValue(new HttpError(500));
     const { result } = renderHook(() => useLikeToggle(track(false)), { wrapper });
     act(() => result.current.toggle());
     await waitFor(() => expect(result.current.liked).toBe(false)); // rolled back
@@ -80,5 +89,56 @@ describe('useLikeToggle', () => {
     const keys = spy.mock.calls.map((c) => JSON.stringify(c[0]?.queryKey));
     expect(keys).toContain(JSON.stringify(['audiobooks-favorites']));
     expect(keys).toContain(JSON.stringify(['audiobooks']));
+  });
+
+  describe('with no connection', () => {
+    const signedIn = () => setSession({ token: 't', userId: 'u1' });
+
+    it('offline mode: keeps the like for later (no server call), and says so', () => {
+      signedIn();
+      writeForceOffline(true);
+      const { result } = renderHook(() => useLikeToggle(track(false)), { wrapper });
+      act(() => result.current.toggle());
+      expect(result.current.liked).toBe(true);
+      expect(addFavorite).not.toHaveBeenCalled();
+      expect(pendingLike('t1')).toBe(true);
+      expect(toast).toHaveBeenCalledWith('Liked — it’ll sync when you’re back online.');
+    });
+
+    it('server known unreachable: an unlike is kept too', () => {
+      signedIn();
+      markUnreachable();
+      const { result } = renderHook(() => useLikeToggle(track(true)), { wrapper });
+      act(() => result.current.toggle());
+      expect(result.current.liked).toBe(false);
+      expect(pendingLike('t1')).toBe(false);
+      expect(toast).toHaveBeenCalledWith('Removed — it’ll sync when you’re back online.');
+    });
+
+    it('a request that fails to reach the server is kept, not rolled back', async () => {
+      signedIn();
+      vi.mocked(addFavorite).mockRejectedValue(new TypeError('Failed to fetch'));
+      const { result } = renderHook(() => useLikeToggle(track(false)), { wrapper });
+      act(() => result.current.toggle());
+      await waitFor(() => expect(pendingLike('t1')).toBe(true));
+      expect(result.current.liked).toBe(true);
+    });
+
+    it('the heart shows a pending wish over the stale server value (after a restart)', () => {
+      signedIn();
+      queueLike('t1', true);
+      const { result } = renderHook(() => useLikeToggle(track(false)), { wrapper });
+      expect(result.current.liked).toBe(true);
+    });
+
+    it('a like that reaches the server clears an older pending wish', async () => {
+      signedIn();
+      queueLike('t1', false);
+      vi.mocked(addFavorite).mockResolvedValue();
+      const { result } = renderHook(() => useLikeToggle(track(false)), { wrapper });
+      act(() => result.current.toggle()); // pending false → shows unliked → toggles to like
+      await waitFor(() => expect(addFavorite).toHaveBeenCalledWith('t1'));
+      await waitFor(() => expect(pendingLike('t1')).toBeUndefined());
+    });
   });
 });

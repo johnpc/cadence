@@ -1,4 +1,6 @@
 import React from 'react';
+import { startLikeOutboxSync } from './features/library/likeOutboxSync';
+import { queryClient } from './lib/queryClient';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { initTheme } from './features/theme/initTheme';
@@ -21,6 +23,9 @@ registerServiceWorker();
 // after boot so it stays out of the entry bundle. Sets up the opt-in uploader
 // (inert unless enabled + configured) and the iOS native→JS log bridge.
 void import('./lib/diagnostics/initDiagnostics').then((m) => m.initDiagnostics());
+
+// Send likes made offline (kept on disk) whenever the server is reachable again.
+startLikeOutboxSync(queryClient);
 
 // The offline index lives in IndexedDB; load it before the first render so an
 // offline launch sees its downloads (bounded — see hydrateDownloads).

@@ -47,3 +47,8 @@ ion-searchbar {
   --icon-color: var(--cad-text-secondary);
   --border-radius: var(--cad-radius-thumb);
 }
+
+/* Offline: say what the results are (downloads only), above them. */
+.search__offline-note {
+  margin: 0 0 var(--cad-space-3);
+}

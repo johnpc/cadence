@@ -177,11 +177,26 @@ When('I type {string} into search', async ({ page }, term: string) => {
   await page.getByTestId('search-input').locator('input').fill(term);
 });
 
-Then("the search says it's offline", async ({ page }) => {
-  await expect(page.locator('[data-testid="load-error"][data-offline]').first()).toBeVisible({
-    timeout: DATA_WAIT,
-  });
-  await expect(page.getByText('You’re offline').first()).toBeVisible();
+Then('search says it is showing my downloads', async ({ page }) => {
+  await expect(page.getByTestId('search-offline-note')).toBeVisible({ timeout: DATA_WAIT });
+});
+
+Then(
+  'the search results are exactly my downloaded songs {string} and {string}',
+  async ({ page }, a: string, b: string) => {
+    const rows = page.getByTestId('search-results').getByTestId('track-row');
+    await expect(rows).toHaveCount(2, { timeout: DATA_WAIT });
+    await expect(rows.nth(0)).toContainText(a);
+    await expect(rows.nth(1)).toContainText(b);
+  },
+);
+
+When('I play the search result {string}', async ({ page }, title: string) => {
+  const row = page
+    .getByTestId('search-results')
+    .getByTestId('track-row')
+    .filter({ hasText: title });
+  await row.first().getByTestId('track-row-play').click();
 });
 
 // A real device-level loss of network (navigator.onLine false): the like is
@@ -190,12 +205,37 @@ When('the phone loses its connection', async ({ page }) => {
   await page.context().setOffline(true);
 });
 
-When('I like the playing song from the full player', async ({ page }) => {
-  await page.getByTestId('now-playing-open').click();
+const fullPlayerLike = async (page: Page) => {
+  if (
+    !(await page
+      .getByTestId('full-player')
+      .isVisible()
+      .catch(() => false))
+  )
+    await page.getByTestId('now-playing-open').click();
   const like = page.getByTestId('full-player').getByTestId('like-button').first();
   await expect(like).toBeVisible({ timeout: DATA_WAIT });
+  return like;
+};
+
+When('I like the playing song from the full player', async ({ page }) => {
+  const like = await fullPlayerLike(page);
   await like.click({ force: true });
   await expect(like).toHaveAttribute('aria-pressed', 'true');
+});
+
+Then('the playing song still shows as liked', async ({ page }) => {
+  await expect(page.getByTestId('now-playing-title')).toHaveText('Undertow', {
+    timeout: DATA_WAIT,
+  });
+  await expect(await fullPlayerLike(page)).toHaveAttribute('aria-pressed', 'true');
+});
+
+When('the server is reachable again', async ({ page }) => {
+  await page.context().unrouteAll({ behavior: 'ignoreErrors' });
+  // Any screen that talks to the server proves it's back; the pending like is
+  // sent the moment Jellyfin answers.
+  await page.goto('/home');
 });
 
 When("the phone's connection comes back", async ({ page }) => {

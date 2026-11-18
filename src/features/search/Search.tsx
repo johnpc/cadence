@@ -53,18 +53,27 @@ export function Search() {
         ) : (
           <>
             <SearchFilters filter={filter} onChange={setFilter} />
+            {s.offline && (
+              <p className="search__offline-note cad-meta" data-testid="search-offline-note">
+                You’re offline — showing songs from your downloads.
+              </p>
+            )}
             <LoadState
               isLoading={s.isLoading}
               isError={s.isError}
               onRetry={() => void s.refetch()}
               isEmpty={s.isEmpty}
-              emptyTitle="No results"
-              emptyMessage="Try a different search."
+              emptyTitle={s.offline ? 'No downloaded songs match' : 'No results'}
+              emptyMessage={
+                s.offline
+                  ? 'With no connection, search looks through your downloads.'
+                  : 'Try a different search.'
+              }
               skeleton={<TrackListSkeleton />}
             >
               <SearchResults groups={s.groups} filter={filter} query={s.query} onPick={record} />
             </LoadState>
-            <SearchEmptyExtras query={s.query} show={s.isEmpty} />
+            <SearchEmptyExtras query={s.query} show={s.isEmpty && !s.offline} />
           </>
         )}
       </IonContent>
