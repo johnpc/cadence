@@ -1,5 +1,18 @@
 name: iOS Deploy
 
+# Post-merge only (workflow_run after CI on main, or a manual dispatch) — never on
+# pull_request, so fork PRs can't reach the self-hosted Mac mini.
+#
+# The shared workflow (johnpc/ci-workflows) builds the web bundle with the
+# diagnostics keys baked in (secret-env), syncs Capacitor + pods, runs Cadence's
+# own launch smoke as the gate (it signs into a hermetic Jellyfin through
+# scripts/ios-smoke-proxy.py and must reach Home with real data, in a Release
+# simulator build of the exact dist it ships), then signs from the CI keychain,
+# archives, uploads, and hands the build to the external TestFlight group. Every
+# path it writes is per-job ($RUNNER_TEMP). A version conflict bumps the patch
+# version and records it through an auto-merging PR opened with DEPLOY_PAT, so
+# that PR runs CI itself and merges once main's required checks pass. It never
+# submits for App Store review.
 on:
   workflow_run:
     workflows: ['CI']
@@ -9,217 +22,30 @@ on:
 
 permissions:
   contents: write
-
-# Only one deploy at a time, so a manual dispatch landing alongside the auto
-# workflow_run queues instead of racing it into a duplicate upload.
-concurrency:
-  group: ios-deploy
-  cancel-in-progress: false
-
-env:
-  SCHEME: App
-  # Capacitor 8 iOS uses CocoaPods — archive the .xcworkspace, not the project.
-  WORKSPACE: ios/App/App.xcworkspace
-  XCODEPROJ: ios/App/App.xcodeproj
-  BUNDLE_ID: com.johncorser.cadence
+  pull-requests: write
+  actions: write
 
 jobs:
   deploy:
-    name: Deploy to App Store Connect
-    # Self-hosted Mac Mini. Safe here: this workflow only triggers on
-    # workflow_run (post-merge, after CI succeeds) and workflow_dispatch —
-    # never on pull_request, so fork PRs can't reach this runner.
-    runs-on: [self-hosted, mac-mini]
-    # Launch smoke (~10 min) + archive/upload (~5) + Apple processing (up to 45).
-    timeout-minutes: 90
-    env:
-      E2E_JELLYFIN_NAME: cadence-smoke-deploy-${{ github.run_id }}-${{ github.run_attempt }}
-      SMOKE_RUN_TAG: deploy-${{ github.run_id }}-${{ github.run_attempt }}
-      SMOKE_OUT: ${{ github.workspace }}/ios-smoke-output
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          ref: main
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 26
-          # No setup-node cache on the self-hosted Mac mini: ~/.npm persists there, and saving it was a ~1.8 GB upload per run.
-          package-manager-cache: false
-
-      - run: npm ci
-
-      # The Jellyfin base URL is a build-time constant committed in .env, so
-      # there's no backend config to pull — just build and sync. The diagnostics
-      # ingest URL + key MUST be injected here (Vite bakes them into the bundle at
-      # build time) — the native app has no runtime config.js, so without these the
-      # iOS build would have no upload endpoint. They're a non-secret throttling
-      # key; opt-in gates whether anything is ever sent (see diagnosticsUploader).
-      - name: Build web and sync to Capacitor iOS
-        env:
-          VITE_DIAGNOSTICS_URL: ${{ secrets.VITE_DIAGNOSTICS_URL }}
-          VITE_DIAGNOSTICS_KEY: ${{ secrets.VITE_DIAGNOSTICS_KEY }}
-        run: |
-          npm run build
-          npx cap sync ios
-          (cd ios/App && pod install)
-
-      # GATE: never upload a build that cannot launch. CI already ran this smoke
-      # test on the merged commit, but this job builds `main` as it is NOW (and a
-      # workflow_dispatch skips CI entirely), so it smokes the exact web bundle it
-      # is about to ship (SMOKE_WEB_BUILD=0: the dist synced above, with the
-      # diagnostics keys and no baked-in server) in a Release simulator build,
-      # BEFORE anything is signed, archived or uploaded. A red here stops the
-      # deploy with the reason (scene fault, crash, Home never rendered).
-      - name: Launch smoke test (gate — the app must reach Home)
-        env:
-          SMOKE_WEB_BUILD: '0'
-          SMOKE_CONFIGURATION: Release
-        run: bash scripts/ios-launch-smoke.sh
-
-      - name: Upload launch-smoke screenshot + logs
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: ios-launch-smoke-deploy
-          path: |
-            ios-smoke-output/home.png
-            ios-smoke-output/requests.jsonl
-            ios-smoke-output/device.log
-            ios-smoke-output/app.stdout
-            ios-smoke-output/xcodebuild.log
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Remove the smoke simulator + Jellyfin
-        if: always()
-        run: bash scripts/ios-launch-smoke.sh cleanup
-
-      # The upload crashes xcodebuild (SIGTRAP in AppSSO:
-      # _xpc_api_misuse ← xpc_connection_set_target_uid, crash reports
-      # xcodebuild-2026-11-15-171456/182826.ips) whenever the runner user `john`
-      # has no GUI login session — every Nov 14–15 failure happened while another
-      # account (peektest) held the console; it went green after a reboot
-      # auto-logged john back in. Fail fast with that cause instead of a silent
-      # export failure ten minutes later.
-      - name: Require a GUI login session for the runner user
-        run: |
-          if ! launchctl print "gui/$(id -u)" >/dev/null 2>&1; then
-            echo "::error::'$(id -un)' has no GUI login session on this Mac (console user: '$(stat -f %Su /dev/console)'). xcodebuild's App Store upload crashes in AppSSO without one. Log '$(id -un)' in at the console (auto-login), then re-run."
-            exit 1
-          fi
-          echo "GUI session for $(id -un) present (console user: $(stat -f %Su /dev/console))"
-
-      - name: Write App Store Connect API key
-        run: |
-          mkdir -p ~/private_keys
-          echo "${{ secrets.ASC_KEY_CONTENT }}" > ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
-
-      - name: Increment build number
-        working-directory: ios/App
-        run: |
-          BUILD_NUM=$(date +%Y%m%d%H%M%S)
-          agvtool new-version -all $BUILD_NUM
-          echo "Set build number to $BUILD_NUM"
-          echo "BUILD_NUM=$BUILD_NUM" >> "$GITHUB_ENV"
-
-      - name: Prepare CI signing (manual, CI keychain)
-        env:
-          CI_KEYCHAIN_PASSWORD: ${{ secrets.CI_KEYCHAIN_PASSWORD }}
-        run: |
-          # Runner jobs run in the system launchd context, where Xcode's automatic
-          # signing can't see or write a keychain. Sign manually with the CI
-          # keychain's Apple Distribution identity (see ~/ci-signing/ios_manual_signing.py).
-          # The export options, archive and export dir live in $RUNNER_TEMP (per job),
-          # never a fixed /tmp or ~/Desktop path: the Mac mini is shared by every app's
-          # deploy, and on 2026-11-17 another app's run rewrote /tmp/ExportOptions.plist
-          # between this step and the export, which then failed for want of Cadence's
-          # profiles ("requires a provisioning profile with the App Groups feature").
-          security unlock-keychain -p "$CI_KEYCHAIN_PASSWORD" "$HOME/Library/Keychains/ci-signing.keychain-db"
-          python3 ~/ci-signing/ios_manual_signing.py apply "$XCODEPROJ" --export-options "$RUNNER_TEMP/ExportOptions.plist"
-
-      - name: Archive and upload (auto-bump version on conflict)
-        id: archive
-        run: |
-          # Everything the failure diagnostics below report is newer than this.
-          touch "$RUNNER_TEMP/export-marker"
-
-          archive_and_upload() {
-            xcodebuild archive \
-              -workspace "$WORKSPACE" \
-              -scheme "$SCHEME" \
-              -destination "generic/platform=iOS" \
-              -archivePath "$RUNNER_TEMP/Cadence.xcarchive" \
-              -quiet
-
-            # NO -allowProvisioningUpdates: signing is MANUAL (profiles + the CI
-            # keychain identity from the Prepare step), so Xcode has no reason to
-            # touch an Apple account — and that flag is exactly what dragged in
-            # AppSSO, which crashes xcodebuild in the runner's launchd context
-            # (SIGTRAP, crash report xcodebuild-2026-11-15-171456.ips on the mini)
-            # and times out in a GUI-session hop. The authentication key below is
-            # for the UPLOAD only (destination=upload in ExportOptions).
-            xcodebuild -exportArchive \
-              -archivePath "$RUNNER_TEMP/Cadence.xcarchive" \
-              -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
-              -exportPath "$RUNNER_TEMP/export" \
-              -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
-              -authenticationKeyID ${{ secrets.ASC_KEY_ID }} \
-              -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }} 2>&1
-          }
-
-          OUTPUT=$(archive_and_upload) && echo "$OUTPUT" && exit 0
-
-          if echo "$OUTPUT" | grep -qi "version.*already exists\|already been uploaded\|redundant binary\|train.*closed\|higher version"; then
-            echo "⚠️ Version conflict, bumping patch version..."
-            python3 ~/ci-signing/ios_manual_signing.py revert "$XCODEPROJ"
-            CURRENT=$(grep -m 1 'MARKETING_VERSION' "$XCODEPROJ/project.pbxproj" | sed 's/.*= *\(.*\);/\1/')
-            MAJOR=$(echo "$CURRENT" | cut -d. -f1)
-            MINOR=$(echo "$CURRENT" | cut -d. -f2)
-            PATCH=$(echo "$CURRENT" | cut -d. -f3)
-            NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
-            sed -i '' "s/MARKETING_VERSION = ${CURRENT}/MARKETING_VERSION = ${NEW_VERSION}/g" "$XCODEPROJ/project.pbxproj"
-            echo "Bumped $CURRENT → $NEW_VERSION"
-
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add "$XCODEPROJ/project.pbxproj"
-            git commit -m "chore(ios): bump version to $NEW_VERSION [skip ci]"
-            git push origin main
-            python3 ~/ci-signing/ios_manual_signing.py apply "$XCODEPROJ" --export-options "$RUNNER_TEMP/ExportOptions.plist"
-
-            rm -rf "$RUNNER_TEMP/Cadence.xcarchive" "$RUNNER_TEMP/export"
-            archive_and_upload
-          else
-            echo "$OUTPUT"
-            exit 1
-          fi
-
-      # xcodebuild often fails an export with no reason at all (its "failed with
-      # exit code 0 but produced no further output" line is noise — it appears in
-      # green runs too). Print the IDEDistribution logs + any xcodebuild crash.
-      - name: Why the archive/upload failed
-        if: failure() && steps.archive.outcome == 'failure'
-        run: bash scripts/ios-export-diagnostics.sh "$RUNNER_TEMP/export-marker"
-
-      # PROVES the upload landed: "Upload succeeded" from xcodebuild is not
-      # enough (a job has gone red while Apple got the build, and green-looking
-      # uploads have sat unlisted for 20+ min). scripts/asc-testflight.py checks
-      # Apple's buildUpload record (named rejection errors), waits on explicit
-      # deadlines with a live line per poll, then attaches the build to every
-      # external beta group (ASC auto-submits it for Beta App Review on the first
-      # external assignment; no external group = VALID in TestFlight, logged, not
-      # an error). TestFlight only — App Store submission stays manual.
-      - name: Verify the build reached TestFlight and distribute to external testers
-        timeout-minutes: 50
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          BUNDLE_ID: ${{ env.BUNDLE_ID }}
-        run: python3 scripts/asc-testflight.py distribute "$BUILD_NUM"
-
-      - name: Revert CI signing
-        if: always()
-        run: python3 ~/ci-signing/ios_manual_signing.py revert "$XCODEPROJ"
+    uses: johnpc/ci-workflows/.github/workflows/ios-deploy-capacitor.yml@v1
+    secrets: inherit
+    with:
+      bundle-id: com.johncorser.cadence
+      archive-name: Cadence
+      ref: main
+      external-beta: true
+      secret-env: VITE_DIAGNOSTICS_KEY VITE_DIAGNOSTICS_URL
+      # SMOKE_WEB_BUILD=0: smoke the dist the shared workflow just built and synced.
+      # The trap removes this run's simulator + Jellyfin even if the smoke dies
+      # before its own cleanup runs.
+      smoke-command: trap 'bash scripts/ios-launch-smoke.sh cleanup' EXIT; SMOKE_WEB_BUILD=0 SMOKE_CONFIGURATION=Release SMOKE_RUN_TAG=deploy-${{ github.run_id }}-${{ github.run_attempt }} bash scripts/ios-launch-smoke.sh
+      # Evidence only: ios-smoke-output/ also holds the smoke's DerivedData.
+      smoke-artifact-paths: |
+        ios-smoke-output/home.png
+        ios-smoke-output/requests.jsonl
+        ios-smoke-output/device.log
+        ios-smoke-output/app.stdout
+        ios-smoke-output/xcodebuild.log
+      bump: patch
+      timeout-minutes: 90
