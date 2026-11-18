@@ -288,10 +288,11 @@ Non-obvious things that have cost real time — check here before rediscovering 
   (`_xpc_api_misuse` in `xpc_connection_set_target_uid`) and prints only "failed with exit code 0 but
   produced no further output" — a line that ALSO appears in green runs, so it's noise. That (not
   `-allowProvisioningUpdates`) was every Nov 14–15 failure; a reboot that auto-logged `john` in fixed it.
-  The deploy now checks `launchctl print gui/$(id -u)` up front, prints the xcdistributionlogs + any
-  xcodebuild crash on failure (`scripts/ios-export-diagnostics.sh`), and confirms via the ASC API
-  (`buildUploads` + `builds`) that the build arrived before distributing. Apple can take 20+ min to list
-  a fine build — the wait is 45 min, on explicit deadlines, never a retry.
+  Since 2026-11-18 the deploy is the shared `johnpc/ci-workflows` `ios-deploy-capacitor.yml@v1`
+  (Cadence keeps its own launch smoke via `smoke-command`), which has no GUI-session precheck: if an
+  export dies like that, check the console user first. `scripts/ios-export-diagnostics.sh` (prints the
+  xcdistributionlogs + any xcodebuild crash) and `scripts/asc-testflight.py builds` remain for manual
+  diagnosis. Apple can take 20+ min to list a fine build.
 - **iOS is not the browser.** `HTMLMediaElement.volume` is **read-only on iOS** (hardware buttons only)
   — hide software volume there (`lib/platform.ts` `hasSoftwareVolume()`). iOS lock-screen shows EITHER
   prev/next-track OR ±seek buttons and prefers seek when registered — so on iOS leave
