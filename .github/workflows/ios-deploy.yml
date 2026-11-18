@@ -39,7 +39,7 @@ jobs:
       # SMOKE_WEB_BUILD=0: smoke the dist the shared workflow just built and synced.
       # The trap removes this run's simulator + Jellyfin even if the smoke dies
       # before its own cleanup runs.
-      smoke-command: trap 'bash scripts/ios-launch-smoke.sh cleanup' EXIT; SMOKE_WEB_BUILD=0 SMOKE_CONFIGURATION=Release SMOKE_RUN_TAG=deploy-${{ github.run_id }}-${{ github.run_attempt }} bash scripts/ios-launch-smoke.sh
+      smoke-command: export SMOKE_RUN_TAG=deploy-${{ github.run_id }}-${{ github.run_attempt }}; trap 'bash scripts/ios-launch-smoke.sh cleanup' EXIT; SMOKE_WEB_BUILD=0 SMOKE_CONFIGURATION=Release bash scripts/ios-launch-smoke.sh
       # Evidence only: ios-smoke-output/ also holds the smoke's DerivedData.
       smoke-artifact-paths: |
         ios-smoke-output/home.png
