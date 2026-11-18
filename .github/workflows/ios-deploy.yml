@@ -132,8 +132,13 @@ jobs:
           # Runner jobs run in the system launchd context, where Xcode's automatic
           # signing can't see or write a keychain. Sign manually with the CI
           # keychain's Apple Distribution identity (see ~/ci-signing/ios_manual_signing.py).
+          # The export options, archive and export dir live in $RUNNER_TEMP (per job),
+          # never a fixed /tmp or ~/Desktop path: the Mac mini is shared by every app's
+          # deploy, and on 2026-11-17 another app's run rewrote /tmp/ExportOptions.plist
+          # between this step and the export, which then failed for want of Cadence's
+          # profiles ("requires a provisioning profile with the App Groups feature").
           security unlock-keychain -p "$CI_KEYCHAIN_PASSWORD" "$HOME/Library/Keychains/ci-signing.keychain-db"
-          python3 ~/ci-signing/ios_manual_signing.py apply "$XCODEPROJ" --export-options /tmp/ExportOptions.plist
+          python3 ~/ci-signing/ios_manual_signing.py apply "$XCODEPROJ" --export-options "$RUNNER_TEMP/ExportOptions.plist"
 
       - name: Archive and upload (auto-bump version on conflict)
         id: archive
@@ -146,7 +151,7 @@ jobs:
               -workspace "$WORKSPACE" \
               -scheme "$SCHEME" \
               -destination "generic/platform=iOS" \
-              -archivePath ~/Desktop/Cadence.xcarchive \
+              -archivePath "$RUNNER_TEMP/Cadence.xcarchive" \
               -quiet
 
             # NO -allowProvisioningUpdates: signing is MANUAL (profiles + the CI
@@ -157,9 +162,9 @@ jobs:
             # and times out in a GUI-session hop. The authentication key below is
             # for the UPLOAD only (destination=upload in ExportOptions).
             xcodebuild -exportArchive \
-              -archivePath ~/Desktop/Cadence.xcarchive \
-              -exportOptionsPlist /tmp/ExportOptions.plist \
-              -exportPath ~/Desktop/export \
+              -archivePath "$RUNNER_TEMP/Cadence.xcarchive" \
+              -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+              -exportPath "$RUNNER_TEMP/export" \
               -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8 \
               -authenticationKeyID ${{ secrets.ASC_KEY_ID }} \
               -authenticationKeyIssuerID ${{ secrets.ASC_ISSUER_ID }} 2>&1
@@ -183,9 +188,9 @@ jobs:
             git add "$XCODEPROJ/project.pbxproj"
             git commit -m "chore(ios): bump version to $NEW_VERSION [skip ci]"
             git push origin main
-            python3 ~/ci-signing/ios_manual_signing.py apply "$XCODEPROJ" --export-options /tmp/ExportOptions.plist
+            python3 ~/ci-signing/ios_manual_signing.py apply "$XCODEPROJ" --export-options "$RUNNER_TEMP/ExportOptions.plist"
 
-            rm -rf ~/Desktop/Cadence.xcarchive ~/Desktop/export
+            rm -rf "$RUNNER_TEMP/Cadence.xcarchive" "$RUNNER_TEMP/export"
             archive_and_upload
           else
             echo "$OUTPUT"
