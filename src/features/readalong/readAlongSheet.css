@@ -1,0 +1,123 @@
+.readalong {
+  height: 100%;
+  background: var(--cad-bg);
+  display: flex;
+  flex-direction: column;
+  padding: var(--cad-space-4);
+  padding-top: max(var(--cad-safe-top), var(--cad-space-4));
+  position: relative;
+}
+
+.readalong__head {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-3);
+  margin-bottom: var(--cad-space-4);
+}
+
+.readalong__titles {
+  min-width: 0;
+}
+
+.readalong__titles h2,
+.readalong__titles p {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.readalong__close {
+  border: none;
+  background: none;
+  color: var(--cad-text);
+  font-size: 26px;
+  cursor: pointer;
+}
+
+/* The chapter: book typography on our canvas. Sentences dim; the narrated one
+   is brought up to full strength on a soft accent wash, so it reads as the
+   karaoke cursor in both light and dark without relying on colour alone. */
+.readalong__text {
+  flex: 1;
+  overflow-y: auto;
+  font-family: var(--cad-font-serif);
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--cad-text-secondary);
+  padding-bottom: var(--cad-space-8);
+}
+
+.readalong__text p,
+.readalong__text h1,
+.readalong__text h2,
+.readalong__text h3 {
+  margin: 0 0 var(--cad-space-3);
+}
+
+.readalong__text h1,
+.readalong__text h2,
+.readalong__text h3 {
+  font-family: var(--cad-font-sans);
+  color: var(--cad-text);
+}
+
+.readalong__text img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--cad-radius-card);
+}
+
+.readalong__text [id] {
+  cursor: pointer;
+  border-radius: var(--cad-radius-card);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.readalong__active {
+  color: var(--cad-text);
+  background: color-mix(in srgb, var(--cad-accent) 22%, transparent);
+  box-shadow: 0 0 0 var(--cad-space-1) color-mix(in srgb, var(--cad-accent) 22%, transparent);
+  font-weight: 600;
+}
+
+.readalong__follow {
+  position: absolute;
+  left: 50%;
+  bottom: max(var(--cad-safe-bottom), var(--cad-space-6));
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-2);
+  border: none;
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  border-radius: var(--cad-radius-pill);
+  padding: var(--cad-space-2) var(--cad-space-4);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: var(--cad-shadow);
+  cursor: pointer;
+}
+
+.readalong__unavailable {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cad-space-3);
+  padding: var(--cad-space-6) 0;
+}
+
+.readalong__unavailable p {
+  margin: 0;
+}
+
+.readalong__settings-link {
+  align-self: flex-start;
+  color: var(--cad-accent);
+  font-family: var(--cad-font-sans);
+  font-weight: 600;
+  text-decoration: none;
+}

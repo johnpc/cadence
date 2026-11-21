@@ -23,6 +23,7 @@ interface PluginConfigResponse {
   CastReceiverAppId?: string;
   LidarrProxy?: boolean;
   DeezerImport?: boolean;
+  Storyteller?: boolean;
 }
 
 /** Merge a string value into the config only when it's non-empty AND not already
@@ -38,7 +39,7 @@ function fillString(key: 'marlinUrl' | 'signupUrl' | 'castReceiverAppId', value?
  * wins). Keyed to the boolean flags so it can't target a string field. */
 function fillFlag(
   config: NonNullable<typeof window.__CADENCE_CONFIG__>,
-  key: 'deezerImport',
+  key: 'deezerImport' | 'storyteller',
   value?: boolean,
 ): void {
   if (value === true && !config[key]) config[key] = true;
@@ -66,6 +67,7 @@ export async function hydratePluginConfig(): Promise<void> {
     // HomeShelves/Audiobooks for retired fast paths; Home and Audiobooks are
     // always native now, so those are ignored.
     fillFlag(config, 'deezerImport', res.DeezerImport);
+    fillFlag(config, 'storyteller', res.Storyteller);
   } catch {
     /* no plugin / offline / unauthenticated — keep existing config */
   } finally {

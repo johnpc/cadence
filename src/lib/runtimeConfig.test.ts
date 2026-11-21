@@ -5,6 +5,7 @@ import {
   configuredServerUrl,
   lidarrProxyEnabled,
   deezerImportEnabled,
+  storytellerEnabled,
   marlinProxyEnabled,
   signupUrl,
 } from './runtimeConfig';
@@ -62,6 +63,16 @@ describe('deezerImportEnabled', () => {
   it('is true only when deezerImport: true', () => {
     window.__CADENCE_CONFIG__ = { deezerImport: true };
     expect(deezerImportEnabled()).toBe(true);
+  });
+});
+
+describe('storytellerEnabled', () => {
+  it('is false with no config', () => {
+    expect(storytellerEnabled()).toBe(false);
+  });
+  it('is true only when storyteller: true', () => {
+    window.__CADENCE_CONFIG__ = { storyteller: true };
+    expect(storytellerEnabled()).toBe(true);
   });
 });
 

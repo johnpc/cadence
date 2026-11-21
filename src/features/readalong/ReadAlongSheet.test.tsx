@@ -1,0 +1,216 @@
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@ionic/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@ionic/react')>();
+  return {
+    ...actual,
+    IonModal: ({ isOpen, children }: { isOpen: boolean; children: ReactNode }) =>
+      isOpen ? <div>{children}</div> : null,
+  };
+});
+vi.mock('./useReadAlong', () => ({ useReadAlongBook: vi.fn(), useChapterText: vi.fn() }));
+vi.mock('../player/pendingSeek', () => ({ setPendingSeek: vi.fn() }));
+import { useChapterText, useReadAlongBook } from './useReadAlong';
+import { setPendingSeek } from '../player/pendingSeek';
+import { ReadAlongSheet } from './ReadAlongSheet';
+import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
+import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import type { ReadAlongBook } from './storytellerApi';
+
+const part1: JellyfinItem = {
+  Id: 'p1',
+  Name: 'Harbor Winds',
+  Type: 'AudioBook',
+  Album: 'Harbor Winds',
+};
+const part2: JellyfinItem = {
+  Id: 'p2',
+  Name: 'Harbor Winds',
+  Type: 'AudioBook',
+  Album: 'Harbor Winds',
+};
+
+const readyBook: ReadAlongBook = {
+  Status: 'ready',
+  BookUuid: 'u',
+  Title: 'Harbor Winds',
+  Duration: 200,
+  Parts: [
+    { ItemId: 'p1', Duration: 100 },
+    { ItemId: 'p2', Duration: 100 },
+  ],
+  Chapters: [{ Href: 'ch1.xhtml', Title: 'Chapter One' }],
+  Clips: [
+    { Start: 0, End: 4, Chapter: 0, Fragment: 's1' },
+    { Start: 4, End: 8, Chapter: 0, Fragment: 's2' },
+    { Start: 150, End: 154, Chapter: 0, Fragment: 's3' },
+  ],
+};
+
+const chapterHtml =
+  '<p id="s1">First sentence.</p><p id="s2">Second sentence.</p><p id="s3">Third sentence.</p>' +
+  '<script>window.__xss = 1</script>';
+
+function mockBook(
+  book: ReadAlongBook | undefined,
+  extra: Partial<ReturnType<typeof useReadAlongBook>> = {},
+) {
+  vi.mocked(useReadAlongBook).mockReturnValue({
+    book,
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+    ...extra,
+  } as ReturnType<typeof useReadAlongBook>);
+}
+
+function mockText(html: string | undefined) {
+  vi.mocked(useChapterText).mockReturnValue({
+    html,
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+  } as ReturnType<typeof useChapterText>);
+}
+
+describe('ReadAlongSheet', () => {
+  beforeEach(() => {
+    window.__CADENCE_CONFIG__ = { storyteller: true };
+    Element.prototype.scrollIntoView = vi.fn();
+    mockText(chapterHtml);
+  });
+  afterEach(() => {
+    delete window.__CADENCE_CONFIG__;
+    vi.resetAllMocks();
+  });
+
+  it('highlights the sentence being narrated and strips scripts from the chapter', async () => {
+    mockBook(readyBook);
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1, queue: [part1, part2] }),
+      progress: { position: 5, duration: 100 },
+    });
+    const text = await screen.findByTestId('readalong-text');
+    await waitFor(() => expect(text.querySelector('[data-active="true"]')?.id).toBe('s2'));
+    expect(text.querySelector('script')).toBeNull();
+    expect((window as unknown as { __xss?: number }).__xss).toBeUndefined();
+    expect(screen.getByTestId('readalong-chapter')).toHaveTextContent('Chapter One');
+  });
+
+  it('keeps the highlight across re-renders and moves it as the narration advances', async () => {
+    mockBook(readyBook);
+    const player = stubPlayer({ current: part1, queue: [part1, part2] });
+    const view = renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player,
+      progress: { position: 1, duration: 100 },
+    });
+    const text = await screen.findByTestId('readalong-text');
+    await waitFor(() => expect(text.querySelector('[data-active="true"]')?.id).toBe('s1'));
+    // A progress tick inside the same sentence re-renders the sheet: the
+    // highlight must survive it (it used to be wiped by a markup re-apply).
+    view.rerender(<ReadAlongSheet open onClose={vi.fn()} />);
+    expect(text.querySelector('[data-active="true"]')?.id).toBe('s1');
+    expect(text.querySelectorAll('[data-active="true"]')).toHaveLength(1);
+  });
+
+  it('lifts the position of a later part onto the book clock', async () => {
+    mockBook(readyBook);
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part2, queue: [part1, part2] }),
+      progress: { position: 51, duration: 100 },
+    });
+    const text = await screen.findByTestId('readalong-text');
+    await waitFor(() => expect(text.querySelector('[data-active="true"]')?.id).toBe('s3'));
+  });
+
+  it('seeks within the part when a sentence is tapped', async () => {
+    mockBook(readyBook);
+    const seek = vi.fn();
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1, queue: [part1, part2], seek }),
+      progress: { position: 1, duration: 100 },
+    });
+    await userEvent.click(await screen.findByText('Second sentence.'));
+    expect(seek).toHaveBeenCalledWith(4);
+  });
+
+  it('jumps the queue to another part (with a pending seek) when the sentence lives there', async () => {
+    mockBook(readyBook);
+    const jumpTo = vi.fn();
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1, queue: [part1, part2], jumpTo }),
+      progress: { position: 1, duration: 100 },
+    });
+    await userEvent.click(await screen.findByText('Third sentence.'));
+    expect(setPendingSeek).toHaveBeenCalledWith('p2', 50);
+    expect(jumpTo).toHaveBeenCalledWith(1);
+  });
+
+  it('detaches when the reader scrolls and re-follows from the chip', async () => {
+    mockBook(readyBook);
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1, queue: [part1, part2] }),
+      progress: { position: 5, duration: 100 },
+    });
+    const text = await screen.findByTestId('readalong-text');
+    expect(screen.queryByTestId('readalong-follow')).toBeNull();
+    const { fireEvent } = await import('@testing-library/react');
+    fireEvent.wheel(text);
+    const chip = await screen.findByTestId('readalong-follow');
+    await userEvent.click(chip);
+    expect(screen.queryByTestId('readalong-follow')).toBeNull();
+  });
+
+  it('explains an unlinked account and points at Settings', async () => {
+    mockBook({ ...readyBook, Status: 'unlinked', Clips: [] });
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1 }),
+    });
+    const box = await screen.findByTestId('readalong-unavailable');
+    expect(box).toHaveAttribute('data-reason', 'unlinked');
+    expect(screen.getByText(/Connect Storyteller in Settings/)).toBeInTheDocument();
+    expect(screen.getByText('Open Settings')).toHaveAttribute('href', '/settings');
+  });
+
+  it('shows the aligning / unmatched / mismatch copy without a Settings link', async () => {
+    mockBook({ ...readyBook, Status: 'aligning', Clips: [] });
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1 }),
+    });
+    expect(await screen.findByText(/still aligning/)).toBeInTheDocument();
+    expect(screen.queryByText('Open Settings')).toBeNull();
+  });
+
+  it('is unavailable for music even when the feature is on', async () => {
+    mockBook(undefined);
+    const song: JellyfinItem = { Id: 's', Name: 'Song', Type: 'Audio' };
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: song }),
+    });
+    expect(await screen.findByTestId('readalong-unavailable')).toHaveAttribute(
+      'data-reason',
+      'not-a-book',
+    );
+  });
+
+  it('shows an error with retry when the book lookup fails', async () => {
+    const refetch = vi.fn();
+    mockBook(undefined, { isError: true, refetch });
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1 }),
+    });
+    await userEvent.click(await screen.findByRole('button', { name: /retry|try again/i }));
+    expect(refetch).toHaveBeenCalled();
+  });
+
+  it('shows a loading state while the book is fetched', async () => {
+    mockBook(undefined, { isLoading: true });
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1 }),
+    });
+    expect(await screen.findByTestId('load-loading')).toBeInTheDocument();
+  });
+});

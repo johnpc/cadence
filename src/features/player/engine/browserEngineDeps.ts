@@ -6,7 +6,7 @@ import { random } from '../../../lib/random';
 import { tap } from '../../../lib/haptics';
 import { isCastConnected, isCastPlaying, onCastStateChange } from '../../cast/castStore';
 import { castSeek, castToggle, castTrack, stopCast } from '../../cast/castController';
-import { liveResumeSeconds } from '../../audiobook/liveResumeSeconds';
+import { storytellerResumeSeconds } from '../../readalong/storytellerResume';
 import { loadQueue, saveQueue } from '../queuePersistence';
 import { loadModes, saveModes } from '../playerModes';
 import { loadRate, loadVolume, saveRate, saveVolume } from '../playbackPrefs';
@@ -59,7 +59,8 @@ export function browserEngineDeps(notify: (message: string) => void): EngineDeps
       seek: castSeek,
       stop: stopCast,
     },
-    resumeAt: liveResumeSeconds,
+    // Live Jellyfin position, with a newer Storyteller (read-along) one winning.
+    resumeAt: storytellerResumeSeconds,
     availability: {
       offline: () => readForceOffline() || getReachability() === 'offline',
       downloaded: isDownloaded,

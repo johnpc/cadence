@@ -5,6 +5,7 @@ import { AmbientBackground } from './AmbientBackground';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
 import { ChapterSheet } from '../audiobook/ChapterSheet';
+import { ReadAlongSheet } from '../readalong/ReadAlongSheet';
 import { AudiobookSeekButtons } from '../audiobook/AudiobookSeekButtons';
 import { AudiobookProgress } from '../audiobook/AudiobookProgress';
 import { SpeedSlider } from '../audiobook/SpeedSlider';
@@ -30,7 +31,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
   const p = usePlayer();
   const { position, duration } = usePlayerProgress();
   const scrub = useScrubber(position, p.seek);
-  const sheet = useOverlay<'queue' | 'lyrics' | 'chapters'>();
+  const sheet = useOverlay<'queue' | 'lyrics' | 'chapters' | 'readalong'>();
   // Swipe the art left/right to skip — a signature now-playing gesture. Guarded
   // by canNext/canPrev so a swipe at the queue's edge is a no-op.
   const swipe = useSwipe(
@@ -82,6 +83,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           current={p.current}
           onOpenLyrics={() => sheet.show('lyrics')}
           onOpenChapters={() => sheet.show('chapters')}
+          onOpenReadAlong={() => sheet.show('readalong')}
           onOpenQueue={() => sheet.show('queue')}
           onClose={onClose}
         />
@@ -89,6 +91,10 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         <QueueView open={sheet.open === 'queue'} onClose={() => sheet.closed('queue')} />
         <LyricsSheet open={sheet.open === 'lyrics'} onClose={() => sheet.closed('lyrics')} />
         <ChapterSheet open={sheet.open === 'chapters'} onClose={() => sheet.closed('chapters')} />
+        <ReadAlongSheet
+          open={sheet.open === 'readalong'}
+          onClose={() => sheet.closed('readalong')}
+        />
       </div>
     </IonModal>
   );

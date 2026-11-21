@@ -1,23 +1,27 @@
 import { IonIcon } from '@ionic/react';
-import { listOutline, documentTextOutline, bookmarksOutline } from 'ionicons/icons';
+import { listOutline, documentTextOutline, bookmarksOutline, bookOutline } from 'ionicons/icons';
 import { NowPlayingMenu } from './NowPlayingMenu';
 import { CastButton } from '../cast/CastButton';
 import { isAudiobook } from '../audiobook/isAudiobook';
+import { storytellerEnabled } from '../../lib/runtimeConfig';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** The full player's bottom row: Lyrics (or Chapters for an audiobook), Up next,
  * Cast, and the "…" menu. Audiobooks show a Chapters button instead of Lyrics —
- * books have chapter markers, not lyrics. */
+ * books have chapter markers, not lyrics — plus "Read along" when the server
+ * bridges to Storyteller. */
 export function FullPlayerFooter({
   current,
   onOpenLyrics,
   onOpenChapters,
+  onOpenReadAlong,
   onOpenQueue,
   onClose,
 }: {
   current: JellyfinItem | null;
   onOpenLyrics: () => void;
   onOpenChapters: () => void;
+  onOpenReadAlong: () => void;
   onOpenQueue: () => void;
   onClose: () => void;
 }) {
@@ -38,6 +42,15 @@ export function FullPlayerFooter({
           data-testid="full-player-lyrics"
         >
           <IonIcon icon={documentTextOutline} /> Lyrics
+        </button>
+      )}
+      {isAudiobook(current) && storytellerEnabled() && (
+        <button
+          className="fullplayer__foot-btn"
+          onClick={onOpenReadAlong}
+          data-testid="full-player-readalong"
+        >
+          <IonIcon icon={bookOutline} /> Read along
         </button>
       )}
       <button
