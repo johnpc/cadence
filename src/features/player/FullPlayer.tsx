@@ -5,7 +5,7 @@ import { AmbientBackground } from './AmbientBackground';
 import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
 import { ChapterSheet } from '../audiobook/ChapterSheet';
-import { ReadAlongSheet } from '../readalong/ReadAlongSheet';
+import { LazyReadAlongSheet } from '../readalong/LazyReadAlongSheet';
 import { AudiobookSeekButtons } from '../audiobook/AudiobookSeekButtons';
 import { AudiobookProgress } from '../audiobook/AudiobookProgress';
 import { SpeedSlider } from '../audiobook/SpeedSlider';
@@ -91,7 +91,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         <QueueView open={sheet.open === 'queue'} onClose={() => sheet.closed('queue')} />
         <LyricsSheet open={sheet.open === 'lyrics'} onClose={() => sheet.closed('lyrics')} />
         <ChapterSheet open={sheet.open === 'chapters'} onClose={() => sheet.closed('chapters')} />
-        <ReadAlongSheet
+        <LazyReadAlongSheet
           open={sheet.open === 'readalong'}
           onClose={() => sheet.closed('readalong')}
         />
