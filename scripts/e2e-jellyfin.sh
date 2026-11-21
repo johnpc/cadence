@@ -31,7 +31,7 @@ ADMIN_PASS="${E2E_ADMIN_PASSWORD:-cadence-e2e-admin}"
 TEST_PASSWORD="${TEST_PASSWORD:-cadence-e2e-pass}"
 # One user per acceptance area (ci.yml matrix) + the second user the playlists
 # area's cross-user visibility scenario signs in as.
-AREAS=(smoke auth playback search library playlists home album artist song downloads offline audiobooks native-playback playlists2)
+AREAS=(smoke auth playback search library playlists home album artist song downloads offline audiobooks native-playback readalong playlists2)
 EXPECTED_SONGS=46
 EXPECTED_BOOK_PARTS=5
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
