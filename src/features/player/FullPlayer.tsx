@@ -7,7 +7,7 @@ import { LyricsSheet } from './LyricsSheet';
 import { ChapterSheet } from '../audiobook/ChapterSheet';
 import { LazyReadAlongSheet } from '../readalong/LazyReadAlongSheet';
 import { AudiobookSeekButtons } from '../audiobook/AudiobookSeekButtons';
-import { AudiobookScrubbers } from '../audiobook/AudiobookScrubbers';
+import { LazyAudiobookScrubbers } from '../audiobook/LazyAudiobookScrubbers';
 import { isAudiobook } from '../audiobook/isAudiobook';
 import { SpeedSlider } from '../audiobook/SpeedSlider';
 import { FullPlayerFooter } from './FullPlayerFooter';
@@ -59,7 +59,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         <FullPlayerTitle track={p.current} onNavigate={onClose} />
         <div className="fullplayer__scrubber">
           {isAudiobook(p.current) ? (
-            <AudiobookScrubbers />
+            <LazyAudiobookScrubbers />
           ) : (
             <>
               <input

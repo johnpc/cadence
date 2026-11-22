@@ -195,17 +195,23 @@ function totalSeconds(text: string): number {
 Then("I see the current part's progress labelled with its part number", async ({ page }) => {
   // The fixture's parts are each titled with the book, so the chapter bar names
   // them by position ("Part 1 of 3") rather than repeating the title.
-  const label = page.getByTestId('chapter-progress-label');
+  // Scoped to the player: the book's detail header underneath has its own
+  // `book-progress-label` ("3 parts · 3% · 7m left").
+  const player = page.getByTestId('full-player');
+  const label = player.getByTestId('chapter-progress-label');
   await expect(label).toHaveText(/^Part \d of \d$/, { timeout: DATA_WAIT });
-  await expect(page.getByTestId('chapter-progress-time')).toHaveText(/^\d+:\d{2} \/ \d+:\d{2}$/);
+  await expect(player.getByTestId('chapter-progress-time')).toHaveText(/^\d+:\d{2} \/ \d+:\d{2}$/);
 });
 
 Then(
   "I see the whole book's progress labelled with the book's title, longer than the part",
   async ({ page }) => {
     const title = (await page.getByTestId('book-title').innerText()).trim();
-    await expect(page.getByTestId('book-progress-label')).toHaveText(title, { timeout: DATA_WAIT });
-    const bookTime = page.getByTestId('book-progress-time');
+    const player = page.getByTestId('full-player');
+    await expect(player.getByTestId('book-progress-label')).toHaveText(title, {
+      timeout: DATA_WAIT,
+    });
+    const bookTime = player.getByTestId('book-progress-time');
     await expect(bookTime).toContainText('left');
     // Real data: the book's total is the sum of its parts, so it must clearly
     // exceed the single part's length (parts here are 3–4 minutes each).
@@ -213,7 +219,7 @@ Then(
       .poll(
         async () => {
           const book = totalSeconds(await bookTime.innerText());
-          const part = totalSeconds(await page.getByTestId('chapter-progress-time').innerText());
+          const part = totalSeconds(await player.getByTestId('chapter-progress-time').innerText());
           return part > 0 && book >= part * 1.5;
         },
         { timeout: DATA_WAIT },
