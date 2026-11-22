@@ -41,3 +41,18 @@ Feature: Read along with Storyteller
     And I open the full player
     And I open read along
     Then I am told the server's Storyteller setup is unfinished for my account
+
+  Scenario: The sheet's own controls pause and skip without leaving the text
+    Given the server offers Storyteller read-along for the fixture book
+    And I am signed in
+    When I open the Audiobooks tab
+    Then I see the audiobook library with books
+    When I open the first book's detail page
+    And I play the book from its detail page
+    And I open the full player
+    And I open read along
+    Then the chapter text is shown with the narrated sentence highlighted
+    When I skip forward from the read-along sheet
+    Then the audio moved ahead and the text is still open
+    When I pause from the read-along sheet
+    Then the audio is paused and the text is still open

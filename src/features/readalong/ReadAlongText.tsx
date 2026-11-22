@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
+import { followScroll, type FollowReason } from './followScroll';
 import type { FollowMode } from './readAlongState';
 
 /**
@@ -8,9 +9,12 @@ import type { FollowMode } from './readAlongState';
  * dangerouslySetInnerHTML, which React may re-apply on an ordinary re-render
  * (every progress tick), wiping the highlight. The highlight is moved
  * imperatively too: re-rendering thousands of sentences through React on every
- * tick would be the wrong tool. A tap on any element with an id reports
- * that id (the sentence anchor); wheel/touch/keyboard scrolling reports reader
- * intent so the sheet can leave `following` mode.
+ * tick would be the wrong tool. Keeping the sentence in view is one decision
+ * per change (followScroll): an instant jump on open / new chapter, a gentle
+ * catch-up only once it drifts out of the reading band, nothing otherwise. The
+ * container's own scrolls never count as the reader taking over — only wheel,
+ * touch and keys do (onReaderScroll). A tap on any element with an id reports
+ * that id (the sentence anchor).
  */
 export function ReadAlongText({
   html,
@@ -26,11 +30,14 @@ export function ReadAlongText({
   onReaderScroll: () => void;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
+  // Why the next scroll happens: a fresh mount is an open, new html a chapter.
+  const reason = useRef<FollowReason>('open');
 
   // Replace the chapter markup only when the chapter itself changes. A layout
   // effect, so the highlight effect below always sees the new nodes.
   useLayoutEffect(() => {
     if (ref.current) ref.current.innerHTML = html;
+    if (reason.current !== 'open') reason.current = 'chapter';
   }, [html]);
 
   // Move the highlight whenever the active sentence (or the chapter html) changes.
@@ -46,7 +53,8 @@ export function ReadAlongText({
     if (!el) return;
     el.setAttribute('data-active', 'true');
     el.classList.add('readalong__active');
-    if (follow === 'following') el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (follow === 'following') keepInView(root, el, reason.current);
+    reason.current = 'tick';
   }, [html, activeFragment, follow]);
 
   const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -67,6 +75,22 @@ export function ReadAlongText({
       }}
     />
   );
+}
+
+/** Measure the sentence against the scroller and apply followScroll's verdict. */
+function keepInView(root: HTMLDivElement, el: HTMLElement, reason: FollowReason): void {
+  if (typeof root.scrollTo !== 'function') return;
+  const view = root.getBoundingClientRect();
+  const rect = el.getBoundingClientRect();
+  const decision = followScroll({
+    activeTop: rect.top - view.top + root.scrollTop,
+    activeBottom: rect.bottom - view.top + root.scrollTop,
+    viewTop: root.scrollTop,
+    viewHeight: root.clientHeight,
+    reason,
+  });
+  if (decision.kind === 'none') return;
+  root.scrollTo({ top: decision.to, behavior: decision.kind === 'jump' ? 'auto' : 'smooth' });
 }
 
 /** Escape an id for use inside an attribute selector (ids may carry dots/colons). */
