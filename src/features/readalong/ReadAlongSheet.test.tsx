@@ -172,7 +172,7 @@ describe('ReadAlongSheet', () => {
     const box = await screen.findByTestId('readalong-unavailable');
     expect(box).toHaveAttribute('data-reason', 'unlinked');
     expect(screen.getByText(/Connect Storyteller in Settings/)).toBeInTheDocument();
-    expect(screen.getByText('Open Settings')).toHaveAttribute('href', '/settings');
+    expect(screen.getByText('Open Settings')).toHaveAttribute('href', '/settings#storyteller');
   });
 
   it('Open Settings calls onNavigate (so the full player can close too), not just onClose', async () => {

@@ -37,6 +37,22 @@ describe('StorytellerLink', () => {
     vi.resetAllMocks();
   });
 
+  it('scrolls itself into view when opened via /settings#storyteller, and not otherwise', async () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    window.location.hash = '#storyteller';
+    const first = renderWithProviders(<StorytellerLink />);
+    await screen.findByTestId('storyteller-card');
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'start' });
+    first.unmount();
+
+    scrollIntoView.mockClear();
+    window.location.hash = '';
+    renderWithProviders(<StorytellerLink />);
+    await screen.findByTestId('storyteller-card');
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
   it('renders nothing when the server has no Storyteller bridge', () => {
     delete window.__CADENCE_CONFIG__;
     renderWithProviders(<StorytellerLink />);

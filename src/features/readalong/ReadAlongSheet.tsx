@@ -96,7 +96,7 @@ function Unavailable({
       <p className="cad-headline-sm">{copy.title}</p>
       <p className="cad-meta">{copy.message}</p>
       {copy.settingsLink && (
-        <Link to="/settings" onClick={onNavigate} className="readalong__settings-link">
+        <Link to="/settings#storyteller" onClick={onNavigate} className="readalong__settings-link">
           Open Settings
         </Link>
       )}
