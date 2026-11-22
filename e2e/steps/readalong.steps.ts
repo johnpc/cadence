@@ -194,3 +194,40 @@ Then("I am told the server's Storyteller setup is unfinished for my account", as
   await expect(box.getByText('Ask whoever runs your server', { exact: false })).toBeVisible();
   await expect(box.getByRole('link')).toHaveCount(0);
 });
+
+const audioTime = (page: Page) =>
+  page.evaluate(() => document.querySelector('audio')?.currentTime ?? -1);
+
+let beforeSkip = 0;
+
+When('I skip forward from the read-along sheet', async ({ page }) => {
+  beforeSkip = await audioTime(page);
+  await page.getByTestId('readalong-forward').click();
+});
+
+Then('the audio moved ahead and the text is still open', async ({ page }) => {
+  // The sheet's own +30 s: the audio jumps while the text stays on screen — no
+  // trip back to the player to skip.
+  await expect
+    .poll(() => audioTime(page), {
+      timeout: DATA_WAIT,
+      message: `audio did not move past ${beforeSkip}`,
+    })
+    .toBeGreaterThanOrEqual(beforeSkip + 20);
+  await expect(page.getByTestId('readalong-text')).toBeVisible();
+  await expect(page.getByTestId('readalong-time')).toContainText('/');
+});
+
+When('I pause from the read-along sheet', async ({ page }) => {
+  await page.getByTestId('readalong-toggle').click();
+});
+
+Then('the audio is paused and the text is still open', async ({ page }) => {
+  await expect
+    .poll(() => page.evaluate(() => document.querySelector('audio')?.paused ?? false), {
+      timeout: DATA_WAIT,
+    })
+    .toBe(true);
+  await expect(page.getByTestId('readalong-text')).toBeVisible();
+  await expect(page.getByTestId('readalong-toggle')).toHaveAttribute('aria-label', 'Play');
+});

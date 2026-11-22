@@ -3,6 +3,10 @@ import { usePlayer } from '../player/usePlayer';
 import { usePlayerProgress } from '../player/PlayerProgressContext';
 import { setPendingSeek } from '../player/pendingSeek';
 import { isAudiobook } from '../audiobook/isAudiobook';
+import { useChapters } from '../audiobook/useChapters';
+import { chapterIndexAt } from '../audiobook/chapterAt';
+import { remaining } from '../audiobook/chapterProgress';
+import { tap } from '../../lib/haptics';
 import { storytellerEnabled } from '../../lib/runtimeConfig';
 import { useChapterText, useReadAlongBook } from './useReadAlong';
 import { deriveReadAlongState, type FollowMode } from './readAlongState';
@@ -36,8 +40,9 @@ function applySeekPlan(plan: SeekPlan, p: PlayerContextValue): void {
  * the follow mode, and the tap-to-seek command. */
 export function useReadAlongSheet(open: boolean) {
   const p = usePlayer();
-  const { position } = usePlayerProgress();
+  const { position, duration } = usePlayerProgress();
   const current = p.current;
+  const { chapters } = useChapters(current);
   const currentId = current?.Id;
   const enabled = storytellerEnabled();
   const bookQ = useReadAlongBook(currentId, open && enabled && isAudiobook(current));
@@ -72,8 +77,21 @@ export function useReadAlongSheet(open: boolean) {
       queueIds,
     });
     applySeekPlan(plan, p);
+    tap();
     setFollow('following');
   };
+  // The sheet's own transport: seeks and play/pause hand control back to the narration.
+  const transport = {
+    isPlaying: p.isPlaying,
+    position,
+    duration,
+    chapters,
+    onToggle: p.toggle,
+    onSeek: p.seek,
+    onAct: () => setFollow('following'),
+  };
+  const chapterIdx = chapterIndexAt(chapters, position);
+  const playheadChapter = chapterIdx >= 0 ? chapters[chapterIdx].name : null;
 
   const retry = () => void (state.kind === 'error' ? bookQ.refetch() : textQ.refetch());
   return {
@@ -83,6 +101,7 @@ export function useReadAlongSheet(open: boolean) {
     setFollow,
     onTapFragment,
     retry,
+    transport,
     ...sheetPresentation({
       state,
       current,
@@ -90,6 +109,11 @@ export function useReadAlongSheet(open: boolean) {
       clip: view.clip,
       textLoading: textQ.isLoading,
       textError: textQ.isError,
+      upcoming: view.upcoming,
+      playheadChapter,
+      chapterRemaining: playheadChapter
+        ? remaining(chapters, position, duration, p.rate).chapter
+        : null,
     }),
   };
 }

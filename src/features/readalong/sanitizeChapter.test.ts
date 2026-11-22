@@ -58,4 +58,23 @@ describe('sanitizeChapter', () => {
     const out = sanitizeChapter('<a href="ch2.xhtml#s9" id="s3">next</a>', 'ch.xhtml', img);
     expect(out).toBe('<a id="s3">next</a>');
   });
+
+  it('parses the chapter as XML so a self-closing page anchor does not swallow the text after it', () => {
+    const xhtml =
+      '<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><body>' +
+      '<p><a id="page_10"/><span id="s0">One.</span> <span class="small" id="s1">TWO.</span></p>' +
+      '</body></html>';
+    const out = sanitizeChapter(xhtml, 'OEBPS/Text/ch.xhtml', (p) => p);
+    const doc = new DOMParser().parseFromString(`<div>${out}</div>`, 'text/html');
+    expect(doc.querySelector('a')).toBeNull();
+    expect(doc.getElementById('s0')?.closest('a')).toBeNull();
+    expect(doc.getElementById('s0')?.textContent).toBe('One.');
+    expect(doc.getElementById('s1')?.getAttribute('class')).toBe('small');
+  });
+
+  it('falls back to the HTML parser when the chapter is not well-formed XML', () => {
+    const out = sanitizeChapter('<p id="s0">Unclosed <b>bold</p>', 'ch.xhtml', (p) => p);
+    expect(out).toContain('id="s0"');
+    expect(out).toContain('bold');
+  });
 });

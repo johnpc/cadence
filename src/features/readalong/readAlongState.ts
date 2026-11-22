@@ -61,6 +61,12 @@ export function unavailableCopy(reason: ReadAlongUnavailableReason): {
         title: 'Audio mismatch',
         message: "The Storyteller audio doesn't match this audiobook.",
       };
+    case 'empty':
+      return {
+        title: 'No narration timing',
+        message:
+          'Storyteller finished this book but found no sentences to time. Re-pair it with the matching ebook in Storyteller and align again.',
+      };
     case 'not-a-book':
       return {
         title: 'Nothing to read',

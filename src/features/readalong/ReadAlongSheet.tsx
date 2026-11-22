@@ -4,6 +4,7 @@ import { LoadState } from '../../components/LoadState';
 import { unavailableCopy, type ReadAlongUnavailableReason } from './readAlongState';
 import { useReadAlongSheet } from './useReadAlongSheet';
 import { ReadAlongText } from './ReadAlongText';
+import { ReadAlongTransport } from './ReadAlongTransport';
 import './readAlongSheet.css';
 
 /**
@@ -45,6 +46,7 @@ export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () =
             <ReadAlongText
               html={s.html}
               activeFragment={s.activeFragment}
+              upcomingFragment={s.upcomingFragment}
               follow={s.follow}
               onTapFragment={s.onTapFragment}
               onReaderScroll={() => s.setFollow('detached')}
@@ -58,6 +60,7 @@ export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () =
                 <IonIcon icon={locateOutline} /> Jump to now
               </button>
             )}
+            <ReadAlongTransport {...s.transport} />
           </LoadState>
         )}
       </div>

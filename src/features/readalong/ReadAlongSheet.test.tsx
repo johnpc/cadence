@@ -13,8 +13,13 @@ vi.mock('@ionic/react', async (importOriginal) => {
 });
 vi.mock('./useReadAlong', () => ({ useReadAlongBook: vi.fn(), useChapterText: vi.fn() }));
 vi.mock('../player/pendingSeek', () => ({ setPendingSeek: vi.fn() }));
+vi.mock('../audiobook/useChapters', () => ({
+  useChapters: vi.fn(() => ({ chapters: [], isLoading: false })),
+}));
+vi.mock('../../lib/haptics', () => ({ tap: vi.fn() }));
 import { useChapterText, useReadAlongBook } from './useReadAlong';
 import { setPendingSeek } from '../player/pendingSeek';
+import { useChapters } from '../audiobook/useChapters';
 import { ReadAlongSheet } from './ReadAlongSheet';
 import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
@@ -80,6 +85,7 @@ describe('ReadAlongSheet', () => {
   beforeEach(() => {
     window.__CADENCE_CONFIG__ = { storyteller: true };
     Element.prototype.scrollIntoView = vi.fn();
+    vi.mocked(useChapters).mockReturnValue({ chapters: [], isLoading: false });
     mockText(chapterHtml);
   });
   afterEach(() => {
@@ -185,6 +191,28 @@ describe('ReadAlongSheet', () => {
     expect(await screen.findByText(/still aligning/)).toBeInTheDocument();
   });
 
+  it('explains an alignment with no sentence timing and how to fix it', async () => {
+    mockBook({ ...readyBook, Status: 'empty', Clips: [] });
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1 }),
+    });
+    expect(await screen.findByText('No narration timing')).toBeInTheDocument();
+    expect(screen.getByText(/Re-pair it with the matching ebook/)).toBeInTheDocument();
+    expect(screen.getByTestId('readalong-unavailable')).toHaveAttribute('data-reason', 'empty');
+  });
+
+  it('marks the upcoming sentence and counts down during a silent stretch', async () => {
+    mockBook({ ...readyBook, Clips: [{ Start: 42, End: 46, Chapter: 0, Fragment: 's2' }] });
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1, queue: [part1, part2] }),
+      progress: { position: 0, duration: 100 },
+    });
+    const text = await screen.findByTestId('readalong-text');
+    await waitFor(() => expect(text.querySelector('[data-upcoming="true"]')?.id).toBe('s2'));
+    expect(text.querySelector('[data-active="true"]')).toBeNull();
+    expect(screen.getByTestId('readalong-chapter')).toHaveTextContent('Narration starts in 0:42');
+  });
+
   it('is unavailable for music even when the feature is on', async () => {
     mockBook(undefined);
     const song: JellyfinItem = { Id: 's', Name: 'Song', Type: 'Audio' };
@@ -213,5 +241,31 @@ describe('ReadAlongSheet', () => {
       player: stubPlayer({ current: part1 }),
     });
     expect(await screen.findByTestId('load-loading')).toBeInTheDocument();
+  });
+
+  it("names the audiobook's own chapter with time left, and the transport seeks and pauses without leaving", async () => {
+    vi.mocked(useChapters).mockReturnValue({
+      chapters: [
+        { name: 'Dedication', start: 0 },
+        { name: 'Chapter 1', start: 60 },
+      ],
+      isLoading: false,
+    });
+    mockBook(readyBook);
+    const player = stubPlayer({ current: part1, queue: [part1, part2], isPlaying: true });
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player,
+      progress: { position: 5, duration: 100 },
+    });
+    await screen.findByTestId('readalong-text');
+    expect(screen.getByTestId('readalong-chapter')).toHaveTextContent('Dedication · 55s left');
+    expect(screen.getByTestId('readalong-time')).toHaveTextContent('0:05 / 1:40');
+    await userEvent.click(screen.getByTestId('readalong-forward'));
+    expect(player.seek).toHaveBeenLastCalledWith(35);
+    await userEvent.click(screen.getByTestId('readalong-next-chapter'));
+    expect(player.seek).toHaveBeenLastCalledWith(60);
+    await userEvent.click(screen.getByTestId('readalong-toggle'));
+    expect(player.toggle).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('readalong-sheet')).toBeInTheDocument();
   });
 });

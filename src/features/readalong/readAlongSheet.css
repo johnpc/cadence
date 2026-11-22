@@ -62,6 +62,33 @@
   color: var(--cad-text);
 }
 
+.readalong__text a {
+  /* The sentence about to be narrated during a silent stretch: pointed at, not lit. */
+  .readalong__upcoming {
+    color: var(--cad-text);
+    text-decoration: underline dotted color-mix(in srgb, var(--cad-accent) 70%, transparent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Page/position anchors and in-book links must never read as web links. */
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Book openers marked up as literal uppercase with a small-caps class: with the
+   book's own CSS stripped they would read as shouting. */
+.readalong__text .small,
+.readalong__text .smallcaps {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.02em;
+}
+
+.readalong__text i,
+.readalong__text em {
+  font-style: italic;
+}
+
 .readalong__text img {
   max-width: 100%;
   height: auto;
@@ -77,16 +104,20 @@
 }
 
 .readalong__active {
+  /* Colour and wash only — never a weight change, which reflows the paragraph and
+     makes the page jitter on every sentence. */
   color: var(--cad-text);
   background: color-mix(in srgb, var(--cad-accent) 22%, transparent);
   box-shadow: 0 0 0 var(--cad-space-1) color-mix(in srgb, var(--cad-accent) 22%, transparent);
-  font-weight: 600;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .readalong__follow {
   position: absolute;
   left: 50%;
-  bottom: max(var(--cad-safe-bottom), var(--cad-space-6));
+  /* Sits just above the transport bar. */
+  bottom: calc(max(var(--cad-safe-bottom), var(--cad-space-4)) + 104px);
   transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
@@ -111,5 +142,55 @@
 }
 
 .readalong__unavailable p {
+  margin: 0;
+}
+
+/* The sheet's transport: pinned under the text, inside the safe area. */
+.readalong__transport {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cad-space-1);
+  padding: var(--cad-space-3) 0 max(var(--cad-safe-bottom), var(--cad-space-3));
+  border-top: 1px solid var(--cad-surface-2);
+}
+
+.readalong__transport-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cad-space-5);
+}
+
+.readalong__tbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-1);
+  border: none;
+  background: none;
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-size: 24px;
+  cursor: pointer;
+  padding: var(--cad-space-2);
+}
+
+.readalong__tbtn--play {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--cad-radius-pill);
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+  justify-content: center;
+  font-size: 28px;
+}
+
+.readalong__tlabel {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.readalong__time {
   margin: 0;
 }

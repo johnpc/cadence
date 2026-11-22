@@ -19,12 +19,18 @@ const book: ReadAlongBook = {
 };
 
 describe('chapterInView', () => {
-  it('shows the first chapter with no highlight before narration starts', () => {
+  it('before narration starts, shows the chapter about to be read with the upcoming sentence and a countdown', () => {
     expect(chapterInView(book, 'p1', 0)).toEqual({
       clip: null,
+      upcoming: { clip: book.Clips[0], secondsUntil: 2 },
       chapterIndex: 0,
       chapter: book.Chapters[0],
     });
+    // A silent stretch between chapters points at the next chapter's first sentence.
+    const gap = chapterInView(book, 'p1', 20);
+    expect(gap.clip).toBeNull();
+    expect(gap.upcoming).toEqual({ clip: book.Clips[1], secondsUntil: 30 });
+    expect(gap.chapterIndex).toBe(1);
   });
   it('follows the narrated clip into its chapter', () => {
     const v = chapterInView(book, 'p1', 51);
@@ -33,9 +39,15 @@ describe('chapterInView', () => {
     expect(v.chapter?.Title).toBe('Two');
   });
   it('is empty without a book or a current track', () => {
-    expect(chapterInView(null, 'p1', 10)).toEqual({ clip: null, chapterIndex: 0, chapter: null });
+    expect(chapterInView(null, 'p1', 10)).toEqual({
+      clip: null,
+      upcoming: null,
+      chapterIndex: 0,
+      chapter: null,
+    });
     expect(chapterInView(book, undefined, 10)).toEqual({
       clip: null,
+      upcoming: null,
       chapterIndex: 0,
       chapter: null,
     });
