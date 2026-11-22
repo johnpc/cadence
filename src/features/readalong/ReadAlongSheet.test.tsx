@@ -175,6 +175,18 @@ describe('ReadAlongSheet', () => {
     expect(screen.getByText('Open Settings')).toHaveAttribute('href', '/settings');
   });
 
+  it('Open Settings calls onNavigate (so the full player can close too), not just onClose', async () => {
+    mockBook({ ...readyBook, Status: 'unlinked', Clips: [] });
+    const onClose = vi.fn();
+    const onNavigate = vi.fn();
+    renderWithProviders(<ReadAlongSheet open onClose={onClose} onNavigate={onNavigate} />, {
+      player: stubPlayer({ current: part1 }),
+    });
+    await userEvent.click(await screen.findByText('Open Settings'));
+    expect(onNavigate).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('shows the aligning / unmatched / mismatch copy without a Settings link', async () => {
     mockBook({ ...readyBook, Status: 'aligning', Clips: [] });
     renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {

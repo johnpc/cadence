@@ -14,7 +14,18 @@ import './readAlongSheet.css';
  * CadenceConfig plugin; the audio stays Cadence's own player. Render-only —
  * every decision lives in useReadAlongSheet.
  */
-export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function ReadAlongSheet({
+  open,
+  onClose,
+  onNavigate = onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+  /** Called before an in-sheet link navigates (Open Settings). The full player
+   * passes a handler that closes ITSELF as well: the sheet sits on top of the
+   * player, so closing only the sheet left Settings hidden under the player. */
+  onNavigate?: () => void;
+}) {
   const s = useReadAlongSheet(open);
   return (
     <IonModal isOpen={open} onDidDismiss={onClose}>
@@ -33,7 +44,7 @@ export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () =
           </div>
         </div>
         {s.state.kind === 'unavailable' ? (
-          <Unavailable reason={s.state.reason} onClose={onClose} />
+          <Unavailable reason={s.state.reason} onNavigate={onNavigate} />
         ) : (
           <LoadState
             isLoading={s.isLoading}
@@ -70,10 +81,10 @@ export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () =
  * it when there is one (an unlinked account → Settings). */
 function Unavailable({
   reason,
-  onClose,
+  onNavigate,
 }: {
   reason: ReadAlongUnavailableReason;
-  onClose: () => void;
+  onNavigate: () => void;
 }) {
   const copy = unavailableCopy(reason);
   return (
@@ -85,7 +96,7 @@ function Unavailable({
       <p className="cad-headline-sm">{copy.title}</p>
       <p className="cad-meta">{copy.message}</p>
       {copy.settingsLink && (
-        <Link to="/settings" onClick={onClose} className="readalong__settings-link">
+        <Link to="/settings" onClick={onNavigate} className="readalong__settings-link">
           Open Settings
         </Link>
       )}
