@@ -94,12 +94,6 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         <LazyReadAlongSheet
           open={sheet.open === 'readalong'}
           onClose={() => sheet.closed('readalong')}
-          onNavigate={() => {
-            // Open Settings from the sheet: close the sheet AND this player, else
-            // Settings renders underneath the still-open player.
-            sheet.closed('readalong');
-            onClose();
-          }}
         />
       </div>
     </IonModal>

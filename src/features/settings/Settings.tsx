@@ -12,7 +12,6 @@ import { Autoplay } from './Autoplay';
 import { ForceOffline } from './ForceOffline';
 import { AudioQuality } from './AudioQuality';
 import { SearchBackend } from './SearchBackend';
-import { StorytellerLink } from './StorytellerLink';
 import { SettingsExtras } from '../../extensions/slots/SettingsExtras';
 import { PlaybackSpeed } from './PlaybackSpeed';
 import { SleepTimer } from './SleepTimer';
@@ -50,7 +49,6 @@ export function Settings() {
           <PlaybackSpeed />
           <SleepTimer />
           <SearchBackend />
-          <StorytellerLink />
           <SettingsExtras />
           <DownloadsManager />
           <ForceOffline />

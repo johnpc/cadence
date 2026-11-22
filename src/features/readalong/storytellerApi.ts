@@ -1,19 +1,15 @@
 /**
  * The CadenceConfig plugin's Storyteller bridge (`/Cadence/Storyteller/*`), as
- * typed fetchers. The plugin holds the Storyteller token server-side and talks
- * to Storyteller for us; the client only ever sees derived data — a book's
- * sentence timeline, chapter text, the shared position — never a credential.
+ * typed fetchers. The plugin holds every Storyteller account server-side (the
+ * server maintainer configures it; accounts are created for users as needed)
+ * and talks to Storyteller for us; the client only ever sees derived data — a
+ * book's sentence timeline, chapter text, the shared position — never a
+ * credential. There is no per-user setup in the app.
  * Wire shapes are the plugin's (PascalCase), hand-modelled here.
  */
 import { request } from '../../lib/jellyfinFetch';
 import { apiUrl, authHeaders } from '../../lib/jellyfinConfig';
 import { getSession } from '../../lib/sessionStore';
-
-/** Whether the caller has linked a Storyteller account (and as whom). */
-export interface StorytellerLink {
-  Linked: boolean;
-  Username: string | null;
-}
 
 /** Where the plugin stands on read-along for one audiobook. `ready` is the only
  * status with a populated `Clips`; the others say exactly why there is none. */
@@ -58,21 +54,6 @@ export interface SharedPosition {
 }
 
 const BASE = '/Cadence/Storyteller';
-
-export function getStorytellerLink(): Promise<StorytellerLink> {
-  return request<StorytellerLink>(`${BASE}/Link`);
-}
-
-export function linkStoryteller(username: string, password: string): Promise<StorytellerLink> {
-  return request<StorytellerLink>(`${BASE}/Link`, {
-    method: 'POST',
-    body: { Username: username, Password: password },
-  });
-}
-
-export function unlinkStoryteller(): Promise<void> {
-  return request<void>(`${BASE}/Link`, { method: 'DELETE' });
-}
 
 export function getReadAlongBook(itemId: string): Promise<ReadAlongBook> {
   return request<ReadAlongBook>(`${BASE}/Books/${encodeURIComponent(itemId)}`);
