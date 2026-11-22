@@ -119,6 +119,19 @@ describe('FullPlayer', () => {
     expect(screen.queryByTestId('full-player-readalong')).toBeNull();
   });
 
+  it('shows chapter + book progress for an audiobook instead of the music scrubber', () => {
+    const book: JellyfinItem = {
+      Id: 'b1',
+      Name: 'Harbor Winds',
+      Album: 'Harbor Winds',
+      Type: 'AudioBook',
+      RunTimeTicks: 2_000_000_000,
+    };
+    renderPlayer(ctx({ current: book }));
+    expect(screen.getByTestId('book-progress-label')).toHaveTextContent('Harbor Winds');
+    expect(screen.queryByRole('slider', { name: 'Seek' })).toBeNull();
+  });
+
   it('opens the lyrics sheet', async () => {
     renderPlayer(ctx());
     await userEvent.click(screen.getByTestId('full-player-lyrics'));

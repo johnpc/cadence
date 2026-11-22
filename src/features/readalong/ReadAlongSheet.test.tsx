@@ -259,7 +259,15 @@ describe('ReadAlongSheet', () => {
     });
     await screen.findByTestId('readalong-text');
     expect(screen.getByTestId('readalong-chapter')).toHaveTextContent('Dedication · 55s left');
-    expect(screen.getByTestId('readalong-time')).toHaveTextContent('0:05 / 1:40');
+    expect(screen.getByTestId('readalong-chapter-progress-label')).toHaveTextContent('Dedication');
+    expect(screen.getByTestId('readalong-chapter-progress-time')).toHaveTextContent('0:05 / 1:00');
+    expect(screen.getByTestId('readalong-book-progress-label')).toHaveTextContent('Harbor Winds');
+    expect(screen.getByTestId('readalong-book-progress-time')).toHaveTextContent('0:05 / 1:40');
+    await userEvent.click(screen.getByTestId('readalong-speed'));
+    await userEvent.click(
+      screen.getAllByTestId('readalong-speed-option').find((o) => o.textContent === '2×')!,
+    );
+    expect(player.setRate).toHaveBeenCalledWith(2);
     await userEvent.click(screen.getByTestId('readalong-forward'));
     expect(player.seek).toHaveBeenLastCalledWith(35);
     await userEvent.click(screen.getByTestId('readalong-next-chapter'));

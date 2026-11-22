@@ -215,7 +215,25 @@ Then('the audio moved ahead and the text is still open', async ({ page }) => {
     })
     .toBeGreaterThanOrEqual(beforeSkip + 20);
   await expect(page.getByTestId('readalong-text')).toBeVisible();
-  await expect(page.getByTestId('readalong-time')).toContainText('/');
+  await expect(page.getByTestId('readalong-book-progress-time')).toContainText('/');
+});
+
+When('I set the read-along speed to 1.5x', async ({ page }) => {
+  await page.getByTestId('readalong-speed').click();
+  await page
+    .getByTestId('readalong-speed-option')
+    .filter({ hasText: /^1\.5×$/ })
+    .click();
+});
+
+Then('the audio plays at 1.5x and the text is still open', async ({ page }) => {
+  await expect
+    .poll(() => page.evaluate(() => document.querySelector('audio')?.playbackRate ?? 0), {
+      timeout: DATA_WAIT,
+    })
+    .toBe(1.5);
+  await expect(page.getByTestId('readalong-speed')).toHaveText('1.5×');
+  await expect(page.getByTestId('readalong-text')).toBeVisible();
 });
 
 When('I pause from the read-along sheet', async ({ page }) => {

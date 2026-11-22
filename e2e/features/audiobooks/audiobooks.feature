@@ -39,3 +39,13 @@ Feature: Audiobooks library
     And the book plays past its saved-position threshold
     And I reload the app
     Then the book resumes from where I left off
+
+  Scenario: The player shows the part's progress and the whole book's, each labelled
+    Given I am signed in
+    When I open the Audiobooks tab
+    Then I see the audiobook library with books
+    When I open a multi-part book's detail page
+    And I play the book from its detail page
+    And I open the full player
+    Then I see the current part's progress labelled with its part number
+    And I see the whole book's progress labelled with the book's title, longer than the part

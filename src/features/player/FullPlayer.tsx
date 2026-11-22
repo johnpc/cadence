@@ -7,7 +7,8 @@ import { LyricsSheet } from './LyricsSheet';
 import { ChapterSheet } from '../audiobook/ChapterSheet';
 import { LazyReadAlongSheet } from '../readalong/LazyReadAlongSheet';
 import { AudiobookSeekButtons } from '../audiobook/AudiobookSeekButtons';
-import { AudiobookProgress } from '../audiobook/AudiobookProgress';
+import { AudiobookScrubbers } from '../audiobook/AudiobookScrubbers';
+import { isAudiobook } from '../audiobook/isAudiobook';
 import { SpeedSlider } from '../audiobook/SpeedSlider';
 import { FullPlayerFooter } from './FullPlayerFooter';
 import { CastingBanner } from '../cast/CastingBanner';
@@ -57,23 +58,28 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         </div>
         <FullPlayerTitle track={p.current} onNavigate={onClose} />
         <div className="fullplayer__scrubber">
-          <input
-            type="range"
-            min={0}
-            max={duration || 0}
-            value={Math.min(scrub.value, duration || 0)}
-            onChange={(e) => scrub.onInput(Number(e.currentTarget.value))}
-            onPointerUp={scrub.onCommit}
-            onKeyUp={scrub.onCommit}
-            onBlur={scrub.onCommit}
-            aria-label="Seek"
-            aria-valuetext={`${formatTime(scrub.value)} of ${formatTime(duration)}`}
-          />
-          <div className="fullplayer__times cad-meta">
-            <span>{formatTime(scrub.value)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-          <AudiobookProgress />
+          {isAudiobook(p.current) ? (
+            <AudiobookScrubbers />
+          ) : (
+            <>
+              <input
+                type="range"
+                min={0}
+                max={duration || 0}
+                value={Math.min(scrub.value, duration || 0)}
+                onChange={(e) => scrub.onInput(Number(e.currentTarget.value))}
+                onPointerUp={scrub.onCommit}
+                onKeyUp={scrub.onCommit}
+                onBlur={scrub.onCommit}
+                aria-label="Seek"
+                aria-valuetext={`${formatTime(scrub.value)} of ${formatTime(duration)}`}
+              />
+              <div className="fullplayer__times cad-meta">
+                <span>{formatTime(scrub.value)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </>
+          )}
         </div>
         <AudiobookSeekButtons />
         <PlayerControls />

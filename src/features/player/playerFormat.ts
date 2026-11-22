@@ -1,12 +1,15 @@
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** Format seconds as m:ss (e.g. 75 → "1:15"). Negatives/NaN clamp to "0:00". */
+/** Format seconds as a clock: m:ss under an hour (75 → "1:15"), h:mm:ss from an
+ * hour on (3796 → "1:03:16") — never "63:16" or "618:24". Negatives/NaN clamp to
+ * "0:00". */
 export function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
   const total = Math.floor(seconds);
-  const mins = Math.floor(total / 60);
-  const secs = total % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const hours = Math.floor(total / 3600);
+  const mins = Math.floor((total % 3600) / 60);
+  const secs = (total % 60).toString().padStart(2, '0');
+  return hours > 0 ? `${hours}:${mins.toString().padStart(2, '0')}:${secs}` : `${mins}:${secs}`;
 }
 
 /** A chapter start as a compact human label — "1h30m" / "45m" / "12s" — instead
