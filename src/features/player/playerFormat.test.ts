@@ -26,6 +26,10 @@ describe('formatTime', () => {
     expect(formatTime(9)).toBe('0:09');
     expect(formatTime(75)).toBe('1:15');
     expect(formatTime(600)).toBe('10:00');
+    expect(formatTime(3599)).toBe('59:59');
+    expect(formatTime(3600)).toBe('1:00:00');
+    expect(formatTime(3796)).toBe('1:03:16');
+    expect(formatTime(37104)).toBe('10:18:24');
   });
 
   it('clamps NaN / negatives', () => {

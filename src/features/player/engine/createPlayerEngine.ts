@@ -254,6 +254,7 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
             progress.set({ position, duration: progress.get().duration });
             stall.progressed(position);
           },
+          seek: (position) => progress.set({ position, duration: progress.get().duration }),
           duration: (duration) => progress.set({ position: progress.get().position, duration }),
           ended: onEnded,
           error: recover,

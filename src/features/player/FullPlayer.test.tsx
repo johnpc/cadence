@@ -9,6 +9,14 @@ import { renderWithProviders, stubPlayer } from '../../test/renderWithProviders'
 
 // The lyrics sheet fetches lazily when opened; stub the source so no real
 // network fires from this render.
+// The chapter/book bars load lazily in the app (entry-chunk budget). Here they're
+// rendered eagerly: two lazy chunks resolving in the same jsdom render (these bars
+// and the read-along sheet) left vite-node's module loader spinning until the
+// worker ran out of heap. The lazy wrapper itself has its own test.
+vi.mock('../audiobook/LazyAudiobookScrubbers', async () => {
+  const m = await import('../audiobook/AudiobookScrubbers');
+  return { LazyAudiobookScrubbers: m.AudiobookScrubbers };
+});
 vi.mock('../../lib/jellyfinLyrics', () => ({ getLyrics: vi.fn().mockResolvedValue([]) }));
 vi.mock('../playlists/playlistsApi', () => ({
   usePlaylists: () => ({ playlists: [] }),
@@ -117,6 +125,19 @@ describe('FullPlayer', () => {
     delete window.__CADENCE_CONFIG__;
     renderPlayer(ctx({ current: book }));
     expect(screen.queryByTestId('full-player-readalong')).toBeNull();
+  });
+
+  it('shows chapter + book progress for an audiobook instead of the music scrubber', async () => {
+    const book: JellyfinItem = {
+      Id: 'b1',
+      Name: 'Harbor Winds',
+      Album: 'Harbor Winds',
+      Type: 'AudioBook',
+      RunTimeTicks: 2_000_000_000,
+    };
+    renderPlayer(ctx({ current: book }));
+    expect(await screen.findByTestId('book-progress-label')).toHaveTextContent('Harbor Winds');
+    expect(screen.queryByRole('slider', { name: 'Seek' })).toBeNull();
   });
 
   it('opens the lyrics sheet', async () => {

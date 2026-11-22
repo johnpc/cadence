@@ -94,6 +94,15 @@ describe('loading', () => {
     expect(engine.progress.get()).toEqual({ position: 0, duration: 0 });
   });
 
+  it('a seek moves the progress at once, before any timeupdate (a resume while buffering)', () => {
+    const { engine, audio } = startedEngine();
+    engine.playQueue(ab(), 0);
+    audio.loadMetadata(37086);
+    audio.currentTime = 4637;
+    audio.fire('seeking');
+    expect(engine.progress.get()).toEqual({ position: 4637, duration: 37086 });
+  });
+
   it('logs a rejected autoplay play() instead of throwing', async () => {
     const { engine, audio, deps } = startedEngine();
     audio.rejectNextPlay = new Error('NotAllowedError');

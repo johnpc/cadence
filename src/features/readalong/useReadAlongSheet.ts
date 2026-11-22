@@ -4,6 +4,7 @@ import { usePlayerProgress } from '../player/PlayerProgressContext';
 import { setPendingSeek } from '../player/pendingSeek';
 import { isAudiobook } from '../audiobook/isAudiobook';
 import { useChapters } from '../audiobook/useChapters';
+import { useBookProgress } from '../audiobook/useBookProgress';
 import { chapterIndexAt } from '../audiobook/chapterAt';
 import { remaining } from '../audiobook/chapterProgress';
 import { tap } from '../../lib/haptics';
@@ -16,6 +17,7 @@ import { sanitizeChapter } from './sanitizeChapter';
 import { chapterResourceUrl } from './storytellerApi';
 import { sheetPresentation } from './sheetPresentation';
 import type { PlayerContextValue } from '../player/types';
+import { chapterLabel } from '../audiobook/bookPosition';
 
 /** Follow mode: every open starts by following the narration. */
 function useFollowMode(open: boolean) {
@@ -43,6 +45,7 @@ export function useReadAlongSheet(open: boolean) {
   const { position, duration } = usePlayerProgress();
   const current = p.current;
   const { chapters } = useChapters(current);
+  const bookProgress = useBookProgress();
   const currentId = current?.Id;
   const enabled = storytellerEnabled();
   const bookQ = useReadAlongBook(currentId, open && enabled && isAudiobook(current));
@@ -86,12 +89,16 @@ export function useReadAlongSheet(open: boolean) {
     position,
     duration,
     chapters,
+    progress: bookProgress.model,
+    rate: p.rate,
     onToggle: p.toggle,
     onSeek: p.seek,
+    onSeekBook: bookProgress.seekBook,
+    onRate: p.setRate,
     onAct: () => setFollow('following'),
   };
   const chapterIdx = chapterIndexAt(chapters, position);
-  const playheadChapter = chapterIdx >= 0 ? chapters[chapterIdx].name : null;
+  const playheadChapter = chapterIdx >= 0 ? chapterLabel(chapters[chapterIdx].name) : null;
 
   const retry = () => void (state.kind === 'error' ? bookQ.refetch() : textQ.refetch());
   return {

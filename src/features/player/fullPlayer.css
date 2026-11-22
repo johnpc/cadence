@@ -135,6 +135,10 @@
   accent-color: var(--cad-accent);
 }
 
+.fullplayer__scrubber-placeholder {
+  min-height: calc(var(--cad-space-8) * 2);
+}
+
 .fullplayer__times {
   display: flex;
   justify-content: space-between;

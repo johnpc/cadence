@@ -1,8 +1,10 @@
 import { IonIcon } from '@ionic/react';
 import { pause, play, playBack, playForward, playSkipBack, playSkipForward } from 'ionicons/icons';
-import { formatTime } from '../player/playerFormat';
 import type { AudiobookChapter } from '../audiobook/audiobookTypes';
 import { adjacentChapter } from './adjacentChapter';
+import { BookProgressBars } from '../audiobook/BookProgressBars';
+import type { BookPosition } from '../audiobook/bookPosition';
+import { SpeedControl } from './SpeedControl';
 
 /** Skip amount in seconds — the audiobook convention, same as the player. */
 const SKIP = 30;
@@ -10,25 +12,34 @@ const SKIP = 30;
 /**
  * The sheet's own transport, so reading along never means leaving the text to
  * pause or move: previous chapter · back 30 s · play/pause · forward 30 s · next
- * chapter, with the time beneath. Chapter buttons exist only when the file has
- * chapter markers. Every action hands the follow mode back to the narration
- * (`onAct`). Render-only; the seek targets come from pure helpers.
+ * chapter, then the speed pill; beneath, the chapter and whole-book progress
+ * bars (labelled, seekable). Chapter buttons exist only when the file has chapter
+ * markers. Every action hands the follow mode back to the narration (`onAct`).
+ * Render-only; the seek targets come from pure helpers.
  */
 export function ReadAlongTransport({
   isPlaying,
   position,
   duration,
   chapters,
+  progress,
+  rate,
   onToggle,
   onSeek,
+  onSeekBook,
+  onRate,
   onAct,
 }: {
   isPlaying: boolean;
   position: number;
   duration: number;
   chapters: AudiobookChapter[];
+  progress: BookPosition | null;
+  rate: number;
   onToggle: () => void;
   onSeek: (seconds: number) => void;
+  onSeekBook: (globalSeconds: number) => void;
+  onRate: (rate: number) => void;
   onAct: () => void;
 }) {
   const act = (fn: () => void) => () => {
@@ -88,10 +99,17 @@ export function ReadAlongTransport({
             <IonIcon icon={playSkipForward} />
           </button>
         )}
+        <SpeedControl rate={rate} onRate={onRate} onAct={onAct} />
       </div>
-      <p className="readalong__time cad-meta" data-testid="readalong-time">
-        {formatTime(position)} / {formatTime(duration)}
-      </p>
+      {progress && (
+        <BookProgressBars
+          model={progress}
+          rate={rate}
+          testPrefix="readalong-"
+          onSeekBook={onSeekBook}
+          onAct={onAct}
+        />
+      )}
     </div>
   );
 }

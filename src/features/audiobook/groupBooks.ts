@@ -19,7 +19,7 @@ export interface Book {
 }
 
 /** Order parts within a book: by IndexNumber, then name (a stable tiebreak). */
-function byPlayOrder(a: JellyfinItem, b: JellyfinItem): number {
+export function byPlayOrder(a: JellyfinItem, b: JellyfinItem): number {
   const ai = a.IndexNumber ?? 0;
   const bi = b.IndexNumber ?? 0;
   if (ai !== bi) return ai - bi;
@@ -36,7 +36,7 @@ function byPlayOrder(a: JellyfinItem, b: JellyfinItem): number {
  * before the first digit / " - " / " Part"), so loose single files stay separate
  * while genuine multi-part sets (which share a stem) group.
  */
-function groupKey(item: JellyfinItem): string {
+export function groupKey(item: JellyfinItem): string {
   if (item.Album) return `album:${item.Album}`;
   const parent = item.ParentId ?? item.Id;
   return `parent:${parent}:${titleStem(item.Name)}`;

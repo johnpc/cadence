@@ -54,5 +54,7 @@ Feature: Read along with Storyteller
     Then the chapter text is shown with the narrated sentence highlighted
     When I skip forward from the read-along sheet
     Then the audio moved ahead and the text is still open
+    When I set the read-along speed to 1.5x
+    Then the audio plays at 1.5x and the text is still open
     When I pause from the read-along sheet
     Then the audio is paused and the text is still open

@@ -185,3 +185,45 @@ Then("I see the book's chapter or part list", async ({ page }) => {
     .poll(async () => (await parts.count()) + (await chapters.count()), { timeout: DATA_WAIT })
     .toBeGreaterThan(0);
 });
+
+/** "a / b" (m:ss or h:mm:ss) → seconds of the total (b). */
+function totalSeconds(text: string): number {
+  const total = text.split('/')[1]?.split('·')[0]?.trim() ?? '';
+  return total.split(':').reduce((acc, part) => acc * 60 + Number(part), 0);
+}
+
+Then("I see the current part's progress labelled with its part number", async ({ page }) => {
+  // The fixture's parts are each titled with the book, so the chapter bar names
+  // them by position ("Part 1 of 3") rather than repeating the title.
+  // Scoped to the player: the book's detail header underneath has its own
+  // `book-progress-label` ("3 parts · 3% · 7m left").
+  const player = page.getByTestId('full-player');
+  const label = player.getByTestId('chapter-progress-label');
+  await expect(label).toHaveText(/^Part \d of \d$/, { timeout: DATA_WAIT });
+  await expect(player.getByTestId('chapter-progress-time')).toHaveText(/^\d+:\d{2} \/ \d+:\d{2}$/);
+});
+
+Then(
+  "I see the whole book's progress labelled with the book's title, longer than the part",
+  async ({ page }) => {
+    const title = (await page.getByTestId('book-title').innerText()).trim();
+    const player = page.getByTestId('full-player');
+    await expect(player.getByTestId('book-progress-label')).toHaveText(title, {
+      timeout: DATA_WAIT,
+    });
+    const bookTime = player.getByTestId('book-progress-time');
+    await expect(bookTime).toContainText('left');
+    // Real data: the book's total is the sum of its parts, so it must clearly
+    // exceed the single part's length (parts here are 3–4 minutes each).
+    await expect
+      .poll(
+        async () => {
+          const book = totalSeconds(await bookTime.innerText());
+          const part = totalSeconds(await player.getByTestId('chapter-progress-time').innerText());
+          return part > 0 && book >= part * 1.5;
+        },
+        { timeout: DATA_WAIT },
+      )
+      .toBe(true);
+  },
+);

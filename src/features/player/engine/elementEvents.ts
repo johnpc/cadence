@@ -7,6 +7,9 @@ export interface ElementHandlers {
   /** Audio really started (the element's `play`). */
   audible(): void;
   position(seconds: number): void;
+  /** The element jumped (a resume, a chapter tap, a scrub). Not playback
+   * progress — the stall watchdog must not treat it as audio advancing. */
+  seek(seconds: number): void;
   duration(seconds: number): void;
   ended(): void;
   error(): void;
@@ -55,6 +58,10 @@ export function bindElementEvents(audio: AudioLike, h: ElementHandlers, log: Log
         log('progress', 'playing', { pos: pos() });
       },
     ],
+    // A seek moves the playhead before any audio plays (a resume lands while the
+    // stream is still buffering), so the bars must follow it right away instead
+    // of sitting at 0:00 until the first timeupdate.
+    ['seeking', () => h.seek(audio.currentTime)],
     ['loadedmetadata', () => h.duration(Number.isFinite(audio.duration) ? audio.duration : 0)],
     ['ended', () => h.ended()],
     [

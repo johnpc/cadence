@@ -191,6 +191,58 @@
   font-weight: 700;
 }
 
-.readalong__time {
-  margin: 0;
+/* The speed pill ends the button row; its preset strip floats just above the row. */
+.readalong__transport {
+  position: relative;
+}
+
+.readalong__transport .book-progress {
+  gap: var(--cad-space-1);
+  margin-top: var(--cad-space-2);
+}
+
+.readalong__speed-pill {
+  border: 1px solid var(--cad-surface-2);
+  border-radius: var(--cad-radius-pill);
+  background: var(--cad-surface);
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: var(--cad-space-1) var(--cad-space-3);
+  cursor: pointer;
+}
+
+.readalong__speed-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + var(--cad-space-2));
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--cad-space-2);
+  padding: var(--cad-space-2);
+  border-radius: var(--cad-radius-card);
+  background: var(--cad-surface);
+  box-shadow: 0 var(--cad-space-1) var(--cad-space-4) var(--cad-shadow);
+  z-index: 2;
+}
+
+.readalong__speed-opt {
+  border: none;
+  border-radius: var(--cad-radius-pill);
+  background: var(--cad-surface-2);
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: var(--cad-space-2) var(--cad-space-3);
+  cursor: pointer;
+}
+
+.readalong__speed-opt--on {
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
 }
