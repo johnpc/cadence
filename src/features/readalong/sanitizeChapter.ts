@@ -52,10 +52,15 @@ export function sanitizeChapter(
   chapterHref: string,
   imageUrl: (path: string) => string,
 ): string {
-  const doc = new DOMParser().parseFromString(xhtml, 'text/html');
-  const body = doc.body;
+  const body = parseChapterBody(xhtml);
   for (const el of Array.from(body.querySelectorAll('*'))) {
     if (DROP.has(el.localName)) {
+      el.remove();
+      continue;
+    }
+    if (el.localName === 'a' && !el.textContent?.trim() && el.children.length === 0) {
+      // A bare page/position anchor (<a id="page_10"/>): nothing to show, and in the
+      // HTML parser an unclosed one would swallow the paragraph after it.
       el.remove();
       continue;
     }
@@ -73,4 +78,21 @@ export function sanitizeChapter(
     }
   }
   return body.innerHTML;
+}
+
+/**
+ * Chapters are XHTML: parse them as XML first, which honours self-closing tags
+ * (`<a id="page_10"/>` is a closed, empty anchor). The HTML parser treats that
+ * same markup as an OPEN anchor and nests the rest of the chapter inside it —
+ * seen live with Hogfather, where whole pages rendered as one link. Only when
+ * the XML is malformed do we fall back to the forgiving HTML parser.
+ */
+function parseChapterBody(xhtml: string): Element {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xhtml, 'application/xhtml+xml');
+  if (!xml.getElementsByTagName('parsererror').length) {
+    const body = xml.getElementsByTagName('body')[0];
+    if (body) return body;
+  }
+  return parser.parseFromString(xhtml, 'text/html').body;
 }
