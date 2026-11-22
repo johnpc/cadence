@@ -107,6 +107,18 @@ describe('FullPlayer', () => {
     expect(setVolume).toHaveBeenCalledWith(0.4);
   });
 
+  it('offers Read along for an audiobook only when the server bridges to Storyteller', async () => {
+    const book: JellyfinItem = { Id: 'b1', Name: 'Book', Type: 'AudioBook' };
+    window.__CADENCE_CONFIG__ = { storyteller: true };
+    const { unmount } = renderPlayer(ctx({ current: book }));
+    await userEvent.click(screen.getByTestId('full-player-readalong'));
+    expect(await screen.findByTestId('readalong-sheet')).toBeInTheDocument();
+    unmount();
+    delete window.__CADENCE_CONFIG__;
+    renderPlayer(ctx({ current: book }));
+    expect(screen.queryByTestId('full-player-readalong')).toBeNull();
+  });
+
   it('opens the lyrics sheet', async () => {
     renderPlayer(ctx());
     await userEvent.click(screen.getByTestId('full-player-lyrics'));

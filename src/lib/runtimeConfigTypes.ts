@@ -38,6 +38,12 @@ export interface RuntimeConfig {
    * import endpoint (POST /Cadence/Deezer/Import). Set by the plugin-config fetch
    * (pluginConfigStore); gates the "Import from Deezer" screen. */
   deezerImport?: boolean;
+  /** When true, the CadenceConfig Jellyfin plugin bridges to a Storyteller
+   * server (`/Cadence/Storyteller/*`): karaoke-style read-along text for
+   * audiobooks and a shared listening/reading position. Set by the plugin-config
+   * fetch (pluginConfigStore); gates the "Read along" button and the Settings
+   * "Storyteller" card. */
+  storyteller?: boolean;
 }
 
 /** The boolean-valued keys of RuntimeConfig — the set of plugin/deploy feature

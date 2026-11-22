@@ -232,6 +232,8 @@ jobs:
             paths: .features-gen/e2e/features/audiobooks
           - name: native-playback
             paths: .features-gen/e2e/features/native-playback
+          - name: readalong
+            paths: .features-gen/e2e/features/readalong
     steps:
       - uses: actions/checkout@v5
 

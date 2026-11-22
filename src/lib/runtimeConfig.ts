@@ -71,3 +71,9 @@ export function lidarrProxyEnabled(): boolean {
 export function deezerImportEnabled(): boolean {
   return configFlag('deezerImport');
 }
+
+/** True when the CadenceConfig plugin bridges to a Storyteller server. Gates
+ * read-along (ReadAlongSheet) and the Settings "Storyteller" card. */
+export function storytellerEnabled(): boolean {
+  return configFlag('storyteller');
+}

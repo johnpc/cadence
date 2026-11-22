@@ -171,3 +171,30 @@ export async function unlikeAlbumTracks(s: Session, albumId: string): Promise<vo
   for (const i of r.Items)
     await api(`/Users/${s.userId}/FavoriteItems/${i.Id}`, { method: 'DELETE', token: s.token });
 }
+
+/** The parts of a fixture audiobook (by its Album/book title), in play order,
+ * with their durations in seconds — what a fake Storyteller bridge needs to
+ * line its timeline up with the real audio. */
+export async function audiobookParts(
+  s: Session,
+  bookTitle: string,
+): Promise<{ ItemId: string; Duration: number }[]> {
+  const params = new URLSearchParams({
+    IncludeItemTypes: 'AudioBook',
+    Recursive: 'true',
+    Fields: 'RunTimeTicks,Album,IndexNumber',
+    userId: s.userId,
+  });
+  const r = await api<{
+    Items: {
+      Id: string;
+      Album?: string;
+      Name: string;
+      IndexNumber?: number;
+      RunTimeTicks?: number;
+    }[];
+  }>(`/Items?${params.toString()}`, { token: s.token });
+  return r.Items.filter((i) => (i.Album ?? i.Name) === bookTitle)
+    .sort((a, b) => (a.IndexNumber ?? 0) - (b.IndexNumber ?? 0))
+    .map((i) => ({ ItemId: i.Id, Duration: (i.RunTimeTicks ?? 0) / 10_000_000 }));
+}

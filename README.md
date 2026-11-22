@@ -29,6 +29,7 @@ recommendations — all backed by the Jellyfin server you already run.
 | Playlists (browse, create, add)               | ✅     |
 | Home recommendations (recently added, radio)  | ✅     |
 | Native iOS (background audio, lock-screen)    | ✅     |
+| Read along with Storyteller (karaoke-style)   | ✅     |
 | Fuzzy search via Meilisearch                  | ⬜     |
 
 ## The vision
@@ -207,6 +208,24 @@ wizard, scans, and creates one `cadence-e2e-<area>` user per area — about fift
 fixtures are deterministic, so a red scenario is a bug in the test, the app, or the fixtures, never
 "the server was slow today". One opt-in job (`smoke-live`) runs the smoke area against a public
 demo server when its secrets are configured; it skips with a notice otherwise.
+
+## Read along with Storyteller
+
+Audiobooks can show the book's text while they play, with the sentence being narrated highlighted
+and kept in view — tap any sentence to jump the audio there. Listening in Cadence and reading in
+Storyteller share one position, so a chapter read on the couch resumes in your ears on the walk.
+
+How it works: a self-hosted [Storyteller](https://gitlab.com/storyteller-platform/storyteller)
+aligns each ebook to its audiobook. The **CadenceConfig Jellyfin plugin** bridges to it (`/Cadence/
+Storyteller/*`): it holds your Storyteller token server-side, matches each Jellyfin audiobook to its
+Storyteller book, serves the sentence timeline + chapter text, and syncs positions both ways. Cadence
+only talks to the plugin. Set the Storyteller URL in the plugin dashboard, then connect your account
+in **Settings → Storyteller** (per user); the player's **Read along** button appears for audiobooks.
+
+In CI there is no Storyteller: the `readalong` acceptance area fakes the plugin's bridge with
+Playwright route handlers built from the hermetic fixture book (real part ids and durations from
+the e2e Jellyfin), so the highlighting, tap-to-seek and sanitization are exercised against real
+audio with a deterministic timeline.
 
 ## Testing policy: no ignored failures
 
