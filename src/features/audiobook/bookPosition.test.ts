@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { bookParts, bookPosition, partAt, partDurations } from './bookPosition';
+import { bookParts, bookPosition, chapterLabel, partAt, partDurations } from './bookPosition';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const T = 10_000_000;
@@ -71,7 +71,7 @@ describe('bookPosition', () => {
       remainingAtRate: 3200,
     });
     expect(r.chapter).toEqual({
-      title: '1',
+      title: 'Chapter 1',
       position: 332,
       duration: 732,
       remainingAtRate: 400,
@@ -175,5 +175,13 @@ describe('bookPosition', () => {
       rate: 1,
     });
     expect(r.book).toMatchObject({ title: 'Harbor Winds', position: 10, duration: 200 });
+  });
+
+  it('labels number-only chapter markers as "Chapter N" and keeps real names', () => {
+    expect(chapterLabel('10')).toBe('Chapter 10');
+    expect(chapterLabel(' 01 ')).toBe('Chapter 1');
+    expect(chapterLabel('Dedication')).toBe('Dedication');
+    expect(chapterLabel('Chapter 19')).toBe('Chapter 19');
+    expect(chapterLabel('1984')).toBe('Chapter 1984');
   });
 });

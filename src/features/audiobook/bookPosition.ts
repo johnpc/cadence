@@ -98,6 +98,13 @@ function sameTitle(a: string, b: string): boolean {
   return n(a) === n(b);
 }
 
+/** A chapter marker named only by its number ("1", "10") reads as a stray
+ * digit on its own; show it as "Chapter 10". Anything else is kept as named. */
+export function chapterLabel(name: string): string {
+  const trimmed = name.trim();
+  return /^\d{1,4}$/.test(trimmed) ? `Chapter ${Number(trimmed)}` : trimmed;
+}
+
 /** A part shown as a chapter: its own name, or "Part 2 of 3" when the part is
  * just titled with the book (common: every file carries the book's name). */
 function partTitle(part: JellyfinItem, index: number, count: number, book: string): string {
@@ -132,7 +139,7 @@ export function bookPosition(input: {
     const i = Math.max(0, chapterIndexAt(chapters, position));
     const start = chapters[i].start;
     const end = chapters[i + 1]?.start ?? durations[idx];
-    const s = span(chapters[i].name, position - start, end - start, rate);
+    const s = span(chapterLabel(chapters[i].name), position - start, end - start, rate);
     return { book, chapter: { ...s, start: offset + start, index: i, count: chapters.length } };
   }
   if (all.length > 1) {
