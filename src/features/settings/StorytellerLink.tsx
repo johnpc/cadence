@@ -1,5 +1,5 @@
 import { IonButton, IonInput } from '@ionic/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { storytellerEnabled } from '../../lib/runtimeConfig';
 import { useStorytellerLink } from './useStorytellerLink';
 import './storytellerLink.css';
@@ -13,6 +13,14 @@ export function StorytellerLink() {
   const { state, connect, disconnect } = useStorytellerLink(enabled);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const card = useRef<HTMLElement | null>(null);
+  // Arriving from the read-along sheet's "Open Settings" (/settings#storyteller): the card sits
+  // below the fold on a phone, so bring it into view instead of landing on Appearance.
+  useEffect(() => {
+    if (enabled && window.location.hash === '#storyteller') {
+      card.current?.scrollIntoView({ block: 'start' });
+    }
+  }, [enabled]);
   if (!enabled) return null;
 
   const busy = state.kind === 'loading' || state.kind === 'connecting';
@@ -22,7 +30,12 @@ export function StorytellerLink() {
   };
 
   return (
-    <section className="settings__storyteller" data-testid="storyteller-card">
+    <section
+      ref={card}
+      id="storyteller"
+      className="settings__storyteller"
+      data-testid="storyteller-card"
+    >
       <h2 className="settings__title cad-kicker">Storyteller</h2>
       <p className="cad-meta">
         Connect your Storyteller account to read along while a book plays, and to pick up where you

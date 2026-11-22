@@ -1,6 +1,8 @@
 .fullplayer {
   position: relative;
   height: 100%;
+  /* Nothing in the player may pan the whole card sideways (the five-button footer did, on phones). */
+  overflow-x: hidden;
   background: var(--cad-bg);
   display: flex;
   flex-direction: column;
@@ -215,6 +217,27 @@
   display: flex;
   gap: var(--cad-space-8);
   margin-top: var(--cad-space-6);
+  max-width: 100%;
+}
+
+/* Phones: five actions (Chapters · Read along · Up next · Cast · More) don't fit side by side with
+   labels beside icons, so each becomes an icon-over-label tab sharing the width equally. */
+@media (max-width: 480px) {
+  .fullplayer__footer {
+    width: 100%;
+    gap: var(--cad-space-2);
+    justify-content: space-between;
+  }
+
+  .fullplayer__foot-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
 }
 
 .fullplayer__foot-btn {
