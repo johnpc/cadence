@@ -14,27 +14,11 @@ import {
   getChapterText,
   getReadAlongBook,
   getSharedPosition,
-  getStorytellerLink,
-  linkStoryteller,
-  unlinkStoryteller,
 } from './storytellerApi';
 
 describe('storytellerApi', () => {
   beforeEach(() => {
     vi.mocked(request).mockReset();
-  });
-
-  it('reads, creates and deletes the link through the plugin', async () => {
-    vi.mocked(request).mockResolvedValue({ Linked: true, Username: 'j' });
-    expect(await getStorytellerLink()).toEqual({ Linked: true, Username: 'j' });
-    expect(request).toHaveBeenCalledWith('/Cadence/Storyteller/Link');
-    await linkStoryteller('j', 'pw');
-    expect(request).toHaveBeenCalledWith('/Cadence/Storyteller/Link', {
-      method: 'POST',
-      body: { Username: 'j', Password: 'pw' },
-    });
-    await unlinkStoryteller();
-    expect(request).toHaveBeenCalledWith('/Cadence/Storyteller/Link', { method: 'DELETE' });
   });
 
   it('fetches a book by part id, encoding it', async () => {

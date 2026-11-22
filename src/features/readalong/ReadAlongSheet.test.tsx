@@ -164,36 +164,25 @@ describe('ReadAlongSheet', () => {
     expect(screen.queryByTestId('readalong-follow')).toBeNull();
   });
 
-  it('explains an unlinked account and points at Settings', async () => {
+  it('explains that the server setup is unfinished for an account Storyteller does not know', async () => {
     mockBook({ ...readyBook, Status: 'unlinked', Clips: [] });
     renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
       player: stubPlayer({ current: part1 }),
     });
     const box = await screen.findByTestId('readalong-unavailable');
     expect(box).toHaveAttribute('data-reason', 'unlinked');
-    expect(screen.getByText(/Connect Storyteller in Settings/)).toBeInTheDocument();
-    expect(screen.getByText('Open Settings')).toHaveAttribute('href', '/settings#storyteller');
+    expect(screen.getByText("Storyteller isn't ready for your account")).toBeInTheDocument();
+    expect(screen.getByText(/Ask whoever runs your server/)).toBeInTheDocument();
+    // Nothing for the listener to do in-app: no link, no setting.
+    expect(screen.queryByRole('link')).toBeNull();
   });
 
-  it('Open Settings calls onNavigate (so the full player can close too), not just onClose', async () => {
-    mockBook({ ...readyBook, Status: 'unlinked', Clips: [] });
-    const onClose = vi.fn();
-    const onNavigate = vi.fn();
-    renderWithProviders(<ReadAlongSheet open onClose={onClose} onNavigate={onNavigate} />, {
-      player: stubPlayer({ current: part1 }),
-    });
-    await userEvent.click(await screen.findByText('Open Settings'));
-    expect(onNavigate).toHaveBeenCalledTimes(1);
-    expect(onClose).not.toHaveBeenCalled();
-  });
-
-  it('shows the aligning / unmatched / mismatch copy without a Settings link', async () => {
+  it('shows the aligning / unmatched / mismatch copy', async () => {
     mockBook({ ...readyBook, Status: 'aligning', Clips: [] });
     renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
       player: stubPlayer({ current: part1 }),
     });
     expect(await screen.findByText(/still aligning/)).toBeInTheDocument();
-    expect(screen.queryByText('Open Settings')).toBeNull();
   });
 
   it('is unavailable for music even when the feature is on', async () => {

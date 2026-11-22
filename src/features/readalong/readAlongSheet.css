@@ -113,11 +113,3 @@
 .readalong__unavailable p {
   margin: 0;
 }
-
-.readalong__settings-link {
-  align-self: flex-start;
-  color: var(--cad-accent);
-  font-family: var(--cad-font-sans);
-  font-weight: 600;
-  text-decoration: none;
-}

@@ -184,10 +184,13 @@ Then('the audio jumps to that sentence', async ({ page }) => {
     .toBeGreaterThanOrEqual(want);
 });
 
-Then('I am told to connect Storyteller in Settings', async ({ page }) => {
+Then("I am told the server's Storyteller setup is unfinished for my account", async ({ page }) => {
+  // Nothing the listener can do in-app (accounts are the server maintainer's job), so the sheet
+  // names who to ask and offers no setting or link.
   const box = page.getByTestId('readalong-unavailable');
   await expect(box).toBeVisible({ timeout: DATA_WAIT });
   await expect(box).toHaveAttribute('data-reason', 'unlinked');
-  await expect(box.getByText('Connect Storyteller in Settings', { exact: false })).toBeVisible();
-  await expect(box.getByRole('link', { name: 'Open Settings' })).toBeVisible();
+  await expect(box.getByText("Storyteller isn't ready for your account")).toBeVisible();
+  await expect(box.getByText('Ask whoever runs your server', { exact: false })).toBeVisible();
+  await expect(box.getByRole('link')).toHaveCount(0);
 });

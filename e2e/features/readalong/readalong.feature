@@ -31,7 +31,7 @@ Feature: Read along with Storyteller
     When I tap a later sentence
     Then the audio jumps to that sentence
 
-  Scenario: Without a linked Storyteller account, read along points at Settings
+  Scenario: Without a Storyteller account, read along explains the server setup is unfinished
     Given the server reports my Storyteller account is not linked
     And I am signed in
     When I open the Audiobooks tab
@@ -40,4 +40,4 @@ Feature: Read along with Storyteller
     And I play the book from its detail page
     And I open the full player
     And I open read along
-    Then I am told to connect Storyteller in Settings
+    Then I am told the server's Storyteller setup is unfinished for my account

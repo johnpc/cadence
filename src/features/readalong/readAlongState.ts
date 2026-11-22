@@ -38,44 +38,38 @@ export function deriveReadAlongState(input: {
 export function unavailableCopy(reason: ReadAlongUnavailableReason): {
   title: string;
   message: string;
-  settingsLink: boolean;
 } {
   switch (reason) {
     case 'unlinked':
       return {
-        title: 'Connect Storyteller',
-        message: 'Connect Storyteller in Settings to read along while you listen.',
-        settingsLink: true,
+        title: "Storyteller isn't ready for your account",
+        message:
+          "Your server's Storyteller setup hasn't been finished for this account yet. Ask whoever runs your server to connect it in the CadenceConfig plugin.",
       };
     case 'unmatched':
       return {
         title: 'No matching book',
         message: 'No Storyteller book matches this title.',
-        settingsLink: false,
       };
     case 'aligning':
       return {
         title: 'Still aligning',
         message: 'Storyteller is still aligning this book. Check back soon.',
-        settingsLink: false,
       };
     case 'mismatch':
       return {
         title: 'Audio mismatch',
         message: "The Storyteller audio doesn't match this audiobook.",
-        settingsLink: false,
       };
     case 'not-a-book':
       return {
         title: 'Nothing to read',
         message: 'Read along works with audiobooks.',
-        settingsLink: false,
       };
     case 'no-plugin':
       return {
         title: 'Read along is off',
         message: 'Your server has no Storyteller bridge configured.',
-        settingsLink: false,
       };
   }
 }

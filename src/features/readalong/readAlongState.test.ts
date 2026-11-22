@@ -57,13 +57,10 @@ describe('deriveReadAlongState', () => {
 });
 
 describe('unavailableCopy', () => {
-  it('points an unlinked user at Settings and nobody else', () => {
-    expect(unavailableCopy('unlinked').settingsLink).toBe(true);
-    for (const r of ['unmatched', 'aligning', 'mismatch', 'not-a-book', 'no-plugin'] as const) {
-      const c = unavailableCopy(r);
-      expect(c.settingsLink).toBe(false);
-      expect(c.title.length).toBeGreaterThan(0);
-      expect(c.message.length).toBeGreaterThan(0);
-    }
+  it('tells an unknown account to ask the server maintainer, not to open a setting', () => {
+    const copy = unavailableCopy('unlinked');
+    expect(copy.title).toBe("Storyteller isn't ready for your account");
+    expect(copy.message).toMatch(/Ask whoever runs your server/);
+    expect(copy.message).toMatch(/CadenceConfig plugin/);
   });
 });

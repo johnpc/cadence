@@ -219,8 +219,11 @@ How it works: a self-hosted [Storyteller](https://gitlab.com/storyteller-platfor
 aligns each ebook to its audiobook. The **CadenceConfig Jellyfin plugin** bridges to it (`/Cadence/
 Storyteller/*`): it holds your Storyteller token server-side, matches each Jellyfin audiobook to its
 Storyteller book, serves the sentence timeline + chapter text, and syncs positions both ways. Cadence
-only talks to the plugin. Set the Storyteller URL in the plugin dashboard, then connect your account
-in **Settings → Storyteller** (per user); the player's **Read along** button appears for audiobooks.
+only talks to the plugin. **There is nothing to set up in the app.** The server maintainer configures
+Storyteller once in the plugin dashboard — the Storyteller URL plus a Storyteller admin account — and
+every Jellyfin user just works: a Storyteller account is created for a user the first time they open
+a book (or the maintainer maps a user to an existing Storyteller account). The player's **Read along**
+button appears for audiobooks whenever the server has the bridge.
 
 In CI there is no Storyteller: the `readalong` acceptance area fakes the plugin's bridge with
 Playwright route handlers built from the hermetic fixture book (real part ids and durations from

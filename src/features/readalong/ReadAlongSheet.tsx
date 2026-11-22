@@ -1,6 +1,5 @@
 import { IonModal, IonIcon } from '@ionic/react';
 import { chevronDown, locateOutline } from 'ionicons/icons';
-import { Link } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { unavailableCopy, type ReadAlongUnavailableReason } from './readAlongState';
 import { useReadAlongSheet } from './useReadAlongSheet';
@@ -14,18 +13,7 @@ import './readAlongSheet.css';
  * CadenceConfig plugin; the audio stays Cadence's own player. Render-only —
  * every decision lives in useReadAlongSheet.
  */
-export function ReadAlongSheet({
-  open,
-  onClose,
-  onNavigate = onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-  /** Called before an in-sheet link navigates (Open Settings). The full player
-   * passes a handler that closes ITSELF as well: the sheet sits on top of the
-   * player, so closing only the sheet left Settings hidden under the player. */
-  onNavigate?: () => void;
-}) {
+export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const s = useReadAlongSheet(open);
   return (
     <IonModal isOpen={open} onDidDismiss={onClose}>
@@ -44,7 +32,7 @@ export function ReadAlongSheet({
           </div>
         </div>
         {s.state.kind === 'unavailable' ? (
-          <Unavailable reason={s.state.reason} onNavigate={onNavigate} />
+          <Unavailable reason={s.state.reason} />
         ) : (
           <LoadState
             isLoading={s.isLoading}
@@ -77,15 +65,10 @@ export function ReadAlongSheet({
   );
 }
 
-/** Why read-along can't run right now, in the user's words — with a way to fix
- * it when there is one (an unlinked account → Settings). */
-function Unavailable({
-  reason,
-  onNavigate,
-}: {
-  reason: ReadAlongUnavailableReason;
-  onNavigate: () => void;
-}) {
+/** Why read-along can't run right now, in the user's words. Nothing here is the
+ * listener's to fix: Storyteller accounts are the server maintainer's job, so the
+ * copy says who to ask rather than offering a setting. */
+function Unavailable({ reason }: { reason: ReadAlongUnavailableReason }) {
   const copy = unavailableCopy(reason);
   return (
     <div
@@ -95,11 +78,6 @@ function Unavailable({
     >
       <p className="cad-headline-sm">{copy.title}</p>
       <p className="cad-meta">{copy.message}</p>
-      {copy.settingsLink && (
-        <Link to="/settings#storyteller" onClick={onNavigate} className="readalong__settings-link">
-          Open Settings
-        </Link>
-      )}
     </div>
   );
 }

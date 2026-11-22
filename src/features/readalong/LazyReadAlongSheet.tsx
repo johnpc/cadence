@@ -11,15 +11,7 @@ const Sheet = lazy(() => import('./ReadAlongSheet').then((m) => ({ default: m.Re
  * sheet mounted after that first open so the dismiss animation still plays and
  * react-query keeps its book/chapter cache.
  */
-export function LazyReadAlongSheet({
-  open,
-  onClose,
-  onNavigate,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onNavigate?: () => void;
-}) {
+export function LazyReadAlongSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [armed, setArmed] = useState(open);
   useEffect(() => {
     if (open) setArmed(true);
@@ -27,7 +19,7 @@ export function LazyReadAlongSheet({
   if (!armed) return null;
   return (
     <Suspense fallback={null}>
-      <Sheet open={open} onClose={onClose} onNavigate={onNavigate} />
+      <Sheet open={open} onClose={onClose} />
     </Suspense>
   );
 }
