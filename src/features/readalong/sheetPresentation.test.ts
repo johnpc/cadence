@@ -23,6 +23,7 @@ describe('sheetPresentation', () => {
       textError: false,
       playheadChapter: null,
       chapterRemaining: null,
+      upcoming: null,
     };
     expect(sheetPresentation({ ...base, state: { kind: 'ready', book }, current }).title).toBe(
       'Book T',
@@ -46,6 +47,7 @@ describe('sheetPresentation', () => {
       current,
       playheadChapter: null,
       chapterRemaining: null,
+      upcoming: null,
       chapter: { Href: 'c', Title: 'Ch' },
       clip: { Start: 0, End: 1, Chapter: 0, Fragment: 's9' },
     };
@@ -82,5 +84,22 @@ describe('sheetPresentation', () => {
     expect(chapterLine('Chapter 3', null, null)).toBe('Chapter 3');
     expect(chapterLine(null, 'Three', '12m left')).toBe('Three');
     expect(chapterLine(null, null, null)).toBeNull();
+  });
+
+  it('counts down to the upcoming sentence during a silent stretch', () => {
+    const out = sheetPresentation({
+      state: { kind: 'ready', book },
+      current,
+      chapter: { Href: 'c', Title: 'Ch' },
+      clip: null,
+      textLoading: false,
+      textError: false,
+      playheadChapter: 'Opening Credits',
+      chapterRemaining: '1m left',
+      upcoming: { clip: { Start: 42, End: 46, Chapter: 0, Fragment: 's2' }, secondsUntil: 41.6 },
+    });
+    expect(out.chapterTitle).toBe('Narration starts in 0:41');
+    expect(out.upcomingFragment).toBe('s2');
+    expect(out.activeFragment).toBeNull();
   });
 });

@@ -191,6 +191,28 @@ describe('ReadAlongSheet', () => {
     expect(await screen.findByText(/still aligning/)).toBeInTheDocument();
   });
 
+  it('explains an alignment with no sentence timing and how to fix it', async () => {
+    mockBook({ ...readyBook, Status: 'empty', Clips: [] });
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1 }),
+    });
+    expect(await screen.findByText('No narration timing')).toBeInTheDocument();
+    expect(screen.getByText(/Re-pair it with the matching ebook/)).toBeInTheDocument();
+    expect(screen.getByTestId('readalong-unavailable')).toHaveAttribute('data-reason', 'empty');
+  });
+
+  it('marks the upcoming sentence and counts down during a silent stretch', async () => {
+    mockBook({ ...readyBook, Clips: [{ Start: 42, End: 46, Chapter: 0, Fragment: 's2' }] });
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1, queue: [part1, part2] }),
+      progress: { position: 0, duration: 100 },
+    });
+    const text = await screen.findByTestId('readalong-text');
+    await waitFor(() => expect(text.querySelector('[data-upcoming="true"]')?.id).toBe('s2'));
+    expect(text.querySelector('[data-active="true"]')).toBeNull();
+    expect(screen.getByTestId('readalong-chapter')).toHaveTextContent('Narration starts in 0:42');
+  });
+
   it('is unavailable for music even when the feature is on', async () => {
     mockBook(undefined);
     const song: JellyfinItem = { Id: 's', Name: 'Song', Type: 'Audio' };

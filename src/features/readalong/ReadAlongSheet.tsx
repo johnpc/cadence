@@ -46,6 +46,7 @@ export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () =
             <ReadAlongText
               html={s.html}
               activeFragment={s.activeFragment}
+              upcomingFragment={s.upcomingFragment}
               follow={s.follow}
               onTapFragment={s.onTapFragment}
               onReaderScroll={() => s.setFollow('detached')}

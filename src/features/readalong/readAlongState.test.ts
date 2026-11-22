@@ -43,7 +43,7 @@ describe('deriveReadAlongState', () => {
     expect(deriveReadAlongState({ ...base })).toEqual({ kind: 'loading' });
   });
   it("surfaces the plugin's own verdict as the unavailable reason", () => {
-    for (const s of ['unlinked', 'unmatched', 'aligning', 'mismatch'] as const) {
+    for (const s of ['unlinked', 'unmatched', 'aligning', 'mismatch', 'empty'] as const) {
       expect(deriveReadAlongState({ ...base, book: book(s) })).toEqual({
         kind: 'unavailable',
         reason: s,

@@ -13,7 +13,8 @@ import { getSession } from '../../lib/sessionStore';
 
 /** Where the plugin stands on read-along for one audiobook. `ready` is the only
  * status with a populated `Clips`; the others say exactly why there is none. */
-export type ReadAlongStatus = 'unlinked' | 'unmatched' | 'aligning' | 'mismatch' | 'ready';
+export type ReadAlongStatus =
+  'unlinked' | 'unmatched' | 'aligning' | 'mismatch' | 'empty' | 'ready';
 
 /** One narrated sentence: its span on the GLOBAL book timeline (seconds from the
  * start of part 1), the chapter it lives in, and the element id to highlight. */

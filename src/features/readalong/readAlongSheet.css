@@ -63,6 +63,14 @@
 }
 
 .readalong__text a {
+  /* The sentence about to be narrated during a silent stretch: pointed at, not lit. */
+  .readalong__upcoming {
+    color: var(--cad-text);
+    text-decoration: underline dotted color-mix(in srgb, var(--cad-accent) 70%, transparent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+
   /* Page/position anchors and in-book links must never read as web links. */
   color: inherit;
   text-decoration: none;

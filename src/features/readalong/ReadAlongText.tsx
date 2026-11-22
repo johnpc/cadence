@@ -19,12 +19,15 @@ import type { FollowMode } from './readAlongState';
 export function ReadAlongText({
   html,
   activeFragment,
+  upcomingFragment,
   follow,
   onTapFragment,
   onReaderScroll,
 }: {
   html: string;
   activeFragment: string | null;
+  /** During a silent stretch: the sentence about to be narrated (no active one). */
+  upcomingFragment: string | null;
   follow: FollowMode;
   onTapFragment: (fragment: string) => void;
   onReaderScroll: () => void;
@@ -44,18 +47,21 @@ export function ReadAlongText({
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
-    for (const el of Array.from(root.querySelectorAll('[data-active]'))) {
+    for (const el of Array.from(root.querySelectorAll('[data-active], [data-upcoming]'))) {
       el.removeAttribute('data-active');
-      el.classList.remove('readalong__active');
+      el.removeAttribute('data-upcoming');
+      el.classList.remove('readalong__active', 'readalong__upcoming');
     }
-    if (!activeFragment) return;
-    const el = root.querySelector<HTMLElement>(`[id="${cssEscape(activeFragment)}"]`);
+    const fragment = activeFragment ?? upcomingFragment;
+    if (!fragment) return;
+    const el = root.querySelector<HTMLElement>(`[id="${cssEscape(fragment)}"]`);
     if (!el) return;
-    el.setAttribute('data-active', 'true');
-    el.classList.add('readalong__active');
+    const mark = activeFragment ? 'active' : 'upcoming';
+    el.setAttribute(`data-${mark}`, 'true');
+    el.classList.add(`readalong__${mark}`);
     if (follow === 'following') keepInView(root, el, reason.current);
     reason.current = 'tick';
-  }, [html, activeFragment, follow]);
+  }, [html, activeFragment, upcomingFragment, follow]);
 
   const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = (e.target as HTMLElement).closest<HTMLElement>('[id]');

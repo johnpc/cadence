@@ -109,6 +109,7 @@ export function useReadAlongSheet(open: boolean) {
       clip: view.clip,
       textLoading: textQ.isLoading,
       textError: textQ.isError,
+      upcoming: view.upcoming,
       playheadChapter,
       chapterRemaining: playheadChapter
         ? remaining(chapters, position, duration, p.rate).chapter
