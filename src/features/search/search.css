@@ -13,7 +13,7 @@
   background: none;
   color: var(--cad-text-secondary);
   font-family: var(--cad-font-sans);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   font-weight: 600;
   cursor: pointer;
 }
@@ -33,7 +33,7 @@
   border: none;
   background: none;
   color: var(--cad-text-secondary);
-  font-size: 20px;
+  font-size: var(--cad-text-2xl);
   padding: var(--cad-space-2);
   display: flex;
   align-items: center;

@@ -23,7 +23,7 @@
 
 .result-row__title {
   font-family: var(--cad-font-sans);
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   font-weight: 500;
   color: var(--cad-text);
   white-space: nowrap;
@@ -33,6 +33,6 @@
 
 .result-row__subtitle {
   font-family: var(--cad-font-sans);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   color: var(--cad-text-secondary);
 }

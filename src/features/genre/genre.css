@@ -17,7 +17,7 @@
 
 .genre-tile__name {
   font-family: var(--cad-font-sans);
-  font-size: 17px;
+  font-size: var(--cad-text-lg);
   font-weight: 700;
   color: #fff;
 }

@@ -13,7 +13,7 @@ export function PlaylistFavoriteButton({ playlist }: { playlist: JellyfinItem | 
     <button
       type="button"
       className={favorite ? 'like-btn like-btn--on' : 'like-btn'}
-      style={{ fontSize: 26 }}
+      style={{ fontSize: 'var(--cad-icon-lg)' }}
       onClick={(e) => {
         e.stopPropagation();
         toggle();

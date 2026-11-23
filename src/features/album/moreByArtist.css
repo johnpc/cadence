@@ -23,7 +23,7 @@
 
 .more-by__name {
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 600;
   color: var(--cad-text);
   white-space: nowrap;
@@ -33,7 +33,7 @@
 
 .more-by__artist {
   font-family: var(--cad-font-sans);
-  font-size: 12px;
+  font-size: var(--cad-text-xs);
   color: var(--cad-text-secondary);
   white-space: nowrap;
   overflow: hidden;

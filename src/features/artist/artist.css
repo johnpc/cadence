@@ -34,7 +34,7 @@
   color: var(--cad-on-accent);
   font-family: var(--cad-font-sans);
   font-weight: 700;
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   padding: var(--cad-space-2) var(--cad-space-6);
   cursor: pointer;
 }
@@ -52,7 +52,7 @@
 
 .artist__see-all {
   flex-shrink: 0;
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   font-weight: 600;
   color: var(--cad-text-secondary);
   text-decoration: none;
@@ -87,7 +87,7 @@
 
 .artist__album-name {
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 600;
   color: var(--cad-text);
   white-space: nowrap;
@@ -120,7 +120,7 @@
 
 .artist__related-name {
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 600;
   color: var(--cad-text);
   white-space: nowrap;

@@ -23,6 +23,6 @@
 .top-result__kind {
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 12px;
+  font-size: var(--cad-text-xs);
   opacity: 0.8;
 }

@@ -25,7 +25,7 @@
   border: none;
   background: none;
   color: var(--cad-text-secondary);
-  font-size: 24px;
+  font-size: var(--cad-icon-md);
   padding: var(--cad-space-1);
   display: flex;
   align-items: center;
@@ -76,7 +76,7 @@
   opacity: 0.7;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 12px;
+  font-size: var(--cad-text-xs);
 }
 
 .album__summary {
@@ -91,7 +91,7 @@
   border-radius: 50%;
   background: var(--cad-accent);
   color: var(--cad-on-accent);
-  font-size: 28px;
+  font-size: var(--cad-icon-lg);
   display: flex;
   align-items: center;
   justify-content: center;

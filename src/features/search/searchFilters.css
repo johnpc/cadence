@@ -30,7 +30,7 @@
   border-radius: var(--cad-radius-pill);
   padding: var(--cad-space-1) var(--cad-space-4);
   font-family: var(--cad-font-sans);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   font-weight: 600;
   cursor: pointer;
 }

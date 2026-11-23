@@ -44,7 +44,7 @@
   border-radius: 50%;
   background: var(--cad-accent);
   color: var(--cad-on-accent);
-  font-size: 24px;
+  font-size: var(--cad-icon-md);
   cursor: pointer;
   display: flex;
   align-items: center;

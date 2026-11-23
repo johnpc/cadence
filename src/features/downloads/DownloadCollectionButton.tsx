@@ -24,7 +24,7 @@ export function DownloadCollectionButton({
     <button
       type="button"
       className={downloaded ? 'dl-btn dl-btn--on' : 'dl-btn'}
-      style={{ fontSize: 22 }}
+      style={{ fontSize: 'var(--cad-icon-md)' }}
       onClick={() => void (downloaded ? removeAll() : downloadAll())}
       disabled={busy}
       data-testid="download-collection"

@@ -12,12 +12,12 @@
   background: var(--cad-warning);
   color: #000;
   font-family: var(--cad-font-sans);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   font-weight: 600;
 }
 
 .offline-banner ion-icon {
-  font-size: 16px;
+  font-size: var(--cad-text-lg);
 }
 
 /* The "downloads" link inherits the banner's dark-on-warning colour, underlined

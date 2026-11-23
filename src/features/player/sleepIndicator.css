@@ -8,7 +8,7 @@
   border-radius: var(--cad-radius-pill, 999px);
   background: color-mix(in srgb, var(--cad-accent) 16%, transparent);
   color: var(--cad-accent-text);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   font-weight: 600;
 }
 
@@ -20,6 +20,6 @@
   color: inherit;
   padding: 0;
   margin-left: var(--cad-space-1);
-  font-size: 16px;
+  font-size: var(--cad-text-lg);
   cursor: pointer;
 }

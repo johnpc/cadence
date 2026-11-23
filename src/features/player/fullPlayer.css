@@ -58,7 +58,7 @@
   border: none;
   background: none;
   color: var(--cad-text);
-  font-size: 28px;
+  font-size: var(--cad-icon-lg);
   cursor: pointer;
 }
 
@@ -95,7 +95,7 @@
   white-space: nowrap;
   color: var(--cad-text);
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--cad-text-base);
 }
 
 /* The label links back to its source collection — keep it looking like the
@@ -179,7 +179,7 @@
   border: none;
   background: none;
   color: var(--cad-text);
-  font-size: 30px;
+  font-size: var(--cad-icon-lg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,7 +200,7 @@
   border-radius: 50%;
   background: var(--cad-accent);
   color: var(--cad-on-accent);
-  font-size: 34px;
+  font-size: var(--cad-icon-xl);
 }
 
 .fullplayer__ctl {
@@ -211,7 +211,7 @@
   position: absolute;
   top: -2px;
   right: -2px;
-  font-size: 10px;
+  font-size: var(--cad-text-2xs);
   font-weight: 700;
   background: var(--cad-accent);
   color: var(--cad-on-accent);
@@ -231,7 +231,7 @@
   max-width: 340px;
   margin-top: var(--cad-space-4);
   color: var(--cad-text-secondary);
-  font-size: 18px;
+  font-size: var(--cad-text-xl);
 }
 
 .fullplayer__volume input {
@@ -261,7 +261,7 @@
     flex-direction: column;
     justify-content: center;
     gap: 2px;
-    font-size: 11px;
+    font-size: var(--cad-text-2xs);
     white-space: nowrap;
   }
 }
@@ -274,7 +274,7 @@
   background: none;
   color: var(--cad-text-secondary);
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 600;
   cursor: pointer;
 }
@@ -301,7 +301,7 @@
 
 .fullplayer__next-up-track {
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

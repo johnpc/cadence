@@ -23,7 +23,7 @@
   border-radius: var(--cad-radius-pill);
   background: var(--cad-surface-2);
   color: var(--cad-text-secondary);
-  font-size: 28px;
+  font-size: var(--cad-icon-lg);
   margin-bottom: var(--cad-space-1);
 }
 
@@ -47,7 +47,7 @@
   border-radius: var(--cad-radius-pill);
   padding: var(--cad-space-2) var(--cad-space-6);
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 700;
   cursor: pointer;
 }
@@ -63,7 +63,7 @@ a.load-state__retry {
   background: none;
   color: var(--cad-text-secondary);
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 600;
   text-decoration: underline;
   cursor: pointer;

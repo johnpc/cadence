@@ -27,7 +27,7 @@
 .shelf__see-all {
   flex: 0 0 auto;
   font-family: var(--cad-font-sans);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -81,7 +81,7 @@
   border-radius: 50%;
   background: var(--cad-accent);
   color: var(--cad-on-accent);
-  font-size: 20px;
+  font-size: var(--cad-icon-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,7 +137,7 @@
 .album-card__title {
   margin-top: var(--cad-space-1);
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 600;
   color: var(--cad-text);
   white-space: nowrap;
@@ -147,7 +147,7 @@
 
 .album-card__artist {
   font-family: var(--cad-font-sans);
-  font-size: 12px;
+  font-size: var(--cad-text-xs);
   color: var(--cad-text-secondary);
   white-space: nowrap;
   overflow: hidden;

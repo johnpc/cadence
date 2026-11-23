@@ -45,7 +45,7 @@
   background: var(--cad-surface-2);
   border-radius: var(--cad-radius-sm);
   padding: var(--cad-space-3);
-  font-size: 11px;
+  font-size: var(--cad-text-2xs);
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
