@@ -24,6 +24,9 @@
 
 .queueview__clear,
 .queueview__save {
+  min-height: 44px;
+  padding: 0 var(--cad-space-2);
+  white-space: nowrap;
   border: none;
   background: none;
   color: var(--cad-accent-text);
@@ -97,9 +100,11 @@
   background: none;
   color: var(--cad-text-secondary);
   font-size: 20px;
-  padding: var(--cad-space-2);
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
@@ -140,7 +145,11 @@
 .queueview__drag {
   color: var(--cad-text-tertiary);
   font-size: 20px;
-  padding: 0 var(--cad-space-1);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
   cursor: grab;
 }

@@ -18,8 +18,9 @@ export function SaveQueueButton({ queue }: { queue: JellyfinItem[] }) {
         className="queueview__save"
         data-testid="queue-save"
         onClick={() => setOpen(true)}
+        aria-label="Save queue as playlist"
       >
-        Save as playlist
+        Save
       </button>
       <IonAlert
         isOpen={open}

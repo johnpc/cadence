@@ -241,6 +241,23 @@ Then('I can save the queue as a playlist', async ({ page }) => {
   });
 });
 
+Then('the queue rows show no move buttons', async ({ page }) => {
+  await expect(page.getByTestId('queue-row').first()).toBeVisible({ timeout: DATA_WAIT });
+  await expect(page.getByTestId('queue-row-up')).toHaveCount(0);
+});
+
+When('I tap Edit in the queue', async ({ page }) => {
+  const edit = page.getByTestId('queue-edit');
+  await expect(edit).toBeVisible({ timeout: DATA_WAIT });
+  await edit.click({ force: true });
+  await expect(edit).toHaveText('Done');
+});
+
+Then('the queue rows show move buttons', async ({ page }) => {
+  await expect(page.getByTestId('queue-row-up').first()).toBeVisible({ timeout: DATA_WAIT });
+  await expect(page.getByTestId('queue-row-down').first()).toBeVisible();
+});
+
 When('I tap the artist in the full player', async ({ page }) => {
   // The artist line under the now-playing title links to the artist page.
   const link = page.getByTestId('full-player-artists').getByRole('link').first();
