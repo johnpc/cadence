@@ -10,6 +10,7 @@ import {
 } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
+import { TrackListSkeleton } from '../../components/Skeleton';
 import { RequestRow } from './RequestRow';
 import { DownloadQueue } from './DownloadQueue';
 import { useMusicRequests } from './useMusicRequests';
@@ -62,6 +63,7 @@ export function Requests() {
               isEmpty={results.length === 0}
               emptyTitle="No artists found"
               emptyMessage="Try a different spelling."
+              skeleton={<TrackListSkeleton count={5} />}
             >
               {results.map((artist) => (
                 <RequestRow

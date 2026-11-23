@@ -14,7 +14,7 @@
   gap: var(--cad-space-1);
   padding: var(--cad-space-1);
   background: var(--cad-surface);
-  border: 1px solid var(--cad-hairline);
+  border: 1px solid var(--cad-text-tertiary);
   border-radius: var(--cad-radius-pill);
 }
 

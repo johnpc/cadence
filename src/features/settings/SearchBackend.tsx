@@ -8,48 +8,46 @@ import './searchBackend.css';
  * on this device (never shipped in the build). */
 export function SearchBackend() {
   const { url, token, saved, managed, onUrl, onToken, save } = useMarlinSettings();
-  // When the server manages search via the same-origin proxy there's no URL to
-  // show (it's a relative path) — surface a friendly label instead of a blank.
-  const displayUrl = managed && !url ? 'Managed by your server' : url;
+  if (managed) {
+    // Server-managed: nothing to change here, so no disabled form — one line.
+    return (
+      <section className="settings__search-backend">
+        <h2 className="settings__title cad-kicker">Faster search</h2>
+        <p className="search-backend__hint cad-meta" data-testid="marlin-managed-note">
+          Managed by your server{url ? ` (${url})` : ''}.
+        </p>
+      </section>
+    );
+  }
   return (
     <section className="settings__search-backend">
       <h2 className="settings__title cad-kicker">Faster search</h2>
       <p className="search-backend__hint cad-meta">
-        {managed
-          ? 'Your server administrator has configured search for everyone on this server, so these settings can’t be changed here.'
-          : 'Optional: point search at a Meilisearch (marlin-search) server for faster, better-ranked results. Leave blank to use your media server’s search.'}
+        Optional: point search at a Meilisearch (marlin-search) server for faster, better-ranked
+        results. Leave blank to use your media server’s search.
       </p>
       <IonInput
         label="Search server URL"
         labelPlacement="stacked"
         placeholder="https://search.example.com"
-        value={displayUrl}
+        value={url}
         onIonInput={(e) => onUrl(e.detail.value ?? '')}
         data-testid="marlin-url"
         type="url"
         autocapitalize="off"
-        disabled={managed}
       />
-      {!managed && (
-        <IonInput
-          label="Search server token"
-          labelPlacement="stacked"
-          placeholder="Auth token (optional)"
-          value={token}
-          onIonInput={(e) => onToken(e.detail.value ?? '')}
-          data-testid="marlin-token"
-          type="password"
-        />
-      )}
-      {managed ? (
-        <p className="search-backend__managed cad-meta" data-testid="marlin-managed-note">
-          Set by the server administrator
-        </p>
-      ) : (
-        <IonButton size="small" onClick={save} data-testid="marlin-save">
-          {saved ? 'Saved' : 'Save'}
-        </IonButton>
-      )}
+      <IonInput
+        label="Search server token"
+        labelPlacement="stacked"
+        placeholder="Auth token (optional)"
+        value={token}
+        onIonInput={(e) => onToken(e.detail.value ?? '')}
+        data-testid="marlin-token"
+        type="password"
+      />
+      <IonButton size="small" onClick={save} data-testid="marlin-save">
+        {saved ? 'Saved' : 'Save'}
+      </IonButton>
     </section>
   );
 }

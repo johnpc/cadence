@@ -17,7 +17,7 @@
 
 .settings__signout {
   align-self: flex-start;
-  border: 1px solid var(--cad-hairline);
+  border: 1px solid var(--cad-text-tertiary);
   background: none;
   color: var(--cad-text);
   border-radius: var(--cad-radius-pill);
@@ -30,7 +30,7 @@
 
 .settings__clear-cache {
   align-self: flex-start;
-  border: 1px solid var(--cad-hairline);
+  border: 1px solid var(--cad-text-tertiary);
   background: none;
   color: var(--cad-text);
   border-radius: var(--cad-radius-pill);

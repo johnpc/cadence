@@ -8,8 +8,8 @@
   margin: 0;
 }
 
-.search-backend__managed {
-  margin: 0;
-  font-style: italic;
-  color: var(--cad-text-secondary);
+/* The section is a column; without this the Save button stretched into a
+   full-width green bar unlike every other button in Settings. */
+.settings__search-backend ion-button {
+  align-self: flex-start;
 }

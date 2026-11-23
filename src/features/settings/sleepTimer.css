@@ -15,7 +15,7 @@
 }
 
 .sleep__option {
-  border: 1px solid var(--cad-hairline);
+  border: 1px solid var(--cad-text-tertiary);
   background: var(--cad-surface);
   color: var(--cad-text-secondary);
   border-radius: var(--cad-radius-pill);
