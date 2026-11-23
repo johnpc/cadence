@@ -76,8 +76,8 @@ When("I open a multi-part book's detail page", async ({ page }) => {
 });
 
 Then("I see the book's title and a details block", async ({ page }) => {
-  // Real rendered data: a non-empty title, and the facts block (which always
-  // carries at least the Parts fact) with at least one labelled fact.
+  // Real rendered data: a non-empty title, and the facts block (this multi-part
+  // book always carries at least the Parts fact) with at least one labelled fact.
   const title = page.getByTestId('book-title');
   await expect(title).toBeVisible({ timeout: DATA_WAIT });
   expect((await title.innerText()).trim().length).toBeGreaterThan(0);

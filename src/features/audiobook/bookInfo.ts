@@ -1,4 +1,5 @@
 import { durationWords } from '../player/playerFormat';
+import { hoursMinutes } from './bookProgressLabel';
 import type { Book } from './groupBooks';
 
 /** A labelled fact for the book detail info block (e.g. "Length" → "12 hr 4 min"). */
@@ -27,13 +28,24 @@ function bookLength(book: Book): string {
   return durationWords(Math.round(ticks / 10_000_000 / 60));
 }
 
+/** The book header's one meta line — "12h 9m · 3 parts · 65% · 4h 14m left", in
+ * the same compact units as the progress — each piece omitted when unknown or
+ * uninteresting (a single part, not started yet). */
+export function bookHeaderMeta(book: Book, progressLabel: string | null): string {
+  const ticks = book.parts.reduce((sum, p) => sum + (p.RunTimeTicks ?? 0), 0);
+  const length = ticks > 0 ? hoursMinutes(ticks / 10_000_000) : '';
+  const parts = book.parts.length > 1 ? `${book.parts.length} parts` : '';
+  return [length, parts, progressLabel ?? ''].filter(Boolean).join(' · ');
+}
+
 /** The detail-page facts for a book: length, part count, release year, and when
  * it was added to the server — each omitted when unknown. Pure + unit-testable. */
 export function bookFacts(book: Book): BookFact[] {
   const facts: BookFact[] = [];
   const length = bookLength(book);
   if (length) facts.push({ label: 'Length', value: length });
-  facts.push({ label: 'Parts', value: String(book.parts.length) });
+  // A single-file book has nothing to say about parts (the header doesn't either).
+  if (book.parts.length > 1) facts.push({ label: 'Parts', value: String(book.parts.length) });
   if (book.book.ProductionYear) {
     facts.push({ label: 'Year', value: String(book.book.ProductionYear) });
   }

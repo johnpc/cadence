@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bookFacts, formatBookDate } from './bookInfo';
+import { bookFacts, bookHeaderMeta, formatBookDate } from './bookInfo';
 import type { Book } from './groupBooks';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -42,7 +42,23 @@ describe('bookFacts', () => {
   });
 
   it('omits length when no part reports a duration, and omits missing year/date', () => {
-    const facts = bookFacts(makeBook({}));
-    expect(facts).toEqual([{ label: 'Parts', value: '1' }]);
+    expect(bookFacts(makeBook({}, [{}, {}]))).toEqual([{ label: 'Parts', value: '2' }]);
+  });
+
+  it('says nothing about parts for a single-file book', () => {
+    expect(bookFacts(makeBook({}))).toEqual([]);
+  });
+});
+
+describe('bookHeaderMeta', () => {
+  const hour = 3600 * 10_000_000;
+  it('joins length, part count and progress into one line', () => {
+    const book = makeBook({}, [{ RunTimeTicks: hour }, { RunTimeTicks: hour / 2 }]);
+    expect(bookHeaderMeta(book, '40% · 54m left')).toBe('1h 30m · 2 parts · 40% · 54m left');
+  });
+
+  it('drops the part count for a single file and the progress before listening', () => {
+    expect(bookHeaderMeta(makeBook({ RunTimeTicks: hour }), null)).toBe('1h');
+    expect(bookHeaderMeta(makeBook({}), null)).toBe('');
   });
 });

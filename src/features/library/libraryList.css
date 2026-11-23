@@ -6,6 +6,13 @@
   margin-bottom: var(--cad-space-3);
 }
 
+/* In the narrow desktop sidebar the chip row shares the line with "+": let it
+   shrink and scroll (with the shared edge fade) instead of clipping "Artists". */
+.library-list__head .search-filters {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .library-list__tools {
   display: flex;
   align-items: center;

@@ -2,9 +2,10 @@ import { bookFacts } from './bookInfo';
 import type { Book } from './groupBooks';
 
 /** The book's info block: a labelled list of facts (length, parts, year, when
- * added) — the parts count is always present, so it always renders. */
+ * added), or nothing when none are known. */
 export function BookFacts({ book }: { book: Book }) {
   const facts = bookFacts(book);
+  if (facts.length === 0) return null;
   return (
     <section data-testid="book-facts">
       <h2 className="cad-headline">Details</h2>
