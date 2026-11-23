@@ -51,7 +51,7 @@ export function PlayerProvider({
 
   // While casting, the scrubber follows the receiver (the local element is silent).
   const local = useStore(engine.progress);
-  const progress = useEffectiveProgress(local.position, local.duration);
+  const progress = useEffectiveProgress(local.position, local.duration, local.phase);
 
   return (
     <PlayerContext.Provider value={value}>

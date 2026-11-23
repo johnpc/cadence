@@ -38,6 +38,29 @@ function scrubAttributes(el: Element): void {
   }
 }
 
+const ORNAMENT_HINT = /orn|break|sep|flourish|fleuron|dingbat|divider|star|asterism/i;
+const ORNAMENT_MAX_PX = 64;
+
+/**
+ * Is this <img> a scene-break ornament rather than an illustration? Books mark
+ * them by name (class / src / alt mentioning orn, break, sep, star… — e.g.
+ * `SecOrn.jpg`), by a breaker paragraph class around them, or by being tiny
+ * (≤ 64 px by their own width/height attributes). A merely centred paragraph is
+ * NOT enough: centred illustrations are common and must keep their size. Those get `readalong__ornament`, which
+ * draws them small and on the page colour — A Gentleman in Moscow's star on a
+ * white square painted a white bar across the dark sheet.
+ */
+export function isOrnament(img: Element): boolean {
+  const hints = [img.getAttribute('class'), img.getAttribute('src'), img.getAttribute('alt')];
+  if (hints.some((h) => h && ORNAMENT_HINT.test(h))) return true;
+  const parentClass = img.parentElement?.getAttribute('class') ?? '';
+  if (/break|orn|sep/i.test(parentClass)) return true;
+  const sizes = [img.getAttribute('width'), img.getAttribute('height')]
+    .map((v) => Number.parseFloat(v ?? ''))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  return sizes.length > 0 && sizes.every((n) => n <= ORNAMENT_MAX_PX);
+}
+
 function isAbsoluteUrl(value: string): boolean {
   return /^[a-z][a-z0-9+.-]*:/i.test(value) || value.startsWith('//');
 }
@@ -71,6 +94,7 @@ export function sanitizeChapter(
         el.setAttribute('src', imageUrl(resolveChapterPath(chapterHref, src)));
       }
       el.setAttribute('loading', 'lazy');
+      if (isOrnament(el)) el.classList.add('readalong__ornament');
     }
     if (el.localName === 'a') {
       // Book-internal links would navigate the SPA away; keep the text, drop the jump.

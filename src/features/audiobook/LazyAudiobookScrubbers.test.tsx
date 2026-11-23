@@ -14,6 +14,7 @@ describe('LazyAudiobookScrubbers', () => {
       progress: { position: 10, duration: 100 },
     });
     expect(container.querySelector('.fullplayer__scrubber-placeholder')).not.toBeNull();
-    expect(await screen.findByTestId('book-progress-label')).toHaveTextContent('Circe');
+    // The player's headline already names the book: the bar just says "Book".
+    expect(await screen.findByTestId('book-progress-label')).toHaveTextContent(/^Book$/);
   });
 });

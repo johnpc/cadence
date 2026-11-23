@@ -16,12 +16,14 @@ function setup(over: Partial<Parameters<typeof ReadAlongTransport>[0]> = {}) {
     duration: 3700,
     chapters,
     progress: null,
+    phase: 'known' as const,
     rate: 1,
     onToggle: vi.fn(),
     onSeek: vi.fn(),
     onSeekBook: vi.fn(),
     onRate: vi.fn(),
     onAct: vi.fn(),
+    onOpenChapters: vi.fn(),
     ...over,
   };
   render(<ReadAlongTransport {...props} />);
@@ -82,9 +84,20 @@ describe('ReadAlongTransport', () => {
     expect(screen.getByTestId('readalong-chapter-progress-label')).toHaveTextContent('Chapter 4');
     expect(screen.getByTestId('readalong-chapter-progress-time')).toHaveTextContent('3:16 / 24:18');
     expect(screen.getByTestId('readalong-book-progress-label')).toHaveTextContent('Hogfather');
+    // The sheet is narrow: the time left gets its own line so the title never truncates.
     expect(screen.getByTestId('readalong-book-progress-time')).toHaveTextContent(
-      '1:03:16 / 10:18:24 · 9h 15m left',
+      /^1:03:16 \/ 10:18:24$/,
     );
+    expect(screen.getByTestId('readalong-book-progress-remaining')).toHaveTextContent(
+      '9h 15m left',
+    );
+    // The speed pill rides that line, off the centred button row.
+    expect(screen.getByTestId('readalong-book-progress')).toContainElement(
+      screen.getByTestId('readalong-speed'),
+    );
+    expect(
+      screen.getByTestId('readalong-transport').querySelector('.readalong__transport-row'),
+    ).not.toContainElement(screen.getByTestId('readalong-speed'));
     const [chapterBar] = screen.getAllByRole('slider');
     fireEvent.change(chapterBar, { target: { value: '100' } });
     fireEvent.pointerUp(chapterBar);
@@ -101,5 +114,43 @@ describe('ReadAlongTransport', () => {
     expect(p.onRate).toHaveBeenCalledWith(1.5);
     expect(p.onAct).toHaveBeenCalledTimes(1);
     expect(screen.queryAllByTestId('readalong-speed-option')).toHaveLength(0);
+  });
+
+  it('the chapter name opens the chapter list', async () => {
+    const progress = {
+      book: { title: 'Hogfather', position: 3796, duration: 37104, remainingAtRate: 33308 },
+      chapter: {
+        title: 'Chapter 4',
+        position: 196,
+        duration: 1458,
+        remainingAtRate: 1262,
+        start: 3600,
+        index: 3,
+        count: 114,
+      },
+    };
+    const p = setup({ progress });
+    await userEvent.click(screen.getByTestId('readalong-chapter-progress-label'));
+    expect(p.onOpenChapters).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows dashes, not 0:00, while the resume position is still landing', () => {
+    const progress = {
+      book: { title: 'Hogfather', position: 0, duration: 37104, remainingAtRate: 37104 },
+      chapter: {
+        title: 'Dedication',
+        position: 0,
+        duration: 31,
+        remainingAtRate: 31,
+        start: 0,
+        index: 0,
+        count: 114,
+      },
+    };
+    setup({ progress, phase: 'pending' });
+    expect(screen.getByTestId('readalong-chapter-progress-time')).toHaveTextContent('— / —');
+    expect(screen.getByTestId('readalong-book-progress-time')).toHaveTextContent('— / —');
+    expect(screen.getByTestId('readalong-book-progress-remaining')).toHaveTextContent(/^$/);
+    for (const bar of screen.getAllByRole('slider')) expect(bar).toBeDisabled();
   });
 });

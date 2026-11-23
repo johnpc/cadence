@@ -1,24 +1,41 @@
-import { ProgressRow } from './ProgressRow';
+import type { ReactNode } from 'react';
+import { ProgressRow, type RemainingPlacement } from './ProgressRow';
 import type { BookPosition } from './bookPosition';
+import type { PositionPhase } from '../player/engine/types';
 
 /**
  * The audiobook's two progress bars: the CHAPTER (primary — what you scrub to
- * re-hear a line) and the whole BOOK beneath it, each labelled with which chapter
- * / which book it is. A book without chapters shows only the book bar. Seeks are
- * global book seconds, so the chapter bar offsets by the chapter's start.
+ * re-hear a line) and the whole BOOK beneath it. A book without chapters shows
+ * only the book bar. Seeks are global book seconds, so the chapter bar offsets
+ * by the chapter's start. Where it's shown decides the details:
+ * - `bookLabel` overrides the book row's label (the full player says "Book" —
+ *   the title is already its headline);
+ * - `bookRemaining` puts the book's time left inline or on its own line;
+ * - `onChapterLabel` makes the chapter name open the chapter list;
+ * - `bookTrailing` ends the book row (the read-along sheet's speed pill).
  * `testPrefix` keeps the player's and the read-along sheet's bars distinct.
  */
 export function BookProgressBars({
   model,
   rate,
+  phase = 'known',
   testPrefix = '',
+  bookLabel,
+  bookRemaining = 'inline',
+  bookTrailing,
   onSeekBook,
+  onChapterLabel,
   onAct,
 }: {
   model: BookPosition;
   rate: number;
+  phase?: PositionPhase;
   testPrefix?: string;
+  bookLabel?: string;
+  bookRemaining?: Exclude<RemainingPlacement, 'none'>;
+  bookTrailing?: ReactNode;
   onSeekBook: (globalSeconds: number) => void;
+  onChapterLabel?: () => void;
   onAct?: () => void;
 }) {
   const seek = (global: number) => {
@@ -35,20 +52,24 @@ export function BookProgressBars({
           position={chapter.position}
           duration={chapter.duration}
           rate={rate}
-          showRemaining={false}
+          remaining="none"
           size="primary"
+          phase={phase}
           onSeek={(s) => seek(chapter.start + s)}
+          onLabel={onChapterLabel}
         />
       )}
       <ProgressRow
         testId={`${testPrefix}book-progress`}
-        label={book.title}
+        label={bookLabel ?? book.title}
         position={book.position}
         duration={book.duration}
         rate={rate}
-        showRemaining
+        remaining={bookRemaining}
         size={chapter ? 'secondary' : 'primary'}
+        phase={phase}
         onSeek={seek}
+        trailing={bookTrailing}
       />
     </div>
   );

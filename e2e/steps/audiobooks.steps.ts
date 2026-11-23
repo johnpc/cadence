@@ -95,17 +95,30 @@ When('I play the book from its detail page', async ({ page }) => {
 });
 
 Then('I see the playback-speed control', async ({ page }) => {
-  // Books get a speed slider in the player (music does not) — assert it rendered.
-  await expect(page.getByTestId('speed-slider')).toBeVisible({ timeout: DATA_WAIT });
+  // Books get the speed pill between the ±30 s buttons (music does not).
+  const player = page.getByTestId('full-player');
+  await expect(player.getByTestId('full-player-speed')).toBeVisible({ timeout: DATA_WAIT });
 });
 
 When('I set the playback speed to {float}x', async ({ page }, speed: number) => {
-  const range = page.getByTestId('speed-slider').locator('input[type="range"]');
-  await range.fill(String(speed));
+  const player = page.getByTestId('full-player');
+  await player.getByTestId('full-player-speed').click();
+  await player
+    .getByTestId('full-player-speed-option')
+    .filter({ hasText: new RegExp(`^${String(speed).replace('.', '\\.')}×$`) })
+    .click();
 });
 
 Then('the playback speed reads {string}', async ({ page }, label: string) => {
-  await expect(page.getByTestId('speed-value')).toHaveText(label, { timeout: DATA_WAIT });
+  const player = page.getByTestId('full-player');
+  await expect(player.getByTestId('full-player-speed')).toHaveText(label, { timeout: DATA_WAIT });
+  // Real effect, not just the label: the audio element plays at that rate.
+  const rate = Number(label.replace('×', ''));
+  await expect
+    .poll(() => page.evaluate(() => document.querySelector('audio')?.playbackRate ?? -1), {
+      timeout: DATA_WAIT,
+    })
+    .toBe(rate);
 });
 
 When('the book plays past its saved-position threshold', async ({ page }) => {
@@ -204,13 +217,15 @@ Then("I see the current part's progress labelled with its part number", async ({
 });
 
 Then(
-  "I see the whole book's progress labelled with the book's title, longer than the part",
+  "I see the whole book's progress labelled as the book, longer than the part",
   async ({ page }) => {
+    // The player's headline is the book's title; the bar underneath just says "Book".
     const title = (await page.getByTestId('book-title').innerText()).trim();
     const player = page.getByTestId('full-player');
-    await expect(player.getByTestId('book-progress-label')).toHaveText(title, {
+    await expect(player.getByTestId('full-player-song-link')).toHaveText(title, {
       timeout: DATA_WAIT,
     });
+    await expect(player.getByTestId('book-progress-label')).toHaveText('Book');
     const bookTime = player.getByTestId('book-progress-time');
     await expect(bookTime).toContainText('left');
     // Real data: the book's total is the sum of its parts, so it must clearly

@@ -63,17 +63,58 @@
 }
 
 .readalong__text a {
-  /* The sentence about to be narrated during a silent stretch: pointed at, not lit. */
-  .readalong__upcoming {
-    color: var(--cad-text);
-    text-decoration: underline dotted color-mix(in srgb, var(--cad-accent) 70%, transparent);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.2em;
-  }
-
   /* Page/position anchors and in-book links must never read as web links. */
   color: inherit;
   text-decoration: none;
+}
+
+/* The sentence about to be narrated during a silent stretch: pointed at, not lit. */
+.readalong__upcoming {
+  color: var(--cad-text);
+  text-decoration: underline dotted color-mix(in srgb, var(--cad-accent) 70%, transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+/* On a light page the soft accent underline washes out; use the full accent, a hair heavier. */
+:root[data-theme='light'] .readalong__upcoming {
+  text-decoration-color: var(--cad-accent);
+  text-decoration-thickness: 3px;
+}
+
+/* Scene breaks. Books draw them as a small ornament image — often a star on a
+   white square — or an <hr>. The sanitizer tags ornaments; here they become a
+   small centred glyph on the page colour instead of a white bar. */
+.readalong__text .readalong__ornament {
+  display: block;
+  margin: var(--cad-space-4) auto;
+  max-height: 48px;
+  width: auto;
+  background: transparent;
+  border-radius: 0;
+}
+
+:root:not([data-theme='light']) .readalong__text .readalong__ornament {
+  /* White-background artwork: invert to dark, then screen it onto the canvas so
+     the square disappears and only the light glyph remains. */
+  filter: invert(1);
+  mix-blend-mode: screen;
+}
+
+/* Glyph images the book sizes to the text (class "h1em" and friends) stay inline. */
+.readalong__text img[class*='1em'] {
+  display: inline;
+  height: 1em;
+  width: auto;
+  vertical-align: -0.1em;
+  border-radius: 0;
+}
+
+.readalong__text hr {
+  width: 33%;
+  margin: var(--cad-space-6) auto;
+  border: none;
+  border-top: 1px solid var(--cad-surface-2);
 }
 
 /* Book openers marked up as literal uppercase with a small-caps class: with the
@@ -114,24 +155,13 @@
 }
 
 .readalong__follow {
+  /* Same pill as the speed control (.cad-pill), floating just above the transport. */
   position: absolute;
   left: 50%;
-  /* Sits just above the transport bar. */
-  bottom: calc(max(var(--cad-safe-bottom), var(--cad-space-4)) + 104px);
+  bottom: calc(max(var(--cad-safe-bottom), var(--cad-space-4)) + 136px);
   transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--cad-space-2);
-  border: none;
-  background: var(--cad-accent);
-  color: var(--cad-on-accent);
-  border-radius: var(--cad-radius-pill);
-  padding: var(--cad-space-2) var(--cad-space-4);
-  font-family: var(--cad-font-sans);
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: var(--cad-shadow);
-  cursor: pointer;
+  box-shadow: 0 var(--cad-space-1) var(--cad-space-4) var(--cad-shadow);
+  z-index: 2;
 }
 
 .readalong__unavailable {
@@ -191,58 +221,16 @@
   font-weight: 700;
 }
 
-/* The speed pill ends the button row; its preset strip floats just above the row. */
+/* The bars + speed pill sit under the buttons; the speed strip floats above its pill. */
 .readalong__transport {
   position: relative;
+}
+
+.readalong__speed-row {
+  align-self: flex-end;
 }
 
 .readalong__transport .book-progress {
   gap: var(--cad-space-1);
   margin-top: var(--cad-space-2);
-}
-
-.readalong__speed-pill {
-  border: 1px solid var(--cad-surface-2);
-  border-radius: var(--cad-radius-pill);
-  background: var(--cad-surface);
-  color: var(--cad-text);
-  font-family: var(--cad-font-sans);
-  font-size: 14px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  padding: var(--cad-space-1) var(--cad-space-3);
-  cursor: pointer;
-}
-
-.readalong__speed-strip {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(100% + var(--cad-space-2));
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: var(--cad-space-2);
-  padding: var(--cad-space-2);
-  border-radius: var(--cad-radius-card);
-  background: var(--cad-surface);
-  box-shadow: 0 var(--cad-space-1) var(--cad-space-4) var(--cad-shadow);
-  z-index: 2;
-}
-
-.readalong__speed-opt {
-  border: none;
-  border-radius: var(--cad-radius-pill);
-  background: var(--cad-surface-2);
-  color: var(--cad-text);
-  font-family: var(--cad-font-sans);
-  font-size: 14px;
-  font-weight: 600;
-  padding: var(--cad-space-2) var(--cad-space-3);
-  cursor: pointer;
-}
-
-.readalong__speed-opt--on {
-  background: var(--cad-accent);
-  color: var(--cad-on-accent);
 }

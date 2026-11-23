@@ -30,6 +30,7 @@ const part1: JellyfinItem = {
   Name: 'Harbor Winds',
   Type: 'AudioBook',
   Album: 'Harbor Winds',
+  AlbumArtist: 'Mara Quill',
 };
 const part2: JellyfinItem = {
   Id: 'p2',
@@ -103,7 +104,7 @@ describe('ReadAlongSheet', () => {
     await waitFor(() => expect(text.querySelector('[data-active="true"]')?.id).toBe('s2'));
     expect(text.querySelector('script')).toBeNull();
     expect((window as unknown as { __xss?: number }).__xss).toBeUndefined();
-    expect(screen.getByTestId('readalong-chapter')).toHaveTextContent('Chapter One');
+    expect(screen.getByTestId('readalong-subtitle')).toHaveTextContent('Mara Quill');
   });
 
   it('keeps the highlight across re-renders and moves it as the narration advances', async () => {
@@ -210,7 +211,7 @@ describe('ReadAlongSheet', () => {
     const text = await screen.findByTestId('readalong-text');
     await waitFor(() => expect(text.querySelector('[data-upcoming="true"]')?.id).toBe('s2'));
     expect(text.querySelector('[data-active="true"]')).toBeNull();
-    expect(screen.getByTestId('readalong-chapter')).toHaveTextContent('Narration starts in 0:42');
+    expect(screen.getByTestId('readalong-subtitle')).toHaveTextContent('Narration starts in 0:42');
   });
 
   it('is unavailable for music even when the feature is on', async () => {
@@ -243,7 +244,7 @@ describe('ReadAlongSheet', () => {
     expect(await screen.findByTestId('load-loading')).toBeInTheDocument();
   });
 
-  it("names the audiobook's own chapter with time left, and the transport seeks and pauses without leaving", async () => {
+  it("puts the audiobook's own chapter on the chapter bar (not the header), and the transport seeks and pauses without leaving", async () => {
     vi.mocked(useChapters).mockReturnValue({
       chapters: [
         { name: 'Dedication', start: 0 },
@@ -258,7 +259,8 @@ describe('ReadAlongSheet', () => {
       progress: { position: 5, duration: 100 },
     });
     await screen.findByTestId('readalong-text');
-    expect(screen.getByTestId('readalong-chapter')).toHaveTextContent('Dedication · 55s left');
+    expect(screen.getByTestId('readalong-subtitle')).toHaveTextContent('Mara Quill');
+    expect(screen.getByTestId('readalong-subtitle')).not.toHaveTextContent('Dedication');
     expect(screen.getByTestId('readalong-chapter-progress-label')).toHaveTextContent('Dedication');
     expect(screen.getByTestId('readalong-chapter-progress-time')).toHaveTextContent('0:05 / 1:00');
     expect(screen.getByTestId('readalong-book-progress-label')).toHaveTextContent('Harbor Winds');
@@ -275,5 +277,24 @@ describe('ReadAlongSheet', () => {
     await userEvent.click(screen.getByTestId('readalong-toggle'));
     expect(player.toggle).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('readalong-sheet')).toBeInTheDocument();
+  });
+
+  it('the chapter name on the bar opens the chapter list over the text', async () => {
+    vi.mocked(useChapters).mockReturnValue({
+      chapters: [
+        { name: 'Dedication', start: 0 },
+        { name: 'Chapter 1', start: 60 },
+      ],
+      isLoading: false,
+    });
+    mockBook(readyBook);
+    renderWithProviders(<ReadAlongSheet open onClose={vi.fn()} />, {
+      player: stubPlayer({ current: part1, queue: [part1, part2] }),
+      progress: { position: 5, duration: 100 },
+    });
+    await screen.findByTestId('readalong-text');
+    expect(screen.queryByTestId('chapter-sheet')).toBeNull();
+    await userEvent.click(screen.getByTestId('readalong-chapter-progress-label'));
+    expect(await screen.findByTestId('chapter-sheet')).toBeInTheDocument();
   });
 });

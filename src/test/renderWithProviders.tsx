@@ -55,14 +55,20 @@ export function renderWithProviders(
     player,
     progress,
     route,
-  }: { player?: PlayerContextValue; progress?: PlayerProgress; route?: string } = {},
+  }: {
+    player?: PlayerContextValue;
+    progress?: Omit<PlayerProgress, 'phase'> & Partial<Pick<PlayerProgress, 'phase'>>;
+    route?: string;
+  } = {},
 ) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>
       <MemoryRouter initialEntries={route ? [route] : undefined}>
         <PlayerContext.Provider value={player ?? stubPlayer()}>
-          <PlayerProgressContext.Provider value={progress ?? { position: 0, duration: 0 }}>
+          <PlayerProgressContext.Provider
+            value={{ position: 0, duration: 0, phase: 'known', ...progress }}
+          >
             {children}
           </PlayerProgressContext.Provider>
         </PlayerContext.Provider>

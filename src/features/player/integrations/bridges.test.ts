@@ -26,7 +26,9 @@ describe('nowPlayingSnapshot', () => {
   it('derives one view for every surface (whole seconds, queue position)', () => {
     const { engine } = startedEngine();
     engine.playQueue([track('a'), track('b')], 1);
-    expect(nowPlayingSnapshot(engine.state.get(), { position: 12.6, duration: 99.4 })).toEqual({
+    expect(
+      nowPlayingSnapshot(engine.state.get(), { position: 12.6, duration: 99.4, phase: 'known' }),
+    ).toEqual({
       track: expect.objectContaining({ Id: 'b' }),
       isPlaying: true,
       position: 13,

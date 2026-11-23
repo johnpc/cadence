@@ -50,7 +50,15 @@ export interface PlayerState {
 export interface PlayerProgress {
   position: number;
   duration: number;
+  /** Whether `position` is where the listener really is. `pending` from a new
+   * load until the resume decision settles (a saved audiobook position can land
+   * a second after the file opens); the bars show a placeholder meanwhile instead
+   * of flashing 0:00. `known` once settled — and for anything without a resume. */
+  phase: PositionPhase;
 }
+
+/** See {@link PlayerProgress.phase}. */
+export type PositionPhase = 'pending' | 'known';
 
 /** Everything the UI, the OS integrations and the tests can ask the player to do. */
 export interface PlayerCommands {

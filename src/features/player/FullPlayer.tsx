@@ -6,10 +6,8 @@ import { QueueView } from './QueueView';
 import { LyricsSheet } from './LyricsSheet';
 import { ChapterSheet } from '../audiobook/ChapterSheet';
 import { LazyReadAlongSheet } from '../readalong/LazyReadAlongSheet';
-import { AudiobookSeekButtons } from '../audiobook/AudiobookSeekButtons';
 import { LazyAudiobookScrubbers } from '../audiobook/LazyAudiobookScrubbers';
 import { isAudiobook } from '../audiobook/isAudiobook';
-import { SpeedSlider } from '../audiobook/SpeedSlider';
 import { FullPlayerFooter } from './FullPlayerFooter';
 import { CastingBanner } from '../cast/CastingBanner';
 import { SleepIndicator } from './SleepIndicator';
@@ -44,13 +42,17 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
     <IonModal isOpen={open} onDidDismiss={onClose}>
       <div className="fullplayer" data-testid="full-player">
         <AmbientBackground item={p.current} />
+        {/* One header row tucked right under the status bar / Dynamic Island: close
+            chevron, the "Playing from" caption, and a balancing spacer. The grabber
+            floats over its top edge; the whole row is the swipe-down zone. */}
         <div className="fullplayer__grab" data-testid="full-player-grab" {...dismiss}>
           <span className="fullplayer__grab-handle" aria-hidden="true" />
           <button className="fullplayer__close" onClick={onClose} aria-label="Close player">
             <IonIcon icon={chevronDown} />
           </button>
+          <PlayingFrom trackId={p.current?.Id} onNavigate={onClose} />
+          <span className="fullplayer__grab-spacer" aria-hidden="true" />
         </div>
-        <PlayingFrom trackId={p.current?.Id} onNavigate={onClose} />
         <CastingBanner />
         <SleepIndicator />
         <div className="fullplayer__art" data-testid="full-player-art" {...swipe}>
@@ -59,7 +61,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         <FullPlayerTitle track={p.current} onNavigate={onClose} />
         <div className="fullplayer__scrubber">
           {isAudiobook(p.current) ? (
-            <LazyAudiobookScrubbers />
+            <LazyAudiobookScrubbers onOpenChapters={() => sheet.show('chapters')} />
           ) : (
             <>
               <input
@@ -81,9 +83,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
             </>
           )}
         </div>
-        <AudiobookSeekButtons />
         <PlayerControls />
-        <SpeedSlider />
         <VolumeSlider volume={p.volume} setVolume={p.setVolume} />
         <FullPlayerFooter
           current={p.current}

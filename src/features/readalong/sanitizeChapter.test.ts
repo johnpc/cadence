@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveChapterPath, sanitizeChapter } from './sanitizeChapter';
+import { isOrnament, resolveChapterPath, sanitizeChapter } from './sanitizeChapter';
 
 const img = (p: string) => `https://jf/proxy/${p}?ApiKey=t`;
 
@@ -76,5 +76,38 @@ describe('sanitizeChapter', () => {
     const out = sanitizeChapter('<p id="s0">Unclosed <b>bold</p>', 'ch.xhtml', (p) => p);
     expect(out).toContain('id="s0"');
     expect(out).toContain('bold');
+  });
+});
+
+describe('scene-break ornaments', () => {
+  const img = (html: string) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.querySelector('img') as Element;
+  };
+
+  it.each([
+    ['<img src="../images/orn.jpg">', true],
+    ['<img class="star" src="a.png">', true],
+    ['<img alt="section break" src="a.png">', true],
+    ['<p class="section-break"><img src="a.png"></p>', true],
+    ['<p class="center"><img src="images/map.png"></p>', false],
+    ['<img alt="" class="w100" src="../image/SecOrn.jpg">', true],
+    ['<img width="40" height="40" src="a.png">', true],
+    ['<img width="600" height="400" src="map.jpg">', false],
+    ['<img src="images/cover.jpg">', false],
+  ])('%s → ornament %s', (html, expected) => {
+    expect(isOrnament(img(html))).toBe(expected);
+  });
+
+  it('tags ornaments in a sanitized chapter and leaves illustrations alone', () => {
+    const out = sanitizeChapter(
+      '<html xmlns="http://www.w3.org/1999/xhtml"><body><p class="center"><img src="../image/SecOrn.jpg"/></p><p><img src="../images/map.jpg" width="600"/></p></body></html>',
+      'OEBPS/xhtml/ch1.xhtml',
+      (p) => `/proxy/${p}`,
+    );
+    const doc = new DOMParser().parseFromString(out, 'text/html');
+    const [orn, map] = Array.from(doc.querySelectorAll('img'));
+    expect(orn.classList.contains('readalong__ornament')).toBe(true);
+    expect(map.classList.contains('readalong__ornament')).toBe(false);
   });
 });

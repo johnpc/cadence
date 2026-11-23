@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import type { PositionPhase } from './engine/types';
 
 /** Fast-changing playback progress (position/duration, updated several times a
  * second). Split from the main PlayerContext so the high-frequency ticks only
@@ -6,6 +7,8 @@ import { createContext, useContext } from 'react';
 export interface PlayerProgress {
   position: number;
   duration: number;
+  /** `pending` until the playhead is where the listener really is (see the engine). */
+  phase: PositionPhase;
 }
 
 export const PlayerProgressContext = createContext<PlayerProgress | null>(null);
