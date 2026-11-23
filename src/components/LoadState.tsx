@@ -1,4 +1,4 @@
-import { IonSpinner } from '@ionic/react';
+import { IonIcon, IonSpinner } from '@ionic/react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useEffectiveOffline } from '../features/shell/useEffectiveOffline';
@@ -17,6 +17,10 @@ export interface LoadStateProps {
   emptyTitle?: string;
   /** Optional secondary line under the empty title. */
   emptyMessage?: string;
+  /** Optional ionicon shown above the empty title — gives the state an anchor. */
+  emptyIcon?: string;
+  /** Optional next step from the empty state ("Find music" → /search). */
+  emptyAction?: { label: string; to: string };
   /** Optional skeleton placeholder shown while loading instead of a spinner. */
   skeleton?: ReactNode;
   /** The ready content — rendered only when not loading/error/empty. */
@@ -42,6 +46,28 @@ function OfflineError({ onRetry }: { onRetry?: () => void }) {
   );
 }
 
+/** An empty result: an icon to anchor it, what's (not) here, and where to go
+ * next — vertically centred in the view rather than a line of small text at the
+ * top of a blank screen. */
+function EmptyState({ emptyTitle, emptyMessage, emptyIcon, emptyAction }: LoadStateProps) {
+  return (
+    <div className="load-state load-state--empty" data-testid="load-empty">
+      {emptyIcon && (
+        <span className="load-state__icon" aria-hidden="true">
+          <IonIcon icon={emptyIcon} />
+        </span>
+      )}
+      <p className="load-state__title cad-headline-sm">{emptyTitle ?? 'Nothing here yet'}</p>
+      {emptyMessage && <p className="load-state__message cad-meta">{emptyMessage}</p>}
+      {emptyAction && (
+        <Link className="load-state__retry" to={emptyAction.to} data-testid="load-empty-action">
+          {emptyAction.label}
+        </Link>
+      )}
+    </div>
+  );
+}
+
 /**
  * The four outcomes of any data screen, handled once so no fetch silently
  * hangs on a spinner or shows a blank. Error beats empty; an empty result is
@@ -49,8 +75,7 @@ function OfflineError({ onRetry }: { onRetry?: () => void }) {
  * while offline says so and offers the downloads.
  */
 export function LoadState(props: LoadStateProps) {
-  const { isLoading, isError, onRetry, isEmpty, emptyTitle, emptyMessage, skeleton, children } =
-    props;
+  const { isLoading, isError, onRetry, isEmpty, skeleton, children } = props;
   const offline = useEffectiveOffline();
 
   if (isError && offline) return <OfflineError onRetry={onRetry} />;
@@ -76,14 +101,7 @@ export function LoadState(props: LoadStateProps) {
     );
   }
 
-  if (isEmpty) {
-    return (
-      <div className="load-state" data-testid="load-empty">
-        <p className="load-state__title cad-headline-sm">{emptyTitle ?? 'Nothing here yet'}</p>
-        {emptyMessage && <p className="load-state__message cad-meta">{emptyMessage}</p>}
-      </div>
-    );
-  }
+  if (isEmpty) return <EmptyState {...props} />;
 
   return <>{children}</>;
 }

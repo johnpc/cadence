@@ -10,6 +10,8 @@ vi.mock('@ionic/react', () => ({
     <button data-testid={r['data-testid']}>{children}</button>
   ),
   IonLabel: ({ children }: { children: ReactNode }) => <span>{children}</span>,
+  IonIcon: () => <span data-testid="icon" />,
+  IonSpinner: () => <span data-testid="spinner" />,
 }));
 
 // The segment CONTENT is covered by OfflineSegmentView's own test; stub it here

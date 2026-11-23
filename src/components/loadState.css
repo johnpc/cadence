@@ -9,6 +9,24 @@
   color: var(--cad-text-secondary);
 }
 
+/* An empty view sits in the visual middle of the screen, not at its top edge. */
+.load-state--empty {
+  min-height: 40vh;
+}
+
+.load-state__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--cad-radius-pill);
+  background: var(--cad-surface-2);
+  color: var(--cad-text-secondary);
+  font-size: 28px;
+  margin-bottom: var(--cad-space-1);
+}
+
 .load-state__title {
   margin: 0;
 }
@@ -19,6 +37,10 @@
 }
 
 .load-state__retry {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: var(--cad-space-2);
   border: none;
   background: var(--cad-accent);
   color: var(--cad-on-accent);

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { arrowDownCircle } from 'ionicons/icons';
+import { arrowDownCircle, cloudDownloadOutline } from 'ionicons/icons';
 import { LoadState } from '../../components/LoadState';
 import { TrackRow } from '../player/TrackRow';
 import { CollectionActions } from '../player/CollectionActions';
@@ -24,6 +24,8 @@ export function Downloads() {
       isEmpty={tracks.length === 0}
       emptyTitle="No downloads yet"
       emptyMessage="Tap the download icon on any song or book to save it for offline listening."
+      emptyIcon={cloudDownloadOutline}
+      emptyAction={{ label: 'Browse Your Library', to: '/library' }}
     >
       <div data-testid="downloads">
         <CollectionHero

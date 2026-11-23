@@ -18,6 +18,7 @@ import { useJumpBackIn } from './useJumpBackIn';
 import { usePlayItem } from '../player/usePlayItem';
 import { detailPath } from './itemPath';
 import './history.css';
+import { timeOutline } from 'ionicons/icons';
 
 /** The full "Recently played" history: the albums/playlists/artists you've
  * played (mixed collections, from the local recent-plays store) as a card shelf,
@@ -60,6 +61,8 @@ export function History() {
             isEmpty={songs.length === 0}
             emptyTitle="Nothing played yet"
             emptyMessage="Songs you play will show up here."
+            emptyIcon={timeOutline}
+            emptyAction={{ label: 'Find something to play', to: '/search' }}
             skeleton={<TrackListSkeleton />}
           >
             <>

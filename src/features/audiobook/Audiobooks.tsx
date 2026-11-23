@@ -7,6 +7,7 @@ import { filterBooks } from './filterBooks';
 import { highlightBooks } from './highlightBooks';
 import { sortBooks, type BookSort } from './sortBooks';
 import { useAudiobookLibrary } from './useAudiobookLibrary';
+import { bookOutline } from 'ionicons/icons';
 
 /** The audiobook library: a search + sort tools row, a "Continue listening &
  * favorites" top section (in-progress + favorited books, resuming where you left
@@ -32,6 +33,7 @@ export function Audiobooks() {
       isEmpty={books.length === 0}
       emptyTitle="No audiobooks"
       emptyMessage="Add audiobooks to your Jellyfin Books library and they'll appear here."
+      emptyIcon={bookOutline}
     >
       <div data-testid="audiobooks">
         <AudiobookControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />

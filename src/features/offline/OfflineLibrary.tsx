@@ -4,6 +4,7 @@ import { useOfflineLibrary } from './useOfflineLibrary';
 import { useOfflineSegment, type OfflineSegment } from './useOfflineSegment';
 import { OfflineSegmentView } from './OfflineSegmentView';
 import './offlineLibrary.css';
+import { cloudOfflineOutline } from 'ionicons/icons';
 
 const LABELS: Record<OfflineSegment, string> = {
   playlists: 'Playlists',
@@ -27,6 +28,7 @@ export function OfflineLibrary() {
       isEmpty={available.length === 0}
       emptyTitle="Nothing downloaded yet"
       emptyMessage="Download songs, albums, playlists, or audiobooks to listen offline. Tap the download icon on anything to save it here."
+      emptyIcon={cloudOfflineOutline}
     >
       <div className="offline-library" data-testid="offline-library">
         <IonSegment
