@@ -33,31 +33,44 @@ export function Home() {
     await e.detail.complete();
   };
 
+  const title = greeting(new Date().getHours());
+  // iOS large-title pattern: the greeting IS the page title. It sits large at the
+  // top of the content and condenses into the (translucent) toolbar on scroll,
+  // instead of a fixed "Cadence" bar stacked over a second big greeting that
+  // sliced section headings in half as they scrolled under it.
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar>
-          <IonTitle>Cadence</IonTitle>
+          <IonTitle>{title}</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent fullscreen>
         <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
           <IonRefresherContent />
         </IonRefresher>
-        <h1 className="home__greeting cad-h1" data-testid="home-greeting">
-          {greeting(new Date().getHours())}
-        </h1>
-        {isLibraryInaccessible(shelves) ? (
-          <div className="home__no-access" data-testid="home-no-access">
-            <p className="home__no-access-title cad-headline-sm">No music to show</p>
-            <p className="cad-meta">
-              You&apos;re signed in, but this account can&apos;t see any music. Ask your Jellyfin
-              admin to grant it access to the music library.
-            </p>
-          </div>
-        ) : (
-          <HomeShelves shelves={shelves} />
-        )}
+        <IonHeader collapse="condense">
+          <IonToolbar>
+            <IonTitle size="large">
+              <h1 className="home__greeting" data-testid="home-greeting">
+                {title}
+              </h1>
+            </IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <div className="ion-padding home__body">
+          {isLibraryInaccessible(shelves) ? (
+            <div className="home__no-access" data-testid="home-no-access">
+              <p className="home__no-access-title cad-headline-sm">No music to show</p>
+              <p className="cad-meta">
+                You&apos;re signed in, but this account can&apos;t see any music. Ask your Jellyfin
+                admin to grant it access to the music library.
+              </p>
+            </div>
+          ) : (
+            <HomeShelves shelves={shelves} />
+          )}
+        </div>
       </IonContent>
     </IonPage>
   );

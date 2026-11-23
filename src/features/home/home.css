@@ -1,5 +1,12 @@
+/* The large title (inside IonTitle size="large"): inherit Ionic's iOS large-title
+   type, just drop the h1's default margins. */
 .home__greeting {
-  margin: var(--cad-space-2) 0 var(--cad-space-6);
+  margin: 0;
+  font: inherit;
+}
+
+.home__body {
+  padding-top: var(--cad-space-2);
 }
 
 .shelf {
