@@ -159,6 +159,9 @@ Run `npm run quality`. **Enforce them yourself; when one fails, fix the code, ne
   — never exclusions. Render-only composition roots (`App.tsx`, `AppRoutes.tsx`, `main.tsx`) are the
   only coverage exemptions.
 - **Acceptance tests are always Gherkin** (`.feature` + steps), run via Playwright + playwright-bdd.
+- **Design tokens are real.** `npm run check:tokens` fails on any `var(--cad-*)` that no CSS
+  defines — an undefined custom property silently drops the declaration (square corners, zero
+  spacing, transparent bars) with no error. Add the token to `variables.css`; never inline a value.
 - **Build + Prettier clean.**
 - **Determinism:** unit tests **mock the `jellyfin*` modules** — no real network; only Gherkin hits
   the live server. Pure helpers take injected randomness/time. Player: unit-test `queue.ts`; mock the

@@ -48,6 +48,9 @@ jobs:
       - name: File-length tripwire (max 300 lines)
         run: npm run check:lines
 
+      - name: Design tokens (every var(--cad-*) is defined)
+        run: npm run check:tokens
+
       - name: Feature coverage (every .feature maps to an acceptance area)
         run: npm run check:features
 

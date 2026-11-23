@@ -18,6 +18,10 @@
   --cad-surface: #181818;
   --cad-surface-2: #282828;
   --cad-hairline: rgba(255, 255, 255, 0.08);
+  /* A raised fill (hover, input wells) and a 1px divider — aliases so the two
+     names components reach for resolve to the canonical surface/hairline. */
+  --cad-elevated: var(--cad-surface-2);
+  --cad-border: var(--cad-hairline);
 
   /* ---- Color: text ramp ---- */
   --cad-text: #ffffff;
@@ -51,6 +55,7 @@
   --cad-space-2: 8px;
   --cad-space-3: 12px;
   --cad-space-4: 16px;
+  --cad-space-5: 20px;
   --cad-space-6: 24px;
   --cad-space-8: 32px;
 
@@ -65,6 +70,9 @@
   --cad-radius-card: 8px;
   --cad-radius-thumb: 4px;
   --cad-radius-pill: 9999px;
+  /* Generic aliases: "a card-ish corner" and "a small corner". */
+  --cad-radius: var(--cad-radius-card);
+  --cad-radius-sm: var(--cad-radius-thumb);
 
   /* ---- Elevation: drop shadow (soft, theme-aware) ---- */
   --cad-shadow: rgba(0, 0, 0, 0.5);
