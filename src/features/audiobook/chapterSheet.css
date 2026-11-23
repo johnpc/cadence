@@ -64,6 +64,15 @@
   font-variant-numeric: tabular-nums;
 }
 
+.chapter-row--active {
+  background: var(--cad-surface-2);
+  border-radius: var(--cad-radius-thumb);
+}
+
+.chapter-row--active .chapter-row__name {
+  font-weight: 700;
+}
+
 .chapter-row--active .chapter-row__name,
 .chapter-row--active .chapter-row__num,
 .chapter-row--active .chapter-row__time {

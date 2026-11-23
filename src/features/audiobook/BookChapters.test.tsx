@@ -21,7 +21,7 @@ describe('BookChapters', () => {
   it('is collapsed by default and expands on the header toggle, with human timestamps', async () => {
     vi.mocked(fetchChapters).mockResolvedValue([
       { name: 'One', start: 0 },
-      { name: 'Two', start: 5430 }, // 1h30m30s
+      { name: 'Two', start: 5430 }, // 1:30:30
     ]);
     const playQueue = vi.fn();
     renderWithProviders(<BookChapters book={single} />, { player: stubPlayer({ playQueue }) });
@@ -35,7 +35,7 @@ describe('BookChapters', () => {
     const rows = screen.getAllByTestId('book-chapter');
     expect(rows).toHaveLength(2);
     expect(rows[1]).toHaveTextContent('Two');
-    expect(rows[1]).toHaveTextContent('1h30m'); // not "90:30"
+    expect(rows[1]).toHaveTextContent('1:30:30'); // a clock, not "90:30" or "1h30m"
 
     await userEvent.click(rows[1]);
     expect(playQueue).toHaveBeenCalledWith(single.parts, 0);

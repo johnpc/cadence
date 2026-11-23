@@ -20,8 +20,12 @@ export function ChapterSheet({ open, onClose }: { open: boolean; onClose: () => 
   const active = chapterIndexAt(chapters, position);
   const activeRef = useRef<HTMLButtonElement | null>(null);
 
+  const revealActive = () => activeRef.current?.scrollIntoView({ block: 'center' });
+
+  // On open the modal's children mount while it animates in, so the first reveal
+  // waits for onDidPresent; afterwards it follows the playing chapter.
   useEffect(() => {
-    if (open) activeRef.current?.scrollIntoView({ block: 'center' });
+    if (open) revealActive();
   }, [active, open]);
 
   const seekAndClose = (seconds: number) => {
@@ -30,7 +34,7 @@ export function ChapterSheet({ open, onClose }: { open: boolean; onClose: () => 
   };
 
   return (
-    <IonModal isOpen={open} onDidDismiss={onClose}>
+    <IonModal isOpen={open} onDidDismiss={onClose} onDidPresent={revealActive}>
       <div className="chapters" data-testid="chapter-sheet">
         <div className="chapters__head">
           <button className="chapters__close" onClick={onClose} aria-label="Close chapters">
