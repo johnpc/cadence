@@ -15,7 +15,7 @@ export function SimilarAlbums({ albumId }: { albumId: string }) {
   if (albums.length === 0) return <div ref={ref} data-testid="similar-albums-sentinel" />;
   return (
     <section data-testid="similar-albums">
-      <h2 className="cad-kicker album__section">Fans also like</h2>
+      <h2 className="cad-headline album__section">Fans also like</h2>
       <div className="more-by">
         {albums.map((album) => (
           <button

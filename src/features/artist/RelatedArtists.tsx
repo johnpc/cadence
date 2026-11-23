@@ -15,7 +15,7 @@ export function RelatedArtists({ artistId }: { artistId: string }) {
   if (related.length === 0) return <div ref={ref} data-testid="artist-related-sentinel" />;
   return (
     <section data-testid="artist-related">
-      <h2 className="cad-kicker artist__section">Fans also like</h2>
+      <h2 className="cad-headline artist__section">Fans also like</h2>
       <div className="artist__related">
         {related.map((artist) => (
           <button

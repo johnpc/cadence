@@ -39,14 +39,14 @@ export function Audiobooks() {
         <AudiobookControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />
         {!searching && topBooks.length > 0 && (
           <section data-testid="audiobooks-highlights">
-            <h2 className="cad-kicker">Continue listening &amp; favorites</h2>
+            <h2 className="cad-headline">Continue listening &amp; favorites</h2>
             {topBooks.map((book) => (
               <BookRow key={book.id} book={book} />
             ))}
           </section>
         )}
         <section>
-          <h2 className="cad-kicker">{searching ? 'Results' : 'All audiobooks'}</h2>
+          <h2 className="cad-headline">{searching ? 'Results' : 'All audiobooks'}</h2>
           {shown.map((book) => (
             <BookRow key={book.id} book={book} />
           ))}

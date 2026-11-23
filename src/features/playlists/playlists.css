@@ -71,7 +71,7 @@
 }
 
 .playlist-recs__title {
-  margin-bottom: var(--cad-space-2);
+  margin: var(--cad-space-6) 0 var(--cad-space-3);
 }
 
 .playlist-rec {

@@ -21,7 +21,7 @@ export function TrackSection({
   if (!show || items.length === 0) return null;
   return (
     <section data-testid={testId}>
-      <h2 className="cad-kicker search__section">{title}</h2>
+      <h2 className="cad-headline search__section">{title}</h2>
       {items.map((t, i) => (
         <TrackRow key={t.Id} track={t} queue={items} index={i} onPlay={() => onPick(t)} />
       ))}

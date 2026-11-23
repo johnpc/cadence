@@ -28,7 +28,7 @@ export function RecommendedSongs({
   if (recommendations.length === 0) return <div ref={ref} data-testid="playlist-recs-sentinel" />;
   return (
     <section className="playlist-recs" data-testid="playlist-recs">
-      <h2 className="cad-kicker playlist-recs__title">Recommended songs to add</h2>
+      <h2 className="cad-headline playlist-recs__title">Recommended songs to add</h2>
       {recommendations.map((track) => (
         <div
           className="playlist-rec"

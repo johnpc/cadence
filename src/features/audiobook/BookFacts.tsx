@@ -7,7 +7,7 @@ export function BookFacts({ book }: { book: Book }) {
   const facts = bookFacts(book);
   return (
     <section data-testid="book-facts">
-      <h2 className="cad-kicker">Details</h2>
+      <h2 className="cad-headline">Details</h2>
       <dl className="book-detail__facts">
         {facts.map((f) => (
           <div key={f.label} className="book-detail__fact" data-testid="book-fact">

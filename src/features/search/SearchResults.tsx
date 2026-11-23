@@ -46,7 +46,7 @@ export function SearchResults({
       <TrackSection show={show('songs')} title="Songs" items={shown.songs} onPick={onPick} />
       {show('albums') && shown.albums.length > 0 && (
         <section data-testid="search-albums">
-          <h2 className="cad-kicker search__section">Albums</h2>
+          <h2 className="cad-headline search__section">Albums</h2>
           {shown.albums.map((a) => (
             <ResultRow key={a.Id} item={a} subtitle={artistLine(a)} onSelect={goAlbum} />
           ))}
@@ -54,7 +54,7 @@ export function SearchResults({
       )}
       {show('artists') && shown.artists.length > 0 && (
         <section data-testid="search-artists">
-          <h2 className="cad-kicker search__section">Artists</h2>
+          <h2 className="cad-headline search__section">Artists</h2>
           {shown.artists.map((a) => (
             <ResultRow key={a.Id} item={a} subtitle="Artist" onSelect={goArtist} />
           ))}
@@ -62,7 +62,7 @@ export function SearchResults({
       )}
       {show('playlists') && shown.playlists.length > 0 && (
         <section data-testid="search-playlists">
-          <h2 className="cad-kicker search__section">Playlists</h2>
+          <h2 className="cad-headline search__section">Playlists</h2>
           {shown.playlists.map((p) => (
             <ResultRow key={p.Id} item={p} subtitle="Playlist" onSelect={goPlaylist} />
           ))}

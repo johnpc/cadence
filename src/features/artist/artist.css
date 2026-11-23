@@ -40,7 +40,7 @@
 }
 
 .artist__section {
-  margin: 0 0 var(--cad-space-3);
+  margin: var(--cad-space-6) 0 var(--cad-space-3);
 }
 
 /* "Popular" heading row with a trailing "See all" link. */

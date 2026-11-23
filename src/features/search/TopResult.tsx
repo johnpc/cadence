@@ -26,7 +26,7 @@ export function TopResult({
   const activate = () => activateResult(item);
   return (
     <section>
-      <h2 className="cad-kicker search__section">Top result</h2>
+      <h2 className="cad-headline search__section">Top result</h2>
       <button
         type="button"
         className="top-result"

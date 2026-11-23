@@ -143,7 +143,9 @@ Features live under `src/features/<feature>/`; tests colocated. File conventions
 ## Design
 
 Spotify-like: dark-first near-black canvas, elevated surfaces, one green accent, bold sans hierarchy.
-**Style only via `--cad-*` tokens / role classes** (`.cad-headline`, `.cad-kicker`, `.cad-meta`, …) —
+**One section-header rule:** a page section ("Popular", "Browse all", "Fans also like", "Chapters")
+is an `h2.cad-headline` (bold, title case); `.cad-kicker` (small uppercase) is only for a group label
+INSIDE a list or card ("Playlist" over a hero title, Settings group names). **Style only via `--cad-*` tokens / role classes** (`.cad-headline`, `.cad-kicker`, `.cad-meta`, …) —
 never hardcoded hex/px. Light/Dark/System is user-switchable (persisted; pre-paint init, no flash).
 
 ## Quality gates (non-negotiable — CI + husky pre-commit enforce them)

@@ -50,7 +50,7 @@ export function ArtistDetail() {
         <RelatedArtists artistId={id} />
         {artist?.Overview && (
           <section data-testid="artist-about">
-            <h2 className="cad-kicker artist__section">About</h2>
+            <h2 className="cad-headline artist__section">About</h2>
             <p className="artist__about cad-meta">{artist.Overview}</p>
           </section>
         )}

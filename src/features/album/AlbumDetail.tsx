@@ -50,7 +50,7 @@ export function AlbumDetail() {
           </LoadState>
           {album?.Overview && (
             <section data-testid="album-about">
-              <h2 className="cad-kicker album__section">About</h2>
+              <h2 className="cad-headline album__section">About</h2>
               <p className="album__about cad-meta">{album.Overview}</p>
             </section>
           )}

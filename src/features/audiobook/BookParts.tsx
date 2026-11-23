@@ -11,7 +11,7 @@ export function BookParts({ book }: { book: Book }) {
   if (book.parts.length <= 1) return null;
   return (
     <section data-testid="book-parts">
-      <h2 className="cad-kicker">Chapters</h2>
+      <h2 className="cad-headline">Chapters</h2>
       {book.parts.map((part, i) => {
         const isCurrent = part.Id === player.current?.Id;
         return (
