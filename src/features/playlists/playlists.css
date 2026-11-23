@@ -47,7 +47,7 @@
 
 .playlists__name {
   font-family: var(--cad-font-sans);
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   font-weight: 500;
 }
 
@@ -58,7 +58,7 @@
   border-radius: 50%;
   background: var(--cad-accent);
   color: var(--cad-on-accent);
-  font-size: 24px;
+  font-size: var(--cad-icon-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,7 +71,7 @@
 }
 
 .playlist-recs__title {
-  margin-bottom: var(--cad-space-2);
+  margin: var(--cad-space-6) 0 var(--cad-space-3);
 }
 
 .playlist-rec {
@@ -116,7 +116,7 @@
   border: none;
   background: none;
   color: var(--cad-text);
-  font-size: 24px;
+  font-size: var(--cad-icon-md);
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -124,7 +124,7 @@
 }
 
 .playlist-rec__add {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .playlist-rec__dismiss {
@@ -151,7 +151,7 @@
   max-width: 44%;
   color: var(--cad-text-secondary);
   font-family: var(--cad-font-sans);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
 }
 
 .playlist__clone {
@@ -165,7 +165,7 @@
   color: var(--cad-text);
   font-family: var(--cad-font-sans);
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   cursor: pointer;
 }
 

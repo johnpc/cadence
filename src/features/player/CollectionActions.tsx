@@ -18,10 +18,14 @@ export function CollectionActions({
   tracks,
   collectionId,
   context,
+  withQueue = true,
 }: {
   tracks: JellyfinItem[];
   collectionId?: string;
   context?: { kind: string; label: string; path?: string };
+  /** Show the add-to-queue icon. Headers that offer it in their "…" menu (album)
+   * pass false so the row is just the Shuffle + Play pair. */
+  withQueue?: boolean;
 }) {
   const { playQueue, playShuffled, addToQueue, queue, isPlaying, toggle } = usePlayer();
   const toast = useToast();
@@ -53,18 +57,20 @@ export function CollectionActions({
       >
         <IonIcon icon={shuffleIcon} />
       </button>
-      <button
-        className="collection-actions__queue"
-        data-testid="queue-all"
-        onClick={() => {
-          addToQueue(tracks);
-          const n = tracks.length;
-          toast(`Added ${n} ${n === 1 ? 'song' : 'songs'} to queue`);
-        }}
-        aria-label="Add to queue"
-      >
-        <IonIcon icon={listOutline} />
-      </button>
+      {withQueue && (
+        <button
+          className="collection-actions__queue"
+          data-testid="queue-all"
+          onClick={() => {
+            addToQueue(tracks);
+            const n = tracks.length;
+            toast(`Added ${n} ${n === 1 ? 'song' : 'songs'} to queue`);
+          }}
+          aria-label="Add to queue"
+        >
+          <IonIcon icon={listOutline} />
+        </button>
+      )}
       <button
         className="collection-actions__play"
         data-testid="play-all"

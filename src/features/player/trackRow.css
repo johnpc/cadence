@@ -10,7 +10,7 @@
   width: 44px;
   text-align: center;
   font-family: var(--cad-font-sans);
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   color: var(--cad-text-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -39,12 +39,15 @@
   min-width: 0;
 }
 
+/* A block (not flex): text-overflow only ellipsizes a block's own inline
+   content — as a flex container the title text became an anonymous flex item
+   and was hard-clipped mid-letter ("In Your Corner (for Scott Hutc"). The
+   playing glyph sits inline before the text instead. */
 .track-row__title {
-  display: flex;
-  align-items: center;
-  gap: var(--cad-space-2);
+  display: block;
+  min-width: 0;
   font-family: var(--cad-font-sans);
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   font-weight: 500;
   color: var(--cad-text);
   white-space: nowrap;
@@ -54,7 +57,7 @@
 
 /* The currently-playing track: accent title + a little equalizer glyph. */
 .track-row--current .track-row__title {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .track-row__eq {
@@ -63,7 +66,8 @@
   gap: 2px;
   width: 14px;
   height: 12px;
-  flex-shrink: 0;
+  margin-right: var(--cad-space-2);
+  vertical-align: -1px;
 }
 
 .track-row__eq i {
@@ -96,7 +100,7 @@
 
 .track-row__artist {
   font-family: var(--cad-font-sans);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   color: var(--cad-text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -115,7 +119,7 @@
   border: none;
   background: none;
   color: var(--cad-text-secondary);
-  font-size: 20px;
+  font-size: var(--cad-icon-sm);
   display: flex;
   align-items: center;
   justify-content: center;

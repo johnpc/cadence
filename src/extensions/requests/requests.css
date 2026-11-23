@@ -31,7 +31,7 @@
 
 .request-row__done {
   color: var(--cad-text-secondary);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   flex: 0 0 auto;
 }
 
@@ -66,7 +66,7 @@
 
 /* The raw release/torrent name, small + dim, under the artist. */
 .download-queue__release {
-  font-size: 11px;
+  font-size: var(--cad-text-2xs);
 }
 
 .download-queue__bar {

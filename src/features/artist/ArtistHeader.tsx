@@ -7,6 +7,7 @@ import { GradientHeader } from '../color/GradientHeader';
 import { SaveButton } from '../library/SaveButton';
 import { ShareButton } from '../share/ShareButton';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { pageTitleProps } from '../../components/barPage/usePageBar';
 
 /** The artist header: circular art over an ambient gradient, name, genres, and
  * the primary actions — follow, share, radio, and (when the artist has popular
@@ -24,7 +25,9 @@ export function ArtistHeader({
     <GradientHeader item={artist}>
       <div className="artist__header">
         <TrackArt item={artist} size={160} round />
-        <h1 className="artist__name cad-headline">{artist?.Name}</h1>
+        <h1 {...pageTitleProps} className="artist__name cad-headline">
+          {artist?.Name}
+        </h1>
         <GenreChips genres={artist?.Genres} />
         {artist && (
           <div className="artist__actions" data-testid="artist-actions">

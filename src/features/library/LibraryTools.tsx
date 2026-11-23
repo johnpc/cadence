@@ -27,7 +27,8 @@ export function LibraryTools({
         className="library-list__search"
         value={query}
         debounce={0}
-        placeholder="Filter in Your Library"
+        placeholder="Filter"
+        aria-label="Filter Your Library"
         onIonInput={(e) => onQuery(e.detail.value ?? '')}
         data-testid="library-search"
       />

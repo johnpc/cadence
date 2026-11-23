@@ -8,7 +8,7 @@ export function GenreTiles() {
   const history = useHistory();
   return (
     <section data-testid="genre-tiles">
-      <h2 className="cad-kicker search__section">Browse all</h2>
+      <h2 className="cad-headline search__section">Browse all</h2>
       <div className="genre-tiles">
         {GENRES.map((genre) => (
           <button

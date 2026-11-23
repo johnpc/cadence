@@ -7,6 +7,7 @@ import { filterBooks } from './filterBooks';
 import { highlightBooks } from './highlightBooks';
 import { sortBooks, type BookSort } from './sortBooks';
 import { useAudiobookLibrary } from './useAudiobookLibrary';
+import { bookOutline } from 'ionicons/icons';
 
 /** The audiobook library: a search + sort tools row, a "Continue listening &
  * favorites" top section (in-progress + favorited books, resuming where you left
@@ -32,19 +33,20 @@ export function Audiobooks() {
       isEmpty={books.length === 0}
       emptyTitle="No audiobooks"
       emptyMessage="Add audiobooks to your Jellyfin Books library and they'll appear here."
+      emptyIcon={bookOutline}
     >
       <div data-testid="audiobooks">
         <AudiobookControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />
         {!searching && topBooks.length > 0 && (
           <section data-testid="audiobooks-highlights">
-            <h2 className="cad-kicker">Continue listening &amp; favorites</h2>
+            <h2 className="cad-headline">Continue listening &amp; favorites</h2>
             {topBooks.map((book) => (
               <BookRow key={book.id} book={book} />
             ))}
           </section>
         )}
         <section>
-          <h2 className="cad-kicker">{searching ? 'Results' : 'All audiobooks'}</h2>
+          <h2 className="cad-headline">{searching ? 'Results' : 'All audiobooks'}</h2>
           {shown.map((book) => (
             <BookRow key={book.id} book={book} />
           ))}

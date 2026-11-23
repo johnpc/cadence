@@ -11,7 +11,7 @@
 }
 
 .like-btn--on {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .like-btn:disabled {

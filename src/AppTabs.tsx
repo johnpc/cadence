@@ -1,6 +1,5 @@
 import { IonRouterOutlet, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
 import { home, search, library, addCircleOutline, book } from 'ionicons/icons';
-import { isExtensionEnabled } from './extensions/flags';
 import { NowPlayingBar } from './features/player/NowPlayingBar';
 import { NowPlayingAnnouncer } from './features/player/NowPlayingAnnouncer';
 import { DesktopSidebar } from './features/library/DesktopSidebar';
@@ -8,6 +7,7 @@ import { OfflineBanner } from './features/shell/OfflineBanner';
 import { KeyboardShortcutsHelp } from './features/shell/KeyboardShortcutsHelp';
 import { useShellChrome } from './features/shell/useShellChrome';
 import { useScrollToTopOnRetap } from './features/shell/useScrollToTopOnRetap';
+import { useRequestsTab } from './features/shell/requestsTab';
 import { useWidgetSync } from './features/widget/useWidgetSync';
 import { useWidgetDeepLink } from './features/widget/useWidgetDeepLink';
 import { appRouteList } from './appRouteList';
@@ -26,9 +26,9 @@ export function AppTabs() {
   const { helpOpen, setHelpOpen } = useShellChrome();
   // Re-tapping the active tab scrolls that view to the top (iOS/Spotify).
   const retap = useScrollToTopOnRetap();
-  // The Requests tab only appears where the Lidarr proxy is deployed (web); it
-  // can't function without it (e.g. native has no config.js → hidden there).
-  const canRequest = isExtensionEnabled('requests');
+  // The Requests tab only appears where the Lidarr proxy is deployed. It is
+  // decided once per session (useRequestsTab) so the bar never flips 4↔5 tabs.
+  const canRequest = useRequestsTab();
   // Keep the iOS "Continue listening" widget fed + route widget deep-link opens.
   // Both no-op off native iOS (bridge/Capacitor listener absent).
   useWidgetSync();

@@ -143,7 +143,9 @@ Features live under `src/features/<feature>/`; tests colocated. File conventions
 ## Design
 
 Spotify-like: dark-first near-black canvas, elevated surfaces, one green accent, bold sans hierarchy.
-**Style only via `--cad-*` tokens / role classes** (`.cad-headline`, `.cad-kicker`, `.cad-meta`, …) —
+**One section-header rule:** a page section ("Popular", "Browse all", "Fans also like", "Chapters")
+is an `h2.cad-headline` (bold, title case); `.cad-kicker` (small uppercase) is only for a group label
+INSIDE a list or card ("Playlist" over a hero title, Settings group names). **Style only via `--cad-*` tokens / role classes** (`.cad-headline`, `.cad-kicker`, `.cad-meta`, …) —
 never hardcoded hex/px. Light/Dark/System is user-switchable (persisted; pre-paint init, no flash).
 
 ## Quality gates (non-negotiable — CI + husky pre-commit enforce them)
@@ -159,7 +161,12 @@ Run `npm run quality`. **Enforce them yourself; when one fails, fix the code, ne
   — never exclusions. Render-only composition roots (`App.tsx`, `AppRoutes.tsx`, `main.tsx`) are the
   only coverage exemptions.
 - **Acceptance tests are always Gherkin** (`.feature` + steps), run via Playwright + playwright-bdd.
-- **Build + Prettier clean.**
+- **Design tokens are real.** `npm run check:tokens` fails on any `var(--cad-*)` that no CSS
+  defines — an undefined custom property silently drops the declaration (square corners, zero
+  spacing, transparent bars) with no error. Add the token to `variables.css`; never inline a value.
+- **Build + Prettier clean, entry bundle within budget.** `npm run size` (part of `quality`) fails when the
+  gzipped entry passes 50 kB (`.size-limit.json`). Fix by lazy-loading an on-demand surface (the queue,
+  lyrics, read-along and chapter sheets are already `Lazy*` wrappers), never by raising the budget.
 - **Determinism:** unit tests **mock the `jellyfin*` modules** — no real network; only Gherkin hits
   the live server. Pure helpers take injected randomness/time. Player: unit-test `queue.ts`; mock the
   Audio element (jsdom can't decode → assert `.src`/`.play` calls).

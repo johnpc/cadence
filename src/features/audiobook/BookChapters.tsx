@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import { chevronDown, chevronForward } from 'ionicons/icons';
-import { chapterTimestamp } from '../player/playerFormat';
+import { formatTime } from '../player/playerFormat';
 import { usePlayer } from '../player/usePlayer';
 import { usePlayerProgress } from '../player/PlayerProgressContext';
 import { useChapters } from './useChapters';
@@ -48,7 +48,7 @@ export function BookChapters({ book }: { book: Book }) {
             <span className="track-row__num">{i + 1}</span>
             <span className="track-row__meta">
               <span className="track-row__title">{chapter.name}</span>
-              <span className="track-row__artist">{chapterTimestamp(chapter.start)}</span>
+              <span className="track-row__artist">{formatTime(chapter.start)}</span>
             </span>
           </button>
         ))}

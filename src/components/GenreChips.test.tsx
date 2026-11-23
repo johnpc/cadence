@@ -18,6 +18,15 @@ describe('GenreChips', () => {
     expect(screen.getByText('R&B')).toHaveAttribute('href', '/genre/R%26B');
   });
 
+  it('shows a path by its leaf but links to the stored genre; drops a number-only tag', () => {
+    inRouter(<GenreChips genres={['Science Fiction &amp; Fantasy:Fantasy', '17']} />);
+    expect(screen.getByText('Fantasy')).toHaveAttribute(
+      'href',
+      '/genre/Science Fiction %26amp%3B Fantasy%3AFantasy',
+    );
+    expect(screen.queryByText('17')).toBeNull();
+  });
+
   it('renders nothing without genres', () => {
     const { container } = inRouter(<GenreChips genres={[]} />);
     expect(container.querySelector('[data-testid="genre-chips"]')).toBeNull();

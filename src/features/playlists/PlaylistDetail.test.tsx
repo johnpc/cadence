@@ -101,7 +101,7 @@ describe('PlaylistDetail', () => {
   it('shows the playlist name in the header', async () => {
     vi.mocked(getPlaylistItems).mockResolvedValue(tracks);
     renderDetail();
-    expect(await screen.findByText('My Playlist')).toBeInTheDocument();
+    expect(await screen.findByTestId('playlist-title')).toHaveTextContent('My Playlist');
   });
 
   it('shows the playlist description when present', async () => {

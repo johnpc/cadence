@@ -5,7 +5,7 @@ export function hoursMinutes(seconds: number): string {
   const totalMin = Math.max(0, Math.round(seconds / 60));
   const h = Math.floor(totalMin / 60);
   const m = totalMin % 60;
-  if (h > 0) return `${h}h ${m}m`;
+  if (h > 0) return m > 0 ? `${h}h ${m}m` : `${h}h`;
   return `${m}m`;
 }
 

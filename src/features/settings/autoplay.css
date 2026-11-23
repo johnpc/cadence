@@ -23,13 +23,13 @@
 }
 
 .segmented__option {
-  border: 1px solid var(--cad-hairline);
+  border: 1px solid var(--cad-text-tertiary);
   background: var(--cad-surface);
   color: var(--cad-text-secondary);
   border-radius: var(--cad-radius-pill);
   padding: var(--cad-space-2) var(--cad-space-4);
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 600;
   cursor: pointer;
 }

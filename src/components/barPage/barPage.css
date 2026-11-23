@@ -1,0 +1,93 @@
+/* BarPage: the top bar floats over the content (absolute, out of flow) so the
+   page itself starts at the very top of the screen. The bar paints nothing at
+   rest; --cad-bar-reveal (0..1, set by usePageBar on scroll) fades in its
+   translucent background, hairline and compact title. */
+
+.bar-page {
+  /* Content gutters that also clear the Dynamic Island / notch in landscape. */
+  --bar-page-gutter-start: max(var(--cad-space-4), var(--cad-safe-left));
+  --bar-page-gutter-end: max(var(--cad-space-4), var(--cad-safe-right));
+}
+
+.bar-page ion-content {
+  --padding-top: 0;
+  --padding-start: var(--bar-page-gutter-start);
+  --padding-end: var(--bar-page-gutter-end);
+}
+
+.page-bar {
+  /* Clear until the first scroll; usePageBar overrides it inline. */
+  --cad-bar-reveal: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  /* Taps pass through the clear bar to the page; only its buttons take them. */
+  pointer-events: none;
+}
+
+.page-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--cad-bar-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--cad-hairline);
+  opacity: var(--cad-bar-reveal, 0);
+}
+
+.bar-page .page-bar ion-toolbar,
+.bar-page .page-bar ion-toolbar:last-of-type {
+  /* Beats Ionic's iOS `.header-ios ion-toolbar:last-of-type` hairline: the
+     bar draws its own, faded in with the fill. */
+  --background: transparent;
+  --border-width: 0;
+  --min-height: var(--cad-bar-height);
+}
+
+.page-bar ion-title {
+  opacity: var(--cad-bar-reveal, 0);
+}
+
+.page-bar ion-buttons {
+  pointer-events: auto;
+}
+
+/* Tab root: the large title shares the bar's row, directly under the safe area,
+   with the bar's buttons (if any) at its right. */
+.bar-page__title {
+  display: flex;
+  align-items: center;
+  margin: 0 0 var(--cad-space-2);
+  padding-top: var(--cad-safe-top);
+  min-height: calc(var(--cad-safe-top) + var(--cad-bar-height));
+  padding-inline-end: var(--cad-bar-buttons-room, 0px);
+}
+
+.bar-page--tab-root:has(.page-bar ion-buttons[slot='end']) {
+  --cad-bar-buttons-room: calc(2 * var(--cad-bar-height));
+}
+
+/* Detail: the art/colour header (GradientHeader, the genre hero) runs under the
+   status bar; the bar's buttons float on legible pills until the bar is solid. */
+.bar-page--detail .page-bar ion-back-button,
+.bar-page--detail .page-bar ion-button {
+  --background: var(--cad-float-bg);
+  --background: color-mix(
+    in srgb,
+    var(--cad-float-bg) calc((1 - var(--cad-bar-reveal, 0)) * 100%),
+    transparent
+  );
+  --border-radius: var(--cad-radius-pill);
+  --color: var(--cad-text);
+  --padding-start: var(--cad-space-2);
+  --padding-end: var(--cad-space-3);
+  min-height: 32px;
+}
+
+.bar-page--detail .page-bar ion-button {
+  --padding-end: var(--cad-space-2);
+}

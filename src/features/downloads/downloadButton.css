@@ -11,7 +11,7 @@
 }
 
 .dl-btn--on {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .dl-btn:disabled {

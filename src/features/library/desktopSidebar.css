@@ -80,7 +80,7 @@
   border-radius: 50%;
   background: var(--cad-surface);
   color: var(--cad-text-secondary);
-  font-size: 18px;
+  font-size: var(--cad-text-xl);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -111,7 +111,7 @@
   color: var(--cad-text-secondary);
   text-decoration: none;
   font-family: var(--cad-font-sans);
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   font-weight: 600;
 }
 

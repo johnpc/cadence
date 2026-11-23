@@ -14,7 +14,7 @@
   gap: var(--cad-space-1);
   padding: var(--cad-space-1);
   background: var(--cad-surface);
-  border: 1px solid var(--cad-hairline);
+  border: 1px solid var(--cad-text-tertiary);
   border-radius: var(--cad-radius-pill);
 }
 
@@ -26,7 +26,7 @@
   padding: var(--cad-space-2) var(--cad-space-3);
   color: var(--cad-text-secondary);
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 600;
   cursor: pointer;
 }

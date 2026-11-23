@@ -1,12 +1,5 @@
-import {
-  IonButtons,
-  IonBackButton,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/react';
+import { IonBackButton } from '@ionic/react';
+import { BarPage } from '../../components/barPage/BarPage';
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { GenreChips } from '../../components/GenreChips';
@@ -29,36 +22,30 @@ export function BookDetail() {
   const { book, isLoading, isError, refetch } = useBook(decodeURIComponent(id));
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/audiobooks" />
-          </IonButtons>
-          <IonTitle>{book?.title ?? 'Audiobook'}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <LoadState
-          isLoading={isLoading}
-          isError={isError}
-          onRetry={refetch}
-          isEmpty={!book}
-          emptyTitle="Book not found"
-          emptyMessage="This audiobook isn't in your library anymore."
-        >
-          {book && (
-            <div data-testid="book-detail">
-              <BookHeader book={book} />
-              <GenreChips genres={book.book.Genres} />
-              <BookAbout overview={book.book.Overview} />
-              <BookFacts book={book} />
-              <BookParts book={book} />
-              <BookChapters book={book} />
-            </div>
-          )}
-        </LoadState>
-      </IonContent>
-    </IonPage>
+    <BarPage
+      kind="detail"
+      title={book?.title ?? 'Audiobook'}
+      start={<IonBackButton defaultHref="/audiobooks" />}
+    >
+      <LoadState
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={refetch}
+        isEmpty={!book}
+        emptyTitle="Book not found"
+        emptyMessage="This audiobook isn't in your library anymore."
+      >
+        {book && (
+          <div data-testid="book-detail">
+            <BookHeader book={book} />
+            <GenreChips genres={book.book.Genres} />
+            <BookAbout overview={book.book.Overview} />
+            <BookFacts book={book} />
+            <BookParts book={book} />
+            <BookChapters book={book} />
+          </div>
+        )}
+      </LoadState>
+    </BarPage>
   );
 }

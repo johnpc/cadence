@@ -63,7 +63,7 @@
 
 .npbar__title {
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 600;
   color: var(--cad-text);
   white-space: nowrap;
@@ -73,7 +73,7 @@
 
 .npbar__artist {
   font-family: var(--cad-font-sans);
-  font-size: 12px;
+  font-size: var(--cad-text-xs);
   color: var(--cad-text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -88,7 +88,7 @@
   border: none;
   background: none;
   color: var(--cad-text);
-  font-size: 26px;
+  font-size: var(--cad-icon-lg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,7 +104,7 @@
   border: none;
   background: none;
   color: var(--cad-text-secondary);
-  font-size: 20px;
+  font-size: var(--cad-icon-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,7 +114,7 @@
 /* The skip button reads as secondary next to play/pause, and dims at the queue
    end. */
 .npbar__next {
-  font-size: 22px;
+  font-size: var(--cad-icon-md);
   color: var(--cad-text-secondary);
 }
 
@@ -134,7 +134,7 @@
   border: none;
   background: none;
   color: var(--cad-text-secondary);
-  font-size: 20px;
+  font-size: var(--cad-icon-sm);
   padding: var(--cad-space-2);
   display: flex;
   align-items: center;
@@ -160,7 +160,7 @@
   border-radius: 8px;
   background: var(--cad-accent);
   color: var(--cad-on-accent);
-  font-size: 10px;
+  font-size: var(--cad-text-2xs);
   font-weight: 700;
   line-height: 16px;
   text-align: center;
@@ -195,13 +195,13 @@
   }
 
   .npbar__extras .fullplayer__ctl {
-    font-size: 20px;
+    font-size: var(--cad-icon-sm);
   }
 
   .npbar__extras .fullplayer__ctl--play {
     width: 38px;
     height: 38px;
-    font-size: 20px;
+    font-size: var(--cad-icon-sm);
   }
 }
 
@@ -209,5 +209,5 @@
   display: inline-flex;
   align-items: center;
   gap: var(--cad-space-1);
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }

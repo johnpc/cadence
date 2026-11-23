@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { IonModal, IonIcon, IonReorderGroup, type ItemReorderEventDetail } from '@ionic/react';
 import { chevronDown } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
@@ -6,14 +7,19 @@ import { QueueRow } from './QueueRow';
 import { SaveQueueButton } from './SaveQueueButton';
 import './queueView.css';
 
+/** Whether the queue shows its per-row up/down buttons (edit) or just drag +
+ * remove (view). One state, reset each time the sheet opens. */
+export type QueueMode = 'view' | 'edit';
+
 /** The "Up Next" queue — the full play order, current track marked, tap to jump,
- * drag to reorder (Spotify-style; up/down buttons remain for accessibility), and
- * remove any track from the queue. */
+ * drag to reorder (Spotify-style; Edit reveals up/down buttons for keyboard and
+ * switch access), and remove any track from the queue. */
 export function QueueView({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { queue, queueIndex, current, jumpTo, removeFromQueue, moveInQueue, clearQueue } =
     usePlayer();
   const ctx = usePlayContext(current?.Id);
   const hasUpcoming = queue.length - 1 > queueIndex;
+  const [mode, setMode] = useState<QueueMode>('view');
   const jump = (index: number) => {
     jumpTo(index);
     onClose();
@@ -25,7 +31,7 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
     moveInQueue(e.detail.from, e.detail.to);
   };
   return (
-    <IonModal isOpen={open} onDidDismiss={onClose}>
+    <IonModal isOpen={open} onDidDismiss={onClose} onWillPresent={() => setMode('view')}>
       <div className="queueview" data-testid="queue-view">
         <div className="queueview__head">
           <button className="queueview__close" onClick={onClose} aria-label="Close queue">
@@ -40,6 +46,17 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
             )}
           </div>
           <SaveQueueButton queue={queue} />
+          {queue.length > 1 && (
+            <button
+              type="button"
+              className="queueview__clear"
+              data-testid="queue-edit"
+              aria-pressed={mode === 'edit'}
+              onClick={() => setMode(mode === 'edit' ? 'view' : 'edit')}
+            >
+              {mode === 'edit' ? 'Done' : 'Edit'}
+            </button>
+          )}
           {hasUpcoming && (
             <button
               type="button"
@@ -72,6 +89,7 @@ export function QueueView({ open, onClose }: { open: boolean; onClose: () => voi
                   isCurrent={index === queueIndex}
                   isFirst={index === 0}
                   isLast={index === queue.length - 1}
+                  editing={mode === 'edit'}
                   onJump={jump}
                   onMove={moveInQueue}
                   onRemove={removeFromQueue}

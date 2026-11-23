@@ -241,6 +241,23 @@ Then('I can save the queue as a playlist', async ({ page }) => {
   });
 });
 
+Then('the queue rows show no move buttons', async ({ page }) => {
+  await expect(page.getByTestId('queue-row').first()).toBeVisible({ timeout: DATA_WAIT });
+  await expect(page.getByTestId('queue-row-up')).toHaveCount(0);
+});
+
+When('I tap Edit in the queue', async ({ page }) => {
+  const edit = page.getByTestId('queue-edit');
+  await expect(edit).toBeVisible({ timeout: DATA_WAIT });
+  await edit.click({ force: true });
+  await expect(edit).toHaveText('Done');
+});
+
+Then('the queue rows show move buttons', async ({ page }) => {
+  await expect(page.getByTestId('queue-row-up').first()).toBeVisible({ timeout: DATA_WAIT });
+  await expect(page.getByTestId('queue-row-down').first()).toBeVisible();
+});
+
 When('I tap the artist in the full player', async ({ page }) => {
   // The artist line under the now-playing title links to the artist page.
   const link = page.getByTestId('full-player-artists').getByRole('link').first();
@@ -250,4 +267,11 @@ When('I tap the artist in the full player', async ({ page }) => {
 
 Then('I see the artist page', async ({ page }) => {
   await expect(page.getByTestId('artist-radio')).toBeAttached({ timeout: DATA_WAIT });
+});
+
+Then("the full player's play button is fully in view", async ({ page }) => {
+  // On a desktop window the player is a card, not a full-screen sheet: the
+  // transport must be visible without scrolling the card (Ionic's default 600 px
+  // card used to cut it off). ratio 1 = no part of the button is clipped.
+  await expect(page.getByTestId('full-player-toggle')).toBeInViewport({ ratio: 1 });
 });

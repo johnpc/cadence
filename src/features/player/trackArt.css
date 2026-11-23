@@ -32,7 +32,27 @@
   }
 }
 
+.track-art__fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--art-hue) var(--cad-art-sat) var(--cad-art-light-1)),
+    hsl(calc(var(--art-hue) + 40) var(--cad-art-sat) var(--cad-art-light-2))
+  );
+  color: var(--cad-art-ink);
+  font-family: var(--cad-font-sans);
+}
+
+.track-art__initials {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
 .track-art__placeholder {
-  color: var(--cad-text-tertiary);
-  font-size: 40%;
+  font-size: 1em;
 }

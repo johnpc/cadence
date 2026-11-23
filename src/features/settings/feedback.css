@@ -8,13 +8,13 @@
   background: none;
   color: var(--cad-text);
   font-family: var(--cad-font-sans);
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   cursor: pointer;
   text-align: left;
 }
 
 .feedback__row ion-icon {
-  font-size: 20px;
+  font-size: var(--cad-icon-sm);
   color: var(--cad-text-secondary);
   flex-shrink: 0;
 }
@@ -25,5 +25,5 @@
 }
 
 .feedback__chevron {
-  font-size: 16px;
+  font-size: var(--cad-text-lg);
 }

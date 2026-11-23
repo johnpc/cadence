@@ -6,6 +6,13 @@
   margin-bottom: var(--cad-space-3);
 }
 
+/* In the narrow desktop sidebar the chip row shares the line with "+": let it
+   shrink and scroll (with the shared edge fade) instead of clipping "Artists". */
+.library-list__head .search-filters {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .library-list__tools {
   display: flex;
   align-items: center;
@@ -13,8 +20,11 @@
 }
 
 .library-list__tools .library-list__search {
-  flex: 1;
-  min-width: 0;
+  /* The search takes the room; the sort shrinks first. It used to be squeezed
+     to ~110 px by a full-width sort label ("Filter in Your" was all it showed). */
+  flex: 1 1 auto;
+  min-width: 120px;
+  padding-inline: 0;
 }
 
 .library-list__tool {
@@ -22,7 +32,7 @@
   border: none;
   background: none;
   color: var(--cad-text-secondary);
-  font-size: 20px;
+  font-size: var(--cad-icon-sm);
   padding: var(--cad-space-2);
   display: flex;
   align-items: center;
@@ -30,16 +40,16 @@
 }
 
 .library-list__tool--on {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 /* The sort dropdown: a compact IonSelect that shows the active order and opens
  * a popover of all options. Sized to sit inline with the search + view toggle. */
 .library-list__sort {
-  flex-shrink: 0;
+  flex: 0 1 auto;
   min-width: 0;
-  max-width: 44%;
-  font-size: 13px;
+  max-width: 40%;
+  font-size: var(--cad-text-sm);
   color: var(--cad-text-secondary);
   --padding-start: var(--cad-space-2);
   --padding-end: var(--cad-space-1);
@@ -67,7 +77,7 @@
   width: 100%;
   height: auto;
   aspect-ratio: 1 / 1;
-  font-size: 48px;
+  font-size: var(--cad-icon-2xl);
 }
 
 .library-row--grid .track-art {
@@ -93,7 +103,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: var(--cad-icon-md);
   color: var(--cad-on-accent);
   background: linear-gradient(135deg, var(--cad-accent), #4b7bec);
 }
@@ -118,7 +128,7 @@
 
 .library-row__name {
   font-family: var(--cad-font-sans);
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   font-weight: 500;
   color: var(--cad-text);
   white-space: nowrap;
@@ -128,7 +138,7 @@
 
 .library-row__subtitle {
   font-family: var(--cad-font-sans);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   color: var(--cad-text-secondary);
   white-space: nowrap;
   overflow: hidden;

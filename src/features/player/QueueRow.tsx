@@ -5,14 +5,17 @@ import { TrackArt } from './TrackArt';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** One row of the Up Next queue: a drag handle (Spotify-style reorder),
- * jump-to-play, up/down buttons (accessible fallback), and remove. Reorder
- * buttons are disabled at the ends so the order can't drift. */
+ * jump-to-play, and remove. In edit mode it also shows up/down buttons — the
+ * keyboard / switch-access path for reordering — disabled at the ends so the
+ * order can't drift. They used to sit on every row, four 36 px controls side by
+ * side, which crowded the titles and invited mis-taps. */
 export function QueueRow({
   track,
   index,
   isCurrent,
   isFirst,
   isLast,
+  editing,
   onJump,
   onMove,
   onRemove,
@@ -22,6 +25,7 @@ export function QueueRow({
   isCurrent: boolean;
   isFirst: boolean;
   isLast: boolean;
+  editing: boolean;
   onJump: (index: number) => void;
   onMove: (from: number, to: number) => void;
   onRemove: (index: number) => void;
@@ -47,26 +51,30 @@ export function QueueRow({
           <span className="queueview__artist">{artistLine(track)}</span>
         </span>
       </button>
-      <button
-        type="button"
-        className="queueview__move"
-        data-testid="queue-row-up"
-        aria-label="Move up"
-        disabled={isFirst}
-        onClick={() => onMove(index, index - 1)}
-      >
-        <IonIcon icon={arrowUp} />
-      </button>
-      <button
-        type="button"
-        className="queueview__move"
-        data-testid="queue-row-down"
-        aria-label="Move down"
-        disabled={isLast}
-        onClick={() => onMove(index, index + 1)}
-      >
-        <IonIcon icon={arrowDown} />
-      </button>
+      {editing && (
+        <>
+          <button
+            type="button"
+            className="queueview__move"
+            data-testid="queue-row-up"
+            aria-label="Move up"
+            disabled={isFirst}
+            onClick={() => onMove(index, index - 1)}
+          >
+            <IonIcon icon={arrowUp} />
+          </button>
+          <button
+            type="button"
+            className="queueview__move"
+            data-testid="queue-row-down"
+            aria-label="Move down"
+            disabled={isLast}
+            onClick={() => onMove(index, index + 1)}
+          >
+            <IonIcon icon={arrowDown} />
+          </button>
+        </>
+      )}
       <button
         type="button"
         className="queueview__remove"

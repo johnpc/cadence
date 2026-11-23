@@ -12,7 +12,7 @@ export function SongPlaylists({ songId }: { songId: string }) {
   if (playlists.length === 0) return <div ref={ref} data-testid="song-playlists-sentinel" />;
   return (
     <section data-testid="song-playlists">
-      <h2 className="cad-kicker song__section">Appears in</h2>
+      <h2 className="cad-headline song__section">Appears in</h2>
       {playlists.map((pl) => (
         <Link key={pl.Id} className="song__playlist" to={`/playlist/${pl.Id}`}>
           {pl.Name}

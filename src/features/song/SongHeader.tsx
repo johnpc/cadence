@@ -9,6 +9,7 @@ import { AddToPlaylistButton } from '../playlists/AddToPlaylistButton';
 import { SongLinks } from './SongLinks';
 import { songMetaLine } from './songMeta';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { pageTitleProps } from '../../components/barPage/usePageBar';
 
 /** The song page hero: art over an ambient gradient, title, linked artist·album
  * line, year·duration meta, genres, and the play / radio / like / share / add
@@ -26,7 +27,9 @@ export function SongHeader({
     <GradientHeader item={song}>
       <div className="song__header">
         <TrackArt item={song} size={200} />
-        <h1 className="song__title cad-headline">{song.Name}</h1>
+        <h1 {...pageTitleProps} className="song__title cad-headline">
+          {song.Name}
+        </h1>
         <SongLinks song={song} />
         {songMetaLine(song) && <p className="song__meta cad-meta">{songMetaLine(song)}</p>}
         <GenreChips genres={song.Genres} />

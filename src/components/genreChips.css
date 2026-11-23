@@ -7,7 +7,7 @@
 
 .genre-chips__chip {
   font-family: var(--cad-font-sans);
-  font-size: 12px;
+  font-size: var(--cad-text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;

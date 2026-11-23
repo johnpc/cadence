@@ -9,7 +9,7 @@
 }
 
 .not-found__code {
-  font-size: 64px;
+  font-size: var(--cad-text-display);
   line-height: 1;
   opacity: 0.35;
   margin: 0;
@@ -33,6 +33,6 @@
   padding: var(--cad-space-2) var(--cad-space-6);
   font-family: var(--cad-font-sans);
   font-weight: 700;
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   cursor: pointer;
 }

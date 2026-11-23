@@ -14,6 +14,7 @@ import { getRecentPlays } from './recentPlays';
 import { filterFromSearch, type LibraryFilter } from './libraryRows';
 import { composeLibraryRows, type LibrarySort } from './librarySort';
 import './libraryList.css';
+import { libraryOutline, searchOutline } from 'ionicons/icons';
 
 const EMPTY: Record<LibraryFilter, string> = {
   playlists: 'No playlists yet. Create one, then add songs from anywhere.',
@@ -73,6 +74,7 @@ export function LibraryList() {
         isEmpty={rows.length === 0}
         emptyTitle={query ? 'No matches' : 'Nothing here yet'}
         emptyMessage={query ? `Nothing in Your Library matches "${query}".` : EMPTY[filter]}
+        emptyIcon={query ? searchOutline : libraryOutline}
         skeleton={<TrackListSkeleton />}
       >
         <div

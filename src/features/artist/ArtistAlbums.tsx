@@ -33,7 +33,7 @@ export function ArtistAlbums({
     >
       {groups.map((group, i) => (
         <section key={group.section}>
-          <h2 className="cad-kicker artist__section">{group.title}</h2>
+          <h2 className="cad-headline artist__section">{group.title}</h2>
           <div
             className="artist__albums"
             data-testid={i === 0 ? 'artist-albums' : `artist-albums-${group.section}`}

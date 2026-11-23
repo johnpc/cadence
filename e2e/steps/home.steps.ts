@@ -81,7 +81,7 @@ Then('I see the Recently added shelf with albums', async ({ page }) => {
   // transition, so a testid can briefly resolve to TWO nodes — the stale hidden
   // page and the live one. Assert on the FIRST match (the live page) to avoid a
   // strict-mode violation during that window.
-  await expect(page.getByTestId('home-greeting').first()).toBeVisible();
+  await expect(page.getByTestId('page-title').first()).toBeVisible();
   await expect(page.getByTestId('home-shelves').getByText('Recently added').first()).toBeVisible();
   const cards = page.getByTestId('home-shelves').getByTestId('album-card');
   await expect(cards.first()).toBeAttached({ timeout: DATA_WAIT });

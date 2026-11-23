@@ -6,6 +6,7 @@ import { ShareButton } from '../share/ShareButton';
 import { GradientHeader } from '../color/GradientHeader';
 import { collectionSummary } from '../player/playerFormat';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { pageTitleProps } from '../../components/barPage/usePageBar';
 
 /** The playlist detail header: cover, title, description, song-count summary,
  * and the play/shuffle/queue + share actions. */
@@ -21,7 +22,11 @@ export function PlaylistHeader({
       <GradientHeader item={playlist}>
         <div className="playlist__header">
           <PlaylistCover playlist={playlist} tracks={tracks} size={160} />
-          <h1 className="playlist__title cad-headline" data-testid="playlist-title">
+          <h1
+            {...pageTitleProps}
+            className="playlist__title cad-headline"
+            data-testid="playlist-title"
+          >
             {playlist?.Name ?? 'Playlist'}
           </h1>
           {playlist?.Overview && (

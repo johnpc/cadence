@@ -116,6 +116,10 @@ describe('QueueView', () => {
     renderWithProviders(<QueueView open onClose={vi.fn()} />, {
       player: stubPlayer({ queue, queueIndex: 0, moveInQueue }),
     });
+    // Up/down live behind Edit (drag is the everyday path).
+    expect(screen.queryByTestId('queue-row-up')).toBeNull();
+    await userEvent.click(screen.getByTestId('queue-edit'));
+    expect(screen.getByTestId('queue-edit')).toHaveTextContent('Done');
     // First row cannot move up; last row cannot move down.
     expect(screen.getAllByTestId('queue-row-up')[0]).toBeDisabled();
     expect(screen.getAllByTestId('queue-row-down')[1]).toBeDisabled();

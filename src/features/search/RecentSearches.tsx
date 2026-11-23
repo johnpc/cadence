@@ -40,7 +40,7 @@ export function RecentSearches({
   return (
     <div data-testid="recent-searches">
       <div className="search__recent-head">
-        <h2 className="cad-kicker search__section">Recent searches</h2>
+        <h2 className="cad-headline search__section">Recent searches</h2>
         <button className="search__clear" data-testid="clear-recents" onClick={onClear}>
           Clear
         </button>

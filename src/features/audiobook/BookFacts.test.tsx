@@ -19,8 +19,8 @@ describe('BookFacts', () => {
     expect(screen.getByText('1965')).toBeInTheDocument();
   });
 
-  it('always has at least the parts fact, so it renders', () => {
+  it('renders nothing when no detail is known', () => {
     render(<BookFacts book={book({})} />);
-    expect(screen.getAllByTestId('book-fact').length).toBeGreaterThan(0);
+    expect(screen.queryByTestId('book-facts')).not.toBeInTheDocument();
   });
 });

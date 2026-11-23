@@ -1,4 +1,5 @@
-import { IonContent, IonHeader, IonPage, IonSearchbar, IonTitle, IonToolbar } from '@ionic/react';
+import { IonSearchbar } from '@ionic/react';
+import { BarPage } from '../../components/barPage/BarPage';
 import { useState } from 'react';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
@@ -26,57 +27,49 @@ export function Search() {
   };
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Search</IonTitle>
-        </IonToolbar>
-        <IonToolbar>
-          <IonSearchbar
-            value={s.query}
-            debounce={0}
-            placeholder="Songs, albums, artists"
-            onIonInput={(e) => s.setQuery(e.detail.value ?? '')}
-            onKeyDown={onEnter}
-            data-testid="search-input"
-          />
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        {/* Toolbar title is a div; give the content a real <h1> for a11y. */}
-        <h1 className="cad-sr-only">Search</h1>
-        {s.isIdle ? (
-          <>
-            <RecentSearches recents={recents} onClear={clear} onRemove={remove} />
-            <GenreTiles />
-          </>
-        ) : (
-          <>
-            <SearchFilters filter={filter} onChange={setFilter} />
-            {s.offline && (
-              <p className="search__offline-note cad-meta" data-testid="search-offline-note">
-                You’re offline — showing songs from your downloads.
-              </p>
-            )}
-            <LoadState
-              isLoading={s.isLoading}
-              isError={s.isError}
-              onRetry={() => void s.refetch()}
-              isEmpty={s.isEmpty}
-              emptyTitle={s.offline ? 'No downloaded songs match' : 'No results'}
-              emptyMessage={
-                s.offline
-                  ? 'With no connection, search looks through your downloads.'
-                  : 'Try a different search.'
-              }
-              skeleton={<TrackListSkeleton />}
-            >
-              <SearchResults groups={s.groups} filter={filter} query={s.query} onPick={record} />
-            </LoadState>
-            <SearchEmptyExtras query={s.query} show={s.isEmpty && !s.offline} />
-          </>
-        )}
-      </IonContent>
-    </IonPage>
+    <BarPage kind="tab-root" title="Search">
+      {/* Sticks under the compact bar once the large title scrolls away. */}
+      <div className="search__field">
+        <IonSearchbar
+          value={s.query}
+          debounce={0}
+          placeholder="Songs, albums, artists"
+          onIonInput={(e) => s.setQuery(e.detail.value ?? '')}
+          onKeyDown={onEnter}
+          data-testid="search-input"
+        />
+      </div>
+      {s.isIdle ? (
+        <>
+          <RecentSearches recents={recents} onClear={clear} onRemove={remove} />
+          <GenreTiles />
+        </>
+      ) : (
+        <>
+          <SearchFilters filter={filter} onChange={setFilter} />
+          {s.offline && (
+            <p className="search__offline-note cad-meta" data-testid="search-offline-note">
+              You’re offline — showing songs from your downloads.
+            </p>
+          )}
+          <LoadState
+            isLoading={s.isLoading}
+            isError={s.isError}
+            onRetry={() => void s.refetch()}
+            isEmpty={s.isEmpty}
+            emptyTitle={s.offline ? 'No downloaded songs match' : 'No results'}
+            emptyMessage={
+              s.offline
+                ? 'With no connection, search looks through your downloads.'
+                : 'Try a different search.'
+            }
+            skeleton={<TrackListSkeleton />}
+          >
+            <SearchResults groups={s.groups} filter={filter} query={s.query} onPick={record} />
+          </LoadState>
+          <SearchEmptyExtras query={s.query} show={s.isEmpty && !s.offline} />
+        </>
+      )}
+    </BarPage>
   );
 }

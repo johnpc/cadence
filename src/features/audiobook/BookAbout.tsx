@@ -12,7 +12,7 @@ export function BookAbout({ overview }: { overview: string | undefined }) {
 
   return (
     <section data-testid="book-about">
-      <h2 className="cad-kicker">About</h2>
+      <h2 className="cad-headline">About</h2>
       <p className="cad-meta book-detail__about">{text}</p>
       {truncatable && (
         <button

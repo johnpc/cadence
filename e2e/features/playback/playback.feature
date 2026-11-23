@@ -30,6 +30,12 @@ Feature: Playback
     And I tap next
     Then the Now-Playing bar shows a track
 
+  Scenario: The full player fits a desktop window
+    Given I am signed in
+    When I tap a track from search
+    And I open the full player
+    Then the full player's play button is fully in view
+
   Scenario: The now-playing track survives a reload
     Given I am signed in
     When I tap a track from search
@@ -110,6 +116,15 @@ Feature: Playback
     And I open the full player
     And I open the queue
     Then I can save the queue as a playlist
+
+  Scenario: The queue keeps row controls calm until you choose to edit
+    Given I am signed in
+    When I tap a track from search
+    And I open the full player
+    And I open the queue
+    Then the queue rows show no move buttons
+    When I tap Edit in the queue
+    Then the queue rows show move buttons
 
   Scenario: The full player links the artist to their page
     Given I am signed in

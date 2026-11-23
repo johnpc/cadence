@@ -1,13 +1,5 @@
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonRefresher,
-  IonRefresherContent,
-  IonTitle,
-  IonToolbar,
-  type RefresherCustomEvent,
-} from '@ionic/react';
+import { IonRefresher, IonRefresherContent, type RefresherCustomEvent } from '@ionic/react';
+import { BarPage } from '../../components/barPage/BarPage';
 import { HomeShelves, useHomeShelves } from './HomeShelves';
 import { isLibraryInaccessible } from './homeEmpty';
 import { greeting } from './greeting';
@@ -33,20 +25,15 @@ export function Home() {
     await e.detail.complete();
   };
 
+  const title = greeting(new Date().getHours());
+  // The greeting IS the page title: large, right under the status bar, and it
+  // hands over to the compact floating bar as it scrolls away (BarPage).
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Cadence</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
-        <h1 className="home__greeting cad-h1" data-testid="home-greeting">
-          {greeting(new Date().getHours())}
-        </h1>
+    <BarPage kind="tab-root" title={title}>
+      <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
+        <IonRefresherContent />
+      </IonRefresher>
+      <div className="home__body">
         {isLibraryInaccessible(shelves) ? (
           <div className="home__no-access" data-testid="home-no-access">
             <p className="home__no-access-title cad-headline-sm">No music to show</p>
@@ -58,7 +45,7 @@ export function Home() {
         ) : (
           <HomeShelves shelves={shelves} />
         )}
-      </IonContent>
-    </IonPage>
+      </div>
+    </BarPage>
   );
 }

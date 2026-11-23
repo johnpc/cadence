@@ -22,7 +22,7 @@ export function SongLyrics({ song }: { song: JellyfinItem }) {
 
   return (
     <section data-testid="song-lyrics">
-      <h2 className="cad-kicker song__section">Lyrics</h2>
+      <h2 className="cad-headline song__section">Lyrics</h2>
       <LoadState
         isLoading={isLoading}
         isError={isError}

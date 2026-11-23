@@ -1,13 +1,13 @@
-import { memo, useState } from 'react';
-import { musicalNotes } from 'ionicons/icons';
+import { memo, useState, type CSSProperties } from 'react';
 import { IonIcon } from '@ionic/react';
+import { artPlaceholder } from './artPlaceholder';
 import { imageUrl } from '../../lib/jellyfinStream';
 import { useLocalArt } from '../downloads/useLocalArt';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './trackArt.css';
 
-/** Cover art for a track/album/artist, with a note-icon placeholder fallback
- * (used both when the item has no art and when the image fails to load).
+/** Cover art for a track/album/artist, with a generated fallback (artPlaceholder)
+ * used both when the item has no art and when the image fails to load.
  * `round` renders a circle — used for artists; albums/tracks stay square.
  *
  * Memoized: TrackArt renders in every row/card across the app, and all its
@@ -49,9 +49,33 @@ function TrackArtImpl({
           onError={() => setFailed(true)}
         />
       ) : (
-        <IonIcon className="track-art__placeholder" icon={musicalNotes} aria-hidden="true" />
+        <ArtFallback item={item} size={size} round={round} />
       )}
     </div>
+  );
+}
+
+/** The no-art fill: a name-derived gradient with initials or a kind icon,
+ * both sized from the art's own size (not font-size inheritance). */
+function ArtFallback({
+  item,
+  size,
+  round,
+}: {
+  item: JellyfinItem | null;
+  size: number;
+  round: boolean;
+}) {
+  const p = artPlaceholder(item, round);
+  const style = { '--art-hue': p.hue, fontSize: Math.round(size * 0.36) } as CSSProperties;
+  return (
+    <span className="track-art__fallback" style={style} aria-hidden="true">
+      {p.kind === 'initials' ? (
+        <span className="track-art__initials">{p.text}</span>
+      ) : (
+        <IonIcon className="track-art__placeholder" icon={p.icon} />
+      )}
+    </span>
   );
 }
 

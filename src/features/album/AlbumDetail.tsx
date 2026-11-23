@@ -1,12 +1,5 @@
-import {
-  IonButtons,
-  IonBackButton,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/react';
+import { IonBackButton } from '@ionic/react';
+import { BarPage } from '../../components/barPage/BarPage';
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
@@ -25,43 +18,37 @@ export function AlbumDetail() {
   const { tracks, isLoading, isError, refetch } = useAlbumTracks(id);
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/home" />
-          </IonButtons>
-          <IonTitle>{album?.Name ?? 'Album'}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <div data-testid="album-detail">
-          <AlbumHeader album={album} tracks={tracks} />
-          <LoadState
-            isLoading={isLoading}
-            isError={isError}
-            onRetry={() => void refetch()}
-            isEmpty={tracks.length === 0}
-            emptyTitle="No playable tracks"
-            emptyMessage="This album's songs aren't available on your server."
-            skeleton={<TrackListSkeleton />}
-          >
-            <AlbumTracks tracks={tracks} albumName={album?.Name} />
-          </LoadState>
-          {album?.Overview && (
-            <section data-testid="album-about">
-              <h2 className="cad-kicker album__section">About</h2>
-              <p className="album__about cad-meta">{album.Overview}</p>
-            </section>
-          )}
-          <MoreByArtist
-            artistId={album?.ArtistItems?.[0]?.Id}
-            artistName={album?.ArtistItems?.[0]?.Name ?? album?.AlbumArtist ?? 'this artist'}
-            excludeId={id}
-          />
-          <SimilarAlbums albumId={id} />
-        </div>
-      </IonContent>
-    </IonPage>
+    <BarPage
+      kind="detail"
+      title={album?.Name ?? 'Album'}
+      start={<IonBackButton defaultHref="/home" />}
+    >
+      <div data-testid="album-detail">
+        <AlbumHeader album={album} tracks={tracks} />
+        <LoadState
+          isLoading={isLoading}
+          isError={isError}
+          onRetry={() => void refetch()}
+          isEmpty={tracks.length === 0}
+          emptyTitle="No playable tracks"
+          emptyMessage="This album's songs aren't available on your server."
+          skeleton={<TrackListSkeleton />}
+        >
+          <AlbumTracks tracks={tracks} albumName={album?.Name} />
+        </LoadState>
+        {album?.Overview && (
+          <section data-testid="album-about">
+            <h2 className="cad-headline album__section">About</h2>
+            <p className="album__about cad-meta">{album.Overview}</p>
+          </section>
+        )}
+        <MoreByArtist
+          artistId={album?.ArtistItems?.[0]?.Id}
+          artistName={album?.ArtistItems?.[0]?.Name ?? album?.AlbumArtist ?? 'this artist'}
+          excludeId={id}
+        />
+        <SimilarAlbums albumId={id} />
+      </div>
+    </BarPage>
   );
 }

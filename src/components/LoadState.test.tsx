@@ -58,6 +58,37 @@ describe('LoadState', () => {
     expect(screen.queryByTestId('load-loading')).not.toBeInTheDocument();
   });
 
+  it('anchors the empty state with an icon and a next step when given', () => {
+    render(
+      <MemoryRouter>
+        <LoadState
+          isLoading={false}
+          isEmpty
+          emptyTitle="No liked songs yet"
+          emptyIcon="heart"
+          emptyAction={{ label: 'Find music', to: '/search' }}
+        >
+          <p>ready content</p>
+        </LoadState>
+      </MemoryRouter>,
+    );
+    const empty = screen.getByTestId('load-empty');
+    expect(empty.querySelector('.load-state__icon')).not.toBeNull();
+    expect(screen.getByTestId('load-empty-action')).toHaveAttribute('href', '/search');
+    expect(screen.getByText('Find music')).toBeInTheDocument();
+  });
+
+  it('a plain empty state has neither icon nor action', () => {
+    render(
+      <LoadState isLoading={false} isEmpty>
+        <p>ready content</p>
+      </LoadState>,
+    );
+    expect(screen.getByText('Nothing here yet')).toBeInTheDocument();
+    expect(screen.getByTestId('load-empty').querySelector('.load-state__icon')).toBeNull();
+    expect(screen.queryByTestId('load-empty-action')).toBeNull();
+  });
+
   describe('while offline', () => {
     afterEach(() => writeForceOffline(false));
 

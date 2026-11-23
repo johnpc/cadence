@@ -25,7 +25,7 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 56px;
+  font-size: var(--cad-icon-3xl);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 

@@ -23,7 +23,7 @@ export function MoreByArtist({
   if (albums.length === 0) return <div ref={ref} data-testid="more-by-artist-sentinel" />;
   return (
     <section data-testid="more-by-artist">
-      <h2 className="cad-kicker album__section">More by {artistName}</h2>
+      <h2 className="cad-headline album__section">More by {artistName}</h2>
       <div className="more-by">
         {albums.map((album) => (
           <button

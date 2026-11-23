@@ -40,6 +40,10 @@ import './theme/variables.css';
 // dropped nav clicks and left a stale hidden page (double testids) for automation.
 // Instant transitions remove that window entirely. Production keeps animations.
 setupIonicReact({
+  // One look on every device. Ionic picks Material on anything that isn't iOS,
+  // so desktop got uppercase buttons, a Material back arrow and MD toolbars while
+  // phones got iOS styling — the app changed brand between devices.
+  mode: 'ios',
   animated: !(typeof window !== 'undefined' && window.__CADENCE_E2E__ === true),
 });
 

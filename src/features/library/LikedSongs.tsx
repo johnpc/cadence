@@ -7,7 +7,7 @@ import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton'
 import { collectionSummary } from '../player/playerFormat';
 import { LikedSongsControls } from './LikedSongsControls';
 import { CollectionHero } from './CollectionHero';
-import { heart } from 'ionicons/icons';
+import { heart, heartOutline } from 'ionicons/icons';
 import { sortLikedSongs, type LikedSort } from './sortLikedSongs';
 import { filterTracks } from '../playlists/filterTracks';
 import { useProgressiveList } from '../../lib/useProgressiveList';
@@ -37,6 +37,8 @@ export function LikedSongs() {
       isEmpty={songs.length === 0}
       emptyTitle="No liked songs yet"
       emptyMessage="Tap the heart on any song to add it here."
+      emptyIcon={heartOutline}
+      emptyAction={{ label: 'Find music', to: '/search' }}
       skeleton={<TrackListSkeleton />}
     >
       <div data-testid="liked-songs">

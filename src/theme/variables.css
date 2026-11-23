@@ -18,14 +18,23 @@
   --cad-surface: #181818;
   --cad-surface-2: #282828;
   --cad-hairline: rgba(255, 255, 255, 0.08);
+  /* A raised fill (hover, input wells) and a 1px divider — aliases so the two
+     names components reach for resolve to the canonical surface/hairline. */
+  --cad-elevated: var(--cad-surface-2);
+  --cad-border: var(--cad-hairline);
 
   /* ---- Color: text ramp ---- */
   --cad-text: #ffffff;
   --cad-text-secondary: #b3b3b3;
-  --cad-text-tertiary: #7a7a7a;
+  /* #8f8f8f: ≥4.5:1 on the canvas and on raised surfaces (WCAG AA small text);
+     #7a7a7a was 3.4:1 on --cad-surface-2. */
+  --cad-text-tertiary: #8f8f8f;
 
   /* ---- Color: accent (the one brand hue — Spotify-style green) ---- */
   --cad-accent: #1db954;
+  /* The accent used as TEXT or an icon on the canvas (not as a fill). Same as the
+     accent in dark (7.2:1); darker in light, where #1db954 is only 2.6:1. */
+  --cad-accent-text: var(--cad-accent);
   --cad-accent-pressed: #1aa34a;
   --cad-on-accent: #000000;
 
@@ -35,6 +44,12 @@
   /* ---- Color: art-placeholder (no cover art fallback) ---- */
   --cad-hatch: #282828;
   --cad-hatch-line: #3a3a3a;
+  /* The generated no-art gradient (TrackArt): hue comes from the item's name;
+     these set how muted it is per theme, and the ink for initials/icons. */
+  --cad-art-sat: 28%;
+  --cad-art-light-1: 30%;
+  --cad-art-light-2: 20%;
+  --cad-art-ink: rgba(255, 255, 255, 0.82);
 
   /* ---- Color: status ---- */
   --cad-success: #1db954;
@@ -46,11 +61,38 @@
   --cad-font-sans: 'Libre Franklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --cad-font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
 
+  /* ---- Type scale ----
+     Every font-size in the app is one of these steps (npm run check:tokens
+     rejects a raw px font-size anywhere else), so a row title, a meta line or a
+     kicker is the same size on every screen. Prefer the role classes below;
+     reach for a step only where no role fits. */
+  --cad-text-tiny: 8px; /* a percentage inside a tiny badge */
+  --cad-text-2xs: 11px;
+  --cad-text-xs: 12px; /* kickers */
+  --cad-text-sm: 13px; /* meta lines */
+  --cad-text-base: 14px; /* bylines, secondary rows */
+  --cad-text-md: 15px; /* row titles */
+  --cad-text-lg: 16px; /* body */
+  --cad-text-xl: 18px;
+  --cad-text-2xl: 20px; /* section headlines */
+  --cad-text-3xl: 24px; /* hero titles */
+  --cad-text-4xl: 28px; /* page titles */
+  --cad-text-display: 64px;
+
+  /* ---- Icon scale (ionicons are sized with font-size) ---- */
+  --cad-icon-sm: 20px; /* row actions */
+  --cad-icon-md: 24px; /* toolbar / header actions */
+  --cad-icon-lg: 28px; /* close chevrons, transport */
+  --cad-icon-xl: 34px; /* the big play */
+  --cad-icon-2xl: 48px;
+  --cad-icon-3xl: 56px;
+
   /* ---- Spacing (4px grid) ---- */
   --cad-space-1: 4px;
   --cad-space-2: 8px;
   --cad-space-3: 12px;
   --cad-space-4: 16px;
+  --cad-space-5: 20px;
   --cad-space-6: 24px;
   --cad-space-8: 32px;
 
@@ -60,14 +102,27 @@
      inset. Requires viewport-fit=cover (set in index.html). */
   --cad-safe-top: env(safe-area-inset-top, 0px);
   --cad-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --cad-safe-left: env(safe-area-inset-left, 0px);
+  --cad-safe-right: env(safe-area-inset-right, 0px);
+
+  /* The compact top bar (BarPage): its row height under the safe area. */
+  --cad-bar-height: 44px;
 
   /* ---- Radius ---- */
   --cad-radius-card: 8px;
   --cad-radius-thumb: 4px;
   --cad-radius-pill: 9999px;
+  /* Generic aliases: "a card-ish corner" and "a small corner". */
+  --cad-radius: var(--cad-radius-card);
+  --cad-radius-sm: var(--cad-radius-thumb);
 
   /* ---- Elevation: drop shadow (soft, theme-aware) ---- */
   --cad-shadow: rgba(0, 0, 0, 0.5);
+
+  /* ---- Floating chrome: the compact bar's translucent fill, and the pill that
+     keeps a floating button legible over art ---- */
+  --cad-bar-bg: rgba(18, 18, 18, 0.82);
+  --cad-float-bg: rgba(0, 0, 0, 0.42);
 
   /* ---- Map onto Ionic so its components inherit the theme ---- */
   --ion-background-color: var(--cad-bg);
@@ -106,13 +161,20 @@
 
   --cad-text: #121212;
   --cad-text-secondary: #565656;
-  --cad-text-tertiary: #7a7a7a;
+  --cad-text-tertiary: #6b6b6b;
 
   --cad-accent-pressed: #178a3f;
+  --cad-accent-text: #117a37;
 
   --cad-hatch: #ededed;
   --cad-hatch-line: #dcdcdc;
+  --cad-art-sat: 32%;
+  --cad-art-light-1: 82%;
+  --cad-art-light-2: 72%;
+  --cad-art-ink: rgba(0, 0, 0, 0.62);
   --cad-shadow: rgba(0, 0, 0, 0.15);
+  --cad-bar-bg: rgba(255, 255, 255, 0.82);
+  --cad-float-bg: rgba(255, 255, 255, 0.72);
 
   --ion-background-color-rgb: 255, 255, 255;
   --ion-text-color-rgb: 18, 18, 18;
@@ -126,7 +188,7 @@
 
 .cad-h1 {
   font-family: var(--cad-font-sans);
-  font-size: 28px;
+  font-size: var(--cad-text-4xl);
   line-height: 1.14;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -135,7 +197,7 @@
 
 .cad-hero {
   font-family: var(--cad-font-sans);
-  font-size: 24px;
+  font-size: var(--cad-text-3xl);
   line-height: 1.15;
   font-weight: 700;
   color: var(--cad-text);
@@ -143,7 +205,7 @@
 
 .cad-headline {
   font-family: var(--cad-font-sans);
-  font-size: 20px;
+  font-size: var(--cad-text-2xl);
   line-height: 1.2;
   font-weight: 700;
   color: var(--cad-text);
@@ -151,7 +213,7 @@
 
 .cad-headline-sm {
   font-family: var(--cad-font-sans);
-  font-size: 16px;
+  font-size: var(--cad-text-lg);
   line-height: 1.25;
   font-weight: 600;
   color: var(--cad-text);
@@ -159,7 +221,7 @@
 
 .cad-body {
   font-family: var(--cad-font-sans);
-  font-size: 16px;
+  font-size: var(--cad-text-lg);
   line-height: 1.5;
   font-weight: 400;
   color: var(--cad-text);
@@ -167,7 +229,7 @@
 
 .cad-kicker {
   font-family: var(--cad-font-sans);
-  font-size: 12px;
+  font-size: var(--cad-text-xs);
   line-height: 1;
   font-weight: 700;
   text-transform: uppercase;
@@ -177,7 +239,7 @@
 
 .cad-byline {
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   line-height: 1.4;
   font-weight: 500;
   color: var(--cad-text);
@@ -185,7 +247,7 @@
 
 .cad-meta {
   font-family: var(--cad-font-sans);
-  font-size: 13px;
+  font-size: var(--cad-text-sm);
   line-height: 1.4;
   font-weight: 400;
   color: var(--cad-text-secondary);
@@ -217,7 +279,7 @@
   background: var(--cad-surface);
   color: var(--cad-text);
   font-family: var(--cad-font-sans);
-  font-size: 14px;
+  font-size: var(--cad-text-base);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -248,7 +310,7 @@ button:focus-visible,
 [role='button']:focus-visible,
 input:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid var(--cad-accent);
+  outline: 2px solid var(--cad-accent-text);
   outline-offset: 2px;
   border-radius: var(--cad-radius-thumb, 4px);
 }

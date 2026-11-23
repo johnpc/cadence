@@ -1,12 +1,5 @@
-import {
-  IonButtons,
-  IonBackButton,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/react';
+import { IonBackButton } from '@ionic/react';
+import { BarPage } from '../../components/barPage/BarPage';
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { TrackListSkeleton } from '../../components/Skeleton';
@@ -28,52 +21,48 @@ export function PlaylistDetail() {
   const { playlist } = usePlaylist(id);
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/library" />
-          </IonButtons>
-          <IonTitle>Playlist</IonTitle>
-          <IonButtons slot="end">
-            {playlist?.CanDelete === true ? (
-              <>
-                <RenamePlaylistButton playlistId={id} currentName={playlist.Name ?? ''} />
-                <DeletePlaylistButton playlistId={id} />
-              </>
-            ) : (
-              playlist && <ClonePlaylistButton playlistId={id} name={playlist.Name ?? 'Playlist'} />
-            )}
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <LoadState
-          isLoading={isLoading}
-          isError={isError}
-          onRetry={() => void refetch()}
-          isEmpty={tracks.length === 0}
-          emptyTitle="This playlist is empty"
-          emptyMessage="Add songs from search or the player."
-          skeleton={<TrackListSkeleton />}
-        >
-          <div data-testid="playlist-detail">
-            <PlaylistHeader playlist={playlist} tracks={tracks} />
-            <PlaylistVisibilityToggle playlistId={id} owned={playlist?.CanDelete === true} />
-            <PlaylistTracks
-              playlistId={id}
-              playlistName={playlist?.Name}
-              tracks={tracks}
-              editable={playlist?.CanDelete === true}
-            />
-            {/* Persistent "request these" list for a Deezer-imported playlist —
+    <BarPage
+      kind="detail"
+      title={playlist?.Name ?? 'Playlist'}
+      start={<IonBackButton defaultHref="/library" />}
+      end={
+        <>
+          {playlist?.CanDelete === true ? (
+            <>
+              <RenamePlaylistButton playlistId={id} currentName={playlist.Name ?? ''} />
+              <DeletePlaylistButton playlistId={id} />
+            </>
+          ) : (
+            playlist && <ClonePlaylistButton playlistId={id} name={playlist.Name ?? 'Playlist'} />
+          )}
+        </>
+      }
+    >
+      <LoadState
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={() => void refetch()}
+        isEmpty={tracks.length === 0}
+        emptyTitle="This playlist is empty"
+        emptyMessage="Add songs from search or the player."
+        skeleton={<TrackListSkeleton />}
+      >
+        <div data-testid="playlist-detail">
+          <PlaylistHeader playlist={playlist} tracks={tracks} />
+          <PlaylistVisibilityToggle playlistId={id} owned={playlist?.CanDelete === true} />
+          <PlaylistTracks
+            playlistId={id}
+            playlistName={playlist?.Name}
+            tracks={tracks}
+            editable={playlist?.CanDelete === true}
+          />
+          {/* Persistent "request these" list for a Deezer-imported playlist —
                 renders nothing unless this playlist mirrors a Deezer subscription. */}
-            <PlaylistExtras playlistId={id} />
-            {/* Add-recommendations only makes sense for a playlist you own. */}
-            {playlist?.CanDelete === true && <RecommendedSongs playlistId={id} tracks={tracks} />}
-          </div>
-        </LoadState>
-      </IonContent>
-    </IonPage>
+          <PlaylistExtras playlistId={id} />
+          {/* Add-recommendations only makes sense for a playlist you own. */}
+          {playlist?.CanDelete === true && <RecommendedSongs playlistId={id} tracks={tracks} />}
+        </div>
+      </LoadState>
+    </BarPage>
   );
 }

@@ -27,7 +27,7 @@ describe('bookProgressLabel', () => {
   it('shows percent + time left once started', () => {
     expect(
       bookProgressLabel(p({ started: true, fraction: 0.42, remainingSeconds: 3 * 3600 })),
-    ).toBe('42% · 3h 0m left');
+    ).toBe('42% · 3h left');
   });
   it('is null before any listening', () => {
     expect(bookProgressLabel(p({}))).toBeNull();

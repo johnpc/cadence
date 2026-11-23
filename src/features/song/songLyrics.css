@@ -6,7 +6,7 @@
 
 .song-lyrics__line {
   font-family: var(--cad-font-sans);
-  font-size: 16px;
+  font-size: var(--cad-text-lg);
   line-height: 1.6;
   color: var(--cad-text-secondary);
   margin: 0;
@@ -24,5 +24,5 @@
 }
 
 .song-lyrics__line--seek:hover {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }

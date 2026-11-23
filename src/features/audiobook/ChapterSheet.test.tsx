@@ -9,8 +9,21 @@ vi.mock('@ionic/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@ionic/react')>();
   return {
     ...actual,
-    IonModal: ({ isOpen, children }: { isOpen: boolean; children: ReactNode }) =>
-      isOpen ? <div>{children}</div> : null,
+    IonModal: ({
+      isOpen,
+      children,
+      onDidPresent,
+    }: {
+      isOpen: boolean;
+      children: ReactNode;
+      onDidPresent?: () => void;
+    }) =>
+      isOpen ? (
+        <div>
+          <button onClick={onDidPresent}>presented</button>
+          {children}
+        </div>
+      ) : null,
   };
 });
 
@@ -50,6 +63,16 @@ describe('ChapterSheet', () => {
     // position 70 → chapter index 1 ("Chapter One") is active.
     expect(rows[1]).toHaveAttribute('aria-current', 'true');
     expect(rows[0]).not.toHaveAttribute('aria-current');
+  });
+
+  it('scrolls the playing chapter into view once the sheet has presented', async () => {
+    vi.mocked(fetchChapters).mockResolvedValue(chapters);
+    render();
+    const rows = await screen.findAllByTestId('chapter-row');
+    const scroll = vi.fn();
+    rows[1].scrollIntoView = scroll;
+    await userEvent.click(screen.getByText('presented'));
+    expect(scroll).toHaveBeenCalledWith({ block: 'center' });
   });
 
   it('seeks and closes when a chapter is tapped', async () => {

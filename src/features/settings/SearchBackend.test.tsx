@@ -71,24 +71,22 @@ describe('SearchBackend', () => {
     expect(screen.getByTestId('marlin-url')).toHaveValue('https://seeded.example.com');
   });
 
-  it('locks the fields (read-only) with an admin note when the server manages the URL', () => {
+  it('collapses to one "Managed by your server" line when the server sets the URL', () => {
     store.managed = true;
     store.url = 'https://admin-set.example.com';
     render(<SearchBackend />);
-    // URL shown but disabled; token field + Save button hidden; admin note shown.
-    const urlField = screen.getByTestId('marlin-url');
-    expect(urlField).toHaveValue('https://admin-set.example.com');
-    expect(urlField).toBeDisabled();
+    expect(screen.getByTestId('marlin-managed-note')).toHaveTextContent(
+      'Managed by your server (https://admin-set.example.com).',
+    );
+    expect(screen.queryByTestId('marlin-url')).not.toBeInTheDocument();
     expect(screen.queryByTestId('marlin-token')).not.toBeInTheDocument();
     expect(screen.queryByTestId('marlin-save')).not.toBeInTheDocument();
-    expect(screen.getByTestId('marlin-managed-note')).toBeInTheDocument();
   });
 
-  it('shows a friendly label when managed via the proxy (no explicit URL)', () => {
+  it('says just "Managed by your server" via the proxy (no URL to show)', () => {
     store.managed = true;
-    store.url = ''; // proxy path has no URL to show
+    store.url = '';
     render(<SearchBackend />);
-    expect(screen.getByTestId('marlin-url')).toHaveValue('Managed by your server');
-    expect(screen.getByTestId('marlin-url')).toBeDisabled();
+    expect(screen.getByTestId('marlin-managed-note')).toHaveTextContent('Managed by your server.');
   });
 });

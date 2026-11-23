@@ -17,26 +17,26 @@
 
 .settings__signout {
   align-self: flex-start;
-  border: 1px solid var(--cad-hairline);
+  border: 1px solid var(--cad-text-tertiary);
   background: none;
   color: var(--cad-text);
   border-radius: var(--cad-radius-pill);
   padding: var(--cad-space-2) var(--cad-space-6);
   font-family: var(--cad-font-sans);
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   font-weight: 600;
   cursor: pointer;
 }
 
 .settings__clear-cache {
   align-self: flex-start;
-  border: 1px solid var(--cad-hairline);
+  border: 1px solid var(--cad-text-tertiary);
   background: none;
   color: var(--cad-text);
   border-radius: var(--cad-radius-pill);
   padding: var(--cad-space-2) var(--cad-space-6);
   font-family: var(--cad-font-sans);
-  font-size: 15px;
+  font-size: var(--cad-text-md);
   font-weight: 600;
   cursor: pointer;
 }

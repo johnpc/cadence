@@ -24,7 +24,7 @@ export function ArtistPopular({
   return (
     <section data-testid="artist-top">
       <div className="artist__section-head">
-        <h2 className="cad-kicker artist__section">Popular</h2>
+        <h2 className="cad-headline artist__section">Popular</h2>
         {id && (
           <Link
             className="artist__see-all"

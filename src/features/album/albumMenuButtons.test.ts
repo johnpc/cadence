@@ -5,7 +5,8 @@ import type { JellyfinItem } from '../../lib/jellyfinTypes';
 const actions = (): AlbumMenuActions => ({
   startRadio: vi.fn(),
   goToArtist: vi.fn(),
-  copyLink: vi.fn(),
+  addToQueue: vi.fn(),
+  share: vi.fn(),
 });
 
 const labels = (album: JellyfinItem) => albumMenuButtons(album, actions()).map((b) => b.text);
@@ -18,12 +19,12 @@ describe('albumMenuButtons', () => {
       Type: 'MusicAlbum',
       ArtistItems: [{ Id: 'ar', Name: 'A' }],
     });
-    expect(l).toEqual(['Go to album radio', 'Go to artist', 'Copy link', 'Cancel']);
+    expect(l).toEqual(['Add to queue', 'Go to album radio', 'Go to artist', 'Share', 'Cancel']);
   });
 
   it('omits Go to artist when the album has no artist', () => {
     const l = labels({ Id: 'al', Name: 'x', Type: 'MusicAlbum' });
-    expect(l).toEqual(['Go to album radio', 'Copy link', 'Cancel']);
+    expect(l).toEqual(['Add to queue', 'Go to album radio', 'Share', 'Cancel']);
   });
 
   it('wires each handler to its button', () => {

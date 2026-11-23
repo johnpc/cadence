@@ -10,8 +10,8 @@
 
 /* Downloaded: solid accent check/arrow glyph. */
 .dl-badge--done {
-  color: var(--cad-accent);
-  font-size: 18px;
+  color: var(--cad-accent-text);
+  font-size: var(--cad-text-xl);
 }
 
 /* Downloading: a conic-gradient ring that fills with `--frac` (0..1), with the
@@ -35,7 +35,7 @@
 
 .dl-badge__pct {
   position: relative;
-  font-size: 8px;
+  font-size: var(--cad-text-tiny);
   font-variant-numeric: tabular-nums;
   color: var(--cad-text-secondary);
 }
