@@ -30,6 +30,12 @@ Feature: Playback
     And I tap next
     Then the Now-Playing bar shows a track
 
+  Scenario: The full player fits a desktop window
+    Given I am signed in
+    When I tap a track from search
+    And I open the full player
+    Then the full player's play button is fully in view
+
   Scenario: The now-playing track survives a reload
     Given I am signed in
     When I tap a track from search

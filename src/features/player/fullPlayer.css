@@ -122,12 +122,21 @@
 
 .fullplayer__title {
   margin: 0 0 var(--cad-space-1);
+  /* The track name links to its song page but reads as a title, not a hyperlink:
+     the underline only shows on hover / keyboard focus (desktop). */
+  color: inherit;
+  text-decoration: none;
   /* Clamp very long titles (e.g. classical suites) to two lines instead of
      letting them push the controls off-screen. */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+a.fullplayer__title:hover,
+a.fullplayer__title:focus-visible {
+  text-decoration: underline;
 }
 
 .fullplayer__artist {
@@ -306,4 +315,21 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+/* Desktop / tablet: Ionic's default card is a fixed 600 × 600 box, which cut the
+   player off at the play button (music) or before the transport (audiobooks) on
+   a 1280 × 800 window. Size it to the window instead, and let the cover give
+   way first so the controls stay in view; the sheet still scrolls as a last
+   resort. */
+@media (min-width: 768px) and (min-height: 600px) {
+  ion-modal.fullplayer-modal {
+    --width: min(560px, 92vw);
+    --height: min(92vh, 860px);
+  }
+
+  .fullplayer-modal .fullplayer__art .track-art {
+    width: min(280px, 30vh) !important;
+    height: min(280px, 30vh) !important;
+  }
 }

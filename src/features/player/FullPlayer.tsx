@@ -39,7 +39,7 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
   );
   const dismiss = useDismissSwipe(onClose);
   return (
-    <IonModal isOpen={open} onDidDismiss={onClose}>
+    <IonModal className="fullplayer-modal" isOpen={open} onDidDismiss={onClose}>
       <div className="fullplayer" data-testid="full-player">
         <AmbientBackground item={p.current} />
         {/* One header row tucked right under the status bar / Dynamic Island: close

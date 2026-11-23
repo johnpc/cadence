@@ -268,3 +268,10 @@ When('I tap the artist in the full player', async ({ page }) => {
 Then('I see the artist page', async ({ page }) => {
   await expect(page.getByTestId('artist-radio')).toBeAttached({ timeout: DATA_WAIT });
 });
+
+Then("the full player's play button is fully in view", async ({ page }) => {
+  // On a desktop window the player is a card, not a full-screen sheet: the
+  // transport must be visible without scrolling the card (Ionic's default 600 px
+  // card used to cut it off). ratio 1 = no part of the button is clipped.
+  await expect(page.getByTestId('full-player-toggle')).toBeInViewport({ ratio: 1 });
+});
