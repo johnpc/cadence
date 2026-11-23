@@ -191,7 +191,7 @@
 }
 
 .fullplayer__ctl--on {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .fullplayer__ctl--play {

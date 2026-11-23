@@ -7,7 +7,7 @@
   padding: var(--cad-space-1) var(--cad-space-3);
   border-radius: var(--cad-radius-pill, 999px);
   background: color-mix(in srgb, var(--cad-accent) 16%, transparent);
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
   font-size: 13px;
   font-weight: 600;
 }

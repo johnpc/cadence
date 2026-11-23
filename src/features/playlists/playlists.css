@@ -124,7 +124,7 @@
 }
 
 .playlist-rec__add {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .playlist-rec__dismiss {

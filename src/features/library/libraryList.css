@@ -30,7 +30,7 @@
 }
 
 .library-list__tool--on {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 /* The sort dropdown: a compact IonSelect that shows the active order and opens

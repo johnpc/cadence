@@ -94,7 +94,7 @@
 }
 
 .auth__signup a {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
   font-weight: 600;
   text-decoration: none;
 }

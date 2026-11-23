@@ -26,7 +26,7 @@
 .queueview__save {
   border: none;
   background: none;
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
   font-family: var(--cad-font-sans);
   font-size: 14px;
   font-weight: 600;
@@ -125,7 +125,7 @@
 }
 
 .queueview__row--current .queueview__title {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .queueview__artist {

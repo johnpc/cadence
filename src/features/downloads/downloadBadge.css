@@ -10,7 +10,7 @@
 
 /* Downloaded: solid accent check/arrow glyph. */
 .dl-badge--done {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
   font-size: 18px;
 }
 

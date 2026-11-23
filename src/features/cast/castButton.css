@@ -11,7 +11,7 @@
 }
 
 .cast-btn--on {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .casting-banner {
@@ -23,14 +23,14 @@
   padding: var(--cad-space-1) var(--cad-space-3);
   border-radius: var(--cad-radius-pill, 999px);
   background: color-mix(in srgb, var(--cad-accent) 18%, transparent);
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
   font-size: 13px;
   font-weight: 600;
 }
 
 /* Picker open / handshake in progress: dimmed and pulsing, not tappable. */
 .cast-btn--connecting {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
   animation: cast-connecting 1.2s ease-in-out infinite;
   cursor: progress;
 }

@@ -28,7 +28,7 @@
   background: none;
   cursor: pointer;
   padding: var(--cad-space-1) 0;
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
   font-family: var(--cad-font-sans);
   font-weight: 600;
 }

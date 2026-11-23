@@ -26,10 +26,15 @@
   /* ---- Color: text ramp ---- */
   --cad-text: #ffffff;
   --cad-text-secondary: #b3b3b3;
-  --cad-text-tertiary: #7a7a7a;
+  /* #8f8f8f: ≥4.5:1 on the canvas and on raised surfaces (WCAG AA small text);
+     #7a7a7a was 3.4:1 on --cad-surface-2. */
+  --cad-text-tertiary: #8f8f8f;
 
   /* ---- Color: accent (the one brand hue — Spotify-style green) ---- */
   --cad-accent: #1db954;
+  /* The accent used as TEXT or an icon on the canvas (not as a fill). Same as the
+     accent in dark (7.2:1); darker in light, where #1db954 is only 2.6:1. */
+  --cad-accent-text: var(--cad-accent);
   --cad-accent-pressed: #1aa34a;
   --cad-on-accent: #000000;
 
@@ -114,9 +119,10 @@
 
   --cad-text: #121212;
   --cad-text-secondary: #565656;
-  --cad-text-tertiary: #7a7a7a;
+  --cad-text-tertiary: #6b6b6b;
 
   --cad-accent-pressed: #178a3f;
+  --cad-accent-text: #117a37;
 
   --cad-hatch: #ededed;
   --cad-hatch-line: #dcdcdc;
@@ -256,7 +262,7 @@ button:focus-visible,
 [role='button']:focus-visible,
 input:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid var(--cad-accent);
+  outline: 2px solid var(--cad-accent-text);
   outline-offset: 2px;
   border-radius: var(--cad-radius-thumb, 4px);
 }

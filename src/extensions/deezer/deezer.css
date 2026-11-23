@@ -19,7 +19,7 @@
 }
 
 .deezer-form__hint a {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .deezer-missing {

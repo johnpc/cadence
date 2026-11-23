@@ -54,7 +54,7 @@
 
 /* The currently-playing track: accent title + a little equalizer glyph. */
 .track-row--current .track-row__title {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }
 
 .track-row__eq {

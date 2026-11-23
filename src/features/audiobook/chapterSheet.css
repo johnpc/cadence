@@ -67,5 +67,5 @@
 .chapter-row--active .chapter-row__name,
 .chapter-row--active .chapter-row__num,
 .chapter-row--active .chapter-row__time {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
 }

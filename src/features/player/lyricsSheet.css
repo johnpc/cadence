@@ -56,7 +56,7 @@
 }
 
 .lyrics__body--synced .lyrics__line--active {
-  color: var(--cad-accent);
+  color: var(--cad-accent-text);
   opacity: 1;
 }
 
