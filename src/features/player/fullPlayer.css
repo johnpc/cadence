@@ -71,8 +71,8 @@
 /* The cover takes what the screen can spare: full size on tall phones, smaller
    on short ones, so the controls and footer never fall below the fold. */
 .fullplayer__art .track-art {
-  width: min(280px, 34vh, 100%) !important;
-  height: min(280px, 34vh, 100%) !important;
+  width: min(280px, 34vh) !important;
+  height: min(280px, 34vh) !important;
 }
 
 .fullplayer__context {
