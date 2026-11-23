@@ -1,9 +1,19 @@
+/* A horizontal chip scroller (Search filters, Your Library kinds — also the
+   narrow desktop sidebar). The right edge fades so a chip cut by the edge
+   ("Playl", "Art") reads as "there's more →" rather than a clipped label, and
+   the trailing padding lets the last chip scroll fully clear of the fade. The
+   mask is an alpha mask, not a colour. */
 .search-filters {
   display: flex;
   gap: var(--cad-space-2);
   margin-bottom: var(--cad-space-3);
   overflow-x: auto;
   scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--cad-space-4);
+  padding-right: var(--cad-space-6);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - var(--cad-space-6)), transparent);
+  mask-image: linear-gradient(to right, black calc(100% - var(--cad-space-6)), transparent);
 }
 
 .search-filters::-webkit-scrollbar {
@@ -12,6 +22,8 @@
 
 .search-filters__chip {
   flex: 0 0 auto;
+  scroll-snap-align: start;
+  min-height: 32px;
   border: 1px solid var(--cad-hairline);
   background: var(--cad-surface);
   color: var(--cad-text-secondary);

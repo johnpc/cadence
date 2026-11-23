@@ -13,8 +13,11 @@
 }
 
 .library-list__tools .library-list__search {
-  flex: 1;
-  min-width: 0;
+  /* The search takes the room; the sort shrinks first. It used to be squeezed
+     to ~110 px by a full-width sort label ("Filter in Your" was all it showed). */
+  flex: 1 1 auto;
+  min-width: 120px;
+  padding-inline: 0;
 }
 
 .library-list__tool {
@@ -36,9 +39,9 @@
 /* The sort dropdown: a compact IonSelect that shows the active order and opens
  * a popover of all options. Sized to sit inline with the search + view toggle. */
 .library-list__sort {
-  flex-shrink: 0;
+  flex: 0 1 auto;
   min-width: 0;
-  max-width: 44%;
+  max-width: 40%;
   font-size: 13px;
   color: var(--cad-text-secondary);
   --padding-start: var(--cad-space-2);
