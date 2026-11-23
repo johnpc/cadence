@@ -10,7 +10,15 @@
 .album__actions {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--cad-space-2);
+  width: 100%;
+}
+
+.album__secondary {
+  display: flex;
+  align-items: center;
+  gap: var(--cad-space-1);
 }
 
 .album__more {

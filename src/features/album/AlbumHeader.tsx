@@ -3,7 +3,6 @@ import { TrackArt } from '../player/TrackArt';
 import { CollectionActions } from '../player/CollectionActions';
 import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
 import { SaveButton } from '../library/SaveButton';
-import { ShareButton } from '../share/ShareButton';
 import { AlbumMenu } from './AlbumMenu';
 import { GenreChips } from '../../components/GenreChips';
 import { GradientHeader } from '../color/GradientHeader';
@@ -67,13 +66,22 @@ export function AlbumHeader({
         <TrackArt item={album} size={160} />
         <AlbumHeaderText album={album} tracks={tracks} />
         <GenreChips genres={album?.Genres} />
+        {/* Secondary actions on the left, the Shuffle + Play pair on the right —
+            one clear primary instead of seven equal icons (queue + share live
+            in the "…" menu). */}
         <div className="album__actions">
-          <SaveButton item={album} />
-          <DownloadCollectionButton tracks={tracks} />
-          <ShareButton item={album} />
-          {album && <AlbumMenu album={album} />}
+          <div className="album__secondary">
+            <SaveButton item={album} />
+            <DownloadCollectionButton tracks={tracks} />
+            {album && <AlbumMenu album={album} tracks={tracks} />}
+          </div>
           {tracks.length > 0 && (
-            <CollectionActions tracks={tracks} collectionId={album?.Id} context={context} />
+            <CollectionActions
+              tracks={tracks}
+              collectionId={album?.Id}
+              context={context}
+              withQueue={false}
+            />
           )}
         </div>
       </div>

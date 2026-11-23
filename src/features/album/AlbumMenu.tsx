@@ -5,26 +5,35 @@ import { useHistory } from 'react-router-dom';
 import { useSeedRadio } from '../player/useSeedRadio';
 import { albumMenuButtons } from './albumMenuButtons';
 import { useToast } from '../toast/useToast';
-import { copyShareLink } from '../share/shareLink';
+import { shareItem } from '../share/shareLink';
+import { usePlayer } from '../player/usePlayer';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
-/** The album "…" overflow: start an album radio (instant-mix), jump to the
- * artist, or copy a share link — matching the song/artist overflow menus. */
-export function AlbumMenu({ album }: { album: JellyfinItem }) {
+/** The album "…" overflow: add to queue, start an album radio (instant-mix),
+ * jump to the artist, or share — the secondary actions the header no longer
+ * shows as their own icons. */
+export function AlbumMenu({ album, tracks }: { album: JellyfinItem; tracks: JellyfinItem[] }) {
   const [open, setOpen] = useState(false);
   const history = useHistory();
   const seedRadio = useSeedRadio();
   const toast = useToast();
+  const { addToQueue } = usePlayer();
   const buttons = albumMenuButtons(album, {
+    addToQueue: () => {
+      addToQueue(tracks);
+      toast(`Added ${tracks.length} ${tracks.length === 1 ? 'song' : 'songs'} to queue`);
+    },
     startRadio: () => {
       void seedRadio(album.Id);
       toast('Starting radio');
     },
     goToArtist: () => history.push(`/artist/${album.ArtistItems?.[0]?.Id}`),
-    copyLink: () =>
-      void copyShareLink(album, window.location.origin).then((ok) =>
-        toast(ok ? 'Link copied' : 'Could not copy link'),
-      ),
+    share: () =>
+      void shareItem(album, window.location.origin).then((r) => {
+        // 'failed' is usually a dismissed share sheet — stay silent there.
+        if (r === 'shared') toast('Shared');
+        else if (r === 'copied') toast('Link copied');
+      }),
   });
   return (
     <>
