@@ -1,8 +1,24 @@
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** Drop a trailing "(Unabridged)"/"(Abridged)" qualifier. */
+/**
+ * A book's name as people say it: no "(Unabridged)", no bracketed release tags
+ * ("[V2]", "[B0CRRP4WW7]"), no " - A Novel" / ": A Novel" subtitle. One helper so
+ * the player title, the progress bars, the read-along header and the book page
+ * all agree ("The Institute", never "The Institute - A Novel" in one place).
+ */
+export function displayTitle(s: string): string {
+  const cleaned = s
+    .replace(/\s*\[[^\]]*\]/g, '')
+    .replace(/\s*\((un)?abridged\)/gi, '')
+    .replace(/\s*[-:–—]\s*a novel\s*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return cleaned || s.trim();
+}
+
 function stripQualifier(s: string): string {
-  return s.replace(/\s*\((un)?abridged\)\s*$/i, '').trim();
+  return displayTitle(s);
 }
 
 /** Strip a LEADING track-number prefix ("01 ", "1 - ", "01. ") — but only when

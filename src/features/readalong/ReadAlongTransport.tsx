@@ -4,7 +4,8 @@ import type { AudiobookChapter } from '../audiobook/audiobookTypes';
 import { adjacentChapter } from './adjacentChapter';
 import { BookProgressBars } from '../audiobook/BookProgressBars';
 import type { BookPosition } from '../audiobook/bookPosition';
-import { SpeedControl } from './SpeedControl';
+import { SpeedControl } from '../audiobook/SpeedControl';
+import type { PositionPhase } from '../player/engine/types';
 
 /** Skip amount in seconds — the audiobook convention, same as the player. */
 const SKIP = 30;
@@ -23,24 +24,28 @@ export function ReadAlongTransport({
   duration,
   chapters,
   progress,
+  phase,
   rate,
   onToggle,
   onSeek,
   onSeekBook,
   onRate,
   onAct,
+  onOpenChapters,
 }: {
   isPlaying: boolean;
   position: number;
   duration: number;
   chapters: AudiobookChapter[];
   progress: BookPosition | null;
+  phase: PositionPhase;
   rate: number;
   onToggle: () => void;
   onSeek: (seconds: number) => void;
   onSeekBook: (globalSeconds: number) => void;
   onRate: (rate: number) => void;
   onAct: () => void;
+  onOpenChapters: () => void;
 }) {
   const act = (fn: () => void) => () => {
     fn();
@@ -50,6 +55,11 @@ export function ReadAlongTransport({
     if (target !== null) onSeek(target);
   };
   const hasChapters = chapters.length > 0;
+  // The pill ends the book bar's "time left" line, so the buttons above stay
+  // truly centred on play/pause.
+  const speed = (
+    <SpeedControl rate={rate} onRate={onRate} onAct={onAct} testPrefix="readalong-" align="end" />
+  );
   return (
     <div className="readalong__transport" data-testid="readalong-transport">
       <div className="readalong__transport-row">
@@ -99,16 +109,21 @@ export function ReadAlongTransport({
             <IonIcon icon={playSkipForward} />
           </button>
         )}
-        <SpeedControl rate={rate} onRate={onRate} onAct={onAct} />
       </div>
-      {progress && (
+      {progress ? (
         <BookProgressBars
           model={progress}
           rate={rate}
+          phase={phase}
           testPrefix="readalong-"
+          bookRemaining="below"
+          bookTrailing={speed}
           onSeekBook={onSeekBook}
+          onChapterLabel={hasChapters ? onOpenChapters : undefined}
           onAct={onAct}
         />
+      ) : (
+        <div className="readalong__speed-row">{speed}</div>
       )}
     </div>
   );

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { artistLine } from './playerFormat';
 import { LikeButton } from '../library/LikeButton';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { isAudiobook } from '../audiobook/isAudiobook';
+import { displayTitle } from '../audiobook/bookTitle';
 
 /** The full player's title block: the track name links to its own song page,
  * the artist(s) beneath link to their artist pages, and a like toggle sits
@@ -25,7 +27,7 @@ export function FullPlayerTitle({
             onClick={onNavigate}
             data-testid="full-player-song-link"
           >
-            {track.Name}
+            {isAudiobook(track) ? displayTitle(track.Name) : track.Name}
           </Link>
         ) : (
           <p className="fullplayer__title cad-headline" />

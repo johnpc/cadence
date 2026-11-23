@@ -206,6 +206,25 @@
   border: 0;
 }
 
+/* A compact outlined pill — the audiobook speed control and the read-along
+   "Jump to now" chip share it so small floating controls look like one family. */
+.cad-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-1);
+  border: 1px solid var(--cad-surface-2);
+  border-radius: var(--cad-radius-pill);
+  background: var(--cad-surface);
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  padding: var(--cad-space-2) var(--cad-space-3);
+  cursor: pointer;
+}
+
 /* Safe-area hardening: the first toolbar in a header must clear the notch /
    Dynamic Island. max() so it can't double-pad where Ionic already insets. */
 ion-header ion-toolbar:first-of-type {

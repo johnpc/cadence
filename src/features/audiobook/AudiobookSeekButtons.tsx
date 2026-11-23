@@ -3,6 +3,7 @@ import { playBack, playForward } from 'ionicons/icons';
 import { usePlayer } from '../player/usePlayer';
 import { usePlayerProgress } from '../player/PlayerProgressContext';
 import { isAudiobook } from './isAudiobook';
+import { SpeedControl } from './SpeedControl';
 import './audiobookSeek.css';
 
 /** Skip amount in seconds — the audiobook convention (small nudge to re-hear or
@@ -10,10 +11,12 @@ import './audiobookSeek.css';
 const SKIP = 30;
 
 /** ±30s skip buttons shown under the scrubber for audiobooks — the primary
- * audiobook seek gesture (re-hear a sentence / skip ahead). Renders nothing for
- * music, where track prev/next is the right control. */
+ * audiobook seek gesture (re-hear a sentence / skip ahead) — with the speed pill
+ * between them: the same control as the read-along sheet, so speed looks and
+ * works one way everywhere (it replaced a full-width slider row). Renders nothing
+ * for music, where track prev/next is the right control. */
 export function AudiobookSeekButtons() {
-  const { current, seek } = usePlayer();
+  const { current, seek, rate, setRate } = usePlayer();
   const { position, duration } = usePlayerProgress();
   if (!isAudiobook(current)) return null;
 
@@ -26,6 +29,7 @@ export function AudiobookSeekButtons() {
         <IonIcon icon={playBack} />
         <span className="ab-seek__label">30</span>
       </button>
+      <SpeedControl rate={rate} onRate={setRate} testPrefix="full-player-" />
       <button className="ab-seek__btn" onClick={forward} aria-label="Forward 30 seconds">
         <span className="ab-seek__label">30</span>
         <IonIcon icon={playForward} />

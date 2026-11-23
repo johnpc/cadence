@@ -1,5 +1,6 @@
 .ab-seek {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: var(--cad-space-6);
   margin-top: var(--cad-space-2);

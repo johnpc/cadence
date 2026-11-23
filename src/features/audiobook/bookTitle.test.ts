@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bookTitle } from './bookTitle';
+import { bookTitle, displayTitle } from './bookTitle';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const item = (Name: string, Album?: string): JellyfinItem =>
@@ -38,5 +38,19 @@ describe('bookTitle', () => {
 
   it('falls back to the raw Name when everything cleans to empty', () => {
     expect(bookTitle(item('01'), 1)).toBe('01');
+  });
+});
+
+describe('displayTitle', () => {
+  it.each([
+    ['The Institute - A Novel', 'The Institute'],
+    ['Baby Teeth: A Novel', 'Baby Teeth'],
+    ['A Gentleman in Moscow (Unabridged)', 'A Gentleman in Moscow'],
+    ['George Orwell’s 1984 [B0CRRP4WW7]', 'George Orwell’s 1984'],
+    ['Abundance (2025) [V2]', 'Abundance (2025)'],
+    ['A Novel', 'A Novel'],
+    ['Circe', 'Circe'],
+  ])('%s → %s', (raw, shown) => {
+    expect(displayTitle(raw)).toBe(shown);
   });
 });

@@ -19,7 +19,7 @@ Feature: Audiobooks library
     Then I see the book's title and a details block
     And I see the book's chapter or part list
 
-  Scenario: An audiobook offers a playback-speed slider in the player
+  Scenario: An audiobook offers a playback-speed control in the player
     Given I am signed in
     When I open the Audiobooks tab
     Then I see the audiobook library with books
@@ -48,4 +48,4 @@ Feature: Audiobooks library
     And I play the book from its detail page
     And I open the full player
     Then I see the current part's progress labelled with its part number
-    And I see the whole book's progress labelled with the book's title, longer than the part
+    And I see the whole book's progress labelled as the book, longer than the part

@@ -19,6 +19,9 @@ export function armResume(
   isActive: () => boolean,
   resumeAt: EngineDeps['resumeAt'],
   log: LogFn,
+  /** Called once the playhead is final for this load: a pending seek applied,
+   * the saved position applied, or no resume at all. Drives the progress phase. */
+  settled: () => void = () => undefined,
 ): () => void {
   let done = false;
   const seekTo = (target: number, kind: 'chapter-seek' | 'resumed') => {
@@ -30,12 +33,19 @@ export function armResume(
     if (done || !isActive()) return;
     done = true;
     const pending = takePendingSeek(track.Id);
-    if (pending !== null) return seekTo(pending, 'chapter-seek');
+    if (pending !== null) {
+      seekTo(pending, 'chapter-seek');
+      return settled();
+    }
     void resumeAt(track, audio.duration || 0).then(
       (target) => {
-        if (target !== null && isActive()) seekTo(target, 'resumed');
+        if (!isActive()) return;
+        if (target !== null) seekTo(target, 'resumed');
+        settled();
       },
-      () => undefined,
+      () => {
+        if (isActive()) settled();
+      },
     );
   };
   if (audio.readyState >= 1) tryResume();

@@ -5,6 +5,7 @@ import { unavailableCopy, type ReadAlongUnavailableReason } from './readAlongSta
 import { useReadAlongSheet } from './useReadAlongSheet';
 import { ReadAlongText } from './ReadAlongText';
 import { ReadAlongTransport } from './ReadAlongTransport';
+import { ChapterSheet } from '../audiobook/ChapterSheet';
 import './readAlongSheet.css';
 
 /**
@@ -25,9 +26,9 @@ export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () =
           </button>
           <div className="readalong__titles">
             <h2 className="cad-headline">{s.title}</h2>
-            {s.chapterTitle && (
-              <p className="cad-meta" data-testid="readalong-chapter">
-                {s.chapterTitle}
+            {s.subtitle && (
+              <p className="cad-meta" data-testid="readalong-subtitle">
+                {s.subtitle}
               </p>
             )}
           </div>
@@ -53,7 +54,7 @@ export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () =
             />
             {s.follow === 'detached' && (
               <button
-                className="readalong__follow"
+                className="cad-pill readalong__follow"
                 onClick={() => s.setFollow('following')}
                 data-testid="readalong-follow"
               >
@@ -63,6 +64,7 @@ export function ReadAlongSheet({ open, onClose }: { open: boolean; onClose: () =
             <ReadAlongTransport {...s.transport} />
           </LoadState>
         )}
+        <ChapterSheet open={s.chapterList === 'open'} onClose={s.closeChapters} />
       </div>
     </IonModal>
   );

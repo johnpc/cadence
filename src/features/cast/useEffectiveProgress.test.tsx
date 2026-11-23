@@ -17,7 +17,9 @@ describe('useEffectiveProgress', () => {
 
   it('uses the local element position when not casting', () => {
     const { result } = renderHook(() => useEffectiveProgress(12, 180));
-    expect(result.current).toEqual({ position: 12, duration: 180 });
+    expect(result.current).toEqual({ position: 12, duration: 180, phase: 'known' });
+    const pending = renderHook(() => useEffectiveProgress(0, 180, 'pending'));
+    expect(pending.result.current.phase).toBe('pending');
   });
 
   it('uses the receiver position while casting', () => {
@@ -25,6 +27,6 @@ describe('useEffectiveProgress', () => {
     castProg.position = 55;
     castProg.duration = 200;
     const { result } = renderHook(() => useEffectiveProgress(12, 180));
-    expect(result.current).toEqual({ position: 55, duration: 200 });
+    expect(result.current).toEqual({ position: 55, duration: 200, phase: 'known' });
   });
 });

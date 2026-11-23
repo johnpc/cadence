@@ -45,7 +45,7 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
     started: false,
     sleep: null,
   });
-  const progress = createStore<PlayerProgress>({ position: 0, duration: 0 });
+  const progress = createStore<PlayerProgress>({ position: 0, duration: 0, phase: 'pending' });
   const get = state.get;
   const patch = createPatch(state);
   const current = () => q.currentTrack(get().queue);
@@ -60,6 +60,7 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
       audio.playbackRate = rate;
     },
     () => get().intent,
+    () => progress.set({ ...progress.get(), phase: 'known' }),
   );
   /** The queue restored at launch loads paused (like Spotify; autoplay is
    * blocked anyway). Consumed by the first real load. */
@@ -92,7 +93,7 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
     audio.pause();
     audio.removeAttribute('src');
     audio.load();
-    progress.set({ position: 0, duration: 0 });
+    progress.set({ position: 0, duration: 0, phase: 'pending' });
     transition('idle', { intent: false });
   };
 
@@ -111,7 +112,7 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
       // The session subscription re-runs sync the moment it lands.)
       const autoplay = !restoring;
       restoring = false;
-      progress.set({ position: 0, duration: 0 });
+      progress.set({ position: 0, duration: 0, phase: 'pending' });
       // Starting a track IS the user asking for sound (until they pause).
       if (autoplay) patch({ intent: true });
       loader.load(track, autoplay);
@@ -251,11 +252,11 @@ export function createPlayerEngine(deps: EngineDeps): PlayerEngine {
             onElement('play', { intent: true, started: true });
           },
           position: (position) => {
-            progress.set({ position, duration: progress.get().duration });
+            progress.set({ ...progress.get(), position });
             stall.progressed(position);
           },
-          seek: (position) => progress.set({ position, duration: progress.get().duration }),
-          duration: (duration) => progress.set({ position: progress.get().position, duration }),
+          seek: (position) => progress.set({ ...progress.get(), position }),
+          duration: (duration) => progress.set({ ...progress.get(), duration }),
           ended: onEnded,
           error: recover,
         },

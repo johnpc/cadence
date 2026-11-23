@@ -10,10 +10,10 @@ const Scrubbers = lazy(() =>
  * gzipped budget (.size-limit.json). The fallback reserves the bars' height so
  * the player doesn't jump when they arrive.
  */
-export function LazyAudiobookScrubbers() {
+export function LazyAudiobookScrubbers({ onOpenChapters }: { onOpenChapters?: () => void }) {
   return (
     <Suspense fallback={<div className="fullplayer__scrubber-placeholder" aria-hidden="true" />}>
-      <Scrubbers />
+      <Scrubbers onOpenChapters={onOpenChapters} />
     </Suspense>
   );
 }

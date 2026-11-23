@@ -88,10 +88,10 @@ describe('loading', () => {
     engine.playQueue(ab(), 0);
     audio.loadMetadata(200);
     audio.tick(12);
-    expect(engine.progress.get()).toEqual({ position: 12, duration: 200 });
+    expect(engine.progress.get()).toMatchObject({ position: 12, duration: 200 });
     expect(engine.position()).toBe(12);
     engine.next();
-    expect(engine.progress.get()).toEqual({ position: 0, duration: 0 });
+    expect(engine.progress.get()).toEqual({ position: 0, duration: 0, phase: 'pending' });
   });
 
   it('a seek moves the progress at once, before any timeupdate (a resume while buffering)', () => {
@@ -100,7 +100,7 @@ describe('loading', () => {
     audio.loadMetadata(37086);
     audio.currentTime = 4637;
     audio.fire('seeking');
-    expect(engine.progress.get()).toEqual({ position: 4637, duration: 37086 });
+    expect(engine.progress.get()).toMatchObject({ position: 4637, duration: 37086 });
   });
 
   it('logs a rejected autoplay play() instead of throwing', async () => {
@@ -720,6 +720,49 @@ describe('audiobook resume', () => {
     await flush();
     expect(audio.currentTime).toBe(300);
     expect(deps.resumeAt).toHaveBeenCalledWith(book, 3600);
+  });
+
+  it('progress stays pending until the resume decision settles, then is known', async () => {
+    const { engine, audio, deps } = startedEngine();
+    let resolve: (v: number | null) => void = () => undefined;
+    deps.resumeAt.mockReturnValue(new Promise<number | null>((r) => (resolve = r)));
+    engine.playQueue([book], 0);
+    expect(engine.progress.get().phase).toBe('pending');
+    audio.loadMetadata(3600);
+    await flush();
+    expect(engine.progress.get().phase).toBe('pending'); // server read still out: no 0:00 flash
+    resolve(300);
+    await flush();
+    expect(engine.progress.get()).toMatchObject({ phase: 'known' });
+    expect(audio.currentTime).toBe(300);
+  });
+
+  it('a track with no saved position is known as soon as the decision comes back', async () => {
+    const { engine, audio, deps } = startedEngine();
+    deps.resumeAt.mockResolvedValue(null);
+    engine.playQueue([track('m')], 0);
+    audio.loadMetadata(200);
+    await flush();
+    expect(engine.progress.get().phase).toBe('known');
+  });
+
+  it('a failed resume read still settles (the bars never wait forever)', async () => {
+    const { engine, audio, deps } = startedEngine();
+    deps.resumeAt.mockRejectedValue(new Error('offline'));
+    engine.playQueue([book], 0);
+    audio.loadMetadata(3600);
+    await flush();
+    expect(engine.progress.get().phase).toBe('known');
+  });
+
+  it('a pending chapter seek settles immediately; the next track starts pending again', () => {
+    const { engine, audio } = startedEngine();
+    setPendingSeek('a', 1234);
+    engine.playQueue([book, track('b', { Type: 'AudioBook' })], 0);
+    audio.loadMetadata(3600);
+    expect(engine.progress.get().phase).toBe('known');
+    engine.next();
+    expect(engine.progress.get().phase).toBe('pending');
   });
 
   it('never yanks a listener who already scrubbed', async () => {

@@ -24,6 +24,8 @@ export function createTrackLoader(
   afterSrc: () => void,
   /** Does the user still want sound? Gates the canplay play() retry. */
   wantsSound: () => boolean,
+  /** The new load's playhead is final (resume applied or none) — see armResume. */
+  settled: () => void = () => undefined,
 ): TrackLoader {
   const { audio } = deps;
   let loaded: JellyfinItem | null = null;
@@ -41,7 +43,7 @@ export function createTrackLoader(
       startPlayback(audio, src, track.Id, isActive, { current: !autoplay }, deps.log, wantsSound),
     );
     afterSrc();
-    release.push(armResume(audio, track, isActive, deps.resumeAt, deps.log));
+    release.push(armResume(audio, track, isActive, deps.resumeAt, deps.log, settled));
   };
 
   return {

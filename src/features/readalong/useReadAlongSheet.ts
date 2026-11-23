@@ -5,8 +5,6 @@ import { setPendingSeek } from '../player/pendingSeek';
 import { isAudiobook } from '../audiobook/isAudiobook';
 import { useChapters } from '../audiobook/useChapters';
 import { useBookProgress } from '../audiobook/useBookProgress';
-import { chapterIndexAt } from '../audiobook/chapterAt';
-import { remaining } from '../audiobook/chapterProgress';
 import { tap } from '../../lib/haptics';
 import { storytellerEnabled } from '../../lib/runtimeConfig';
 import { useChapterText, useReadAlongBook } from './useReadAlong';
@@ -17,7 +15,9 @@ import { sanitizeChapter } from './sanitizeChapter';
 import { chapterResourceUrl } from './storytellerApi';
 import { sheetPresentation } from './sheetPresentation';
 import type { PlayerContextValue } from '../player/types';
-import { chapterLabel } from '../audiobook/bookPosition';
+
+/** The chapter list over the sheet: one value, opened from the chapter bar's label. */
+export type ChapterList = 'closed' | 'open';
 
 /** Follow mode: every open starts by following the narration. */
 function useFollowMode(open: boolean) {
@@ -42,7 +42,8 @@ function applySeekPlan(plan: SeekPlan, p: PlayerContextValue): void {
  * the follow mode, and the tap-to-seek command. */
 export function useReadAlongSheet(open: boolean) {
   const p = usePlayer();
-  const { position, duration } = usePlayerProgress();
+  const { position, duration, phase } = usePlayerProgress();
+  const [chapterList, setChapters] = useState<ChapterList>('closed');
   const current = p.current;
   const { chapters } = useChapters(current);
   const bookProgress = useBookProgress();
@@ -90,16 +91,15 @@ export function useReadAlongSheet(open: boolean) {
     duration,
     chapters,
     progress: bookProgress.model,
+    phase,
     rate: p.rate,
     onToggle: p.toggle,
     onSeek: p.seek,
     onSeekBook: bookProgress.seekBook,
     onRate: p.setRate,
     onAct: () => setFollow('following'),
+    onOpenChapters: () => setChapters('open'),
   };
-  const chapterIdx = chapterIndexAt(chapters, position);
-  const playheadChapter = chapterIdx >= 0 ? chapterLabel(chapters[chapterIdx].name) : null;
-
   const retry = () => void (state.kind === 'error' ? bookQ.refetch() : textQ.refetch());
   return {
     state,
@@ -109,6 +109,8 @@ export function useReadAlongSheet(open: boolean) {
     onTapFragment,
     retry,
     transport,
+    chapterList,
+    closeChapters: () => setChapters('closed'),
     ...sheetPresentation({
       state,
       current,
@@ -117,10 +119,6 @@ export function useReadAlongSheet(open: boolean) {
       textLoading: textQ.isLoading,
       textError: textQ.isError,
       upcoming: view.upcoming,
-      playheadChapter,
-      chapterRemaining: playheadChapter
-        ? remaining(chapters, position, duration, p.rate).chapter
-        : null,
     }),
   };
 }

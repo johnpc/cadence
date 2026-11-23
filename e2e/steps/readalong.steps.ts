@@ -138,7 +138,8 @@ Then('the chapter text is shown with the narrated sentence highlighted', async (
     timeout: DATA_WAIT,
   });
   await expect.poll(() => activeId(page), { timeout: DATA_WAIT }).toMatch(/^s\d+$/);
-  await expect(page.getByTestId('readalong-chapter')).toHaveText('Chapter One');
+  // The header names the book and its author; the chapter lives on the chapter bar.
+  await expect(page.getByTestId('readalong-subtitle')).toHaveText('Mara Quill');
 });
 
 Then('the highlighted sentence advances with the audio', async ({ page, $testInfo }) => {

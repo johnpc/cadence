@@ -136,8 +136,28 @@ describe('FullPlayer', () => {
       RunTimeTicks: 2_000_000_000,
     };
     renderPlayer(ctx({ current: book }));
-    expect(await screen.findByTestId('book-progress-label')).toHaveTextContent('Harbor Winds');
+    expect(await screen.findByTestId('book-progress-label')).toHaveTextContent(/^Book$/);
+    expect(screen.getByTestId('full-player-song-link')).toHaveTextContent('Harbor Winds');
     expect(screen.queryByRole('slider', { name: 'Seek' })).toBeNull();
+  });
+
+  it("an audiobook gets the speed pill (no slider) and its title without ' - A Novel'", async () => {
+    const book: JellyfinItem = {
+      Id: 'b2',
+      Name: 'The Institute - A Novel',
+      Album: 'The Institute - A Novel',
+      Type: 'AudioBook',
+      RunTimeTicks: 2_000_000_000,
+    };
+    const player = ctx({ current: book });
+    renderPlayer(player);
+    expect(screen.getByTestId('full-player-song-link')).toHaveTextContent(/^The Institute$/);
+    expect(screen.queryByTestId('speed-slider')).toBeNull();
+    await userEvent.click(screen.getByTestId('full-player-speed'));
+    await userEvent.click(
+      screen.getAllByTestId('full-player-speed-option').find((o) => o.textContent === '1.5×')!,
+    );
+    expect(player.setRate).toHaveBeenCalledWith(1.5);
   });
 
   it('opens the lyrics sheet', async () => {

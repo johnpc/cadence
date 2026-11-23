@@ -1,0 +1,49 @@
+/* The speed pill and its preset strip, shared by the full player and the
+   read-along sheet. The strip floats above the pill so it never pushes layout. */
+.speed-control {
+  position: relative;
+  display: inline-flex;
+}
+
+.speed-control__strip {
+  position: absolute;
+  bottom: calc(100% + var(--cad-space-2));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--cad-space-2);
+  width: max-content;
+  max-width: min(320px, calc(100vw - var(--cad-space-8)));
+  padding: var(--cad-space-2);
+  border-radius: var(--cad-radius-card);
+  background: var(--cad-surface);
+  box-shadow: 0 var(--cad-space-1) var(--cad-space-4) var(--cad-shadow);
+  z-index: 3;
+}
+
+.speed-control--center .speed-control__strip {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.speed-control--end .speed-control__strip {
+  right: 0;
+}
+
+.speed-control__opt {
+  border: none;
+  border-radius: var(--cad-radius-pill);
+  background: var(--cad-surface-2);
+  color: var(--cad-text);
+  font-family: var(--cad-font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  padding: var(--cad-space-2) var(--cad-space-3);
+  cursor: pointer;
+}
+
+.speed-control__opt--on {
+  background: var(--cad-accent);
+  color: var(--cad-on-accent);
+}

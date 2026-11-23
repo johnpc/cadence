@@ -32,6 +32,34 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The chapter name doubles as the way into the chapter list. */
+.progress-row__label--action {
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline dotted color-mix(in srgb, currentColor 45%, transparent);
+  text-underline-offset: 0.25em;
+}
+
+/* "9h 15m left" on its own line (narrow sheets), with an optional trailing
+   control (the speed pill) at its right end. */
+.progress-row__below {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cad-space-3);
+  min-height: var(--cad-space-6);
+}
+
+/* While the playhead isn't known yet the bar is an empty track, not a 0:00 thumb. */
+.progress-row[data-phase='pending'] input {
+  opacity: 0.35;
+}
+
 .book-progress {
   display: flex;
   flex-direction: column;

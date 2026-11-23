@@ -30,7 +30,7 @@ const p2 = part('p2', 2, 300);
 function render(player: PlayerContextValue, position = 0, duration = 0) {
   const wrapper = ({ children }: { children: ReactNode }) => (
     <PlayerContext.Provider value={player}>
-      <PlayerProgressContext.Provider value={{ position, duration }}>
+      <PlayerProgressContext.Provider value={{ position, duration, phase: 'known' }}>
         {children}
       </PlayerProgressContext.Provider>
     </PlayerContext.Provider>
