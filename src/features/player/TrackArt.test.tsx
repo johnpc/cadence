@@ -20,6 +20,14 @@ describe('TrackArt', () => {
     expect(container.querySelector('ion-icon')).toBeInTheDocument();
   });
 
+  it("round art without an image shows the name's initials on a generated fill", () => {
+    const item: JellyfinItem = { Id: 'a', Name: 'Lovers Hifi', Type: 'MusicArtist' };
+    const { container } = render(<TrackArt item={item} size={120} round />);
+    expect(container.querySelector('.track-art__initials')?.textContent).toBe('LH');
+    const fill = container.querySelector('.track-art__fallback') as HTMLElement;
+    expect(fill.style.fontSize).toBe('43px');
+  });
+
   it('applies the round modifier when asked', () => {
     const { container } = render(<TrackArt item={null} round />);
     expect(container.querySelector('.track-art--round')).toBeInTheDocument();

@@ -44,6 +44,12 @@
   /* ---- Color: art-placeholder (no cover art fallback) ---- */
   --cad-hatch: #282828;
   --cad-hatch-line: #3a3a3a;
+  /* The generated no-art gradient (TrackArt): hue comes from the item's name;
+     these set how muted it is per theme, and the ink for initials/icons. */
+  --cad-art-sat: 28%;
+  --cad-art-light-1: 30%;
+  --cad-art-light-2: 20%;
+  --cad-art-ink: rgba(255, 255, 255, 0.82);
 
   /* ---- Color: status ---- */
   --cad-success: #1db954;
@@ -126,6 +132,10 @@
 
   --cad-hatch: #ededed;
   --cad-hatch-line: #dcdcdc;
+  --cad-art-sat: 32%;
+  --cad-art-light-1: 82%;
+  --cad-art-light-2: 72%;
+  --cad-art-ink: rgba(0, 0, 0, 0.62);
   --cad-shadow: rgba(0, 0, 0, 0.15);
 
   --ion-background-color-rgb: 255, 255, 255;
