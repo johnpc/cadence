@@ -1,5 +1,11 @@
+/* Full bleed: the colour runs edge to edge and up under the status bar and
+   Dynamic Island (detail pages are BarPages, whose content starts at the very
+   top). The art starts below the floating bar's row. */
 .gradient-header {
-  margin: calc(-1 * var(--cad-space-4)) calc(-1 * var(--cad-space-4)) 0;
-  padding: var(--cad-space-5) var(--cad-space-4) var(--cad-space-3);
+  margin: 0 calc(-1 * var(--bar-page-gutter-end, var(--cad-space-4))) 0
+    calc(-1 * var(--bar-page-gutter-start, var(--cad-space-4)));
+  padding: calc(var(--cad-safe-top) + var(--cad-bar-height) + var(--cad-space-2))
+    var(--bar-page-gutter-end, var(--cad-space-4)) var(--cad-space-3)
+    var(--bar-page-gutter-start, var(--cad-space-4));
   transition: background 0.4s ease;
 }

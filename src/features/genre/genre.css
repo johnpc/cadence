@@ -23,9 +23,12 @@
 }
 
 .genre-hero {
-  border-radius: var(--cad-radius);
-  padding: var(--cad-space-6) var(--cad-space-4);
-  margin-bottom: var(--cad-space-4);
+  /* Full bleed, up under the status bar and Dynamic Island (see BarPage). */
+  margin: 0 calc(-1 * var(--bar-page-gutter-end, var(--cad-space-4))) var(--cad-space-4)
+    calc(-1 * var(--bar-page-gutter-start, var(--cad-space-4)));
+  padding: calc(var(--cad-safe-top) + var(--cad-bar-height) + var(--cad-space-6))
+    var(--bar-page-gutter-end, var(--cad-space-4)) var(--cad-space-6)
+    var(--bar-page-gutter-start, var(--cad-space-4));
 }
 
 .genre-hero__title {

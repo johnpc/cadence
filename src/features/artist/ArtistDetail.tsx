@@ -1,12 +1,5 @@
-import {
-  IonButtons,
-  IonBackButton,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/react';
+import { IonBackButton } from '@ionic/react';
+import { BarPage } from '../../components/barPage/BarPage';
 import { useParams } from 'react-router-dom';
 import { ArtistHeader } from './ArtistHeader';
 import { ArtistAlbums } from './ArtistAlbums';
@@ -25,36 +18,30 @@ export function ArtistDetail() {
   const playItem = usePlayItem();
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/search" />
-          </IonButtons>
-          <IonTitle>{artist?.Name ?? 'Artist'}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <ArtistHeader
-          artist={artist}
-          topTracks={topTracks}
-          onRadio={() => artist && void playItem(artist)}
-        />
-        <ArtistPopular tracks={topTracks} artistId={id} artistName={artist?.Name} />
-        <ArtistAlbums
-          albums={albums}
-          isLoading={isLoading}
-          isError={isError}
-          onRetry={() => void refetch()}
-        />
-        <RelatedArtists artistId={id} />
-        {artist?.Overview && (
-          <section data-testid="artist-about">
-            <h2 className="cad-headline artist__section">About</h2>
-            <p className="artist__about cad-meta">{artist.Overview}</p>
-          </section>
-        )}
-      </IonContent>
-    </IonPage>
+    <BarPage
+      kind="detail"
+      title={artist?.Name ?? 'Artist'}
+      start={<IonBackButton defaultHref="/search" />}
+    >
+      <ArtistHeader
+        artist={artist}
+        topTracks={topTracks}
+        onRadio={() => artist && void playItem(artist)}
+      />
+      <ArtistPopular tracks={topTracks} artistId={id} artistName={artist?.Name} />
+      <ArtistAlbums
+        albums={albums}
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={() => void refetch()}
+      />
+      <RelatedArtists artistId={id} />
+      {artist?.Overview && (
+        <section data-testid="artist-about">
+          <h2 className="cad-headline artist__section">About</h2>
+          <p className="artist__about cad-meta">{artist.Overview}</p>
+        </section>
+      )}
+    </BarPage>
   );
 }

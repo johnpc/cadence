@@ -1,12 +1,5 @@
-import {
-  IonButtons,
-  IonBackButton,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/react';
+import { IonBackButton } from '@ionic/react';
+import { BarPage } from '../../components/barPage/BarPage';
 import { useParams } from 'react-router-dom';
 import { LoadState } from '../../components/LoadState';
 import { usePlayer } from '../player/usePlayer';
@@ -30,39 +23,33 @@ export function SongDetail() {
   const songRadio = useSongRadio();
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/home" />
-          </IonButtons>
-          <IonTitle>{song?.Name ?? 'Song'}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <LoadState
-          isLoading={isLoading}
-          isError={isError}
-          onRetry={() => void refetch()}
-          isEmpty={!song}
-          emptyTitle="Song not found"
-          emptyMessage="This track may have been removed from your server."
-          skeleton={<SongDetailSkeleton />}
-        >
-          {song && (
-            <div data-testid="song-detail">
-              <SongHeader
-                song={song}
-                onPlay={() => playQueue([song], 0)}
-                onRadio={() => songRadio(song)}
-              />
-              <SongAbout album={album} artist={artist} />
-              <SongLyrics song={song} />
-              <SongPlaylists songId={id} />
-            </div>
-          )}
-        </LoadState>
-      </IonContent>
-    </IonPage>
+    <BarPage
+      kind="detail"
+      title={song?.Name ?? 'Song'}
+      start={<IonBackButton defaultHref="/home" />}
+    >
+      <LoadState
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={() => void refetch()}
+        isEmpty={!song}
+        emptyTitle="Song not found"
+        emptyMessage="This track may have been removed from your server."
+        skeleton={<SongDetailSkeleton />}
+      >
+        {song && (
+          <div data-testid="song-detail">
+            <SongHeader
+              song={song}
+              onPlay={() => playQueue([song], 0)}
+              onRadio={() => songRadio(song)}
+            />
+            <SongAbout album={album} artist={artist} />
+            <SongLyrics song={song} />
+            <SongPlaylists songId={id} />
+          </div>
+        )}
+      </LoadState>
+    </BarPage>
   );
 }

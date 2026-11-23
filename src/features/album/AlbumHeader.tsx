@@ -9,6 +9,7 @@ import { GradientHeader } from '../color/GradientHeader';
 import { artistLine, collectionSummary } from '../player/playerFormat';
 import { albumMeta } from './albumMeta';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { pageTitleProps } from '../../components/barPage/usePageBar';
 
 /** Title, artist (linked when we know its id), release meta and song count. */
 function AlbumHeaderText({
@@ -23,7 +24,9 @@ function AlbumHeaderText({
   const meta = albumMeta(album);
   return (
     <>
-      <h1 className="album__title cad-headline">{album?.Name}</h1>
+      <h1 {...pageTitleProps} className="album__title cad-headline">
+        {album?.Name}
+      </h1>
       {artistId ? (
         <Link className="album__artist cad-meta album__artist-link" to={`/artist/${artistId}`}>
           {artistText}

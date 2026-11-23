@@ -102,6 +102,11 @@
      inset. Requires viewport-fit=cover (set in index.html). */
   --cad-safe-top: env(safe-area-inset-top, 0px);
   --cad-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --cad-safe-left: env(safe-area-inset-left, 0px);
+  --cad-safe-right: env(safe-area-inset-right, 0px);
+
+  /* The compact top bar (BarPage): its row height under the safe area. */
+  --cad-bar-height: 44px;
 
   /* ---- Radius ---- */
   --cad-radius-card: 8px;
@@ -113,6 +118,11 @@
 
   /* ---- Elevation: drop shadow (soft, theme-aware) ---- */
   --cad-shadow: rgba(0, 0, 0, 0.5);
+
+  /* ---- Floating chrome: the compact bar's translucent fill, and the pill that
+     keeps a floating button legible over art ---- */
+  --cad-bar-bg: rgba(18, 18, 18, 0.82);
+  --cad-float-bg: rgba(0, 0, 0, 0.42);
 
   /* ---- Map onto Ionic so its components inherit the theme ---- */
   --ion-background-color: var(--cad-bg);
@@ -163,6 +173,8 @@
   --cad-art-light-2: 72%;
   --cad-art-ink: rgba(0, 0, 0, 0.62);
   --cad-shadow: rgba(0, 0, 0, 0.15);
+  --cad-bar-bg: rgba(255, 255, 255, 0.82);
+  --cad-float-bg: rgba(255, 255, 255, 0.72);
 
   --ion-background-color-rgb: 255, 255, 255;
   --ion-text-color-rgb: 18, 18, 18;

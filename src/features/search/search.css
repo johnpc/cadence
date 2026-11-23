@@ -52,3 +52,22 @@ ion-searchbar {
 .search__offline-note {
   margin: 0 0 var(--cad-space-3);
 }
+
+/* The search field rides under the large title, then sticks just below the
+   compact bar so you can always type a new search. Edge to edge so rows never
+   peek out beside it. */
+.search__field {
+  position: sticky;
+  top: calc(var(--cad-safe-top) + var(--cad-bar-height));
+  z-index: 5;
+  margin: 0 calc(-1 * var(--bar-page-gutter-end)) var(--cad-space-3)
+    calc(-1 * var(--bar-page-gutter-start));
+  padding: var(--cad-space-1) var(--bar-page-gutter-end) var(--cad-space-2)
+    var(--bar-page-gutter-start);
+  background: var(--cad-bg);
+}
+
+.search__field ion-searchbar {
+  padding: 0;
+  min-height: 0;
+}
