@@ -39,10 +39,13 @@
   min-width: 0;
 }
 
+/* A block (not flex): text-overflow only ellipsizes a block's own inline
+   content — as a flex container the title text became an anonymous flex item
+   and was hard-clipped mid-letter ("In Your Corner (for Scott Hutc"). The
+   playing glyph sits inline before the text instead. */
 .track-row__title {
-  display: flex;
-  align-items: center;
-  gap: var(--cad-space-2);
+  display: block;
+  min-width: 0;
   font-family: var(--cad-font-sans);
   font-size: 15px;
   font-weight: 500;
@@ -63,7 +66,8 @@
   gap: 2px;
   width: 14px;
   height: 12px;
-  flex-shrink: 0;
+  margin-right: var(--cad-space-2);
+  vertical-align: -1px;
 }
 
 .track-row__eq i {
