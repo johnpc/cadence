@@ -3,8 +3,8 @@ import { IonIcon } from '@ionic/react';
 import { listOutline, documentTextOutline, volumeHigh, volumeMute } from 'ionicons/icons';
 import { usePlayer } from './usePlayer';
 import { PlayerControls } from './PlayerControls';
-import { QueueView } from './QueueView';
-import { LyricsSheet } from './LyricsSheet';
+import { LazyQueueView } from './LazyQueueView';
+import { LazyLyricsSheet } from './LazyLyricsSheet';
 
 /** Desktop-only mini-player extras: full transport (via PlayerControls) plus
  * queue, lyrics, and a volume/mute control. Hidden on mobile via CSS — phones
@@ -67,8 +67,8 @@ export function NowPlayingExtras() {
         aria-valuetext={`${Math.round(volume * 100)}%`}
         data-testid="npbar-volume"
       />
-      <QueueView open={queueOpen} onClose={() => setQueueOpen(false)} />
-      <LyricsSheet open={lyricsOpen} onClose={() => setLyricsOpen(false)} />
+      <LazyQueueView open={queueOpen} onClose={() => setQueueOpen(false)} />
+      <LazyLyricsSheet open={lyricsOpen} onClose={() => setLyricsOpen(false)} />
     </div>
   );
 }

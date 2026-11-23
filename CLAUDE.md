@@ -164,7 +164,9 @@ Run `npm run quality`. **Enforce them yourself; when one fails, fix the code, ne
 - **Design tokens are real.** `npm run check:tokens` fails on any `var(--cad-*)` that no CSS
   defines — an undefined custom property silently drops the declaration (square corners, zero
   spacing, transparent bars) with no error. Add the token to `variables.css`; never inline a value.
-- **Build + Prettier clean.**
+- **Build + Prettier clean, entry bundle within budget.** `npm run size` (part of `quality`) fails when the
+  gzipped entry passes 50 kB (`.size-limit.json`). Fix by lazy-loading an on-demand surface (the queue,
+  lyrics, read-along and chapter sheets are already `Lazy*` wrappers), never by raising the budget.
 - **Determinism:** unit tests **mock the `jellyfin*` modules** — no real network; only Gherkin hits
   the live server. Pure helpers take injected randomness/time. Player: unit-test `queue.ts`; mock the
   Audio element (jsdom can't decode → assert `.src`/`.play` calls).

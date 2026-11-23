@@ -2,8 +2,8 @@ import { IonModal, IonIcon } from '@ionic/react';
 import { chevronDown } from 'ionicons/icons';
 import { useOverlay } from '../../lib/useOverlay';
 import { AmbientBackground } from './AmbientBackground';
-import { QueueView } from './QueueView';
-import { LyricsSheet } from './LyricsSheet';
+import { LazyQueueView } from './LazyQueueView';
+import { LazyLyricsSheet } from './LazyLyricsSheet';
 import { ChapterSheet } from '../audiobook/ChapterSheet';
 import { LazyReadAlongSheet } from '../readalong/LazyReadAlongSheet';
 import { LazyAudiobookScrubbers } from '../audiobook/LazyAudiobookScrubbers';
@@ -94,8 +94,8 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
           onClose={onClose}
         />
         <NextUpHint onOpenQueue={() => sheet.show('queue')} />
-        <QueueView open={sheet.open === 'queue'} onClose={() => sheet.closed('queue')} />
-        <LyricsSheet open={sheet.open === 'lyrics'} onClose={() => sheet.closed('lyrics')} />
+        <LazyQueueView open={sheet.open === 'queue'} onClose={() => sheet.closed('queue')} />
+        <LazyLyricsSheet open={sheet.open === 'lyrics'} onClose={() => sheet.closed('lyrics')} />
         <ChapterSheet open={sheet.open === 'chapters'} onClose={() => sheet.closed('chapters')} />
         <LazyReadAlongSheet
           open={sheet.open === 'readalong'}
