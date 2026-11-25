@@ -12,9 +12,13 @@ export function useSignInForm() {
   const history = useHistory();
   // Where the user was headed when the sign-in gate intercepted them — so a
   // shared deep link (e.g. /album/123 opened while signed out) lands there after
-  // sign-in instead of always dumping them on Home. Captured once at mount (the
-  // gate renders SignIn at the target URL); '/' when they just opened the app.
-  const dest = useRef(useLocation().pathname);
+  // sign-in instead of always dumping them on Home. Follows the URL while the
+  // form is up: a universal link that opens the app AFTER the sign-in screen is
+  // showing moves the URL (useWidgetDeepLink) and must still win. '/' when they
+  // just opened the app.
+  const location = useLocation();
+  const dest = useRef('/');
+  dest.current = `${location.pathname}${location.search}`;
   const [server, setServer] = useState(getServerUrl());
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

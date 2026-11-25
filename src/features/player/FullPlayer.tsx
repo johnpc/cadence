@@ -4,7 +4,7 @@ import { useOverlay } from '../../lib/useOverlay';
 import { AmbientBackground } from './AmbientBackground';
 import { LazyQueueView } from './LazyQueueView';
 import { LazyLyricsSheet } from './LazyLyricsSheet';
-import { ChapterSheet } from '../audiobook/ChapterSheet';
+import { LazyChapterSheet } from '../audiobook/LazyChapterSheet';
 import { LazyReadAlongSheet } from '../readalong/LazyReadAlongSheet';
 import { LazyAudiobookScrubbers } from '../audiobook/LazyAudiobookScrubbers';
 import { isAudiobook } from '../audiobook/isAudiobook';
@@ -96,7 +96,10 @@ export function FullPlayer({ open, onClose }: { open: boolean; onClose: () => vo
         <NextUpHint onOpenQueue={() => sheet.show('queue')} />
         <LazyQueueView open={sheet.open === 'queue'} onClose={() => sheet.closed('queue')} />
         <LazyLyricsSheet open={sheet.open === 'lyrics'} onClose={() => sheet.closed('lyrics')} />
-        <ChapterSheet open={sheet.open === 'chapters'} onClose={() => sheet.closed('chapters')} />
+        <LazyChapterSheet
+          open={sheet.open === 'chapters'}
+          onClose={() => sheet.closed('chapters')}
+        />
         <LazyReadAlongSheet
           open={sheet.open === 'readalong'}
           onClose={() => sheet.closed('readalong')}

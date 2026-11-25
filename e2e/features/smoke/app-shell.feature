@@ -48,3 +48,7 @@ Feature: App shell
     Then I see the offline banner
     When the device comes back online
     Then the offline banner is gone
+
+  Scenario: The site tells iOS that its links open the Cadence app
+    When I fetch the site's apple-app-site-association file
+    Then it is JSON that names the Cadence iOS app for every path

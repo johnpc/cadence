@@ -9,7 +9,6 @@ import { useShellChrome } from './features/shell/useShellChrome';
 import { useScrollToTopOnRetap } from './features/shell/useScrollToTopOnRetap';
 import { useRequestsTab } from './features/shell/requestsTab';
 import { useWidgetSync } from './features/widget/useWidgetSync';
-import { useWidgetDeepLink } from './features/widget/useWidgetDeepLink';
 import { appRouteList } from './appRouteList';
 import './appTabs.css';
 
@@ -29,10 +28,9 @@ export function AppTabs() {
   // The Requests tab only appears where the Lidarr proxy is deployed. It is
   // decided once per session (useRequestsTab) so the bar never flips 4↔5 tabs.
   const canRequest = useRequestsTab();
-  // Keep the iOS "Continue listening" widget fed + route widget deep-link opens.
-  // Both no-op off native iOS (bridge/Capacitor listener absent).
+  // Keep the iOS "Continue listening" widget fed (no-op off native iOS). Deep
+  // links are routed at the root (AppRoutes) so they work while signed out too.
   useWidgetSync();
-  useWidgetDeepLink();
   return (
     <>
       <OfflineBanner />

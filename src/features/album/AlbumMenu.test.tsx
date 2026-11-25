@@ -8,7 +8,7 @@ vi.mock('../player/useSeedRadio', () => ({ useSeedRadio: () => seedRadio }));
 const toast = vi.fn();
 vi.mock('../toast/useToast', () => ({ useToast: () => toast }));
 const shareItem = vi.hoisted(() => vi.fn());
-vi.mock('../share/shareLink', () => ({ shareItem }));
+vi.mock('../share/shareLink', () => ({ shareItem, shareOrigin: () => window.location.origin }));
 const addToQueue = vi.fn();
 vi.mock('../player/usePlayer', () => ({ usePlayer: () => ({ addToQueue }) }));
 import { AlbumMenu } from './AlbumMenu';

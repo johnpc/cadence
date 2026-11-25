@@ -6,7 +6,7 @@ import { useSongRadio } from '../player/useSongRadio';
 import { useLikeToggle } from '../library/useLikeToggle';
 import { useDownload } from '../downloads/useDownload';
 import { useToast } from '../toast/useToast';
-import { copyShareLink } from '../share/shareLink';
+import { copyShareLink, shareOrigin } from '../share/shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 /** Editable-playlist row extras threaded into the menu (reorder + remove). */
@@ -49,7 +49,7 @@ export function useTrackMenuActions(
     goToAlbum: () => history.push(`/album/${track.AlbumId}`),
     goToArtist: () => history.push(`/artist/${track.ArtistItems?.[0]?.Id}`),
     copyLink: () =>
-      void copyShareLink(track, window.location.origin).then((ok) =>
+      void copyShareLink(track, shareOrigin()).then((ok) =>
         toast(ok ? 'Link copied' : 'Could not copy link'),
       ),
     toggleLike: like.toggle,

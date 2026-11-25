@@ -15,6 +15,8 @@ interface ImportMetaEnv {
   /** Optional diagnostics ingest API key (non-secret; throttles the public write
    * endpoint). Empty/unset → no upload. */
   readonly VITE_DIAGNOSTICS_KEY?: string;
+  /** Public web origin shared links use from the native app (default https://cadence.jpc.io). */
+  readonly VITE_PUBLIC_APP_URL?: string;
 }
 
 interface ImportMeta {

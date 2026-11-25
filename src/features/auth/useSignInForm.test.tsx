@@ -27,6 +27,12 @@ function Harness() {
       <button data-testid="tap-search" onClick={() => history.push('/search')}>
         search
       </button>
+      <button
+        data-testid="universal-link"
+        onClick={() => history.push('/audiobook/hogfather-discworld-book-20-49614fe6')}
+      >
+        link
+      </button>
     </>
   );
 }
@@ -63,6 +69,23 @@ describe('useSignInForm deep-link preservation', () => {
       screen.getByTestId('go').click();
     });
     await waitFor(() => expect(screen.getByTestId('loc')).toHaveTextContent('/album/123'));
+  });
+
+  it('lands on a book link that opened the app after the sign-in screen was up', async () => {
+    // Native cold start: SignIn mounts at '/', then the universal link arrives and
+    // useWidgetDeepLink pushes the book path. Sign-in must land there, not Home.
+    renderAt('/', vi.fn().mockResolvedValue(undefined));
+    await act(async () => {
+      screen.getByTestId('universal-link').click();
+    });
+    await act(async () => {
+      screen.getByTestId('go').click();
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('loc')).toHaveTextContent(
+        '/audiobook/hogfather-discworld-book-20-49614fe6',
+      ),
+    );
   });
 
   it('goes to / (→ home) when opened at the app root', async () => {

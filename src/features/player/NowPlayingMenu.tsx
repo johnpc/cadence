@@ -8,7 +8,7 @@ import { usePlayItem } from './usePlayItem';
 import { nowPlayingMenuButtons } from './nowPlayingMenuButtons';
 import { addToPlaylistButtons } from '../playlists/trackMenuButtons';
 import { useToast } from '../toast/useToast';
-import { copyShareLink } from '../share/shareLink';
+import { copyShareLink, shareOrigin } from '../share/shareLink';
 import { useOverlay } from '../../lib/useOverlay';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -41,7 +41,7 @@ export function NowPlayingMenu({
     goToAlbum: () => go(`/album/${track.AlbumId}`),
     goToArtist: () => go(`/artist/${track.ArtistItems?.[0]?.Id}`),
     copyLink: () =>
-      void copyShareLink(track, window.location.origin).then((ok) =>
+      void copyShareLink(track, shareOrigin()).then((ok) =>
         toast(ok ? 'Link copied' : 'Could not copy link'),
       ),
     addToPlaylist: () => overlay.show('pick'),

@@ -3,6 +3,7 @@ import { play, playSkipForward } from 'ionicons/icons';
 import { TrackArt } from '../player/TrackArt';
 import { LikeButton } from '../library/LikeButton';
 import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton';
+import { ShareButton } from '../share/ShareButton';
 import { playBook } from './playBook';
 import { bookProgress } from './bookProgress';
 import { bookProgressLabel } from './bookProgressLabel';
@@ -49,6 +50,8 @@ export function BookHeader({ book }: { book: Book }) {
             so it appears in the "Continue listening & favorites" section. */}
           <LikeButton track={book.book} />
           <DownloadCollectionButton tracks={book.parts} />
+          {/* Shares a readable /audiobook/<slug>-<id8> link (shareLink.itemPath). */}
+          <ShareButton item={book.book} />
         </div>
       </header>
     </GradientHeader>

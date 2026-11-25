@@ -3,6 +3,7 @@ import { SignIn } from './features/auth/SignIn';
 import { AppTabs } from './AppTabs';
 import { AppLoading, SessionUnavailable } from './AppLoading';
 import { RouteAnnouncer } from './features/shell/RouteAnnouncer';
+import { useWidgetDeepLink } from './features/widget/useWidgetDeepLink';
 
 /**
  * The root session gate. While the Jellyfin session resolves we show the branded
@@ -12,6 +13,9 @@ import { RouteAnnouncer } from './features/shell/RouteAnnouncer';
  */
 export function AppRoutes() {
   const { status, refresh } = useAuth();
+  // Widget + universal links (https://cadence.jpc.io/…) route here, above the
+  // auth gate: signed out, the URL still moves and sign-in returns to it.
+  useWidgetDeepLink();
 
   return (
     <>
