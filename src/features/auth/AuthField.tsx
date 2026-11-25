@@ -1,4 +1,7 @@
-/** A labeled text input for auth forms. Presentational only. */
+/** A labeled text input for auth forms. Presentational only. Never
+ * auto-capitalises, auto-corrects or spell-checks: server addresses,
+ * usernames and passwords are typed exactly (iOS turned "cadence-demo" into
+ * "Cadence", so the sign-in failed with a correct password). */
 export function AuthField({
   label,
   type,
@@ -25,6 +28,9 @@ export function AuthField({
         value={value}
         autoComplete={autoComplete}
         inputMode={inputMode}
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
         data-testid={testId}
         onChange={(e) => onChange(e.target.value)}
       />
