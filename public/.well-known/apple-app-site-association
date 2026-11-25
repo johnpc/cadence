@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "JW5SC3NYUV.com.johncorser.cadence",
+        "appIDs": ["JW5SC3NYUV.com.johncorser.cadence"],
+        "paths": ["*"],
+        "components": [{ "/": "/*" }]
+      }
+    ]
+  }
+}

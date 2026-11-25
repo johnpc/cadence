@@ -9,6 +9,21 @@ describe('parseOpenPath', () => {
 
   it('rejects a non-cadence scheme', () => {
     expect(parseOpenPath('https://open?path=%2Fhome')).toBeNull();
+    expect(parseOpenPath('http://cadence.jpc.io/audiobook/x')).toBeNull();
+    expect(parseOpenPath('ftp://cadence.jpc.io/audiobook/x')).toBeNull();
+  });
+
+  it('maps a universal link on the claimed host to its in-app path', () => {
+    expect(
+      parseOpenPath('https://cadence.jpc.io/audiobook/hogfather-discworld-book-20-49614fe6'),
+    ).toBe('/audiobook/hogfather-discworld-book-20-49614fe6');
+    expect(parseOpenPath('https://CADENCE.jpc.io/album/a1?x=1')).toBe('/album/a1?x=1');
+    expect(parseOpenPath('https://cadence.jpc.io')).toBe('/');
+  });
+
+  it('ignores https links on any other host', () => {
+    expect(parseOpenPath('https://evil.com/audiobook/x')).toBeNull();
+    expect(parseOpenPath('https://cadence.jpc.io.evil.com/audiobook/x')).toBeNull();
   });
 
   it('rejects the wrong host', () => {

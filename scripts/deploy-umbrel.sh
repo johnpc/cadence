@@ -110,6 +110,20 @@ verify() {
     die "the bundle contains the server hostname — it must come from runtime config only"
   fi
   echo "deploy-umbrel: bundle $bundle is server-agnostic"
+  verify_aasa
+}
+
+# Universal links: iOS only opens cadence.jpc.io links in the app when this file is
+# served as JSON naming the app (an SPA fallback answering index.html fails silently).
+APP_ID="JW5SC3NYUV.com.johncorser.cadence"
+verify_aasa() {
+  local url="$PUBLIC_URL/.well-known/apple-app-site-association" body ctype
+  ctype=$(curl -fsS -o /dev/null -w '%{content_type}' --max-time 20 "$url") || die "$url is not reachable (no universal links)"
+  [[ "$ctype" == application/json* ]] || die "$url is served as '$ctype', not application/json — iOS will ignore it"
+  body=$(curl -fsS --max-time 20 "$url")
+  echo "$body" | APP_ID="$APP_ID" python3 -c 'import json,os,sys; d=json.load(sys.stdin); ids=[i for x in d["applinks"]["details"] for i in x.get("appIDs",[x.get("appID")])]; sys.exit(0 if os.environ["APP_ID"] in ids else 1)' \
+    || die "$url is not valid JSON naming $APP_ID — universal links won't open the app"
+  echo "deploy-umbrel: apple-app-site-association serves $APP_ID as JSON"
 }
 
 running_image() { remote "sudo docker inspect cadence --format '{{.Config.Image}}'"; }
