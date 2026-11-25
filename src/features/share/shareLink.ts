@@ -1,4 +1,5 @@
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
+import { bookPathForItem } from '../audiobook/bookLink';
 
 /** The in-app route for an item, or null when there's nowhere to link. */
 export function itemPath(item: JellyfinItem): string | null {
@@ -9,6 +10,10 @@ export function itemPath(item: JellyfinItem): string | null {
       return `/artist/${item.Id}`;
     case 'Playlist':
       return `/playlist/${item.Id}`;
+    case 'AudioBook':
+      // A book (any of its parts) links to its book page, readably:
+      // /audiobook/<slug>-<id8>, which the book route resolves back to the book.
+      return bookPathForItem(item);
     case 'Audio':
       // A track has its own song page; only fall back to the album if the id
       // is somehow missing (it never should be for a real track).
@@ -16,6 +21,18 @@ export function itemPath(item: JellyfinItem): string | null {
     default:
       return item.AlbumId ? `/album/${item.AlbumId}` : null;
   }
+}
+
+/** Where shared links point. In a browser that's the page's own origin (a
+ * self-hosted Cadence shares its own address). The native app runs at
+ * `capacitor://localhost`, which means nothing to whoever receives the link, so
+ * it uses the public web app — set per build with `VITE_PUBLIC_APP_URL`,
+ * defaulting to cadence.jpc.io (the domain the iOS app's universal links claim,
+ * see ios/App/App/App.entitlements), so the link opens the app or the web. */
+export function shareOrigin(loc: Pick<Location, 'protocol' | 'origin'> = window.location): string {
+  if (loc.protocol === 'http:' || loc.protocol === 'https:') return loc.origin;
+  const configured = import.meta.env.VITE_PUBLIC_APP_URL?.trim();
+  return (configured || 'https://cadence.jpc.io').replace(/\/+$/, '');
 }
 
 /** Absolute shareable URL for an item (its detail page — a track links to its

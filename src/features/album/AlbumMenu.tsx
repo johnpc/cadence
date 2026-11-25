@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { useSeedRadio } from '../player/useSeedRadio';
 import { albumMenuButtons } from './albumMenuButtons';
 import { useToast } from '../toast/useToast';
-import { shareItem } from '../share/shareLink';
+import { shareItem, shareOrigin } from '../share/shareLink';
 import { usePlayer } from '../player/usePlayer';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
@@ -29,7 +29,7 @@ export function AlbumMenu({ album, tracks }: { album: JellyfinItem; tracks: Jell
     },
     goToArtist: () => history.push(`/artist/${album.ArtistItems?.[0]?.Id}`),
     share: () =>
-      void shareItem(album, window.location.origin).then((r) => {
+      void shareItem(album, shareOrigin()).then((r) => {
         // 'failed' is usually a dismissed share sheet — stay silent there.
         if (r === 'shared') toast('Shared');
         else if (r === 'copied') toast('Link copied');

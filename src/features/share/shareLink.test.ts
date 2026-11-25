@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { itemPath, shareUrl, copyShareLink, shareItem } from './shareLink';
+import { itemPath, shareUrl, copyShareLink, shareItem, shareOrigin } from './shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 
 const item = (over: Partial<JellyfinItem>): JellyfinItem => ({
@@ -22,11 +22,47 @@ describe('itemPath / shareUrl', () => {
     expect(itemPath(item({ Id: '', Type: 'Audio' }))).toBeNull();
   });
 
+  it('routes any part of an audiobook to its readable book page', () => {
+    const part = item({
+      Id: '49614fe6d469235cfd595b6e31bd34da',
+      Name: 'Hogfather 2',
+      Album: 'Hogfather: Discworld, Book 20',
+      Type: 'AudioBook',
+    });
+    expect(itemPath(part)).toBe('/audiobook/hogfather-discworld-book-20-49614fe6');
+  });
+
   it('builds an absolute URL against the origin', () => {
     expect(shareUrl(item({ Id: 'a', Type: 'MusicAlbum' }), 'https://cadence.jpc.io')).toBe(
       'https://cadence.jpc.io/album/a',
     );
     expect(shareUrl(item({ Id: '', Type: 'Audio' }), 'https://x')).toBeNull();
+  });
+});
+
+describe('shareOrigin', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("uses the page's own origin in a browser", () => {
+    expect(shareOrigin({ protocol: 'https:', origin: 'https://music.example.org' })).toBe(
+      'https://music.example.org',
+    );
+    expect(shareOrigin({ protocol: 'http:', origin: 'http://localhost:5173' })).toBe(
+      'http://localhost:5173',
+    );
+  });
+
+  it('uses the public web app from the native app, overridable per build', () => {
+    vi.stubEnv('VITE_PUBLIC_APP_URL', '');
+    expect(shareOrigin({ protocol: 'capacitor:', origin: 'capacitor://localhost' })).toBe(
+      'https://cadence.jpc.io',
+    );
+    vi.stubEnv('VITE_PUBLIC_APP_URL', 'https://tunes.example.org/');
+    expect(shareOrigin({ protocol: 'capacitor:', origin: 'capacitor://localhost' })).toBe(
+      'https://tunes.example.org',
+    );
   });
 });
 

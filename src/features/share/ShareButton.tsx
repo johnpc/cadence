@@ -1,7 +1,7 @@
 import { IonIcon } from '@ionic/react';
 import { shareOutline } from 'ionicons/icons';
 import { useToast } from '../toast/useToast';
-import { shareItem } from './shareLink';
+import { shareItem, shareOrigin } from './shareLink';
 import type { JellyfinItem } from '../../lib/jellyfinTypes';
 import './shareButton.css';
 
@@ -20,7 +20,7 @@ export function ShareButton({ item, size = 24 }: { item: JellyfinItem | null; si
       aria-label="Share"
       onClick={(e) => {
         e.stopPropagation();
-        void shareItem(item, window.location.origin).then((r) => {
+        void shareItem(item, shareOrigin()).then((r) => {
           // 'failed' is usually a dismissed share sheet — stay silent there.
           if (r === 'shared') toast('Shared');
           else if (r === 'copied') toast('Link copied');

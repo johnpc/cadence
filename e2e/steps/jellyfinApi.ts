@@ -198,3 +198,22 @@ export async function audiobookParts(
     .sort((a, b) => (a.IndexNumber ?? 0) - (b.IndexNumber ?? 0))
     .map((i) => ({ ItemId: i.Id, Duration: (i.RunTimeTicks ?? 0) / 10_000_000 }));
 }
+
+/** The book-page id of the fixture audiobook titled `title`: the first part (by
+ * part number) of that book, which is how the app groups a multi-part book. */
+export async function bookGroupId(s: Session, title: string): Promise<string> {
+  const q = new URLSearchParams({
+    IncludeItemTypes: 'AudioBook',
+    Recursive: 'true',
+    SearchTerm: title,
+    Fields: 'Album',
+  });
+  const r = await api<{
+    Items: { Id: string; Name: string; Album?: string; IndexNumber?: number }[];
+  }>(`/Users/${s.userId}/Items?${q.toString()}`, { token: s.token });
+  const parts = r.Items.filter((i) => (i.Album ?? i.Name) === title).sort(
+    (a, b) => (a.IndexNumber ?? 0) - (b.IndexNumber ?? 0),
+  );
+  if (!parts[0]) throw new Error(`fixture audiobook "${title}" not found`);
+  return parts[0].Id;
+}

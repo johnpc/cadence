@@ -58,3 +58,28 @@ Feature: Audiobooks library
     And I play the book from its detail page
     And I open the full player
     Then the full player's play button is fully in view
+
+  Scenario: Sharing a book copies a readable link
+    Given I am signed in
+    When I open the Audiobooks tab
+    Then I see the audiobook library with books
+    When I open the first book's detail page
+    And I share the book
+    Then the copied link is a readable link to "harbor-winds"
+
+  Scenario: A readable book link opens the book
+    Given I am signed in
+    When I open the Audiobooks tab
+    Then I see the audiobook library with books
+    When I open the first book's detail page
+    And I share the book
+    And I open the copied link
+    Then I see the book "Harbor Winds"
+    When I open the book link "/audiobook/harbor-winds"
+    Then I see the book "Harbor Winds"
+
+  Scenario: A book link opened while signed out lands on the book after sign-in
+    Given I open the app signed out
+    When I open the readable link to the book "Harbor Winds" while signed out
+    And I sign in with the test user's credentials
+    Then I see the book "Harbor Winds"
