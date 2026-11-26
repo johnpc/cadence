@@ -1,7 +1,7 @@
 import { createBdd } from 'playwright-bdd';
 import { expect, type Page } from '@playwright/test';
 import { DATA_WAIT } from './timeouts';
-import { login, audiobookParts } from './jellyfinApi';
+import { login, audiobookParts, bookGroupId } from './jellyfinApi';
 
 const { Given, When, Then } = createBdd();
 const USERNAME = process.env.TEST_USERNAME;
@@ -60,6 +60,20 @@ function chapterXhtml(chapter: number, clips: Clip[]): string {
 <body><script>window.__xss = 1</script><h2 id="h${chapter}">Chapter ${chapter + 1}</h2>${sentences}</body></html>`;
 }
 
+/** The library list the fake bridge serves: the fixture book is ready to read
+ * along and the other fixture book is still aligning, keyed by each book's
+ * first part exactly as the plugin keys them. */
+async function fixtureLibrary() {
+  const s = await login(USERNAME as string, PASSWORD as string);
+  return {
+    Status: 'ok',
+    Books: [
+      { ItemId: await bookGroupId(s, BOOK), Status: 'ready' },
+      { ItemId: await bookGroupId(s, 'The Lighthouse Letters'), Status: 'aligning' },
+    ],
+  };
+}
+
 /** The book the fake bridge served, kept for failure messages. */
 let servedParts: { ItemId: string; Duration: number }[] = [];
 
@@ -106,6 +120,17 @@ async function installBridge(page: Page, status: 'ready' | 'unlinked') {
       return route.fulfill({ json: { ...b, Status: 'unlinked', Clips: [] } });
     return route.fulfill({ json: b });
   });
+  // The library list (GET /Cadence/Storyteller/Books, no item id) feeds the
+  // Books tab's badges and Read along filter.
+  let library: Awaited<ReturnType<typeof fixtureLibrary>> | null = null;
+  await page.route(
+    (url) => url.pathname.endsWith('/Cadence/Storyteller/Books'),
+    async (route) => {
+      if (status === 'unlinked') return route.fulfill({ json: { Status: 'unlinked', Books: [] } });
+      library ??= await fixtureLibrary();
+      return route.fulfill({ json: library });
+    },
+  );
 }
 
 Given('the server offers Storyteller read-along for the fixture book', async ({ page }) => {

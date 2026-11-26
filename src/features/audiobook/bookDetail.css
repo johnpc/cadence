@@ -18,6 +18,15 @@
   margin: 0;
 }
 
+/* Progress meta + the read-along badge on one centred line. */
+.book-detail__meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cad-space-2);
+}
+
 .book-detail__author {
   color: var(--cad-text-secondary);
 }

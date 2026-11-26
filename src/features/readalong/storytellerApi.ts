@@ -60,6 +60,19 @@ export function getReadAlongBook(itemId: string): Promise<ReadAlongBook> {
   return request<ReadAlongBook>(`${BASE}/Books/${encodeURIComponent(itemId)}`);
 }
 
+/** The plugin's read-along status for every audiobook in one call (cheap: no
+ * timeline builds). `ItemId` is the book's first part; `Status` is
+ * `unconfigured` with no Storyteller server and `unlinked` when the plugin
+ * couldn't provision this user's Storyteller account (both with no books). */
+export interface ReadAlongLibrary {
+  Status: 'ok' | 'unlinked' | 'unconfigured';
+  Books: { ItemId: string; Status: ReadAlongStatus }[];
+}
+
+export function getReadAlongLibrary(): Promise<ReadAlongLibrary> {
+  return request<ReadAlongLibrary>(`${BASE}/Books`);
+}
+
 /** The proxied URL of one chapter resource (XHTML, image, css). For a `fetch`
  * the Authorization header does the auth; for an `<img src>` (which can't send
  * headers) pass `withApiKey` so Jellyfin's `ApiKey` query auth applies. */

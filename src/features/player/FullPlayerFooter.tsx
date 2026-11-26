@@ -1,6 +1,6 @@
 import { IonIcon } from '@ionic/react';
 import { listOutline, documentTextOutline, bookmarksOutline, bookOutline } from 'ionicons/icons';
-import { NowPlayingMenu } from './NowPlayingMenu';
+import { LazyNowPlayingMenu } from './LazyNowPlayingMenu';
 import { CastButton } from '../cast/CastButton';
 import { isAudiobook } from '../audiobook/isAudiobook';
 import { storytellerEnabled } from '../../lib/runtimeConfig';
@@ -61,7 +61,7 @@ export function FullPlayerFooter({
         <IonIcon icon={listOutline} /> Up next
       </button>
       <CastButton />
-      {current && <NowPlayingMenu track={current} onNavigate={onClose} />}
+      {current && <LazyNowPlayingMenu track={current} onNavigate={onClose} />}
     </div>
   );
 }

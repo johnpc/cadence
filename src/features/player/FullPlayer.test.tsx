@@ -17,6 +17,11 @@ vi.mock('../audiobook/LazyAudiobookScrubbers', async () => {
   const m = await import('../audiobook/AudiobookScrubbers');
   return { LazyAudiobookScrubbers: m.AudiobookScrubbers };
 });
+// Same for the "…" menu, lazy in the app for the same budget.
+vi.mock('./LazyNowPlayingMenu', async () => {
+  const m = await import('./NowPlayingMenu');
+  return { LazyNowPlayingMenu: m.NowPlayingMenu };
+});
 vi.mock('../../lib/jellyfinLyrics', () => ({ getLyrics: vi.fn().mockResolvedValue([]) }));
 vi.mock('../playlists/playlistsApi', () => ({
   usePlaylists: () => ({ playlists: [] }),
