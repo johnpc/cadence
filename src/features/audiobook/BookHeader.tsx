@@ -12,6 +12,7 @@ import { GradientHeader } from '../color/GradientHeader';
 import { resumePartIndex } from './resumePartIndex';
 import { usePlayer } from '../player/usePlayer';
 import type { Book } from './groupBooks';
+import { LazyReadAlongMarker } from '../readalong/LazyReadAlongMarker';
 import { pageTitleProps } from '../../components/barPage/usePageBar';
 
 /** The book detail header: cover, title, author, whole-book progress, and the
@@ -33,9 +34,12 @@ export function BookHeader({ book }: { book: Book }) {
           {book.title}
         </h1>
         {author && <p className="book-detail__author cad-byline">{author}</p>}
-        <p className="cad-meta" data-testid="book-progress-label">
-          {bookHeaderMeta(book, label)}
-        </p>
+        <div className="book-detail__meta-line">
+          <p className="cad-meta" data-testid="book-progress-label">
+            {bookHeaderMeta(book, label)}
+          </p>
+          <LazyReadAlongMarker book={book} />
+        </div>
         <div className="book-detail__actions">
           <IonButton
             className="book-detail__primary"

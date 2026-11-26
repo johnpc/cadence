@@ -7,10 +7,12 @@ import { DownloadCollectionButton } from '../downloads/DownloadCollectionButton'
 import { bookProgress } from './bookProgress';
 import { bookProgressLabel } from './bookProgressLabel';
 import type { Book } from './groupBooks';
+import { LazyReadAlongMarker } from '../readalong/LazyReadAlongMarker';
 import './bookRow.css';
 
 /** One book in the audiobook library: art + title + author + reading progress
- * (% and time left, or "Finished"), plus a part count for multi-file books.
+ * (% and time left, or "Finished"), plus a part count for multi-file books
+ * and a "Read along" / "Aligning…" marker from the Storyteller bridge.
  * Tapping the row opens the book's detail page; the art acts as a quick PLAY
  * button that starts the whole book as a queue (a single file is a one-item
  * queue) so multi-part books play straight through. Resume applies to the
@@ -42,10 +44,13 @@ export function BookRow({ book }: { book: Book }) {
       <button type="button" className="track-row__play" onClick={open} data-testid="book-row-open">
         <span className="track-row__meta">
           <span className="track-row__title">{book.title}</span>
-          <span className="track-row__artist">
-            {author}
-            {multi && ` · ${book.parts.length} parts`}
-            {progressLabel && <> · {progressLabel}</>}
+          <span className="track-row__artist book-row__meta">
+            <span className="book-row__meta-text">
+              {author}
+              {multi && ` · ${book.parts.length} parts`}
+              {progressLabel && <> · {progressLabel}</>}
+            </span>
+            <LazyReadAlongMarker book={book} />
           </span>
           {progress.started && !progress.completed && (
             <span

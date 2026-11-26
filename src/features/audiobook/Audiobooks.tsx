@@ -8,17 +8,35 @@ import { highlightBooks } from './highlightBooks';
 import { sortBooks, type BookSort } from './sortBooks';
 import { useAudiobookLibrary } from './useAudiobookLibrary';
 import { bookOutline } from 'ionicons/icons';
+import { useStore } from '../../lib/store';
+import { useReadAlongLibrary } from '../readalong/useReadAlongLibrary';
+import { BookFilterChips } from './BookFilterChips';
+import { bookFilterStore, type BookFilter } from './bookFilterStore';
+import { applyBookFilter, effectiveBookFilter } from './readAlongFilter';
 
 /** The audiobook library: a search + sort tools row, a "Continue listening &
  * favorites" top section (in-progress + favorited books, resuming where you left
  * off), and the full book list with multi-file books collapsed into one row
  * (groupBooks). Search filters the full list; sort orders it (A–Z / recently
- * added / recently played); the highlights hide while searching. */
+ * added / recently played); the highlights hide while searching. With a
+ * Storyteller bridge and at least one book ready, All / Read along chips narrow
+ * both sections to the books that can be read along. */
+function sectionTitle(searching: boolean, filter: BookFilter): string {
+  if (searching) return 'Results';
+  return filter === 'readalong' ? 'Ready to read along' : 'All audiobooks';
+}
+
 export function Audiobooks() {
   const { books, highlights, isLoading, isError, refetch } = useAudiobookLibrary();
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<BookSort>('alpha');
-  const grouped = useMemo(() => groupBooks(books), [books]);
+  const readAlong = useReadAlongLibrary();
+  const storedFilter = useStore(bookFilterStore);
+  const filter = effectiveBookFilter(storedFilter, readAlong);
+  const grouped = useMemo(
+    () => applyBookFilter(groupBooks(books), filter, readAlong),
+    [books, filter, readAlong],
+  );
   const shown = useMemo(() => sortBooks(filterBooks(grouped, query), sort), [grouped, query, sort]);
   // Resolve the raw resumable/favorite PART items to their grouped books, so the
   // top section shows real book rows (not orphan chapter fragments like "Preface").
@@ -37,6 +55,9 @@ export function Audiobooks() {
     >
       <div data-testid="audiobooks">
         <AudiobookControls query={query} onQuery={setQuery} sort={sort} onSort={setSort} />
+        {readAlong.ready > 0 && (
+          <BookFilterChips filter={filter} onChange={(f) => bookFilterStore.set(f)} />
+        )}
         {!searching && topBooks.length > 0 && (
           <section data-testid="audiobooks-highlights">
             <h2 className="cad-headline">Continue listening &amp; favorites</h2>
@@ -45,17 +66,25 @@ export function Audiobooks() {
             ))}
           </section>
         )}
-        <section>
-          <h2 className="cad-headline">{searching ? 'Results' : 'All audiobooks'}</h2>
-          {shown.map((book) => (
-            <BookRow key={book.id} book={book} />
-          ))}
-          {searching && shown.length === 0 && (
-            <p className="cad-meta" data-testid="audiobook-no-matches">
-              No audiobooks match “{query.trim()}”.
-            </p>
-          )}
-        </section>
+        <LoadState
+          isLoading={false}
+          isEmpty={grouped.length === 0}
+          emptyTitle="No books ready to read along yet"
+          emptyMessage="Books show up here once Storyteller has synced their text and audio."
+          emptyIcon={bookOutline}
+        >
+          <section>
+            <h2 className="cad-headline">{sectionTitle(searching, filter)}</h2>
+            {shown.map((book) => (
+              <BookRow key={book.id} book={book} />
+            ))}
+            {searching && shown.length === 0 && (
+              <p className="cad-meta" data-testid="audiobook-no-matches">
+                No audiobooks match “{query.trim()}”.
+              </p>
+            )}
+          </section>
+        </LoadState>
       </div>
     </LoadState>
   );

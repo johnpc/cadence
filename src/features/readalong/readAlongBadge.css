@@ -1,0 +1,25 @@
+/* The read-along marker on a book row / book header. It never shrinks: the
+   row's meta text ellipsizes before the badge does, so a row keeps its height
+   and the marker stays legible at 320 px. */
+.readalong-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cad-space-1);
+  flex: 0 0 auto;
+  font-family: var(--cad-font-sans);
+  font-size: var(--cad-text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.readalong-badge ion-icon {
+  font-size: var(--cad-text-sm);
+}
+
+.readalong-badge--ready {
+  color: var(--cad-accent-text);
+}
+
+.readalong-badge--aligning {
+  color: var(--cad-text-tertiary);
+}
